@@ -1,0 +1,36 @@
+# vue files
+node_modules
+.DS_Store
+dist
+*.local
+
+# credentials
+**/credentials.*
+**/credentials
+credentials
+
+# config files
+.vscode
+
+# images
+**/*.jpg
+**/*.png
+**/*.gif
+**/*.ico
+**/*.svg
+**/*.webp
+
+# text files, except a requirements file, should it exist
+*.log
+*.txt
+*.out
+!requirements.txt
+
+# experimental things
+ignore*
+
+# grab template files
+!*template.*
+
+# grab ALL markdown files. These are all readmes, setups, and tutorials
+!**/*.md
