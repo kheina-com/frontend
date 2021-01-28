@@ -1,0 +1,8 @@
+{
+	"plugins": [
+		"vue"
+	],
+	"rules": {
+		"vue/valid-template-root": 0
+	}
+}
