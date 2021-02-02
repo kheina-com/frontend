@@ -61,7 +61,6 @@ export default {
 	margin: 4px 0 0;
 	font-size: 0.9rem;
 	white-space: nowrap;
-	padding: 0 0 1.5em;
 	text-align: center;
 }
 .footer .anchor

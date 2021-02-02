@@ -137,25 +137,6 @@ pre, code, .code
 	font-size: 0.9em;
 	font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace;
 }
-html
-{
-	--fadetime: 0.15s;
-	--warning: yellow;
-	--error: darkred;
-	--valid: green;
-	--mature: #009DA6;
-	--explicit: #A32121;
-	--icolor: #F29B17; /* F1B636 */
-	--bgcolor: #1E1F25;
-	--boxcolor: #151416;
-	--textcolor: #DDD;
-	--blackcolor: #000000;
-	--bordercolor: #2D333A;
-	--borderhover: #F29B17;
-	--subtlecolor: #EEEEEE80;
-	--shadowcolor: #00000080;
-	--activeshadowcolor: #000000B3;
-}
 body
 {
 	height: 100vh;
@@ -214,14 +195,6 @@ a:hover
 { background: var(--blackcolor); }
 form, p
 { margin: 0; }
-main
-{
-	background: var(--bgcolor);
-	min-height: calc(4rem + 50px);
-	position: relative;
-	padding: 25px;
-	overflow: hidden;
-}
 .mascot
 {
 	position: absolute;
@@ -387,8 +360,32 @@ body
 { display: block !important;}
 
 
-/*body.kheina
-{ / * reset, no variables needed * / }*/
+html
+{
+	--fadetime: 0.15s;
+	--warning: yellow;
+	--error: darkred;
+	--valid: green;
+	--mature: #009DA6;
+	--explicit: #A32121;
+	--icolor: #F29B17; /* F1B636 */
+	--bgcolor: #1E1F25;
+	--boxcolor: #151416;
+	--textcolor: #DDD;
+	--blackcolor: #000000;
+	--bordercolor: #2D333A;
+	--borderhover: #F29B17;
+	--subtlecolor: #EEEEEE80;
+	--shadowcolor: #00000080;
+	--activeshadowcolor: #000000B3;
+
+	--pink: #a21ba2;
+	--green: forestgreen;
+	--blue: steelblue;
+	--red: #c44f3b;
+	--cyan: darkcyan;
+	--violet: rebeccapurple;
+}
 
 div.loadingicon img
 { filter: sepia(100%) saturate(382%) hue-rotate(-2.8deg) brightness(113.5%); }
@@ -419,6 +416,13 @@ html.e621
 	--subtlecolor: #B4C7D9;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
+
+	--pink: #f2ac08;
+	--green: #0a0;
+	--red: #ed5d1f;
+	--cyan: #b4c7d9;
+	--blue: #bb53ca;
+	/* sienna */
 }
 html.e621 body
 {
@@ -506,6 +510,13 @@ html.solarized-dark
 	--subtlecolor: #657b83;
 	--shadowcolor: #002b36;
 	--activeshadowcolor: #2aa19820;
+
+	--pink: #d33682;
+	--green: #859900;
+	--blue: #268bd2;
+	--red: #cb4b16;
+	--cyan: #2aa198;
+	--violet: #6c71c4;
 }
 
 html.solarized-light
@@ -520,6 +531,13 @@ html.solarized-light
 	--subtlecolor: #839496;
 	--shadowcolor: #93a1a1;
 	--activeshadowcolor: #dc322f40;
+
+	--pink: #d33682;
+	--green: #859900;
+	--blue: #268bd2;
+	--red: #cb4b16;
+	--cyan: #2aa198;
+	--violet: #6c71c4;
 }
 
 html.furaffinity

@@ -6,6 +6,7 @@
 		"build": "vite build"
 	},
 	"dependencies": {
+		"marked": "^1.2.8",
 		"vue": "^3.0.0-beta.15",
 		"vue-resize-observer": "^1.0.32",
 		"vue-router": "^4.0.3"

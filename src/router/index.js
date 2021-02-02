@@ -3,14 +3,17 @@ import Home from '../views/Home.vue';
 import Post from '../views/Post.vue';
 import ImageSearch from '../views/ImageSearch.vue'
 import Search from '../views/Search.vue'
+import Login from '../views/Login.vue'
+import CreateAccount from '../views/CreateAccount.vue'
+import FinalizeAccount from '../views/FinalizeAccount.vue'
 
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
 const routes = [
 	{
 		path: '/',
-		name: 'Home',
-		component: Home,
+		name: 'home',
+		component: ImageSearch,
 		meta: {
 			title: 'kheina.com - the world\'s largest furry image index',
 			metaTags: [
@@ -39,7 +42,7 @@ const routes = [
 	},
 	{
 		path: '/search',
-		name: 'Search',
+		name: 'image-search',
 		component: ImageSearch,
 		meta: {
 			title: 'kheina.com - the world\'s largest furry image index',
@@ -66,11 +69,27 @@ const routes = [
 				},
 			],
 		},
+		children: [
+			{
+				path: 'test',
+				name: 'test',
+				component: Login,
+				meta: {
+					title: 'Sign in to kheina.com',
+					metaTags: [
+						{
+							property: 'og:title',
+							content: 'Manage your kheina.com account.',
+						},
+					],
+				},
+			},
+		],
 	},
 	{
 		path: '/account',
-		name: 'Account',
-		component: ImageSearch,
+		name: 'account',
+		component: Login,
 		meta: {
 			title: 'Manage your account',
 			metaTags: [
@@ -88,19 +107,76 @@ const routes = [
 				},
 			],
 		},
-		children: [
-			{
-				path: 'login',
-				name: 'Login',
-				component: ImageSearch,
-				meta: {
-					title: 'Sign in to kheina.com',
+	},
+	{
+		path: '/account/login',
+		name: 'login',
+		component: Login,
+		meta: {
+			title: 'Sign in to kheina.com',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Manage your kheina.com account.',
 				},
-			},
-		],
+				{
+					property: 'og:image',
+					content: '/static/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/account/create',
+		name: 'create',
+		component: CreateAccount,
+		meta: {
+			title: 'Create an account on kheina.com',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Create an account on kheina.com.',
+				},
+				{
+					property: 'og:image',
+					content: '/static/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/account/finalize',
+		name: 'finalize',
+		component: FinalizeAccount,
+		meta: {
+			title: 'Finish creating your account',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Finish creating your kheina.com account.',
+				},
+				{
+					property: 'og:image',
+					content: '/static/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
 	},
 	{
 		path: '/p/:postId',
+		name: 'post',
 		props: true,
 		component: Post,
 		meta: {
@@ -118,6 +194,7 @@ const routes = [
 	},
 	{
 		path: '/s/:query',
+		name: 'search',
 		props: true,
 		component: Search,
 		meta: {
@@ -135,6 +212,7 @@ const routes = [
 	},
 	// {
 	// 	path: '/:handle',
+	// 	name: 'user',
 	// 	props: true,
 	// 	component: User,
 	// 	meta: {

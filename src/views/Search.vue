@@ -21,7 +21,7 @@
 
 <script>
 import { tagSplit, getMediaThumbnailUrl, isMobile } from '../utilities';
-import { apiErrorMessage } from '../config/constants';
+import { apiErrorMessage, postsHost } from '../config/constants';
 import Loading from '../components/Loading.vue';
 import Title from '../components/Title.vue';
 import Subtitle from '../components/Subtitle.vue';
@@ -51,17 +51,21 @@ export default {
 	},
 	created() {
 		const route = useRoute();
-		fetch('http://dev.kheina.com/posts/v1/fetch_posts', {
+		console.log(tagSplit(this.query));
+		fetch(`${postsHost}/v1/fetch_posts`,
+			{
 				method: 'POST',
+				credentials: 'include',
 				headers: {
 					'content-type': 'application/json',
+					'authorization': getCookie('kh-auth'),
 				},
 				body: JSON.stringify({
 					sort: route.query.sort ? route.query.sort : 'hot',
 					tags: tagSplit(this.query),
 				}),
-			}
-		).then(response => {
+			})
+			.then(response => {
 				response.json()
 					.then(r => {
 						if (response.status < 300)

@@ -1,20 +1,24 @@
 <template>
-	<Title static>Error</Title>
-	<Subtitle style='margin: 0 0 25px' static>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
-	<p class='message'>Hmmm, looks like something went wrong.</p>
-	<div class='top'>
-		<pre class='message'>{{error ? error + '\n' : ''}}{{message}}</pre>
-	</div>
-	<div v-if='dump'>
-		<p class='message'>If you submit a bug report, please include the data below.</p>
-		<CopyText :content='dump' />
-	</div>
-	<router-link :to='`/`' class='interactable centerx'>home</router-link>
+	<main style='display: block'>
+		<Title static='center'>Error</Title>
+		<Subtitle style='margin: 0 0 25px' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
+		<p class='message'>Hmmm, looks like something went wrong.</p>
+		<div class='top'>
+			<pre class='message'>{{error ? error + '\n' : ''}}{{message}}</pre>
+		</div>
+		<div v-if='dump'>
+			<p class='message'>If you submit a bug report, please include the data below.</p>
+			<CopyText :content='dump' />
+		</div>
+		<router-link :to='`/`' class='interactable centerx'>home</router-link>
+		<ThemeMenu />
+	</main>
 </template>
 <script>
 import Subtitle from './Subtitle.vue'
 import Title from './Title.vue'
 import CopyText from './CopyText.vue'
+import ThemeMenu from './ThemeMenu.vue';
 
 export default {
 	name: 'ProgressBar',
@@ -22,6 +26,7 @@ export default {
 		Subtitle,
 		Title,
 		CopyText,
+		ThemeMenu,
 	},
 	props: {
 		message: String,
@@ -38,7 +43,13 @@ export default {
 </script>
 
 <style scoped>
-
+main {
+	background: var(--bgcolor);
+	position: relative;
+	padding: 25px;
+	overflow: hidden;
+	display: block;
+}
 .top
 {
 	width: 800px;

@@ -1,7 +1,7 @@
 export default 0;
 
-export function setCookie(name, value)
-{ document.cookie = name + '=' + escape(value) + '; max-age=86400; samesite=strict; path=/; secure'; console.log('test'); };
+export function setCookie(name, value, maxage=86400)
+{ document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=strict; path=/; secure`; };
 
 export function getCookie(cookieName)
 {
@@ -15,7 +15,7 @@ export function getCookie(cookieName)
 		if (c.indexOf(name) == 0)
 		{ return decodeURIComponent(c.substring(name.length, c.length)); }
 	}
-	return '';
+	return null;
 };
 
 export function commafy(x)
@@ -49,4 +49,15 @@ export function isMobile()
 export function tagSplit(tags)
 {
 	return tags.split(',').map(x => x.trim());
+}
+
+export function sortTagGroups(tags)
+{
+	let sorted = { };
+	['artist', 'sponsor', 'participant', 'species', 'gender', 'misc']
+	.forEach(i => {
+		if (tags.hasOwnProperty(i))
+		{ sorted[i] = tags[i]; }
+	});
+	return sorted;
 }

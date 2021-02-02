@@ -1,13 +1,13 @@
 <template>
 	<div>
 		<input type='text' class='code' :value='copyValue' readonly />
-		<a role='button' @click='copy'><i class="material-icons">content_copy</i></a>
+		<a role='button' @click='copy'><i class='material-icons'>content_copy</i></a>
 	</div>
 </template>
 
 <script>
 export default {
-	name: 'Loading',
+	name: 'CopyText',
 	props: {
 		content: Object,
 	},

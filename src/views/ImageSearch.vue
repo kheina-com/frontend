@@ -4,8 +4,8 @@
 			<template v-slot:onLoad>
 				<ProgressBar :fill='uploadProgress' textColor='#000000'>{{uploadProgress < 1 ? 'uploading...' : 'processing...'}}</ProgressBar>
 			</template>
-			<Title static>Reverse Image Search<template v-slot:super><a href='https://gitlab.com/kheina.com'>beta</a></template></Title>
-			<Subtitle static>
+			<Title static='center'>Reverse Image Search<template v-slot:super><a href='https://gitlab.com/kheina.com'>beta</a></template></Title>
+			<Subtitle static='center'>
 				{{(stats && stats.hasOwnProperty('images')) ? commafy(stats.images) : ''}} images - 
 				{{(stats && stats.hasOwnProperty('artists')) ? commafy(stats.artists) : ''}} artists - 
 				{{(stats && stats.hasOwnProperty('sources')) ? commafy(stats.sources) : ''}} sources
@@ -25,7 +25,7 @@
 						{ val: 2, content: 'Explicit' },
 					]"
 				/>
-				<SubmitButton :onClick='search'>Submit »</SubmitButton>
+				<Submit :onClick='search'>Submit »</Submit>
 			</form>
 			<p class='center'>
 				maximum file size: 8192 KB<br>
@@ -43,7 +43,7 @@
 <script>
 import { setCookie, commafy } from '../utilities';
 import RadioButtons from '../components/RadioButtons.vue'
-import SubmitButton from '../components/SubmitButton.vue'
+import Submit from '../components/Submit.vue'
 import UrlField from '../components/UrlField.vue'
 import FileField from '../components/FileField.vue'
 import Loading from '../components/Loading.vue'
@@ -78,7 +78,7 @@ export default {
 	components: {
 		ThemeMenu,
 		RadioButtons,
-		SubmitButton,
+		Submit,
 		UrlField,
 		FileField,
 		Loading,
@@ -177,6 +177,13 @@ export default {
 </script>
 
 <style scoped>
+main {
+	background: var(--bgcolor);
+	position: relative;
+	padding: 25px;
+	overflow: hidden;
+	display: block;
+}
 form .text
 {
 	width: 100%;

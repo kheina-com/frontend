@@ -7,10 +7,13 @@
 
 <script>
 export default {
-	name: 'RadioButton',
+	name: 'Submit',
 	props: {
 		value: String,
-		onClick: Function,
+		onClick: {
+			type: Function,
+			default: () => { },
+		},
 	}
 }
 </script>
@@ -18,12 +21,11 @@ export default {
 <style scoped>
 .submit
 {
-	position: absolute;
 	right: 0;
 }
 input#submit
 {
-	position: absolute;
+	display: none;
 	top: -100vh;
 	opacity: 0;
 	height: 0;

@@ -1,8 +1,8 @@
 <template>
-	<h4>{{group === null ? 'loading' : group}}</h4>
+	<h4>{{group}}</h4>
 	<ul>
 		<li v-if='tags !== null' v-for='tag in tags'>
-			<router-link :to='`/s/${tag}`'>
+			<router-link :to='`/s/${tag}`' :style='`color: var(${colorMap[group]})`'>
 				{{tag}}
 			</router-link>
 		</li>
@@ -29,6 +29,14 @@ export default {
 			post: null,
 			errorDump: null,
 			errorMessage: null,
+			colorMap: {
+				artist: '--pink',
+				sponsor: '--green',
+				participant: '--violet',
+				species: '--red',
+				gender: '--blue',
+				misc: '--cyan',
+			},
 		}
 	},
 	components: {
@@ -43,6 +51,8 @@ export default {
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
 	},
 	methods: {
+		getColorGroup(tagGroup) {
+		},
 	},
 }
 </script>

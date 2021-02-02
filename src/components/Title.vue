@@ -1,10 +1,15 @@
 <template>
-	<p :class='titleClass' :style='titleStyle'><slot name='default' /><span class='super'><slot name='super' /></span></p>
+	<Loading :span='span' :isLoading='isLoading'><p :class='titleClass' :style='titleStyle'><slot name='default' /><span class='super'><slot name='super' /></span></p></Loading>
 </template>
 
 <script>
+import Loading from '../components/Loading.vue';
+
 export default {
 	name: 'Title',
+	components: {
+		Loading,
+	},
 	props: {
 		static: {
 			type: String,
@@ -13,6 +18,14 @@ export default {
 		size: {
 			type: String,
 			default: '4rem',
+		},
+		isLoading: {
+			type: Boolean,
+			default: false,
+		},
+		span: {
+			type: Boolean,
+			default: false,
 		}
 	},
 	computed: {
@@ -20,7 +33,7 @@ export default {
 			return this.static ? '' : 'title';
 		},
 		titleStyle() {
-			return `font-size: ${this.size}; text-align: ${this.static}`
+			return `font-size: ${this.size}; text-align: ${this.static};`;
 		},
 	},
 }

@@ -1,15 +1,21 @@
 <template>
 	<div>
 		<h3>Tags</h3>
-		<ul>
-			<li v-if='tags !== null' v-for='(value, name) in tags'>
+		<ul v-if='tags'>
+			<li v-for='(value, name) in sortTagGroups(tags)'>
 				<TagGroup :group='name' :tags='value' />
+			</li>
+		</ul>
+		<ul v-else>
+			<li v-for='i in 3'>
+				<Loading style='height: 1em' />
 			</li>
 		</ul>
 	</div>
 </template>
 
 <script>
+import { getMediaThumbnailUrl, sortTagGroups } from '../utilities'
 import Loading from './Loading.vue'
 import TagGroup from './TagGroup.vue'
 
@@ -38,9 +44,10 @@ export default {
 		isError()
 		{ return this.errorDump !== null || this.errorMessage !== null; },
 		mediaUrl()
-		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
+		{ return this.post !== null ? getMediaThumbnailUrl(this.postId, this.post.filename) : ''; },
 	},
 	methods: {
+		sortTagGroups,
 	},
 }
 </script>
@@ -56,7 +63,18 @@ ul {
 	margin: 0 0 0 25px;
 	padding: 0;
 }
+ul li {
+	margin: 0 0 0.5em;
+}
 h4 {
 	margin: 0.25em 0;
+}
+</style>
+
+<style scoped>
+ul {
+	list-style: none;
+	margin: 0 25px 0;
+	padding: 0;
 }
 </style>

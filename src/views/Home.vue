@@ -25,7 +25,7 @@
 						{ val: 2, content: "Explicit" },
 					]'
 				/>
-				<SubmitButton :onClick='search'>Submit »</SubmitButton>
+				<Submit :onClick='search'>Submit »</Submit>
 			</form>
 			<p class='center'>
 				maximum file size: 8192 KB<br>
@@ -42,7 +42,7 @@
 <script>
 import { setCookie, commafy } from '../utilities';
 import RadioButtons from '../components/RadioButtons.vue'
-import SubmitButton from '../components/SubmitButton.vue'
+import Submit from '../components/Submit.vue'
 import UrlField from '../components/UrlField.vue'
 import FileField from '../components/FileField.vue'
 import Loading from '../components/Loading.vue'
@@ -75,7 +75,7 @@ export default {
 	},
 	components: {
 		RadioButtons,
-		SubmitButton,
+		Submit,
 		UrlField,
 		FileField,
 		Loading,

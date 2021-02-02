@@ -28,6 +28,8 @@ export default {
 		toggleDisplayType()
 		{ this.displayAbsolute = !this.displayAbsolute; },
 		prettyTime(time, fixed=2) {
+			if (time === null)
+			{ return null; }
 			let conversion = 1;
 			let units = 'seconds';
 			if (time > 31556952)

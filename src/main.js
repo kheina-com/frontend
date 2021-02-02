@@ -10,7 +10,7 @@ Router.beforeEach((to, from, next) => {
 	// eg. if we have /some/deep/nested/route, /route's metadata will be prioritized, with nested, deep, some, being used for fallback
 
 	let meta = { };
-	to.matched.slice().reverse().forEach(route => {
+	to.matched.slice().forEach(route => {
 		if (route.meta)
 		{ meta = Object.assign(meta, route.meta) }
 	});

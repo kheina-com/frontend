@@ -1,13 +1,20 @@
 <template>
 	<a :href='src' class='media'>
-		<img :src='src' :alt='alt' @load='load' style='{{style}}' v-if='isImage'>
-		<video :src='src' :title='alt' :controls='controls' @load='load' style='{{style}}' v-else-if='isVideo' >Your browser does not support this type of video.</video>
+		<Loading :isLoading='isLoading' :style='linkStyle'>
+			<video :src='src' :title='alt' :controls='controls' @load='onLoad' :style='style' v-if='isVideo' >Your browser does not support this type of video.</video>
+			<img :src='src' :alt='alt' @load='onLoad' :style='style' v-else>
+		</Loading>
 	</a>
 </template>
 
 <script>
+import Loading from '../components/Loading.vue';
+
 export default {
 	name: 'Media',
+	components: {
+		Loading,
+	},
 	props: {
 		mime: {
 			type: String,
@@ -36,13 +43,34 @@ export default {
 		style: {
 			type: String,
 			default: null,
-		}
+		},
+		loadingStyle: {
+			type: String,
+			default: 'width: 30vw; height: 30vh;',
+		},
+	},
+	data() {
+		return {
+			isLoading: true,
+		};
 	},
 	computed: {
 		isImage()
-		{ return this.mime.startsWith('image'); },
+		{ return this.mime && this.mime.startsWith('image'); },
 		isVideo()
-		{ return this.mime.startsWith('video'); },
+		{ return this.mime && this.mime.startsWith('video'); },
+		linkStyle()
+		{ return this.isLoading ? this.loadingStyle : null; },
+	},
+	mounted() {
+		this.load();
+	},
+	methods: {
+		onLoad() {
+			this.isLoading = false;
+			// don't ask me why the timeout is necessary, I don't know.
+			setTimeout(this.load, 0.000001); // just set it to 1ns, I guess
+		},
 	},
 }
 </script>

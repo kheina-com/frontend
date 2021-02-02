@@ -1,5 +1,5 @@
 <template>
-	<div class='cookies' v-show='displayWindow'>
+	<div class='cookies' v-if='displayWindow'>
 		<span>This website uses cookies.</span>
 		<a id='cookies' class='interactable' @click='goAway'>coolio</a>
 	</div>
@@ -20,7 +20,7 @@ export default {
 	},
 	methods: {
 		goAway() {
-			setCookie('cookies', true);
+			setCookie('cookies', true, 31536000);
 			this.displayWindow = false;
 		},
 	},
