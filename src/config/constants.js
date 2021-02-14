@@ -34,21 +34,21 @@ switch (environment)
 	case 'prod' :
 		pHost = 'https://posts.kheina.com';
 		tHost = 'https://tags.kheina.com';
-		aHost = 'https://posts.kheina.com';
-		uHost = 'https://posts.kheina.com';
+		aHost = 'https://account.kheina.com';
+		uHost = 'https://upload.kheina.com';
 		break;
 
 	case 'dev' :
 		pHost = 'https://dev.kheina.com/posts';
 		tHost = 'https://dev.kheina.com/tags';
-		aHost = 'https://dev.kheina.com/account';
+		aHost = 'https://dev.kheina.com/acct';
 		uHost = 'https://dev.kheina.com/upload';
 		break;
 
 	case 'local' :
 		pHost = 'https://dev.kheina.com/posts';
 		tHost = 'https://dev.kheina.com/tags';
-		aHost = 'https://dev.kheina.com/account';
+		aHost = 'https://dev.kheina.com/acct';
 		uHost = 'https://dev.kheina.com/upload';
 		break;
 }
