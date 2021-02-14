@@ -29,11 +29,11 @@ export default {
 	},
 	computed: {
 		content()
-		{ return document.getElementById('content') || null; },
+		{ return document.getElementById('content'); },
 	},
 	mounted() {
 		this.ResizeSensor(this.content, this.onResize);
-		onResize();
+		this.onResize();
 	},
 	methods: {
 		onResize() {
