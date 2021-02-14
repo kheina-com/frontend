@@ -12,14 +12,6 @@ credentials
 # config files
 .vscode
 
-# images
-**/*.jpg
-**/*.png
-**/*.gif
-**/*.ico
-**/*.svg
-**/*.webp
-
 # text files, except a requirements file, should it exist
 *.log
 *.txt
