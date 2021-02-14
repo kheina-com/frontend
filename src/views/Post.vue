@@ -279,6 +279,7 @@ emojis can be accessed by surrounding the emoji's code with \`:\` characters: :h
 emojis can be accessed by surrounding the emoji's code with \`:\` characters: :heck:
 
 						`.trim();
+					/**/
 					});
 			})
 			.catch(error => {

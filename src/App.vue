@@ -27,21 +27,22 @@ export default {
 			stats: null,
 		}
 	},
-	created() {
+	computed: {
+		content()
+		{ return document.getElementById('content') || null; },
 	},
 	mounted() {
-		content = document.getElementById('content');
-		this.ResizeSensor(content, this.onResize);
-		this.onResize();
+		this.ResizeSensor(this.content, this.onResize);
+		onResize();
 	},
 	methods: {
 		onResize() {
-			// console.log('top', content.offsetTop, 'content', content.clientHeight, 'window', window.innerHeight);
-			if (content.offsetTop - content.clientHeight / 2 <= 128)
+			// console.log('top', this.content.offsetTop, 'content', this.content.clientHeight, 'window', window.innerHeight);
+			if (this.content.offsetTop - this.content.clientHeight / 2 <= 128)
 			{
-				content.className = 'topy';
-				if (content.clientHeight + 256 < window.innerHeight)
-				{ content.className = 'centery'; }
+				this.content.className = 'topy';
+				if (this.content.clientHeight + 256 < window.innerHeight)
+				{ this.content.className = 'centery'; }
 			}
 		},
 		ResizeSensor(element, callback)
