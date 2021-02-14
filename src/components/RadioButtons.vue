@@ -50,7 +50,7 @@ label
 	padding: 0.5em 1em;
 	margin: 0 25px 0 0;
 	border: 1px solid var(--bordercolor);
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	border-radius: 3px;
 	white-space: nowrap;
@@ -74,7 +74,7 @@ label div.checkmark, label div.radio
 	width: 1.2em;
 	top: 0.25em;
 	border-radius: 3px;
-	background: var(--bgcolor);
+	background: var(--bg1color);
 	pointer-events: none;
 }
 label div.checkmark div, label div.radio div

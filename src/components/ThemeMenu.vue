@@ -92,7 +92,7 @@ export default {
 {
 	padding: 0;
 	margin: 0;
-	background: var(--bgcolor);
+	background: var(--bg1color);
 }
 .theme-menu select.interactable option
 { color: var(--textcolor) !important; }
@@ -120,7 +120,7 @@ export default {
 	border-top-left-radius: 3px;
 	position: absolute;
 	pointer-events: all;
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	padding: 25px 50px 50px 25px;
 	border-left: 1px solid var(--bordercolor);
 	border-top: 1px solid var(--bordercolor);
@@ -137,7 +137,7 @@ export default {
 select
 {
 	border-radius: 3px;
-	background: var(--bgcolor);
+	background: var(--bg1color);
 	color: var(--textcolor);
 	border: 1px solid var(--bordercolor);
 	width: 125px;

@@ -21,7 +21,7 @@ export default {
 	position: absolute;
 	top: 0;
 	width: 100%;
-	background: var(--bgcolor);
+	background: var(--bg1color);
 	top: 0;
 }
 .banner p

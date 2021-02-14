@@ -39,7 +39,7 @@ a
 	position: absolute;
 	right: 0.3em;
 	top: 0.4em;
-	background: linear-gradient(to right, #0000 0, var(--boxcolor) 50%);
+	background: linear-gradient(to right, #0000 0, var(--bg2color) 50%);
 	padding-left: 1.5em;
 	height: 1em;
 }
@@ -59,7 +59,7 @@ input
 	cursor: text;
 	color: var(--textolor);
 	padding: 8px;
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	white-space: pre-wrap;
 	border: 1px solid var(--bordercolor);
 	border-radius: 3px;

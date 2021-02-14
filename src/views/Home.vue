@@ -189,7 +189,7 @@ input
 	display: inline-block;
 	border: 1px solid var(--bordercolor);
 	border-radius: 3px;
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	color: var(--textcolor);
 	font-size: 1em;
 	padding: 1px 3px;

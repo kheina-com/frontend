@@ -142,13 +142,13 @@ body
 	height: 100vh;
 	width: 100vw;
 	position: absolute;
-	background: var(--blackcolor);
+	background: var(--bg0color);
 	background-size: cover;
 	background-position: center;
 }
 body, html
 {
-	background: var(--blackcolor);	
+	background: var(--bg0color);	
 	position: relative;
 	z-index: -5;
 	margin: 0;
@@ -167,10 +167,8 @@ a, input, label
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 }
-a:link
+a:link, a:visited
 { color: var(--textcolor); }
-a:visited
-{ color: inherit; }
 a:hover
 {
 	color: var(--icolor) !important;
@@ -182,17 +180,17 @@ a:hover
 	height:12px;
 }
 ::-webkit-scrollbar-track
-{ background: var(--boxcolor); }
+{ background: var(--bg2color); }
 ::-webkit-scrollbar-thumb
 {
 	background: #4D535A;
 	border-radius: 4px;
-	border: 2px solid var(--boxcolor);
+	border: 2px solid var(--bg2color);
 }
 ::-webkit-scrollbar-thumb:hover
 { background: var(--icolor); }
 ::-webkit-scrollbar-corner
-{ background: var(--blackcolor); }
+{ background: var(--bg0color); }
 form, p
 { margin: 0; }
 .mascot
@@ -237,7 +235,7 @@ form, p
 	display: inline-block;
 	font-weight: normal;
 	white-space: nowrap;
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	box-sizing: border-box;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	-webkit-transition: ease var(--fadetime);
@@ -290,7 +288,7 @@ p.center
 .source
 {
 	position: relative;
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	border-radius: 3px;
 	padding: 8px;
 	border: 1px solid var(--bordercolor);
@@ -328,7 +326,7 @@ h3#percent
 	right: 8px;
 	bottom: 8px;
 	margin: 0;
-	background: var(--boxcolor);
+	background: var(--bg2color);
 }
 
 data
@@ -369,17 +367,18 @@ html
 	--mature: #009DA6;
 	--explicit: #A32121;
 	--icolor: #F29B17; /* F1B636 */
-	--bgcolor: #1E1F25;
-	--boxcolor: #151416;
+	--bg0color: #000000;
+	--bg1color: #1E1F25;
+	--bg2color: #151416;
+	--bg3color: var(--bordercolor);
 	--textcolor: #DDD;
-	--blackcolor: #000000;
 	--bordercolor: #2D333A;
 	--borderhover: #F29B17;
 	--subtlecolor: #EEEEEE80;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
 
-	--pink: #a21ba2;
+	--pink: #aa23aa;
 	--green: forestgreen;
 	--blue: steelblue;
 	--red: #c44f3b;
@@ -393,10 +392,10 @@ div.loadingicon img
 html.light
 {
 	--icolor: #F28817;
-	--bgcolor: #E0E4E8;
-	--boxcolor: #D8D9E0;
+	--bg0color: #C3C4CE;
+	--bg1color: #E0E4E8;
+	--bg2color: #D8D9E0;
 	--textcolor: #222222;
-	--blackcolor: #C3C4CE;
 	--bordercolor: #2D333A;
 	--borderhover: #F28817;
 	--subtlecolor: #00000080;
@@ -407,10 +406,10 @@ html.light
 html.e621
 {
 	--icolor: #2E76B4;
-	--bgcolor: #152F56;
-	--boxcolor: #213A5F;
+	--bg0color: #031131;
+	--bg1color: #152F56;
+	--bg2color: #213A5F;
 	--textcolor: #EEE;
-	--blackcolor: #031131;
 	--bordercolor: #0000;
 	--borderhover: #0000;
 	--subtlecolor: #B4C7D9;
@@ -421,7 +420,7 @@ html.e621
 	--green: #0a0;
 	--red: #ed5d1f;
 	--cyan: #b4c7d9;
-	--blue: #bb53ca;
+	--blue: #d0d;
 	/* sienna */
 }
 html.e621 body
@@ -442,10 +441,10 @@ html.e621 div.themes
 html.youtube
 {
 	--icolor: #FFF;
-	--bgcolor: #272727;
-	--boxcolor: #383838;
+	--bg0color: #121212;
+	--bg1color: #272727;
+	--bg2color: #383838;
 	--textcolor: #EEE;
-	--blackcolor: #121212;
 	--bordercolor: #404040;
 	--borderhover: #747474;
 	--subtlecolor: #909090;
@@ -456,10 +455,10 @@ html.youtube
 html.wikipedia
 {
 	--icolor: #0645AD;
-	--bgcolor: #FFF;
-	--boxcolor: #F8F9FA;
+	--bg0color: #F6F6F6;
+	--bg1color: #FFF;
+	--bg2color: #F8F9FA;
 	--textcolor: #222222;
-	--blackcolor: #F6F6F6;
 	--bordercolor: #C8CCD1;
 	--borderhover: #A7D7F9;
 	--subtlecolor: #54595D;
@@ -486,10 +485,10 @@ html.e621 .more .source .left
 html.terminal
 {
 	--icolor: #008000;
-	--bgcolor: #000000;
-	--boxcolor: #000000;
+	--bg0color: #000000;
+	--bg1color: #000000;
+	--bg2color: #000000;
 	--textcolor: #00FF00;
-	--blackcolor: #000000;
 	--bordercolor: #00FF00;
 	--borderhover: #008000;
 	--subtlecolor: #008000;
@@ -501,10 +500,10 @@ html.terminal
 html.solarized-dark
 {
 	--icolor: #b58900;
-	--bgcolor: #073642;
-	--boxcolor: #002b36;
+	--bg0color: #002b36;
+	--bg1color: #073642;
+	--bg2color: #002b36;
 	--textcolor: #93a1a1;
-	--blackcolor: #002b36;
 	--bordercolor: #586e75;
 	--borderhover: #b58900;
 	--subtlecolor: #657b83;
@@ -522,10 +521,10 @@ html.solarized-dark
 html.solarized-light
 {
 	--icolor: #cb4b16;
-	--bgcolor: #eee8d5;
-	--boxcolor: #fdf6e3;
+	--bg0color: #fdf6e3;
+	--bg1color: #eee8d5;
+	--bg2color: #fdf6e3;
 	--textcolor: #586e75;
-	--blackcolor: #fdf6e3;
 	--bordercolor: #586e75;
 	--borderhover: #cb4b16;
 	--subtlecolor: #839496;
@@ -543,10 +542,10 @@ html.solarized-light
 html.furaffinity
 {
 	--icolor: #AFAFAF;
-	--bgcolor: #2E3B41;
-	--boxcolor: #6A7283;
+	--bg0color: #2E3B41;
+	--bg1color: #2E3B41;
+	--bg2color: #6A7283;
 	--textcolor: #FFF;
-	--blackcolor: #2E3B41;
 	--bordercolor: #DCDCDC;
 	--borderhover: #AFAFAF;
 	--subtlecolor: #CFCFCF;
@@ -562,10 +561,10 @@ html.furaffinity main
 html.discord
 {
 	--icolor: #7289DA;
-	--bgcolor: #2F3136;
-	--boxcolor: #26272B;
+	--bg0color: #202225;
+	--bg1color: #2F3136;
+	--bg2color: #26272B;
 	--textcolor: #DCDDDE;
-	--blackcolor: #202225;
 	--bordercolor: #1E1F23;
 	--borderhover: #7289DA;
 	--subtlecolor: #72767D;
@@ -576,10 +575,10 @@ html.discord
 html.xfire
 {
 	--icolor: #3D73D7;
-	--bgcolor: #12283F;
-	--boxcolor: #1D1C22;
+	--bg0color: #000000;
+	--bg1color: #12283F;
+	--bg2color: #1D1C22;
 	--textcolor: #ABC6E3;
-	--blackcolor: #000000;
 	--bordercolor: #00020A;
 	--borderhover: #3D73D7;
 	--subtlecolor: #ABC6E3A0;

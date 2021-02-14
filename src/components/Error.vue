@@ -44,7 +44,7 @@ export default {
 
 <style scoped>
 main {
-	background: var(--bgcolor);
+	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
 	overflow: hidden;
@@ -71,7 +71,7 @@ pre.message
 {
 	display: block;
 	padding: 8px 16px;
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	margin: 0 0 25px;
 	line-height: 2em;
 	white-space: pre-wrap;

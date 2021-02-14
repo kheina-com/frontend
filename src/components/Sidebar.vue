@@ -7,7 +7,7 @@
 			</li>
 		</ul>
 		<ul v-else>
-			<li v-for='i in 3'>
+			<li v-for='i in 3' style='margin: 0 0 5px'>
 				<Loading style='height: 1em' />
 			</li>
 		</ul>
@@ -52,26 +52,13 @@ export default {
 }
 </script>
 
-<style>
-h3 {
-	margin: 0 12px 12px;
-	border-bottom: solid 1px var(--bordercolor);
-	padding: 0 12px 12px;
-}
-ul {
-	list-style: none;
-	margin: 0 0 0 25px;
-	padding: 0;
-}
-ul li {
-	margin: 0 0 0.5em;
-}
-h4 {
-	margin: 0.25em 0;
-}
-</style>
-
 <style scoped>
+h3 {
+	margin: 0 12.5px 12px;
+	border-bottom: solid 1px var(--bordercolor);
+	padding: 0 12.5px 12px;
+}
+
 ul {
 	list-style: none;
 	margin: 0 25px 0;

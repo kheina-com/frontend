@@ -3,7 +3,7 @@
 	<ul>
 		<li v-if='tags !== null' v-for='tag in tags'>
 			<router-link :to='`/s/${tag}`' :style='`color: var(${colorMap[group]})`'>
-				{{tag}}
+				{{tag.replace(/_/g, ' ')}}
 			</router-link>
 		</li>
 	</ul>
@@ -58,5 +58,15 @@ export default {
 </script>
 
 <style scoped>
-
+ul {
+	list-style: none;
+	margin: 0 0 0 25px;
+	padding: 0;
+}
+ul li {
+	margin: 0 0 0.5em;
+}
+h4 {
+	margin: 0.25em 0;
+}
 </style>

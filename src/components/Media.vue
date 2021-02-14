@@ -1,8 +1,9 @@
 <template>
 	<a :href='src' class='media'>
 		<Loading :isLoading='isLoading' :style='linkStyle'>
-			<video :src='src' :title='alt' :controls='controls' @load='onLoad' :style='style' v-if='isVideo' >Your browser does not support this type of video.</video>
-			<img :src='src' :alt='alt' @load='onLoad' :style='style' v-else>
+			<p v-if='isError'>Could not load media.</p>
+			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo' >Your browser does not support this type of video.</video>
+			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
 		</Loading>
 	</a>
 </template>
@@ -52,6 +53,7 @@ export default {
 	data() {
 		return {
 			isLoading: true,
+			isError: false,
 		};
 	},
 	computed: {
@@ -60,7 +62,7 @@ export default {
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
 		linkStyle()
-		{ return this.isLoading ? this.loadingStyle : null; },
+		{ return this.isLoading ? this.loadingStyle : (this.isError ? 'background: var(--error); display: flex; justify-content: center; border-radius: 3px; ' + this.loadingStyle : null); },
 	},
 	mounted() {
 		this.load();
@@ -69,7 +71,16 @@ export default {
 		onLoad() {
 			this.isLoading = false;
 			// don't ask me why the timeout is necessary, I don't know.
-			setTimeout(this.load, 0.000001); // just set it to 1ns, I guess
+			setTimeout(this.load, 0);
+		},
+		onError(event) {
+			if (!this.mime || !this.src)
+			{ return; }
+			console.log(event);
+			this.isLoading = false;
+			this.isError = true;
+			// don't ask me why the timeout is necessary, I don't know.
+			setTimeout(this.load, 0);
 		},
 	},
 }
@@ -78,5 +89,9 @@ export default {
 <style scoped>
 .media img, .media video {
 	width: 100%;
+}
+.media p {
+	align-self: center;
+	text-align: center;
 }
 </style>

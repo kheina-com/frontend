@@ -94,8 +94,8 @@ div.loadingicon
 .loading.wave {
 	animation: wave 2s infinite linear forwards;
 	-webkit-animation: wave 2s infinite linear forwards;
-	background: var(--boxcolor);
-	background: linear-gradient(100deg, var(--boxcolor) 40vw, var(--bordercolor) 50vw, var(--boxcolor) 60vw);
+	background: var(--bg2color);
+	background: linear-gradient(100deg, var(--bg2color) 40vw, var(--bordercolor) 50vw, var(--bg2color) 60vw);
 	background-size: 100vw 100vh;
 }
 

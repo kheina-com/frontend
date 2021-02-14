@@ -138,7 +138,7 @@ export default {
 	right: 8px;
 	bottom: 8px;
 	margin: 0;
-	/* background: var(--boxcolor); */
+	/* background: var(--bg2color); */
 }
 
 .top .source h2
@@ -188,7 +188,7 @@ export default {
 	text-align: right;
 	position: absolute;
 	padding: 8px 8px 16px 50px;
-	background: linear-gradient(to right, #0000 0, var(--boxcolor) 50px, var(--boxcolor) 100%);
+	background: linear-gradient(to right, #0000 0, var(--bg2color) 50px, var(--bg2color) 100%);
 }
 .top .links a
 {

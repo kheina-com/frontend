@@ -165,14 +165,14 @@ export default {
 }
 .more .source div.right b
 {
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	position: relative;
 	top: -0.2em;
 	padding: 0 8px 0.1em 0;
 }
 .more .source div.right span
 {
-	background: linear-gradient(to right, #0000, var(--boxcolor));
+	background: linear-gradient(to right, #0000, var(--bg2color));
 	height: 1.2em;
 	width: 25px;	
 	display: inline-block;

@@ -54,7 +54,7 @@ export default {
 	width: calc(100% - 50px);
 	height: 1.1em;
 	border: 1px solid var(--bordercolor);
-	background: var(--boxcolor);
+	background: var(--bg2color);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	border-radius: 3px;
 	overflow: hidden;

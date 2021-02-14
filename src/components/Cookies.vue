@@ -33,7 +33,7 @@ div.cookies
 	position: fixed;
 	left: 25px;
 	bottom: 25px;
-	background: var(--bgcolor);
+	background: var(--bg1color);
 	border: 1px solid var(--bordercolor);
 	border-radius: 3px;
 	padding: 25px;
