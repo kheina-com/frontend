@@ -1,40 +1,41 @@
 <template>
-	<div class='container' v-if='!isError && !isMobile'>
-		<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
-		<div class='content'>
-			<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
-			<main v-resize='onResize'>
-				<Subtitle static='right' class='privacy' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-				<div class='post-header'>
-					<Score :score='post?.score' :postId='postId' />
-					<div>
-						<Title :isLoading='isLoading' size='2em' static='left'>{{post? post.title : 'this is an example title'}}</Title>
-						<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
-					</div>
-				</div>
-				<Loading :isLoading='isLoading' class='description' v-if='!post'><p>this is a very long example description</p></Loading>
-				<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
-				<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :time='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :time='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
-				<ThemeMenu />
-			</main>
-		</div>
-	</div>
-	<div class='content' v-else-if='!isError && isMobile'>
-		<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
-		<div class='container'>
+	<Error :dump='errorDump' :message='errorMessage'>
+		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
-			<main v-resize='onResize'>
-				<Subtitle static='right' class='privacy' v-if='true'>{{post?.privacy}}</Subtitle>
-				<Title :isLoading='isLoading' size='2rem' static='left'>{{post? post.title : 'this is an example title'}}</Title>
-				<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
-				<Loading :isLoading='isLoading' class='description' v-if='!post'><p>this is a very long example description</p></Loading>
-				<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
-				<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :time='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :time='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
-				<ThemeMenu />
-			</main>
+			<div class='content'>
+				<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
+				<main v-resize='onResize'>
+					<Subtitle static='right' class='privacy' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
+					<div class='post-header'>
+						<Score :score='post?.score' :postId='postId' />
+						<div>
+							<Title :isLoading='isLoading' size='2em' static='left'>{{post? post.title : 'this is an example title'}}</Title>
+							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
+						</div>
+					</div>
+					<Loading :isLoading='isLoading' class='description' v-if='!post'><p>this is a very long example description</p></Loading>
+					<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
+					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :time='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :time='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
+					<ThemeMenu />
+				</main>
+			</div>
 		</div>
-	</div>
-	<Error :dump='errorDump' :message='errorMessage' v-else/>
+		<div class='content' v-else-if='isMobile'>
+			<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
+			<div class='container'>
+				<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
+				<main v-resize='onResize'>
+					<Subtitle static='right' class='privacy' v-if='true'>{{post?.privacy}}</Subtitle>
+					<Title :isLoading='isLoading' size='2rem' static='left'>{{post? post.title : 'this is an example title'}}</Title>
+					<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
+					<Loading :isLoading='isLoading' class='description' v-if='!post'><p>this is a very long example description</p></Loading>
+					<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
+					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :time='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :time='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
+					<ThemeMenu />
+				</main>
+			</div>
+		</div>
+	</Error>
 </template>
 
 <script>
@@ -154,6 +155,23 @@ this is a
 \`\`\`
 a b @c d ^ e f ^ g h $ i j $ k l &m n ^o p %q r #s t u
 
+## An evil malicious script
+junk\n\n<img
+src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+
+nya,trickery<img src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+
+\`\`\`
+almost tricked you: <img src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+\`\`\`
+
+\\*some hot rp*
+
+> block quote
+> 1
+> 2
+> > a nested quote?
+
 # Markdown Guide
 There are many fantastic guides available for markdown! kheina.com recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!
 In addition to all the base markdown features, kheina.com has many extra features to make linking to other parts of the website faster and easier.
@@ -230,6 +248,13 @@ a codeblock
 \`\`\`
 a codeblock
 \`\`\`
+
+
+## Blockquote Example
+\`\`\`
+> blockquote
+\`\`\`
+> blockquote
 
 
 ## Table Example

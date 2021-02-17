@@ -107,6 +107,37 @@ export function khatch(url, options={ })
 	return fetch(url, options);
 }
 
+const htmlReplace = {
+	// '&': '&amp;',
+	'<': '&lt;',
+	'>': '&gt;',
+	'"': '&quot;',
+	"'": '&#039;',
+};
+
+const htmlRegex = new RegExp(`(?:${Object.keys(htmlReplace).join('|')})(?:.{0,4};)?`, 'g');
+console.log(htmlRegex.source)
+export function htmlEscape(html) {
+	return html.replaceAll(htmlRegex, match => {
+		if (match.length > 1 && Object.values(htmlReplace).includes(match))
+		{ return match; }
+		return htmlReplace[match];
+	});
+};
+
+const mdReplace = {
+	'&': '&amp;',
+	'<': '&lt;',
+	'"': '&quot;',
+	"'": '&#039;',
+};
+
+const mdRegex = new RegExp(Object.keys(mdReplace).join('|'), 'g');
+
+export function mdEscape(markdown) {
+	return markdown.replaceAll(mdRegex, match => mdReplace[match]);
+};
+
 const userLinks = {
 	'': '', // default
 	t: 'https://twitter.com',
@@ -119,9 +150,8 @@ const userLinks = {
 
 export const markdownTokenizer = {
 	url(src) {
-		const match = src.match(/^(\w*)([@#%^&:])([^\s\.]+)(\.[^\s]+)?/);
+		const match = src.match(/^(\w*)([@#%:^])([^\s\.]+)(\.[^\s]+)?/);
 		if (match) {
-			// console.log(`match: ${match[0]}`);
 			switch (match[2]) {
 				case '@':
 					if (userLinks.hasOwnProperty(match[1]))
@@ -149,27 +179,58 @@ export const markdownTokenizer = {
 						};
 					}
 				break;
+
 				case '^':
+					if (match[3].length === 8)
+					{
+						return {
+							type: 'link',
+							raw: match[0],
+							text: match[0],
+							href: `/p/${match[3]}`,
+							tokens: [
+								{
+									type: 'text',
+									raw: match[0],
+									text: match[0],
+								},
+							],
+						};
+					}
 					return {
-						type: 'link',
+						type: 'text',
 						raw: match[0],
 						text: match[0],
-						href: `/p/${match[3]}`,
-						tokens: [
-							{
-								type: 'text',
-								raw: match[0],
-								text: match[0],
-							},
-						],
 					};
-			break;
+
 				case ':':
-					if (match[1].length != 0 || !match[4].endsWith(':'))
+					console.log(match[0]);
+					if (match[1].length != 0 || match[4])
 					{ return false; }
-					// check if emoji exists
-					
+					else if (!match[3].endsWith(':'))
+					{
+						return {
+							type: 'text',
+							raw: match[0],
+							text: match[0],
+						};
+					}
+					else
+					{
+						const emoji = match[3].substring(0, match[3].length - 1);
+
+						// check if emoji exists
+
+						return {
+							type: 'image',
+							raw: match[0],
+							text: emoji,
+							title: null,
+							href: getMediaUrl('emoji', `${emoji}.webp`),
+						};
+					}
 				break;
+
 				default:
 					return {
 						type: 'text',
@@ -180,17 +241,16 @@ export const markdownTokenizer = {
 		}
 		return false;
 	},
-	// codespan(src) {
-	// 	console.log(`source: ${src}`);
-	// 	const match = src.match(/\$+([^\$\n]+?)\$+/);
-	// 	if (match) {
-	// 		return {
-	// 		type: 'codespan',
-	// 		raw: match[0],
-	// 		text: match[1].trim()
-	// 		};
-	// 	}
-	// 	// return false to use original codespan tokenizer
-	// 	return false;
-	// },
+	html(src) {
+		const match = src.match(/^.*?\n?.*?<[\s\S]+?>/);
+		if (match)
+		{
+			return {
+				type: 'text',
+				raw: match[0],
+				text: htmlEscape(match[0]),
+			};
+		}
+		return false;
+	},
 };

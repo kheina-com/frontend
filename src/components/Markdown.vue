@@ -1,20 +1,21 @@
 <template>
-	<div class='markdown' v-html='marked(content)'>
+	<div class='markdown' v-html='DOMPurify.sanitize(marked(content))'>
 	</div>
 </template>
 
 <script>
 import marked from 'marked';
+import DOMPurify from 'dompurify';
 import { markdownTokenizer, edit } from '../utilities';
 // import { highlight, getLanguage } from 'highlight.js';
 
 const inlineText = edit(/^([`~]+|[^`~])(?:(?= *\n)|[\s\S]*?(?:(?=[\\<!\[`*~]|\b_| *\n|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= *\n)|[^charset](?=[charset]*end)|(?=end\S))|(?=[charset]*end))/i, 'i')
-	.replace(/end/g, '[@#%^&]')
+	.replace(/end/g, '[@#%:^]')
 	.replace(/charset/g, "a-zA-Z0-9.!#$%^&'*+\\/=?_`{\\|}~-")
 	.getRegex();
 
 const inlineUrl = edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^[A-Za-z0-9._+-]*(end)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])*(?![-_])/i, 'i')
-	.replace(/end/g, '[@#%^&]')
+	.replace(/end/g, '[@#%:^]')
 	// .replace(/charset/g, "a-zA-Z0-9.!#$%^&'*+\\/=?_`{\\|}~-")
 	.getRegex();
 
@@ -22,14 +23,12 @@ const inlineUrl = edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]
 marked.Lexer.lex = function (src, options) {
 	const lexer = new marked.Lexer(options);
 
-	// custom rules
 	// text determines where any given rule can start
 	lexer.tokenizer.rules.inline.text = inlineText;
 	lexer.tokenizer.rules.inline.url = inlineUrl;
 
-	let a = lexer.lex(src);
-	// console.log(JSON.parse(JSON.stringify(a)));
-	return a;
+	// console.log(lexer.lex(src));
+	return lexer.lex(src);
 };
 
 marked.setOptions({
@@ -44,7 +43,6 @@ marked.setOptions({
 	breaks: true,
 	sanitize: false, // deprecated, do not use here
 	smartLists: true,
-	smartypants: false,
 	xhtml: false,
 });
 
@@ -55,6 +53,11 @@ export default {
 	name: 'Markdown',
 	props: {
 		content: String,
+	},
+	data() {
+		return {
+			DOMPurify,
+		};
 	},
 	methods: {
 		marked,
@@ -81,9 +84,9 @@ export default {
 	width: 100%;
 }
 .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
-	margin: 25px 0;
+	margin: 25px 0 15px;
 }
-.markdown p, .markdown ul, .markdown ol {
+.markdown p, .markdown ul, .markdown ol, .markdown blockquote {
 	margin: 15px 0;
 }
 .markdown li, .markdown li ul, .markdown li ol {
@@ -142,5 +145,24 @@ export default {
 }
 .markdown table code {
 	background: var(--bg3color);
+}
+.markdown blockquote::before {
+	background-color: var(--bordercolor);
+	width: 5px;
+	border-radius: 2.5px;
+	content: 'quote';
+	display: block;
+	margin-left: -15px;
+	height: 100%;
+	color: var(--bordercolor);
+	overflow: hidden;
+	position: absolute;
+}
+.markdown blockquote {
+	position: relative;
+	margin-left: 25px;
+}
+.markdown blockquote blockquote {
+	margin-left: 17.5px;
 }
 </style>

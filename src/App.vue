@@ -149,6 +149,7 @@ body
 }
 body, html
 {
+	text-rendering: optimizelegibility;
 	background: var(--bg0color);	
 	position: relative;
 	z-index: -5;
@@ -504,6 +505,7 @@ html.solarized-dark
 	--bg0color: #002b36;
 	--bg1color: #073642;
 	--bg2color: #002b36;
+	--bg3color: var(--bg1color);
 	--textcolor: #93a1a1;
 	--bordercolor: #586e75;
 	--borderhover: #b58900;

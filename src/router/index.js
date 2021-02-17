@@ -13,7 +13,7 @@ const routes = [
 	{
 		path: '/',
 		name: 'home',
-		component: ImageSearch,
+		component: Search,
 		meta: {
 			title: 'kheina.com - the world\'s largest furry image index',
 			metaTags: [

@@ -1,5 +1,5 @@
 <template>
-	<div class='post'>
+	<router-link class='post' :to='`/p/${postId}`'>
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
@@ -9,7 +9,7 @@
 		</div>
 		<Markdown v-if='description' :content='description' />
 		<img v-if='!isText' :src='getMediaThumbnailUrl(postId, 1200)'>
-	</div>
+	</router-link>
 </template>
 
 <script>
@@ -26,7 +26,7 @@ export default {
 	props: {
 		postId: String,
 		user: Object,
-		score: Number,
+		score: Object,
 		title: {
 			type: String, 
 			default: null,

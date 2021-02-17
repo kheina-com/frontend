@@ -1,10 +1,10 @@
 <template>
-	<main style='display: block'>
+	<main style='display: block' v-if='isError'>
 		<Title static='center'>Error</Title>
 		<Subtitle style='margin: 0 0 25px' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
 		<p class='message'>Hmmm, looks like something went wrong.</p>
 		<div class='top'>
-			<pre class='message'>{{error ? error + '\n' : ''}}{{message}}</pre>
+			<pre class='message'>{{message}}</pre>
 		</div>
 		<div v-if='dump'>
 			<p class='message'>If you submit a bug report, please include the data below.</p>
@@ -13,7 +13,9 @@
 		<router-link :to='`/`' class='interactable centerx'>home</router-link>
 		<ThemeMenu />
 	</main>
+	<slot v-else/>
 </template>
+
 <script>
 import Subtitle from './Subtitle.vue'
 import Title from './Title.vue'
@@ -30,13 +32,14 @@ export default {
 	},
 	props: {
 		message: String,
-		error: {
-			type: String,
-			default: null,
-		},
 		dump: {
 			type: Object,
 			default: null,
+		},
+	},
+	computed: {
+		isError() {
+			return (this.message !== null && this.message !== undefined) || (typeof(this.message) === 'string' && this.message.length > 0);
 		},
 	},
 }

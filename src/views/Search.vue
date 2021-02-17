@@ -41,13 +41,12 @@ export default {
 	},
 	created() {
 		const route = useRoute();
-		console.log(tagSplit(this.query));
 		khatch(`${postsHost}/v1/fetch_posts`,
 			{
 				method: 'POST',
 				body: {
 					sort: route.query.sort ? route.query.sort : 'hot',
-					tags: tagSplit(this.query),
+					tags: this.query ? tagSplit(this.query) : [],
 				},
 			})
 			.then(response => {

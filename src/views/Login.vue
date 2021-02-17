@@ -9,9 +9,11 @@
 			</div>
 			<div>
 				<span>Password</span>
-				<input ref='password' type='password' id='password' name='password' value='' autocomplete='off' class='interactable text'>
+				<div style='display: flex'>
+					<input ref='password' type='password' id='password' name='password' value='' autocomplete='off' class='interactable text password'>
+					<Submit :onClick='sendLogin'>Submit »</Submit>
+				</div>
 			</div>
-			<Submit :onClick='sendLogin'>Submit »</Submit>
 		</form>
 		</Loading>
 		<ThemeMenu />
@@ -211,5 +213,7 @@ input#hide-password
 { display: none; }
 div#password-pwned svg
 { height: 24px; }
-
+.password {
+	margin: 0 25px 0 0;
+}
 </style>

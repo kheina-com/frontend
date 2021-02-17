@@ -124,7 +124,7 @@ export default {
 						.then(r => {
 							console.log(r);
 							if (response.status < 300)
-							{ this.$router.push('/account/finalize'); }
+							{ this.$router.push('/account/login'); }
 							else if (response.status === 401)
 							{ this.errorMessage = r.error; }
 							else if (response.status === 404)
