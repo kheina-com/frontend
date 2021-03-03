@@ -1,5 +1,5 @@
 <template>
-	<router-link :to='`/${handle}`' class='profile' v-if='link'>
+	<router-link :to='`/${handle}`' class='profile' v-if='link && !isLoading'>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'><img :src='getMediaThumbnailUrl("nNSsjrxI", 400)'></Loading>
 			<div class='user'>

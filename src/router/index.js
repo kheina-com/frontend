@@ -31,7 +31,7 @@ const routes = [
 				},
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -61,7 +61,7 @@ const routes = [
 				},
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -99,7 +99,7 @@ const routes = [
 				},
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -121,7 +121,7 @@ const routes = [
 				},
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -143,7 +143,7 @@ const routes = [
 				},
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -165,7 +165,7 @@ const routes = [
 				},
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -183,7 +183,7 @@ const routes = [
 			metaTags: [
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -201,7 +201,7 @@ const routes = [
 			metaTags: [
 				{
 					property: 'og:image',
-					content: '/static/icon.png',
+					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -211,6 +211,24 @@ const routes = [
 		},
 	},
 	// {
+	// 	path: '/s',
+	// 	name: 'search',
+	// 	props: true,
+	// 	component: Search,
+	// 	meta: {
+	// 		metaTags: [
+	// 			{
+	// 				property: 'og:image',
+	// 				content: '/assets/icon.png',
+	// 			},
+	// 			{
+	// 				name: 'theme-color',
+	// 				content: '#1E1F25',
+	// 			},
+	// 		],
+	// 	},
+	// },
+	// {
 	// 	path: '/:handle',
 	// 	name: 'user',
 	// 	props: true,
@@ -219,7 +237,7 @@ const routes = [
 	// 		metaTags: [
 	// 			{
 	// 				property: 'og:image',
-	// 				content: '/static/icon.png',
+	// 				content: '/assets/icon.png',
 	// 			},
 	// 			{
 	// 				name: 'theme-color',

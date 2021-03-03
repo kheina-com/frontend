@@ -1,6 +1,8 @@
 <template>
 	<main v-if='!isError'>
-		<Post v-for='post in posts' :postId='post.post_id' v-bind='post' />
+		<div class='results'>
+			<Post v-for='post in posts' :postId='post.post_id' v-bind='post' />
+		</div>
 		<ThemeMenu />
 	</main>
 	<main v-else>
@@ -10,7 +12,7 @@
 </template>
 
 <script>
-import { khatch, tagSplit, getMediaThumbnailUrl, isMobile } from '../utilities';
+import { khatch, tagSplit, isMobile } from '../utilities';
 import { apiErrorMessage, postsHost } from '../config/constants';
 import Loading from '../components/Loading.vue';
 import Title from '../components/Title.vue';
@@ -111,7 +113,7 @@ main {
 .post {
 	margin: 0 0 25px;
 }
-.results > :last-child.post {
+.results > :last-child {
 	margin-bottom: 0;
 }
 </style>

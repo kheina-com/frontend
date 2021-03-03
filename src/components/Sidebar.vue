@@ -7,8 +7,8 @@
 			</li>
 		</ul>
 		<ul v-else>
-			<li v-for='i in 3' style='margin: 0 0 5px'>
-				<Loading style='height: 1em' />
+			<li v-for='name in tagGroups'>
+				<TagGroup :group='name' />
 			</li>
 		</ul>
 	</div>
@@ -16,6 +16,7 @@
 
 <script>
 import { getMediaThumbnailUrl, sortTagGroups } from '../utilities'
+import { tagGroups } from '../config/constants'
 import Loading from './Loading.vue'
 import TagGroup from './TagGroup.vue'
 
@@ -29,6 +30,7 @@ export default {
 	},
 	data() {
 		return {
+			tagGroups,
 			post: null,
 			errorDump: null,
 			errorMessage: null,

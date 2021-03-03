@@ -19,7 +19,12 @@ export default {
 			return new Date(this.time * 1000);
 		},
 		absoluteTime() {
-			return this.date.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' }).replace(`, ${new Date().getFullYear()}`, '') + ', ' + this.date.toLocaleTimeString().toLowerCase();
+			return this.date
+				.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })
+				.replace(`, ${new Date().getFullYear()}`, '')
+				+ ', '
+				+ this.date.toLocaleTimeString()
+				.toLowerCase();
 		},
 	},
 	methods: {

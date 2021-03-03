@@ -48,14 +48,14 @@ export function isMobile()
 
 export function tagSplit(tags)
 {
-	return tags.split(',').map(x => x.trim());
+	return tags.split(/[,\s]/).filter(x => x).map(x => x.trim());
 }
 
+import { tagGroups } from '../config/constants'
 export function sortTagGroups(tags)
 {
 	let sorted = { };
-	['artist', 'sponsor', 'participant', 'species', 'gender', 'misc']
-	.forEach(i => {
+	tagGroups.forEach(i => {
 		if (tags.hasOwnProperty(i))
 		{ sorted[i] = tags[i]; }
 	});
@@ -100,11 +100,21 @@ export function khatch(url, options={ })
 		if (!options.hasOwnProperty('headers'))
 		{ options.headers = { }; }
 		options.headers['Content-Type'] = 'application/json';
+		console.log(Object.assign(options, { url }));
 		options.body = JSON.stringify(options.body);
 	}
-	console.log(options);
+	else
+	{ console.log(Object.assign(options, { url })); }
 
 	return fetch(url, options);
+}
+
+export function authCookie()
+{
+	let auth = getCookie('kh-auth');
+	if (!auth)
+	{ return null; }
+	return JSON.parse(atob(auth.split('.')[1]).match(/{.+}/)[0]);
 }
 
 const htmlReplace = {
@@ -114,28 +124,15 @@ const htmlReplace = {
 	'"': '&quot;',
 	"'": '&#039;',
 };
+const htmlEscapeCharacters = new Set(Object.values(htmlReplace));
 
 const htmlRegex = new RegExp(`(?:${Object.keys(htmlReplace).join('|')})(?:.{0,4};)?`, 'g');
-console.log(htmlRegex.source)
 export function htmlEscape(html) {
 	return html.replaceAll(htmlRegex, match => {
-		if (match.length > 1 && Object.values(htmlReplace).includes(match))
+		if (match.length > 1 && htmlEscapeCharacters.includes(match))
 		{ return match; }
 		return htmlReplace[match];
 	});
-};
-
-const mdReplace = {
-	'&': '&amp;',
-	'<': '&lt;',
-	'"': '&quot;',
-	"'": '&#039;',
-};
-
-const mdRegex = new RegExp(Object.keys(mdReplace).join('|'), 'g');
-
-export function mdEscape(markdown) {
-	return markdown.replaceAll(mdRegex, match => mdReplace[match]);
 };
 
 const userLinks = {
@@ -204,7 +201,6 @@ export const markdownTokenizer = {
 					};
 
 				case ':':
-					console.log(match[0]);
 					if (match[1].length != 0 || match[4])
 					{ return false; }
 					else if (!match[3].endsWith(':'))
@@ -225,7 +221,7 @@ export const markdownTokenizer = {
 							type: 'image',
 							raw: match[0],
 							text: emoji,
-							title: null,
+							title: `:${emoji}:`,
 							href: getMediaUrl('emoji', `${emoji}.webp`),
 						};
 					}

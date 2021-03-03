@@ -4,6 +4,7 @@ from kh_common.caching import ArgsCache
 from kh_common.server import ServerApp
 from os import path
 
+
 app = ServerApp(auth=False)
 
 

@@ -4,7 +4,7 @@
 			<slot name='default' />
 		</div>
 		<div class='loadingicon' v-show='isLoading'>
-			<img src='/static/loading.webp' alt='Loading...'/>
+			<img src='/assets/loading.webp' alt='Loading...'/>
 			<slot name='onLoad' />
 		</div>
 		<div class='loadingcover' v-show='isLoading'></div>

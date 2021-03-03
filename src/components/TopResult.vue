@@ -117,13 +117,13 @@ export default {
 			switch(id)
 			{
 				case 0:
-					return '/static/furaffinity.png';
+					return '/assets/furaffinity.png';
 				case 1:
-					return '/static/inkbunny.png';
+					return '/assets/inkbunny.png';
 				case 2:
-					return '/static/weasyl.png';
+					return '/assets/weasyl.png';
 				case 3:
-					return '/static/furrynetwork.png';
+					return '/assets/furrynetwork.png';
 			}
 		},
 	},

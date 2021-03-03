@@ -1,5 +1,5 @@
 <template>
-	<router-link class='post' :to='`/p/${postId}`'>
+	<div class='post interactable' :to='`/p/${postId}`' @click='navigateToPost(postId)'>
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
@@ -9,7 +9,7 @@
 		</div>
 		<Markdown v-if='description' :content='description' />
 		<img v-if='!isText' :src='getMediaThumbnailUrl(postId, 1200)'>
-	</router-link>
+	</div>
 </template>
 
 <script>
@@ -54,8 +54,10 @@ export default {
 		Profile,
 		Markdown,
 		Score,
+		Timestamp,
 	},
 	computed: {
+		isMobile,
 		isError()
 		{ return this.errorDump !== null || this.errorMessage !== null; },
 		mediaUrl()
@@ -67,13 +69,15 @@ export default {
 	},
 	methods: {
 		getMediaThumbnailUrl,
+		navigateToPost(postId) {
+			this.$router.push('/p/' + postId);
+		},
 	},
 }
 </script>
 
 <style scoped>
 .post {
-	border: 1px solid var(--bordercolor);
 	border-radius: 3px;
 	display: flex;
 	flex-direction: column;
@@ -82,9 +86,9 @@ export default {
 }
 .post img {
 	max-width: 100%;
-	max-height: 10vh;
+	max-height: 300px;
 	border-radius: 3px;
-	margin: 0 auto;
+	margin: 0 auto 0 0;
 }
 .post-header {
 	margin-bottom: 25px;

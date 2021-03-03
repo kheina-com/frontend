@@ -1,8 +1,8 @@
 <template>
 	<div class='score'>
-		<a @click='vote(1)'>▲</a>
+		<button @click.stop='vote(1)'>▲</button>
 		<Loading :isLoading='isLoading'><p>{{score ? score.up - score.down : 10}}</p></Loading>
-		<a @click='vote(-1)'>▼</a>
+		<button @click.stop='vote(-1)'>▼</button>
 	</div>
 </template>
 

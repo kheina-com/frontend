@@ -6,8 +6,8 @@
 		</div> -->
 		<ThemeButton />
 		<div class='anchor'>
-			<a href='https://www.patreon.com/kheina' target='_blank' class='left'><img src='/static/patreon-logo.svg'> support the project</a>
-			<a href='https://gitlab.com/kheina.com' target='_blank' class='right'>view source code <img src='/static/gitlab-logo.svg'></a>
+			<a href='https://www.patreon.com/kheina' target='_blank' class='left'><img src='/assets/patreon-logo.svg'> support the project</a>
+			<a href='https://gitlab.com/kheina.com' target='_blank' class='right'>view source code <img src='/assets/gitlab-logo.svg'></a>
 		</div>
 		<p style='text-align: center'>Found a bug? <a href='https://gitlab.com/groups/kheina.com/-/issues' target='_blank'>Report it here</a>.</p>		
 	</footer>

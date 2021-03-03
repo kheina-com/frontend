@@ -9,14 +9,13 @@ import DOMPurify from 'dompurify';
 import { markdownTokenizer, edit } from '../utilities';
 // import { highlight, getLanguage } from 'highlight.js';
 
-const inlineText = edit(/^([`~]+|[^`~])(?:(?= *\n)|[\s\S]*?(?:(?=[\\<!\[`*~]|\b_| *\n|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= *\n)|[^charset](?=[charset]*end)|(?=end\S))|(?=[charset]*end))/i, 'i')
+const inlineText = edit(/^([`~]+|[^`~])(?:(?= *\n)|[\s\S]*?(?:(?=[\\<!\[`*~]|\b_| *\n|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= *\n)|[^charset](?=[charset]*end)|(?=end\S))|(?=[charset]*end))/, 'i')
 	.replace(/end/g, '[@#%:^]')
 	.replace(/charset/g, "a-zA-Z0-9.!#$%^&'*+\\/=?_`{\\|}~-")
 	.getRegex();
 
-const inlineUrl = edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^[A-Za-z0-9._+-]*(end)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])*(?![-_])/i, 'i')
+const inlineUrl = edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^[A-Za-z0-9._+-]*(end)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])*(?![-_])/, 'i')
 	.replace(/end/g, '[@#%:^]')
-	// .replace(/charset/g, "a-zA-Z0-9.!#$%^&'*+\\/=?_`{\\|}~-")
 	.getRegex();
 
 
@@ -27,7 +26,6 @@ marked.Lexer.lex = function (src, options) {
 	lexer.tokenizer.rules.inline.text = inlineText;
 	lexer.tokenizer.rules.inline.url = inlineUrl;
 
-	// console.log(lexer.lex(src));
 	return lexer.lex(src);
 };
 
@@ -78,7 +76,7 @@ export default {
 	/* color: var(--textcolor) !important; */
 }
 .markdown h1, .markdown h2 {
-	border-bottom: solid 1px var(--bordercolor);
+	border-bottom: solid 1px var(--blockquote);
 	padding: 0 5px 4px;
 	margin: 25px -5px 20px;
 	width: 100%;
@@ -95,6 +93,7 @@ export default {
 .markdown img {
 	max-width: 10em;
 	max-height: 10em;
+	width: 100%;
 }
 .markdown img.emoji {
 	max-width: 2em;
@@ -104,7 +103,7 @@ export default {
 	height: 0;
 	color: #0000;
 	border: none;
-	border-bottom: solid 1px var(--bordercolor);
+	border-bottom: solid 1px var(--blockquote);
 	margin: 12px -5px;
 }
 
@@ -121,6 +120,7 @@ export default {
 .markdown pre {
 	padding: 0.5em;
 	white-space: pre-wrap;
+	word-break: break-word;
 }
 
 .markdown table {
@@ -128,11 +128,12 @@ export default {
 	border-radius: 3px;
 	border-spacing: 0;
 	background: var(--bg2color);
+	word-break: break-word;
 }
 .markdown table th, .markdown table td {
-	border-right: 1px solid var(--bordercolor);
+	border-right: 1px solid var(--blockquote);
 	border-spacing: 0px;
-	border-bottom: 1px solid var(--bordercolor);
+	border-bottom: 1px solid var(--blockquote);
 }
 .markdown table tbody > :last-child td {
 	border-bottom: none;
@@ -147,14 +148,14 @@ export default {
 	background: var(--bg3color);
 }
 .markdown blockquote::before {
-	background-color: var(--bordercolor);
+	background-color: var(--blockquote);
 	width: 5px;
 	border-radius: 2.5px;
 	content: 'quote';
 	display: block;
 	margin-left: -15px;
 	height: 100%;
-	color: var(--bordercolor);
+	color: var(--blockquote);
 	overflow: hidden;
 	position: absolute;
 }

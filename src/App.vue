@@ -1,10 +1,8 @@
 /* eslint-disable vue/no-multiple-template-root */
 <template>
-	<Banner>
-		Black Lives Matter. <a href='https://blacklivesmatters.carrd.co/' target='_blank'>blacklivesmatters.carrd.co</a>
-	</Banner>
+	<Banner :message='`Black Lives Matter. [blacklivesmatters.carrd.co](https://blacklivesmatters.carrd.co/)`' />
 	<div id='content' class='centery' v-resize='onResize'>
-		<router-view />
+		<router-view :key='$route.path' />
 		<Footer :stats='stats' />
 	</div>
 	<Cookies />
@@ -176,6 +174,21 @@ a:hover
 	color: var(--icolor) !important;
 	opacity: 1 !important;
 }
+button
+{
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--textcolor);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+	cursor: pointer;
+}
+button:hover /*, button:active, button:focus */
+{ color: var(--icolor); }
+
 ::-webkit-scrollbar
 {
 	width: 12px;
@@ -244,7 +257,6 @@ form, p
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
-	cursor: pointer;
 }
 .interactable.text
 { cursor: text; }
@@ -255,11 +267,6 @@ form, p
 }
 .interactable:hover
 { box-shadow: 0 0 10px 3px var(--activeshadowcolor); }
-.interactable img
-{
-	margin-bottom: -0.125em;
-	height: 1em;
-}
 .header
 { text-align: right; }
 .header p
@@ -373,6 +380,7 @@ html
 	--bg1color: #1E1F25;
 	--bg2color: #151416;
 	--bg3color: var(--bordercolor);
+	--blockquote: var(--bordercolor);
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;
 	--borderhover: #F29B17;
@@ -414,6 +422,7 @@ html.e621
 	--textcolor: #EEE;
 	--bordercolor: #0000;
 	--borderhover: #0000;
+	--blockquote: #b4c7d9;
 	--subtlecolor: #B4C7D9;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
@@ -427,7 +436,7 @@ html.e621
 }
 html.e621 body
 {
-	background-image: url(/static/themes/stripe.png);
+	background-image: url(/assets/themes/stripe.png);
 	background-repeat: repeat;
 	background-position: center top;
 	background-size: auto;
@@ -622,7 +631,7 @@ html.gay *
 /*
 html.winter main
 {
-	background-image: url(/static/themes/snow_bottom.png), url(/static/themes/snow_top.png);
+	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
 	background-repeat: repeat-x;
 	background-position: center bottom, center top;
 	padding-bottom: 25px;
@@ -630,7 +639,7 @@ html.winter main
 
 html.spring main
 {
-	background-image: url(/static/themes/snow_bottom.png), url(/static/themes/snow_top.png);
+	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
 	background-repeat: repeat-x;
 	background-position: center bottom, center top;
 	padding-bottom: 25px;
@@ -638,7 +647,7 @@ html.spring main
 
 html.summer main
 {
-	background-image: url(/static/themes/snow_bottom.png), url(/static/themes/snow_top.png);
+	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
 	background-repeat: repeat-x;
 	background-position: center bottom, center top;
 	padding-bottom: 25px;
@@ -646,7 +655,7 @@ html.summer main
 
 html.autumn main
 {
-	background-image: url(/static/themes/snow_bottom.png), url(/static/themes/snow_top.png);
+	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
 	background-repeat: repeat-x;
 	background-position: center bottom, center top;
 	padding-bottom: 25px;
@@ -654,21 +663,21 @@ html.autumn main
 
 html.hex main
 {
-	background-image: url(/static/themes/hex.png);
+	background-image: url(/assets/themes/hex.png);
 	background-repeat: repeat-x;
 	background-position: center top;
 }
 
 html.fox main
 {
-	background-image: url(/static/themes/fox.png);
+	background-image: url(/assets/themes/fox.png);
 	background-repeat: no-repeat;
 	background-position: left bottom;
 }
 
 html.snep main
 {
-	background-image: url(/static/themes/snep.png);
+	background-image: url(/assets/themes/snep.png);
 	background-repeat: no-repeat;
 	background-position: left bottom;
 }
