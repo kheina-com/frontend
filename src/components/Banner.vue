@@ -11,7 +11,11 @@
 			</form>
 			<div class='profile' v-if='isLoggedIn'>
 				<i class='kheina-icons icon-sword' v-if='isAdmin'>sword</i>
-				<Loading :isLoading='false' class='profile-image'><img :src='getMediaThumbnailUrl("nNSsjrxI", 400)'></Loading>
+				<Loading :isLoading='false' class='profile-image'>
+					<router-link :to='`/${handle}`' class='profile' v-if='link && !isLoading'>
+						<img :src='getMediaThumbnailUrl("nNSsjrxI", 400)'>
+					</router-link>
+				</Loading>
 			</div>
 			<div class='profile' v-else>
 				<input ref='butts' name='butts' value='' placeholder='log in' class='interactable text'>
