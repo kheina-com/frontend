@@ -10,7 +10,9 @@
 			<p class='message'>If you submit a bug report, please include the data below.</p>
 			<CopyText :content='dump' />
 		</div>
-		<router-link :to='`/`' class='interactable centerx'>home</router-link>
+		<div style='display: flex; justify-content: center'>
+			<router-link :to='`/`' class='interactable'>home</router-link>
+		</div>
 		<ThemeMenu />
 	</main>
 	<slot v-else/>

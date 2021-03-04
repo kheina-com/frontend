@@ -1,7 +1,8 @@
 <template>
 	<main v-if='!isError'>
 		<div class='results'>
-			<Post v-for='post in posts' :postId='post.post_id' v-bind='post' />
+			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
+			<Post v-for='post in posts || 3' :postId='post?.post_id' v-bind='post' v-else/>
 		</div>
 		<ThemeMenu />
 	</main>
@@ -41,10 +42,9 @@ export default {
 			errorMessage: null,
 		}
 	},
-	created() {
+	mounted() {
 		const route = useRoute();
-		khatch(`${postsHost}/v1/fetch_posts`,
-			{
+		khatch(`${postsHost}/v1/fetch_posts`, {
 				method: 'POST',
 				body: {
 					sort: route.query.sort ? route.query.sort : 'hot',
@@ -52,21 +52,19 @@ export default {
 				},
 			})
 			.then(response => {
-				response.json()
-					.then(r => {
-						console.log(r);
-						if (response.status < 300)
-						{ this.posts = r.posts; }
-						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
-						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
-						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
-					});
+				response.json().then(r => {
+					if (response.status < 300)
+					{ this.posts = r.posts; }
+					else if (response.status === 401)
+					{ this.errorMessage = r.error; }
+					else if (response.status === 404)
+					{ this.errorMessage = r.error; }
+					else
+					{
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = r;
+					}
+				});
 			})
 			.catch(error => {
 				this.errorMessage = apiErrorMessage;

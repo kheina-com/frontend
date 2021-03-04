@@ -1,14 +1,14 @@
-/* eslint-disable vue/no-multiple-template-root */
 <template>
-	<Banner :message='`Black Lives Matter. [blacklivesmatters.carrd.co](https://blacklivesmatters.carrd.co/)`' />
-	<div id='content' class='centery' v-resize='onResize'>
+	<Banner/>
+	<div ref='content' id='content' v-resize='onResize'>
 		<router-view :key='$route.path' />
 		<Footer :stats='stats' />
 	</div>
-	<Cookies />
+	<Cookies/>
 </template>
 
 <script>
+import { ref } from 'vue';
 import Footer from './components/Footer.vue'
 import Cookies from './components/Cookies.vue'
 import Banner from './components/Banner.vue'
@@ -20,76 +20,40 @@ export default {
 		Cookies,
 		Banner,
 	},
-	data() {
+	setup() {
+		const content = ref(null);
 		return {
-			stats: null,
-		}
-	},
-	computed: {
-		content()
-		{ return document.getElementById('content'); },
+			content,
+		};
 	},
 	mounted() {
-		this.ResizeSensor(this.content, this.onResize);
+		this.ResizeSensor(this.$refs.content, this.onResize);
 		this.onResize();
+	},
+	computed: {
+		banner() {
+			return document.getElementsByClassName('banner')[0];
+		},
 	},
 	methods: {
 		onResize() {
-			// console.log('top', this.content.offsetTop, 'content', this.content.clientHeight, 'window', window.innerHeight);
-			if (this.content.offsetTop - this.content.clientHeight / 2 <= 128)
-			{
-				this.content.className = 'topy';
-				if (this.content.clientHeight + 256 < window.innerHeight)
-				{ this.content.className = 'centery'; }
-			}
+			const bannerHeight = this.banner.clientHeight + 25;
+			this.$refs.content.style.top = `${Math.max(bannerHeight, (window.innerHeight - this.$refs.content.clientHeight) / 2)}px`;
 		},
 		ResizeSensor(element, callback)
 		{ // https://stackoverflow.com/a/47965966
-			let zIndex = parseInt(getComputedStyle(element));
-			if(isNaN(zIndex)) { zIndex = 0; };
-			zIndex--;
-
 			let expand = document.createElement('div');
-			expand.style.position = 'absolute';
-			expand.style.left = '0px';
-			expand.style.top = '0px';
-			expand.style.right = '0px';
-			expand.style.bottom = '0px';
-			expand.style.overflow = 'hidden';
-			expand.style.zIndex = zIndex;
-			expand.style.visibility = 'hidden';
-
-			let expandChild = document.createElement('div');
-			expandChild.style.position = 'absolute';
-			expandChild.style.left = '0px';
-			expandChild.style.top = '0px';
-			expandChild.style.width = '10000000px';
-			expandChild.style.height = '10000000px';
-			expand.appendChild(expandChild);
+			expand.className = 'expand';
+			expand.appendChild(document.createElement('div'));
 
 			let shrink = document.createElement('div');
-			shrink.style.position = 'absolute';
-			shrink.style.left = '0px';
-			shrink.style.top = '0px';
-			shrink.style.right = '0px';
-			shrink.style.bottom = '0px';
-			shrink.style.overflow = 'hidden';
-			shrink.style.zIndex = zIndex;
-			shrink.style.visibility = 'hidden';
-
-			let shrinkChild = document.createElement('div');
-			shrinkChild.style.position = 'absolute';
-			shrinkChild.style.left = '0px';
-			shrinkChild.style.top = '0px';
-			shrinkChild.style.width = '200%';
-			shrinkChild.style.height = '200%';
-			shrink.appendChild(shrinkChild);
+			shrink.className = 'shrink';
+			shrink.appendChild(document.createElement('div'));
 
 			element.appendChild(expand);
 			element.appendChild(shrink);
 
-			function setScroll()
-			{
+			function setScroll() {
 				expand.scrollLeft = 10000000;
 				expand.scrollTop = 10000000;
 
@@ -103,8 +67,7 @@ export default {
 			let currentWidth = size.width;
 			let currentHeight = size.height;
 
-			let onScroll = function()
-			{
+			function onScroll() {
 				let size = element.getBoundingClientRect();
 
 				let newWidth = size.width;
@@ -128,10 +91,51 @@ export default {
 }
 </script>
 
+<style scoped>
+#content {
+	position: relative;
+}
+</style>
+
 <style>
+.expand {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	z-index: -1000;
+	visibility: hidden;
+}
+.expand div {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 10000000px;
+	height: 10000000px;
+}
+.shrink {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	z-index: -1000;
+	visibility: hidden;
+}
+.shrink div {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 200%;
+	height: 200%;
+}
+
 html *
 { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }
-pre, code, .code
+pre, code, .code, textarea
 {
 	font-size: 0.9em;
 	font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace;
@@ -140,8 +144,7 @@ body
 {
 	height: 100vh;
 	width: 100vw;
-	position: absolute;
-	background: var(--bg0color);
+	display: flex;
 	background-size: cover;
 	background-position: center;
 }
@@ -149,15 +152,13 @@ body, html
 {
 	text-rendering: optimizelegibility;
 	background: var(--bg0color);	
-	position: relative;
-	z-index: -5;
 	margin: 0;
 	padding: 0;
 	color: var(--textcolor);
 	overflow-x: hidden;
 	scrollbar-color: #4D535A #151416;
 }
-a, input, label
+a, input, label, textarea
 {
 	cursor: pointer;
 	pointer-events: all;
@@ -166,6 +167,19 @@ a, input, label
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
+}
+input {
+	color: var(--textcolor);
+}
+*::placeholder {
+	color: var(--subtlecolor);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+input:hover::placeholder {
+	color: var(--icolor);
 }
 a:link, a:visited
 { color: var(--textcolor); }
@@ -229,17 +243,6 @@ form, p
 	top: calc(-100% - 0.3em);
 }
 
-.centery
-{
-	top: 50%;
-	transform: translateY(-50%);
-	position: relative;
-}
-.topy
-{
-	top: 128px;
-	position: relative;
-}
 .interactable
 {
 	cursor: pointer;
@@ -249,7 +252,6 @@ form, p
 	border: 1px solid var(--bordercolor);
 	display: inline-block;
 	font-weight: normal;
-	white-space: nowrap;
 	background: var(--bg2color);
 	box-sizing: border-box;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
@@ -260,13 +262,19 @@ form, p
 }
 .interactable.text
 { cursor: text; }
-.interactable:hover, .interactable:active, .interactable:focus
+.interactable:hover /*, .interactable:active, .interactable:focus */
 {
 	border-color: var(--borderhover);
 	color: var(--icolor);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
-.interactable:hover
-{ box-shadow: 0 0 10px 3px var(--activeshadowcolor); }
+.interactable.text:hover
+{ color: var(--icolor); }
+.interactable.text:active, .interactable.text:focus
+{
+	color: var(--textcolor);
+	border-color: var(--icolor);
+}
 .header
 { text-align: right; }
 .header p
@@ -279,12 +287,6 @@ p.center
 	text-align: center;
 	margin: 0;
 	color: var(--subtlecolor);
-}
-.centerx
-{
-	left: 50%;
-	transform: translateX(-50%);
-	position: relative;
 }
 .searchstats
 {
@@ -345,24 +347,6 @@ data
 { padding: 0; }
 
 
-@media screen and (max-width:90rem)
-{
-	.title
-	{
-		position: relative;
-		text-align: center;
-		padding: 25px 0 0;
-		margin-bottom: -25px;
-	}
-	.searchstats
-	{
-		text-align: center;
-		margin: 15px 0 0;
-		font-size: 1em;
-		position: relative;
-		max-width: 100%;
-	}
-}
 body
 { display: block !important;}
 
@@ -419,6 +403,7 @@ html.e621
 	--bg0color: #031131;
 	--bg1color: #152F56;
 	--bg2color: #213A5F;
+	--bg3color: hsla(0,0%,100%,.05);
 	--textcolor: #EEE;
 	--bordercolor: #0000;
 	--borderhover: #0000;

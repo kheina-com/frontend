@@ -7,7 +7,7 @@ export default {
 	name: 'Timestamp',
 	components: { },
 	props: {
-		time: Number,
+		datetime: String,
 	},
 	data() {
 		return {
@@ -16,7 +16,7 @@ export default {
 	},
 	computed: {
 		date() {
-			return new Date(this.time * 1000);
+			return new Date(this.datetime);
 		},
 		absoluteTime() {
 			return this.date
@@ -29,7 +29,7 @@ export default {
 	},
 	methods: {
 		relativeTime()
-		{ return this.prettyTime((Date.now() / 1000) - this.time, 0) + ' ago'; },
+		{ return this.prettyTime((Date.now() - this.date.valueOf()) / 1000, 0) + ' ago'; },
 		toggleDisplayType()
 		{ this.displayAbsolute = !this.displayAbsolute; },
 		prettyTime(time, fixed=2) {

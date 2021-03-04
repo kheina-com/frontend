@@ -2,7 +2,9 @@
 	<div class='banner'>
 		<div class='nav'>
 			<div class='menu-button'>
-				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
+				<button @click='openMenu'>
+					<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
+				</button>
 			</div>
 			<form class='search-bar' v-on:submit.prevent='noop'>
 				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
@@ -12,22 +14,32 @@
 			<div class='profile' v-if='isLoggedIn'>
 				<i class='kheina-icons icon-sword' v-if='isAdmin'>sword</i>
 				<Loading :isLoading='false' class='profile-image'>
-					<router-link :to='`/${handle}`' class='profile' v-if='link && !isLoading'>
+					<router-link :to='`/${handle}`' v-if='true'>
 						<img :src='getMediaThumbnailUrl("nNSsjrxI", 400)'>
 					</router-link>
 				</Loading>
 			</div>
 			<div class='profile' v-else>
-				<input ref='butts' name='butts' value='' placeholder='log in' class='interactable text'>
+				<router-link to='/account/login' class='interactable'>Login</router-link>
 			</div>
 		</div>
 		<Markdown :content='message' v-if='message'/>
+	</div>
+	<div class='menu' ref='menu'>
+		<ul class='inner'>
+			<li>
+				<router-link to='/account'>Account</router-link>
+			</li>
+			<li>
+				<button @click='signOut'>Sign Out</button>
+			</li>
+		</ul>
 	</div>
 </template>
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, authCookie } from '../utilities';
+import { getMediaThumbnailUrl, authCookie, deleteCookie } from '../utilities';
 import Loading from '../components/Loading.vue';
 import Markdown from '../components/Markdown.vue';
 import { useRoute } from 'vue-router';
@@ -36,29 +48,21 @@ export default {
 	name: 'Banner',
 	setup() {
 		const search = ref(null);
+		const menu = ref(null);
 		return {
 			search,
+			menu,
 		};
-	},
-	props: {
-		message: String,
 	},
 	data() {
 		return {
+			message: 'Black Lives Matter. [blacklivesmatters.carrd.co](https://blacklivesmatters.carrd.co/)',
 			menuOpen: false,
 			route: useRoute(),
 		};
 	},
-	created() {
-		const route = useRoute();
-		if (route.path.startsWith('/s/'))
-		{
-			console.log(route.path.substring(3));
-		}
-	},
 	computed: {
 		isAdmin() {
-			console.log(authCookie());
 			return Boolean(authCookie()?.scope?.includes('admin'));
 		},
 		isLoggedIn() {
@@ -80,16 +84,48 @@ export default {
 	methods: {
 		getMediaThumbnailUrl,
 		runSearchQuery() {
-			this.$router.push('/s/' + this.$refs.search.value);
+			this.$router.push('/s/' + encodeURIComponent(this.$refs.search.value));
+		},
+		signOut() {
+			deleteCookie('kh-auth');
+			location.reload(); 
+		},
+		openMenu() {
+			this.menuOpen = !this.menuOpen;
+			if (this.menuOpen)
+			{ this.$refs.menu.style.left = 0; }
+			else
+			{ this.$refs.menu.style.left = null; }
 		},
 	},
 }
 </script>
 
 <style scoped>
-.banner
-{
-	position: absolute;
+.menu {
+	font-size: 1em;
+	position: fixed;
+	width: max(20vw, 200px);
+	background: var(--bg2color);
+	border-right: 1px solid var(--bordercolor);
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+	height: 100vh;
+	top: 0;
+	left: -100%;
+	z-index: 9;
+}
+.menu .inner {
+	padding: 40px 25px 25px;
+}
+.menu button {
+	font-size: 1em;
+}
+.banner {
+	position: relative;
 	width: 100%;
 	background: var(--bg1color);
 	top: 0;
@@ -102,10 +138,11 @@ export default {
 	padding: 0.25em;
 }
 .menu-button {
-	left: 0.5em;
+	left: 0.75em;
 	position: absolute;
 	display: flex;
 	align-items: center;
+	z-index: 10;
 }
 .menu-button i {
 	font-size: 1.5em;
@@ -117,6 +154,7 @@ export default {
 .profile {
 	display: inline-block;
 	margin-right: auto;
+	font-size: 0.9em;
 }
 .profile .inner {
 	display: flex;
@@ -133,16 +171,6 @@ export default {
 	margin-right: 0.5em;
 }
 
-input {
-	color: var(--textcolor);
-}
-input::placeholder {
-	color: var(--subtlecolor);
-}
-input:hover::placeholder {
-	color: var(--icolor);
-}
-
 .search-bar {
 	position: relative;
 }
@@ -150,9 +178,11 @@ input:hover::placeholder {
 	min-width: 300px;
 	width: 30vw;
 }
-i
-{ font-size: 1.2em; }
-button
+i {
+	font-size: 1.2em;
+	display: block;
+}
+.search-bar button
 {
 	font-size: 1.2em;
 	position: absolute;
@@ -169,7 +199,7 @@ button
 	transition: ease var(--fadetime);
 	cursor: pointer;
 }
-button:hover, button:active, button:focus
+button:hover /*, button:active, button:focus */
 { color: var(--icolor); }
 
 .search-bar .cover {
@@ -186,4 +216,13 @@ button:hover, button:active, button:focus
 	position: absolute;
 	right: 0.25em;
 }
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+ul li {
+	margin: 0 0 0.5em;
+}
+
 </style>

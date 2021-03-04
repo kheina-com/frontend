@@ -190,10 +190,6 @@ form .text
 	color: var(--textcolor);
 	padding: 0.5em;
 }
-form .text:hover
-{ color: var(--icolor); }
-form .text:active, form .text:focus
-{ color: var(--textcolor); }
 input
 {
 	display: inline-block;

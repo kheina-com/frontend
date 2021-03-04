@@ -40,13 +40,12 @@ export default {
 </script>
 
 <style scoped>
-p
-{
+p {
+	word-wrap: anywhere;
 	text-align: center;
 	margin: 0;
 }
-p .super
-{
+p .super {
 	position: absolute;
 	font-size: 1rem;
 	width: 0;
@@ -54,8 +53,7 @@ p .super
 }
 .super, .super *
 { color: var(--subtlecolor) !important; }
-.title
-{
+.title {
 	text-align: left;
 	padding: 0;
 }

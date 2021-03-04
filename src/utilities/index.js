@@ -18,6 +18,9 @@ export function getCookie(cookieName)
 	return null;
 };
 
+export function deleteCookie(cookieName)
+{ document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`; };
+
 export function commafy(x)
 { // from https://stackoverflow.com/a/2901298
 	let parts = x.toString().split(".");

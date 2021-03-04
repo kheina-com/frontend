@@ -1,5 +1,5 @@
 <template>
-	<div class='markdown' v-html='DOMPurify.sanitize(marked(content))'>
+	<div class='markdown' v-html='renderMd(content)'>
 	</div>
 </template>
 
@@ -51,14 +51,42 @@ export default {
 	name: 'Markdown',
 	props: {
 		content: String,
+		concise: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	data() {
 		return {
 			DOMPurify,
+			cut: false,
 		};
 	},
 	methods: {
-		marked,
+		mdString() {
+			if (this.content)
+			{
+				if (this.concise)
+				{
+					const match = this.content.match(/(.+(?:[\n\r]+.+){0,2})([\s\S]+)?/);
+
+					let end = '';
+					if (match[1].length > 500)
+					{
+						end = '...';
+						this.cut = true;
+					}
+					else if (match[2])
+					{ this.cut = true; }
+
+					return match[1].substring(0, 500) + end;
+				}
+				return this.content;
+			}
+		},
+		renderMd() {
+			return DOMPurify.sanitize(marked(this.mdString())) + (this.cut ? `	<i class='material-icons-round'>more_horiz</i>` : '');
+		},
 	},
 }
 </script>
@@ -68,12 +96,8 @@ export default {
 	width: 100%;
 }
 .markdown a:link, .markdown a:visited {
-	/* color: var(--icolor); */
 	text-decoration: underline;
 	text-decoration-style: dotted;
-}
-.markdown a:hover {
-	/* color: var(--textcolor) !important; */
 }
 .markdown h1, .markdown h2 {
 	border-bottom: solid 1px var(--blockquote);
@@ -165,5 +189,8 @@ export default {
 }
 .markdown blockquote blockquote {
 	margin-left: 17.5px;
+}
+.markdown i.material-icons-round {
+	margin-top: -15px;
 }
 </style>

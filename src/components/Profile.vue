@@ -65,6 +65,7 @@ export default {
 	border-radius: 3px;
 }
 .profile .image, .profile .image img {
+	display: block;
 	width: 3em;
 	height: 3em;
 }

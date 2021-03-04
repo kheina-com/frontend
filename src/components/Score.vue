@@ -31,8 +31,7 @@ export default {
 	},
 	methods: {
 		vote(vote) {
-			khatch(`${postsHost}/v1/vote`,
-				{
+			khatch(`${postsHost}/v1/vote`, {
 					method: 'POST',
 					body: {
 						post_id: this.postId,
@@ -40,20 +39,19 @@ export default {
 					},
 				})
 				.then(response => {
-					response.json()
-						.then(r => {
-							console.log(r);
-							if (response.status < 300)
-							{
-								this.score.up = r[this.postId].up;
-								this.score.down = r[this.postId].down;
-							}
-							else
-							{
-								this.errorMessage = apiErrorMessage;
-								this.errorDump = r;
-							}
-						});
+					response.json().then(r => {
+						console.log(r);
+						if (response.status < 300)
+						{
+							this.score.up = r[this.postId].up;
+							this.score.down = r[this.postId].down;
+						}
+						else
+						{
+							this.errorMessage = apiErrorMessage;
+							this.errorDump = r;
+						}
+					});
 				})
 				.catch(error => {
 					this.errorMessage = apiErrorMessage;
@@ -94,7 +92,13 @@ export default {
 	margin-bottom: 0;
 }
 .score {
-	margin-right: 10px;
 	text-align: center;
+}
+button {
+	padding: 0.25em 0.5em;
+	border-radius: 3px;
+}
+button:hover {
+	background: var(--bg2color);
 }
 </style>

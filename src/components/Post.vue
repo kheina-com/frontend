@@ -1,19 +1,21 @@
 <template>
-	<div class='post interactable' :to='`/p/${postId}`' @click='navigateToPost(postId)'>
+	<div class='post interactable' @click='isLoading ? null : navigateToPost(postId)'>
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
-				<Title size='1.5em' static='left' v-if='title'>{{title}}</Title>
-				<Profile :username='user?.name' :handle='user?.handle' :link='false' />
+				<Title :isLoading='isLoading' size='1.5em' static='left' v-if='title || isLoading'>{{title || 'this is an example title'}}</Title>
+				<Profile :isLoading='isLoading' :username='user?.name' :handle='user?.handle' :link='false' />
 			</div>
 		</div>
-		<Markdown v-if='description' :content='description' />
+		<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
+		<Markdown v-if='description' :content='mdGuide' :concise='concise' />
 		<img v-if='!isText' :src='getMediaThumbnailUrl(postId, 1200)'>
 	</div>
 </template>
 
 <script>
 import { getMediaThumbnailUrl, isMobile } from '../utilities';
+import { mdGuide } from '../config/constants';
 import Loading from './Loading.vue'
 import Title from '../components/Title.vue';
 import Profile from '../components/Profile.vue';
@@ -24,7 +26,10 @@ import Timestamp from '../components/Timestamp.vue';
 export default {
 	name: 'Post',
 	props: {
-		postId: String,
+		postId: {
+			type: String,
+			default: null,
+		},
 		user: Object,
 		score: Object,
 		title: {
@@ -43,10 +48,11 @@ export default {
 			type: Boolean,
 			default: true,
 		},
-		isLoading: {
-			type: Boolean,
-			default: false,
-		},
+	},
+	data() {
+		return {
+			mdGuide,
+		}
 	},
 	components: {
 		Title,
@@ -62,10 +68,10 @@ export default {
 		{ return this.errorDump !== null || this.errorMessage !== null; },
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
-		mdContent()
-		{ return concise ? description : description; },
 		isText()
-		{ return this.tags.includes('text'); },
+		{ return this.tags !== null ? this.tags.includes('text') : true; },
+		isLoading()
+		{ return this.postId === null; },
 	},
 	methods: {
 		getMediaThumbnailUrl,
@@ -83,6 +89,7 @@ export default {
 	flex-direction: column;
 	padding: 25px;
 	background: var(--bg2color);
+	align-items: start;
 }
 .post img {
 	max-width: 100%;
@@ -91,6 +98,7 @@ export default {
 	margin: 0 auto 0 0;
 }
 .post-header {
+	--bg2color: var(--bg1color);
 	margin-bottom: 25px;
 }
 .profile {
@@ -104,7 +112,11 @@ export default {
 	margin-bottom: 0;
 }
 .score {
+	--bg2color: var(--bg1color);
 	margin-right: 10px;
-	text-align: center;
+	margin-left: -10px;
+}
+.loading {
+	--bg2color: var(--bg1color);
 }
 </style>

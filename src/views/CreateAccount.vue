@@ -1,8 +1,8 @@
 <template>
-	<main v-if='!isError'>
+	<main v-if='!isError' style='display: flex; justify-content: center'>
 		<Loading :lazy='false' :isLoading='isLoading'>
 		<Title static='center'>Create Account</Title>
-		<form action='' method='post' enctype='multipart/form-data' class='centerx'>
+		<form action='' method='post' enctype='multipart/form-data'>
 			<div>
 				<span>Name</span>
 				<input ref='name' type='name' id='name' name='name' value='' autocomplete='off' class='interactable text'>

@@ -8,38 +8,44 @@
 	<!-- ♀ -->
 	<body id='app'>
 		<style>
-			data
-			{ display: none; }
-			html, body
-			{ background: #000000; }
+			html, body {
+				background: #000000;
+				width: 100vw;
+				height: 100vh;
+			}
 			html, body, p
 			{ margin: 0; }
 			h1
 			{ margin: 25px 0; }
-			main
-			{
-				top: 50vh;
-				position: relative;
-				transform: translatey(-50%);
+			body {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+			main {
 				background: #1E1F25;
 				color: #DDDDDD;
-				margin: auto;
-				padding: 25px;
+				margin: 0;
 				text-align: center;
+				width: 100%;
 			}
-			main img
-			{
+			main div
+			{ padding: 25px; }
+			main img {
 				max-width: 100px;
 				max-height: 100px;
 			}
 		</style>
 
 		<main>
-			<img src='/assets/logo.png'>
-			<h1>Javascript Required</h1>
-			<p>
-				kheina.com runs on Vue 3 and requires javascript to run correctly. Please check your browser settings and enable javascript.
-			</p>
+			<div>
+				<img src='/assets/logo.png'>
+				<h1>Javascript Required</h1>
+				<p>
+					kheina.com runs on Vue 3 and requires javascript to run correctly. Please check your browser settings and enable javascript.
+				</p>
+			</div>
 		</main>
 	</body>
 	<script type='module' src='/src/main.js'></script>

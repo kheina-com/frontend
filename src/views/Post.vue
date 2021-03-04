@@ -8,17 +8,22 @@
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
 						<div>
-							<Title :isLoading='isLoading' size='2em' static='left'>{{post? post.title : 'this is an example title'}}</Title>
+							<input ref='title' v-if='editing' class='interactable text' :value='post?.title'>
+							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{post?.title || 'this is an example title'}}</Title>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<i class='material-icons-round edit-button' v-if='showEdit'>mode_edit</i>
+								<button class='interactable edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round'>{{editing ? 'close' : 'mode_edit'}}</i></button>
 							</div>
 							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
 						</div>
 					</div>
-					<Loading :isLoading='isLoading' class='description' v-if='!post'><p>this is a very long example description</p></Loading>
+					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
+					<div v-else-if='editing' style='width: 100%'>
+						<textarea ref='description' class='interactable text'>{{post?.description}}</textarea>
+						<button @click='updatePost' class='interactable update-button'>update</button>
+					</div>
 					<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
-					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :time='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :time='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
+					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :datetime='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :datetime='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
 					<ThemeMenu />
 				</main>
 			</div>
@@ -29,11 +34,11 @@
 				<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
 				<main v-resize='onResize'>
 					<Subtitle static='right' class='privacy' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-					<Title :isLoading='isLoading' size='2rem' static='left'>{{post? post.title : 'this is an example title'}}</Title>
+					<Title :isLoading='isLoading' size='2rem' static='left'>{{post?.title || 'this is an example title'}}</Title>
 					<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
-					<Loading :isLoading='isLoading' class='description' v-if='!post'><p>this is a very long example description</p></Loading>
+					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
 					<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
-					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :time='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :time='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
+					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :datetime='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :datetime='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
 					<ThemeMenu />
 				</main>
 			</div>
@@ -42,8 +47,9 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { khatch, getMediaUrl, isMobile } from '../utilities';
-import { apiErrorMessage, postsHost, mdGuide } from '../config/constants';
+import { apiErrorMessage, postsHost, uploadHost } from '../config/constants';
 import Loading from '../components/Loading.vue';
 import Title from '../components/Title.vue';
 import Subtitle from '../components/Subtitle.vue';
@@ -77,8 +83,17 @@ export default {
 		Profile,
 		Score,
 	},
+	setup() {
+		const description = ref(null);
+		const title = ref(null);
+		return {
+			description,
+			title,
+		};
+	},
 	data() {
 		return {
+			editing: false,
 			post: null,
 			errorDump: null,
 			errorMessage: null,
@@ -91,7 +106,7 @@ export default {
 				response.json().then(r => {
 					console.log(r);
 					if (response.status < 300)
-					{ this.post = r[this.postId]; }
+					{ this.post = r; }
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -101,7 +116,6 @@ export default {
 						this.errorMessage = apiErrorMessage;
 						this.errorDump = r;
 					}
-					this.post.description = mdGuide;
 				});
 			})
 			.catch(error => {
@@ -156,6 +170,33 @@ export default {
 			{ this.mediaElement.style = 'margin: 0 auto 25px 0'; }
 			else if (rect.left < right - 0.1)
 			{ this.mediaElement.style = 'margin: 0 auto 25px; right: 10vw'; }
+		},
+		editToggle() {
+			this.editing = !this.editing;
+		},
+		updatePost() {
+			khatch(`${uploadHost}/v1/update_post`, {
+					method: 'POST',
+					body: {
+						post_id: this.postId,
+						title: this.$refs.title.value,
+						description: this.$refs.description.value,
+					},
+				})
+				.then(response => {
+					response.json().then(r => {
+						console.log(r);
+					});
+				})
+				.catch(error => {
+					this.errorMessage = apiErrorMessage;
+					this.error = error;
+					console.error(error);
+				});
+			this.post.title = this.$refs.title.value;
+			this.post.description = this.$refs.description.value;
+			this.post.updated = Date.now();
+			this.editing = false;
 		},
 	},
 }
@@ -217,5 +258,34 @@ main {
 }
 .edit-button {
 	margin-left: 0.5em;
+	padding: 0.25em;
+}
+.edit-button i {
+	display: block;
+}
+.score {
+	margin-right: 10px;
+	margin-left: -10px;
+}
+form {
+	width: 100%;
+}
+textarea {
+	width: 100%;
+	height: 30em;
+	margin: 0 0 25px;
+	background: var(--bg2color);
+	color: var(--textcolor);
+	border: 1px solid var(--bordercolor);
+	border-radius: 3px;
+	padding: 0.5em;
+}
+.update-button {
+	position: absolute;
+	right: 25px;
+	bottom: 25px;
+}
+input {
+	display: block;
 }
 </style>
