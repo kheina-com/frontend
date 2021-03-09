@@ -9,6 +9,7 @@ import FinalizeAccount from '../views/FinalizeAccount.vue';
 import Upload from '../views/Upload.vue';
 import MarkdownGuide from '../views/MarkdownGuide.vue';
 import Report from '../views/Report.vue';
+import Account from '../views/Account.vue';
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
 const routes = [
@@ -80,7 +81,7 @@ const routes = [
 	{
 		path: '/account',
 		name: 'account',
-		component: Login,
+		component: Account,
 		meta: {
 			title: 'Manage your account',
 			metaTags: [
