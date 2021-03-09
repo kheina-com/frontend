@@ -22,6 +22,22 @@ export function getCookie(cookieName)
 export function deleteCookie(cookieName)
 { document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`; };
 
+export function setTitle(title)
+{ document.title = title; }
+
+import { routerMetaTag } from '@/config/constants'
+export function setMeta(content)
+{
+	const tag = document.createElement('meta');
+
+	Object.entries(content).forEach(pair => tag.setAttribute(pair[0], pair[1]));
+
+	// We use this to track which meta tags we create, so we don't interfere with other ones.
+	tag.setAttribute(routerMetaTag, '');
+
+	document.head.appendChild(tag);
+}
+
 export function commafy(x)
 { // from https://stackoverflow.com/a/2901298
 	let parts = x.toString().split(".");

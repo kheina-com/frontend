@@ -91,10 +91,16 @@
 				<router-link to='/account/login'><i class='material-icons-round'>login</i>Login</router-link>
 			</li>
 			<li>
+				<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
+			</li>
+			<li>
 				<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
 			</li>
 			<li>
 				<router-link to='/bug'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+			</li>
+			<li>
+				<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
 			</li>
 		</ul>
 	</div>

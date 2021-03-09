@@ -17,19 +17,11 @@ const routes = [
 		name: 'home',
 		component: Search,
 		meta: {
-			title: 'kheina.com - the world\'s largest furry image index',
+			title: 'kheina.com',
 			metaTags: [
 				{
-					name: 'description',
-					content: 'Search the world\'s largest furry image database and find the artist behind your favorite artwork.',
-				},
-				{
-					property: 'og:description',
-					content: 'Search the world\'s largest furry image database and find the artist behind your favorite artwork.',
-				},
-				{
 					property: 'og:title',
-					content: 'kheina.com - the world\'s largest furry image index',
+					content: 'kheina.com',
 				},
 				{
 					property: 'og:image',
@@ -51,9 +43,6 @@ const routes = [
 			metaTags: [
 				{
 					name: 'description',
-					content: 'Search the world\'s largest furry image database and find the artist behind your favorite artwork.',
-				},
-				{
 					property: 'og:description',
 					content: 'Search the world\'s largest furry image database and find the artist behind your favorite artwork.',
 				},
@@ -182,7 +171,14 @@ const routes = [
 		props: true,
 		component: Post,
 		meta: {
+			title: (to) => to.params.postId,
 			metaTags: [
+				(to) => {
+					return {
+						property: 'og:title',
+						content: to.params.postId,
+					};
+				},
 				{
 					property: 'og:image',
 					content: '/assets/icon.png',
@@ -200,7 +196,15 @@ const routes = [
 		props: true,
 		component: Search,
 		meta: {
+			title: (to) => `Search results for ${to.params.query}`,
 			metaTags: [
+				(to) => {
+					return {
+						name: 'description',
+						property: 'og:description',
+						content: `Search results for ${to.params.query}`,
+					};
+				},
 				{
 					property: 'og:image',
 					content: '/assets/icon.png',

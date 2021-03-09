@@ -83,7 +83,7 @@ export default {
 						if (response.status < 300)
 						{
 							setCookie('kh-auth', r.token_data.token, r.token_data.expires - new Date().valueOf() / 1000);
-							// location.assign('/account');
+							location.assign('/account');
 						}
 						else if (response.status === 401)
 						{ this.errorMessage = r.error; }

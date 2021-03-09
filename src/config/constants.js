@@ -62,6 +62,8 @@ export const apiErrorMessage = 'An error occurred in your browser during an API 
 
 export const tagGroups = ['artist', 'sponsor', 'participant', 'species', 'gender', 'misc'];
 
+export const routerMetaTag = 'data-vue-router-controlled';
+
 export const mdGuide = `
 # Markdown Guide
 There are many fantastic guides available for markdown! kheina.com recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!
