@@ -1,10 +1,6 @@
 <template>
 	<footer class='footer'>
-		<!-- <div id='progress'>
-			<ProgressBar fillColor='#FAAF3A' textColor='#000000' :fill='furAffinityPercent' link='https://www.furaffinity.net/'>Fur Affinity</ProgressBar>
-			<ProgressBar fillColor='#2E76B4' textColor='#000000' :fill='furryNetworkPercent' link='https://furrynetwork.com/'>Furry Network</ProgressBar>
-		</div> -->
-		<ThemeButton />
+		<!-- <ThemeButton /> -->
 		<div class='anchor'>
 			<a href='https://www.patreon.com/kheina' target='_blank' class='left'><img src='/assets/patreon-logo.svg'> support the project</a>
 			<a href='https://gitlab.com/kheina.com' target='_blank' class='right'>view source code <img src='/assets/gitlab-logo.svg'></a>
@@ -14,30 +10,14 @@
 </template>
 
 <script>
-import ThemeButton from './ThemeButton.vue'
-import ProgressBar from './ProgressBar.vue'
+import ThemeButton from '@/components/ThemeButton.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 
 export default {
 	name: 'Footer',
-	props: {
-		content: String,
-		stats: null,
-	},
 	components: {
 		ThemeButton,
 		ProgressBar,
-	},
-	computed: {
-		furAffinityPercent() {
-			if (this.stats && this.stats.hasOwnProperty('fan') && this.stats.hasOwnProperty('fao'))
-			{ return (this.stats.fan - this.stats.fao) * 100 / this.stats.fan; }
-			return NaN;
-		},
-		furryNetworkPercent() {
-			if (this.stats && this.stats.hasOwnProperty('fnn') && this.stats.hasOwnProperty('fno'))
-			{ return (this.stats.fnn - this.stats.fno) * 100 / this.stats.fnn; }
-			return NaN;
-		},
 	},
 }
 </script>

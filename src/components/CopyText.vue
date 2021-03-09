@@ -1,30 +1,37 @@
 <template>
 	<div>
-		<input type='text' class='code' :value='copyValue' readonly />
+		<input ref='text' type='text' class='code' :value='copyValue' readonly />
 		<a role='button' @click='copy'><i class='material-icons'>content_copy</i></a>
 	</div>
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
 	name: 'CopyText',
+	setup() {
+		const text = ref(null);
+		return {
+			text,
+		};
+	},
 	props: {
 		content: Object,
 	},
 	computed: {
 		copyValue() {
+			console.log(this.content);
+			if (this.content instanceof Error)
+			{ return JSON.stringify({ 'error': this.content.toString(), 'stacktrace': this.content.stack.split('\n').filter(x => x) }); }
 			return JSON.stringify(this.content);
 		},
 	},
 	methods: {
 		copy() {
 			console.log(this.copyValue);
-			let input = document.createElement('input');
-			input.value = this.copyValue;
-			document.body.appendChild(input);
-			input.select();
-			document.execCommand("copy");
-			document.body.removeChild(input);
+			this.$refs.text.select();
+			document.execCommand('copy');
 		},
 	},
 }

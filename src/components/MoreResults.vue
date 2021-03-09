@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import DivLink from './DivLink.vue'
+import DivLink from '@/components/DivLink.vue'
 
 export default {
 	name: 'TopResult',

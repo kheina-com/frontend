@@ -1,15 +1,22 @@
 <template>
-	<a :href='src' class='media'>
-		<Loading :isLoading='isLoading' :style='linkStyle'>
+	<a :href='src' class='media' v-if='link'>
+		<Loading :isLoading='isLoading && lazy' :style='linkStyle'>
 			<p v-if='isError'>Could not load media.</p>
 			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo' >Your browser does not support this type of video.</video>
 			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
 		</Loading>
 	</a>
+	<div class='media' v-else>
+		<Loading :isLoading='isLoading && lazy' :style='linkStyle'>
+			<p v-if='isError'>Could not load media.</p>
+			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo' >Your browser does not support this type of video.</video>
+			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
+		</Loading>
+	</div>
 </template>
 
 <script>
-import Loading from '../components/Loading.vue';
+import Loading from '@/components/Loading.vue';
 
 export default {
 	name: 'Media',
@@ -17,6 +24,10 @@ export default {
 		Loading,
 	},
 	props: {
+		link: {
+			type: Boolean,
+			default: true,
+		},
 		mime: {
 			type: String,
 			default: null,
@@ -49,6 +60,10 @@ export default {
 			type: String,
 			default: 'width: 30vw; height: 30vh;',
 		},
+		lazy: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	data() {
 		return {
@@ -62,7 +77,7 @@ export default {
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
 		linkStyle()
-		{ return this.isLoading ? this.loadingStyle : (this.isError ? 'background: var(--error); display: flex; justify-content: center; border-radius: 3px; ' + this.loadingStyle : null); },
+		{ return this.isLoading && this.lazy ? this.loadingStyle : (this.isError ? 'background: var(--error); display: flex; justify-content: center; border-radius: 3px; ' + this.loadingStyle : null); },
 	},
 	mounted() {
 		this.load();

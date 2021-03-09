@@ -1,11 +1,19 @@
 <template>
-	<div :class='name'>
+	<div class='radio-buttons'>
 		<span v-for='i in data'>
-			<input type='radio' :name='name' :value='i.val' :id='name+i.val' @click='onClick(name, i.val)' :checked='i.val === data[0].val ? true : false'>
-			<label :for='name+i.val' >
+			<input
+				type='radio'
+				:name='name'
+				:value='getValue(i)'
+				:id='name+getValue(i)'
+				@click='emitValue(getValue(i))'
+				:checked='i === data[0]'
+			>
+			<label :for='name+getValue(i)' >
 				<div class='radio'>
 					<div></div>
-				</div>{{i.content}}
+				</div>
+				{{i.content}}
 			</label>
 		</span>
 	</div>
@@ -17,20 +25,24 @@ export default {
 	props: {
 		name: String,
 		value: String,
-		id: String,
-		checked: Boolean,
-		onClick: {
-			type: Function,
-			default() { },
-		},
-		onStart: {
-			type: Function,
-			default() { },
-		},
 		data: Array,
 	},
-	mounted()
-	{ return this.onStart(name); },
+	emits: {
+		'update:value': null,
+		change: null,
+	},
+	mounted() {
+		this.emitValue(this.getValue(this.data[0]));
+	},
+	methods: {
+		getValue(index) {
+			return String(index.value !== undefined ? index.value : index.content);
+		},
+		emitValue(index) {
+			this.$emit(`update:value`, index);
+			this.$emit(`change`, index);
+		}
+	},
 }
 </script>
 
@@ -48,12 +60,24 @@ label
 {
 	cursor: pointer;
 	padding: 0.5em 1em;
-	margin: 0 25px 0 0;
+	margin: 0;
 	border: 1px solid var(--bordercolor);
 	background: var(--bg2color);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	border-radius: 3px;
 	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	text-transform: capitalize;
+}
+span {
+	margin: 0 25px 0 0;
+}
+.radio-buttons {
+	display: flex;
+}
+.radio-buttons > :last-child {
+	margin-right: 0;
 }
 .maxrating label:hover, .maxrating label:active, .maxrating label:focus,
 label:hover, label:active, label:focus
@@ -66,13 +90,12 @@ label:hover
 label div.checkmark, label div.radio
 {
 	position: relative;
-	display: inline-block;
+	display: block;
 	left: 0;
 	padding: 0;
 	margin: 0 0.5em 0 -0.3em;
 	height: 1.2em;
 	width: 1.2em;
-	top: 0.25em;
 	border-radius: 3px;
 	background: var(--bg1color);
 	pointer-events: none;

@@ -1,4 +1,5 @@
 <template>
+	<!-- eslint-disable vue/no-multiple-template-root -->
 	<main>
 		<Title>Results</Title>
 		<Subtitle>searched {{commafy(stats.images)}} images from {{commafy(stats.artists)}} artists in {{prettyTime(elapsedtime)}}</Subtitle>
@@ -14,10 +15,10 @@
 </template>
 
 <script>
-import TopResult from './TopResult.vue'
-import MoreResults from './MoreResults.vue'
-import Subtitle from './Subtitle.vue'
-import Title from './Title.vue'
+import TopResult from '@/components/TopResult.vue'
+import MoreResults from '@/components/MoreResults.vue'
+import Subtitle from '@/components/Subtitle.vue'
+import Title from '@/components/Title.vue'
 
 export default {
 	name: 'SearchResults',

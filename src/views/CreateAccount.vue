@@ -1,17 +1,19 @@
 <template>
-	<main v-if='!isError' style='display: flex; justify-content: center'>
+	<main v-if='!isError'>
 		<Loading :lazy='false' :isLoading='isLoading'>
 		<Title static='center'>Create Account</Title>
 		<form action='' method='post' enctype='multipart/form-data'>
 			<div>
-				<span>Name</span>
-				<input ref='name' type='name' id='name' name='name' value='' autocomplete='off' class='interactable text'>
-			</div>
-			<div>
 				<span>Email</span>
 				<input ref='email' type='email' id='email' name='email' value='' class='interactable text'>
 			</div>
-			<Submit :onClick='sendCreate'>Submit »</Submit>
+			<div>
+				<span>Name</span>
+				<div style='display: flex'>
+					<input ref='name' type='name' id='name' name='name' value='' autocomplete='off' class='interactable text name-field'>
+					<Submit :onClick='sendCreate'>Submit »</Submit>
+				</div>
+			</div>
 		</form>
 		</Loading>
 		<ThemeMenu />
@@ -21,15 +23,15 @@
 
 <script>
 import { ref } from 'vue';
-import { apiErrorMessage, accountHost } from '../config/constants';
-import Loading from '../components/Loading.vue';
-import Title from '../components/Title.vue';
-import Subtitle from '../components/Subtitle.vue';
-import Error from '../components/Error.vue';
-import ThemeMenu from '../components/ThemeMenu.vue';
-import Media from '../components/Media.vue';
-import Sidebar from '../components/Sidebar.vue';
-import Submit from '../components/Submit.vue'
+import { apiErrorMessage, accountHost } from '@/config/constants';
+import Loading from '@/components/Loading.vue';
+import Title from '@/components/Title.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Error from '@/components/Error.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
+import Media from '@/components/Media.vue';
+import Sidebar from '@/components/Sidebar.vue';
+import Submit from '@/components/Submit.vue'
 
 export default {
 	name: 'CreateAccount',
@@ -111,7 +113,6 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
-	overflow: hidden;
 	display: block;
 }
 form div {
@@ -143,7 +144,8 @@ form
 	max-width: calc(100% - 50px);
 	display: flex;
 	flex-direction: column;
-	align-items: end;
+	align-items: flex-end;
+	margin: 0 auto;
 }
 form span
 {
@@ -235,5 +237,8 @@ label.hide-password svg
 
 .error {
 	border-color: var(--error);
+}
+.name-field {
+	margin: 0 25px 0 0;
 }
 </style>

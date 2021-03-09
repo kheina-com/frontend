@@ -1,5 +1,5 @@
 <template>
-	<div v-if='!lazy'>
+	<div v-if='!lazy' style='position: relative'>
 		<div :class='loadingClass'>
 			<slot name='default' />
 		</div>
@@ -79,12 +79,14 @@ div.loadingcover
 div.loadingicon
 {
 	position: absolute;
-	left: 50%;
-	top: 50%;
-	/* display: block; */
-	transform: translate(-50%, -50%);
-	text-align: center;
+	left: 0;
+	top: 0;
+	display: flex;
 	width: 100%;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
 }
 
 .loading {
@@ -126,7 +128,7 @@ html.solarized-dark div.loadingicon img {
 .loading * {
 	opacity: 0% !important;
 }
-.loading, .loading * {
+.loading, .loading *, .loading *:hover, .loading *:focus, .loading *:active {
 	color: #00000000 !important;
 }
 </style>

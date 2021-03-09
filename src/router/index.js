@@ -1,12 +1,14 @@
 import { createWebHistory, createRouter } from 'vue-router';
 import Home from '../views/Home.vue';
 import Post from '../views/Post.vue';
-import ImageSearch from '../views/ImageSearch.vue'
-import Search from '../views/Search.vue'
-import Login from '../views/Login.vue'
-import CreateAccount from '../views/CreateAccount.vue'
-import FinalizeAccount from '../views/FinalizeAccount.vue'
-
+import ImageSearch from '../views/ImageSearch.vue';
+import Search from '../views/Search.vue';
+import Login from '../views/Login.vue';
+import CreateAccount from '../views/CreateAccount.vue';
+import FinalizeAccount from '../views/FinalizeAccount.vue';
+import Upload from '../views/Upload.vue';
+import MarkdownGuide from '../views/MarkdownGuide.vue';
+import Report from '../views/Report.vue';
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
 const routes = [
@@ -210,6 +212,57 @@ const routes = [
 			],
 		},
 	},
+	{
+		path: '/create',
+		name: 'upload',
+		component: Upload,
+		meta: {
+			metaTags: [
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/md',
+		name: 'markdown',
+		component: MarkdownGuide,
+		meta: {
+			metaTags: [
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/report',
+		name: 'report',
+		component: Report,
+		meta: {
+			metaTags: [
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
 	// {
 	// 	path: '/s',
 	// 	name: 'search',
@@ -228,24 +281,24 @@ const routes = [
 	// 		],
 	// 	},
 	// },
-	// {
-	// 	path: '/:handle',
-	// 	name: 'user',
-	// 	props: true,
-	// 	component: User,
-	// 	meta: {
-	// 		metaTags: [
-	// 			{
-	// 				property: 'og:image',
-	// 				content: '/assets/icon.png',
-	// 			},
-	// 			{
-	// 				name: 'theme-color',
-	// 				content: '#1E1F25',
-	// 			},
-	// 		]
-	// 	},
-	// },
+	{
+		path: '/:handle',
+		name: 'user',
+		props: true,
+		component: Search, // User,
+		meta: {
+			metaTags: [
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			]
+		},
+	},
 ];
 
 const Router = createRouter({

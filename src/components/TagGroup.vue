@@ -1,4 +1,5 @@
 <template>
+	<!-- eslint-disable vue/no-multiple-template-root -->
 	<Loading :isLoading='tags === null'><h4>{{group}}</h4></Loading>
 	<ul>
 		<li v-if='tags !== null' v-for='tag in tags'>
@@ -13,7 +14,7 @@
 </template>
 
 <script>
-import Loading from './Loading.vue'
+import Loading from '@/components/Loading.vue'
 
 export default {
 	name: 'TagGroup',
@@ -79,5 +80,8 @@ ul li {
 }
 h4 {
 	margin: 0.25em 0;
+}
+html.solarized-dark .loading, html.solarized-light .loading {
+	--bg2color: var(--bg1color);
 }
 </style>

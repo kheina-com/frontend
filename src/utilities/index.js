@@ -1,7 +1,8 @@
 export default 0;
 
+import { environment } from '@/config/constants'
 export function setCookie(name, value, maxage=86400, samesite='strict', path='/')
-{ document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; secure`; };
+{ document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== 'local' ? 'secure' : ''}`; };
 
 export function getCookie(cookieName)
 {
@@ -54,7 +55,7 @@ export function tagSplit(tags)
 	return tags.split(/[,\s]/).filter(x => x).map(x => x.trim());
 }
 
-import { tagGroups } from '../config/constants'
+import { tagGroups } from '@/config/constants'
 export function sortTagGroups(tags)
 {
 	let sorted = { };
@@ -82,7 +83,7 @@ export function edit(regex, opt)
 	return obj;
 }
 
-export function khatch(url, options={ })
+export async function khatch(url, options={ })
 {
 	if (url.match(/https:\/\/(?:\w+\.)?kheina.com|http:\/\/localhost/))
 	{
@@ -103,13 +104,12 @@ export function khatch(url, options={ })
 		if (!options.hasOwnProperty('headers'))
 		{ options.headers = { }; }
 		options.headers['Content-Type'] = 'application/json';
-		console.log(Object.assign(options, { url }));
 		options.body = JSON.stringify(options.body);
 	}
-	else
-	{ console.log(Object.assign(options, { url })); }
 
-	return fetch(url, options);
+	let response = await fetch(url, options);
+
+	return response;
 }
 
 export function authCookie()

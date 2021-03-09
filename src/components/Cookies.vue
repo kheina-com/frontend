@@ -1,12 +1,12 @@
 <template>
 	<div class='cookies' v-if='displayWindow'>
 		<span>This website uses cookies.</span>
-		<a id='cookies' class='interactable' @click='goAway'>coolio</a>
+		<button id='cookies' class='interactable' @click='goAway'>coolio</button>
 	</div>
 </template>
 
 <script>
-import {setCookie, getCookie} from '../utilities'
+import {setCookie, getCookie} from '@/utilities'
 
 export default {
 	name: 'Cookies',

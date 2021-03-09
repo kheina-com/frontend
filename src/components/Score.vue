@@ -7,9 +7,9 @@
 </template>
 
 <script>
-import { khatch } from '../utilities';
-import { apiErrorMessage, postsHost } from '../config/constants';
-import Loading from './Loading.vue'
+import { khatch } from '@/utilities';
+import { apiErrorMessage, postsHost } from '@/config/constants';
+import Loading from '@/components/Loading.vue'
 
 export default {
 	name: 'Post',

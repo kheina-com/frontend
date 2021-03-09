@@ -20,5 +20,4 @@ export default {
 	color: var(--subtlecolor);
 	margin-right: 25px;
 }
-
 </style>

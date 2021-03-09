@@ -1,9 +1,9 @@
 @font-face {
 	font-family: 'kheina-icons';
 	src:
-		url('/assets/fonts/kheina-icons.woff2?s4mpmq') format('woff2'),
-		url('/assets/fonts/kheina-icons.ttf?s4mpmq') format('truetype'),
-		url('/assets/fonts/kheina-icons.svg?s4mpmq') format('svg');
+		url('/assets/fonts/kheina-icons.woff2?kwe5pk') format('woff2'),
+		url('/assets/fonts/kheina-icons.ttf?kwe5pk') format('truetype'),
+		url('/assets/fonts/kheina-icons.svg?kwe5pk') format('svg');
 	font-weight: normal;
 	font-style: normal;
 	/* font-display: block; */
@@ -34,6 +34,9 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.sword:before {
+.report_content:before {
 	content: '\e900';
+}
+.sword:before {
+	content: '\1f52a';
 }

@@ -15,10 +15,10 @@
 </template>
 
 <script>
-import { getMediaThumbnailUrl, sortTagGroups } from '../utilities'
-import { tagGroups } from '../config/constants'
-import Loading from './Loading.vue'
-import TagGroup from './TagGroup.vue'
+import { getMediaThumbnailUrl, sortTagGroups } from '@/utilities'
+import { tagGroups } from '@/config/constants'
+import Loading from '@/components/Loading.vue'
+import TagGroup from '@/components/TagGroup.vue'
 
 export default {
 	name: 'Sidebar',
@@ -57,7 +57,7 @@ export default {
 <style scoped>
 h3 {
 	margin: 0 12.5px 12px;
-	border-bottom: solid 1px var(--bordercolor);
+	border-bottom: 1px solid var(--bordercolor);
 	padding: 0 12.5px 12px;
 }
 

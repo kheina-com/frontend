@@ -6,7 +6,7 @@
 <script>
 import marked from 'marked';
 import DOMPurify from 'dompurify';
-import { markdownTokenizer, edit } from '../utilities';
+import { markdownTokenizer, edit } from '@/utilities';
 // import { highlight, getLanguage } from 'highlight.js';
 
 const inlineText = edit(/^([`~]+|[^`~])(?:(?= *\n)|[\s\S]*?(?:(?=[\\<!\[`*~]|\b_| *\n|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= *\n)|[^charset](?=[charset]*end)|(?=end\S))|(?=[charset]*end))/, 'i')
@@ -85,7 +85,7 @@ export default {
 			}
 		},
 		renderMd() {
-			return DOMPurify.sanitize(marked(this.mdString())) + (this.cut ? `	<i class='material-icons-round'>more_horiz</i>` : '');
+			return this.content ? DOMPurify.sanitize(marked(this.mdString())) + (this.cut ? `	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>` : '') : '';
 		},
 	},
 }
@@ -94,6 +94,9 @@ export default {
 <style>
 .markdown {
 	width: 100%;
+	/* overflow: hidden;
+	padding: 1em;
+	margin: -1em; */
 }
 .markdown a:link, .markdown a:visited {
 	text-decoration: underline;
@@ -192,5 +195,9 @@ export default {
 }
 .markdown i.material-icons-round {
 	margin-top: -15px;
+}
+.markdown > h1:last-child, .markdown > h2:last-child {
+	border: none;
+	padding: 0;
 }
 </style>

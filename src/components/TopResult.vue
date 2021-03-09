@@ -1,4 +1,5 @@
 <template>
+	<!-- eslint-disable vue/no-multiple-template-root -->
 	<span class='divider'>Top result</span>
 	<DivLink class='source' id='topresult' :link='sources.length === 1 ? sources[0].source : null'>
 		<img :src='imageUrl()' class='thumbnail' v-if='maxRating >= rating'>
@@ -26,7 +27,7 @@
 </template>
 
 <script>
-import DivLink from './DivLink.vue'
+import DivLink from '@/components/DivLink.vue'
 
 export default {
 	name: 'TopResult',

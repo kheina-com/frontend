@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import DivLink from './DivLink.vue'
+import DivLink from '@/components/DivLink.vue'
 
 export default {
 	name: 'ProgressBar',
@@ -17,9 +17,18 @@ export default {
 	},
 	props: {
 		fill: Number,
-		target: String,
-		textColor: String,
-		fillColor: String,
+		target: {
+			type: String,
+			default: null
+		},
+		textColor: {
+			type: String,
+			default: null
+		},
+		fillColor: {
+			type: String,
+			default: null
+		},
 		link: {
 			type: String,
 			default: null,
@@ -51,7 +60,7 @@ export default {
 	--bartextcolor: var(--textcolor);
 	display: block;
 	position: relative;
-	width: calc(100% - 50px);
+	width: 100%;
 	height: 1.1em;
 	border: 1px solid var(--bordercolor);
 	background: var(--bg2color);

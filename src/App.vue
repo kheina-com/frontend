@@ -1,17 +1,18 @@
 <template>
-	<Banner/>
-	<div ref='content' id='content' v-resize='onResize'>
-		<router-view :key='$route.path' />
-		<Footer :stats='stats' />
+	<!-- eslint-disable vue/no-multiple-template-root -->
+	<Banner :onResize='onResize' />
+	<div ref='content' id='content'>
+		<router-view :key='$route.fullPath' />
+		<Footer/>
 	</div>
 	<Cookies/>
 </template>
 
 <script>
 import { ref } from 'vue';
-import Footer from './components/Footer.vue'
-import Cookies from './components/Cookies.vue'
-import Banner from './components/Banner.vue'
+import Footer from '@/components/Footer.vue'
+import Cookies from '@/components/Cookies.vue'
+import Banner from '@/components/Banner.vue'
 
 export default {
 	name: 'App',
@@ -37,8 +38,7 @@ export default {
 	},
 	methods: {
 		onResize() {
-			const bannerHeight = this.banner.clientHeight + 25;
-			this.$refs.content.style.top = `${Math.max(bannerHeight, (window.innerHeight - this.$refs.content.clientHeight) / 2)}px`;
+			this.$refs.content.style.top = `${Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2)}px`;
 		},
 		ResizeSensor(element, callback)
 		{ // https://stackoverflow.com/a/47965966
@@ -93,7 +93,8 @@ export default {
 
 <style scoped>
 #content {
-	position: relative;
+	position: absolute;
+	width: 100%;
 }
 </style>
 
@@ -142,8 +143,7 @@ pre, code, .code, textarea
 }
 body
 {
-	height: 100vh;
-	width: 100vw;
+	min-height: 100vh;
 	display: flex;
 	background-size: cover;
 	background-position: center;
@@ -168,7 +168,8 @@ a, input, label, textarea
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 }
-input {
+input, textarea, select {
+	font-size: 0.9em;
 	color: var(--textcolor);
 }
 *::placeholder {
@@ -190,6 +191,7 @@ a:hover
 }
 button
 {
+	font-size: 1em;
 	padding: 0;
 	border: none;
 	background: none;
@@ -202,6 +204,14 @@ button
 }
 button:hover /*, button:active, button:focus */
 { color: var(--icolor); }
+textarea {
+	margin: 0;
+	background: var(--bg2color);
+	color: var(--textcolor);
+	border: 1px solid var(--bordercolor);
+	border-radius: 3px;
+	padding: 0.5em;
+}
 
 ::-webkit-scrollbar
 {
@@ -260,8 +270,10 @@ form, p
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 }
-.interactable.text
-{ cursor: text; }
+.interactable.text {
+	cursor: text;
+	padding: 0.5em;
+}
 .interactable:hover /*, .interactable:active, .interactable:focus */
 {
 	border-color: var(--borderhover);
@@ -339,9 +351,6 @@ h3#percent
 	margin: 0;
 	background: var(--bg2color);
 }
-
-data
-{ display: none; }
 
 .source span
 { padding: 0; }
@@ -507,6 +516,10 @@ html.solarized-dark
 	--shadowcolor: #002b36;
 	--activeshadowcolor: #2aa19820;
 
+	--error: #dc322f;
+	--warning: #cb4b16;
+	--valid: #859900;
+
 	--pink: #d33682;
 	--green: #859900;
 	--blue: #268bd2;
@@ -527,6 +540,10 @@ html.solarized-light
 	--subtlecolor: #839496;
 	--shadowcolor: #93a1a1;
 	--activeshadowcolor: #dc322f40;
+
+	--error: #dc322f;
+	--warning: #cb4b16;
+	--valid: #859900;
 
 	--pink: #d33682;
 	--green: #859900;

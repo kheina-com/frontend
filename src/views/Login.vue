@@ -1,7 +1,7 @@
 <template>
 	<main v-if='!isError'>
 		<Loading :lazy='false' :isLoading='isLoading'>
-		<Title static='center'>Login</Title>
+		<Title static='center'>Login<template v-slot:super><router-link to='/account/create'>Create</router-link></template></Title>
 		<form action='' method='post' enctype='multipart/form-data' class='centerx'>
 			<div>
 				<span>Email</span>
@@ -23,16 +23,16 @@
 
 <script>
 import { ref } from 'vue';
-import { setCookie } from '../utilities';
-import { apiErrorMessage, accountHost } from '../config/constants';
-import Loading from '../components/Loading.vue';
-import Title from '../components/Title.vue';
-import Subtitle from '../components/Subtitle.vue';
-import Error from '../components/Error.vue';
-import ThemeMenu from '../components/ThemeMenu.vue';
-import Media from '../components/Media.vue';
-import Sidebar from '../components/Sidebar.vue';
-import Submit from '../components/Submit.vue'
+import { khatch, setCookie } from '@/utilities';
+import { apiErrorMessage, accountHost } from '@/config/constants';
+import Loading from '@/components/Loading.vue';
+import Title from '@/components/Title.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Error from '@/components/Error.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
+import Media from '@/components/Media.vue';
+import Sidebar from '@/components/Sidebar.vue';
+import Submit from '@/components/Submit.vue'
 
 export default {
 	name: 'Login',
@@ -69,37 +69,32 @@ export default {
 	methods: {
 		sendLogin() {
 			this.isLoading = true;
-			fetch(`${accountHost}/v1/login`,
-				{
+			khatch(`${accountHost}/v1/login`, {
 					method:'POST',
 					credentials: 'include',
-					headers: {
-						'content-type': 'application/json',
-					},
-					body: JSON.stringify({
+					body: {
 						email: this.$refs.email.value,
 						password: this.$refs.password.value,
-					}),
+					},
 				})
 				.then(response => {
-					response.json()
-						.then(r => {
-							console.log(r);
-							if (response.status < 300)
-							{
-								setCookie('kh-auth', r.token_data.token, r.token_data.expires - new Date().valueOf() / 1000);
-								this.$router.push('/account');
-							}
-							else if (response.status === 401)
-							{ this.errorMessage = r.error; }
-							else if (response.status === 404)
-							{ this.errorMessage = r.error; }
-							else
-							{
-								this.errorMessage = apiErrorMessage;
-								this.errorDump = r;
-							}
-						});
+					response.json().then(r => {
+						console.log(r);
+						if (response.status < 300)
+						{
+							setCookie('kh-auth', r.token_data.token, r.token_data.expires - new Date().valueOf() / 1000);
+							location.assign('/account');
+						}
+						else if (response.status === 401)
+						{ this.errorMessage = r.error; }
+						else if (response.status === 404)
+						{ this.errorMessage = r.error; }
+						else
+						{
+							this.errorMessage = apiErrorMessage;
+							this.errorDump = r;
+						}
+					});
 				})
 				.catch(error => {
 					this.errorMessage = apiErrorMessage;
@@ -116,8 +111,6 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
-	overflow: hidden;
-	display: block;
 }
 form div {
 	width: 100%;
@@ -144,11 +137,12 @@ input
 }
 form
 {
-	width: 800px;
+	width: 50em;
 	max-width: calc(100% - 50px);
 	display: flex;
 	flex-direction: column;
-	align-items: end;
+	align-items: flex-end;
+	margin: 0 auto;
 }
 form span
 {
@@ -178,7 +172,7 @@ form p
 { margin-left: 25px; }
 
 form
-{ max-width: 350px; }
+{ max-width: 22em; }
 form input.submit
 { float: right; }
 form input#passwordRepeat

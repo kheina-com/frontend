@@ -1,9 +1,9 @@
 <template>
-	<Loading :span='span' :isLoading='isLoading'><p :class='titleClass' :style='titleStyle'><slot name='default' /><span class='super'><slot name='super' /></span></p></Loading>
+	<Loading :span='span' :isLoading='isLoading'><p class='title' :style='titleStyle'><slot name='default' /><span class='super'><slot name='super' /></span></p></Loading>
 </template>
 
 <script>
-import Loading from '../components/Loading.vue';
+import Loading from '@/components/Loading.vue';
 
 export default {
 	name: 'Title',
@@ -29,9 +29,6 @@ export default {
 		}
 	},
 	computed: {
-		titleClass() {
-			return this.static ? '' : 'title';
-		},
 		titleStyle() {
 			return `font-size: ${this.size}; text-align: ${this.static};`;
 		},
@@ -48,23 +45,12 @@ p {
 p .super {
 	position: absolute;
 	font-size: 1rem;
-	width: 0;
 	font-weight: bold;
 }
 .super, .super *
 { color: var(--subtlecolor) !important; }
 .title {
-	text-align: left;
 	padding: 0;
+	overflow: hidden;
 }
-@media screen and (max-width:90rem)
-{
-	.title
-	{
-		position: relative;
-		text-align: center;
-		padding: 0;
-	}
-}
-
 </style>

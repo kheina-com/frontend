@@ -1,35 +1,92 @@
 <template>
-	<div class='post interactable' @click='isLoading ? null : navigateToPost(postId)'>
+	<!-- eslint-disable vue/no-v-model-argument -->
+	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)'>
+		<div class='privacy'>
+			<div v-if='labels && !isLoading'>
+				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
+				<Subtitle static='right' v-if='comment'>comment</Subtitle>
+			</div>
+			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+		</div>
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
-				<Title :isLoading='isLoading' size='1.5em' static='left' v-if='title || isLoading'>{{title || 'this is an example title'}}</Title>
+				<Title :isLoading='isLoading' size='1.5em' static='left' style='margin-bottom: 0.25em' v-if='(title || isLoading) && !comment'>{{isLoading ? 'this is an example title' : title}}</Title>
 				<Profile :isLoading='isLoading' :username='user?.name' :handle='user?.handle' :link='false' />
 			</div>
 		</div>
 		<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-		<Markdown v-if='description' :content='mdGuide' :concise='concise' />
-		<img v-if='!isText' :src='getMediaThumbnailUrl(postId, 1200)'>
+		<div v-else-if='editing' style='width: 100%'>
+			<MarkdownEditor v-model:value='description' height='10em' resize='vertical' style='margin-bottom: 25px'/>
+			<div class='update-button'>
+				<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
+				<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+			</div>
+		</div>
+		<Markdown v-else-if='description' :content='description' :concise='concise' />
+		<img v-if='!isText' :src='getMediaThumbnailUrl(postId, 1200)' style='margin-bottom: 25px'>
+		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
+			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
+			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
+		</Loading>
+		<Report :data='{ post: postId }' v-if='!isLoading'/>
 	</div>
 </template>
 
 <script>
-import { getMediaThumbnailUrl, isMobile } from '../utilities';
-import { mdGuide } from '../config/constants';
-import Loading from './Loading.vue'
-import Title from '../components/Title.vue';
-import Profile from '../components/Profile.vue';
-import Markdown from '../components/Markdown.vue';
-import Score from '../components/Score.vue';
-import Timestamp from '../components/Timestamp.vue';
+import { getMediaThumbnailUrl, isMobile } from '@/utilities';
+import Report from '@/components/Report.vue';
+import Button from '@/components/Button.vue';
+import Loading from '@/components/Loading.vue'
+import Title from '@/components/Title.vue';
+import Profile from '@/components/Profile.vue';
+import Markdown from '@/components/Markdown.vue';
+import Score from '@/components/Score.vue';
+import Timestamp from '@/components/Timestamp.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
 
 export default {
 	name: 'Post',
+	components: {
+		Report,
+		Title,
+		Loading,
+		Profile,
+		Markdown,
+		Score,
+		Timestamp,
+		Subtitle,
+		MarkdownEditor,
+		Button,
+	},
 	props: {
 		postId: {
 			type: String,
 			default: null,
 		},
+		link: {
+			type: Boolean,
+			default: true,
+		},
+		labels: {
+			type: Boolean,
+			default: false,
+		},
+		concise: {
+			type: Boolean,
+			default: true,
+		},
+		nested: {
+			type: Boolean,
+			default: false,
+		},
+		comment: {
+			type: Boolean,
+			default: false,
+		},
+
+		// post fields
 		user: Object,
 		score: Object,
 		title: {
@@ -40,27 +97,31 @@ export default {
 			type: String, 
 			default: null,
 		},
+		privacy: {
+			type: String, 
+			default: null,
+		},
 		tags: {
 			type: Array[String],
 			default: null,
 		},
-		concise: {
+		userIsUploader: {
 			type: Boolean,
-			default: true,
+			default: false,
+		},
+		created: {
+			type: String, 
+			default: null,
+		},
+		updated: {
+			type: String, 
+			default: null,
 		},
 	},
 	data() {
 		return {
-			mdGuide,
-		}
-	},
-	components: {
-		Title,
-		Loading,
-		Profile,
-		Markdown,
-		Score,
-		Timestamp,
+			editing: false,
+		};
 	},
 	computed: {
 		isMobile,
@@ -72,11 +133,23 @@ export default {
 		{ return this.tags !== null ? this.tags.includes('text') : true; },
 		isLoading()
 		{ return this.postId === null; },
+		divClass()
+		{ return (this.isLoading || !this.link ? 'post nolink' : 'post interactable') + (this.nested ? ' nested' : ''); },
+		showPrivacy()
+		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
+		isUpdated()
+		{ return this.post !== null ? this.created !== this.updated : false; },
 	},
 	methods: {
 		getMediaThumbnailUrl,
 		navigateToPost(postId) {
 			this.$router.push('/p/' + postId);
+		},
+		editToggle() {
+			this.editing = !this.editing;
+		},
+		updatePost() {
+			// actually update the post
 		},
 	},
 }
@@ -88,8 +161,16 @@ export default {
 	display: flex;
 	flex-direction: column;
 	padding: 25px;
+	align-items: flex-start;
+	position: relative;
+}
+.post.nested {
 	background: var(--bg2color);
-	align-items: start;
+}
+.post.nolink {
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	border: 1px solid var(--bordercolor);
+	border-radius: 3px;
 }
 .post img {
 	max-width: 100%;
@@ -98,12 +179,13 @@ export default {
 	margin: 0 auto 0 0;
 }
 .post-header {
-	--bg2color: var(--bg1color);
 	margin-bottom: 25px;
 }
+.nested .post-header {
+	--bg2color: var(--bg1color);
+}
 .profile {
-	margin-top: 0.25em;
-	margin-bottom: 0;
+	margin: 0;
 }
 .post .markdown {
 	margin: 0 0 25px;
@@ -112,11 +194,55 @@ export default {
 	margin-bottom: 0;
 }
 .score {
-	--bg2color: var(--bg1color);
-	margin-right: 10px;
-	margin-left: -10px;
+	margin: -10px 10px 0 -10px;
 }
-.loading {
+.nested .score {
 	--bg2color: var(--bg1color);
+}
+.nested .loading {
+	--bg2color: var(--bg1color);
+}
+.privacy {
+	display: flex;
+	position: absolute;
+	right: 25px;
+	align-items: center;
+}
+.edit-button {
+	margin-left: 0.5em;
+	padding: 0.25em;
+}
+.edit-button i {
+	display: block;
+}
+.nested .markdown {
+	--bg3color: var(--bg0color);
+	--bg2color: var(--bg1color);
+}
+textarea {
+	width: 100%;
+	height: 30em;
+	resize: vertical;
+}
+.update-button {
+	position: absolute;
+	right: 25px;
+	bottom: 25px;
+	display: flex;
+}
+.update-button button {
+	margin-right: 25px;
+}
+.update-button > :last-child {
+	margin: 0;
+}
+.description.loading {
+	margin-bottom: 25px;
+}
+.report:hover {
+	background: var(--bg2color);
+}
+.nested .report:hover {
+	background: var(--bg1color);
 }
 </style>

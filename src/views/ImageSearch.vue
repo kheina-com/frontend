@@ -18,11 +18,11 @@
 				<p>Maximum rating</p>
 				<RadioButtons
 					name='maxrating'
-					:onClick='setCookie'
+					@change='setCookie(`maxrating`, $event)'
 					:data="[
-						{ val: 0, content: 'General' },
-						{ val: 1, content: 'Mature' },
-						{ val: 2, content: 'Explicit' },
+						{ value: 0, content: 'General' },
+						{ value: 1, content: 'Mature' },
+						{ value: 2, content: 'Explicit' },
 					]"
 				/>
 				<Submit :onClick='search'>Submit »</Submit>
@@ -41,19 +41,19 @@
 </template>
 
 <script>
-import { setCookie, commafy } from '../utilities';
-import RadioButtons from '../components/RadioButtons.vue'
-import Submit from '../components/Submit.vue'
-import UrlField from '../components/UrlField.vue'
-import FileField from '../components/FileField.vue'
-import Loading from '../components/Loading.vue'
-import ProgressBar from '../components/ProgressBar.vue'
-import SearchResults from '../components/SearchResults.vue'
-import LastUpdated from '../components/LastUpdated.vue'
-import Subtitle from '../components/Subtitle.vue'
-import Title from '../components/Title.vue'
-import Error from '../components/Error.vue'
-import ThemeMenu from '../components/ThemeMenu.vue'
+import { setCookie, commafy } from '@/utilities';
+import RadioButtons from '@/components/RadioButtons.vue'
+import Submit from '@/components/Submit.vue'
+import UrlField from '@/components/UrlField.vue'
+import FileField from '@/components/FileField.vue'
+import Loading from '@/components/Loading.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
+import SearchResults from '@/components/SearchResults.vue'
+import LastUpdated from '@/components/LastUpdated.vue'
+import Subtitle from '@/components/Subtitle.vue'
+import Title from '@/components/Title.vue'
+import Error from '@/components/Error.vue'
+import ThemeMenu from '@/components/ThemeMenu.vue'
 
 export default {
 	name: 'ImageSearch',
@@ -181,7 +181,6 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
-	overflow: hidden;
 	display: block;
 }
 form .text
@@ -204,6 +203,7 @@ form
 {
 	width: 800px;
 	max-width: calc(100% - 50px);
+	margin: 0 auto;
 }
 form span
 {

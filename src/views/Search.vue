@@ -2,7 +2,7 @@
 	<main v-if='!isError'>
 		<div class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
-			<Post v-for='post in posts || 3' :postId='post?.post_id' v-bind='post' v-else/>
+			<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
 		</div>
 		<ThemeMenu />
 	</main>
@@ -13,18 +13,18 @@
 </template>
 
 <script>
-import { khatch, tagSplit, isMobile } from '../utilities';
-import { apiErrorMessage, postsHost } from '../config/constants';
-import Loading from '../components/Loading.vue';
-import Title from '../components/Title.vue';
-import Subtitle from '../components/Subtitle.vue';
-import Error from '../components/Error.vue';
-import ThemeMenu from '../components/ThemeMenu.vue';
-import Media from '../components/Media.vue';
-import Sidebar from '../components/Sidebar.vue';
-import Timestamp from '../components/Timestamp.vue';
-import Post from '../components/Post.vue';
 import { useRoute } from 'vue-router';
+import { khatch, tagSplit, isMobile } from '@/utilities';
+import { apiErrorMessage, postsHost } from '@/config/constants';
+import Loading from '@/components/Loading.vue';
+import Title from '@/components/Title.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Error from '@/components/Error.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
+import Media from '@/components/Media.vue';
+import Sidebar from '@/components/Sidebar.vue';
+import Timestamp from '@/components/Timestamp.vue';
+import Post from '@/components/Post.vue';
 
 
 export default {
@@ -98,7 +98,6 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
-	overflow: hidden;
 	display: block;
 }
 .results {

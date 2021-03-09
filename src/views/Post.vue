@@ -1,46 +1,110 @@
 <template>
+	<!-- eslint-disable vue/require-v-for-key -->
+	<!-- eslint-disable vue/no-v-model-argument -->
 	<Error :dump='errorDump' :message='errorMessage'>
 		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
-				<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
-				<main v-resize='onResize'>
+				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
+				<main>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
 						<div>
-							<input ref='title' v-if='editing' class='interactable text' :value='post?.title'>
-							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{post?.title || 'this is an example title'}}</Title>
+							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
+							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<button class='interactable edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round'>{{editing ? 'close' : 'mode_edit'}}</i></button>
+								<Button class='edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 							</div>
 							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
 						</div>
 					</div>
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
 					<div v-else-if='editing' style='width: 100%'>
-						<textarea ref='description' class='interactable text'>{{post?.description}}</textarea>
-						<button @click='updatePost' class='interactable update-button'>update</button>
+						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
+						<div class='update-button'>
+							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
+							<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
+							<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+						</div>
 					</div>
-					<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
-					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :datetime='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :datetime='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
+					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
+					<Loading :isLoading='isLoading'>
+						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
+						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' /> (edited <Timestamp :datetime='post?.updated' />)</Subtitle>
+						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' /></Subtitle>
+						<Report :data='{ post: postId }' v-if='!isLoading'/>
+					</Loading>
 					<ThemeMenu />
 				</main>
+		<ul>
+			<p class='comment-label'>2 Comments <button><i class='material-icons-round'>sort</i>sort by</button></p>
+			<li v-for='comment in [
+				/*{
+					postId: `gZdcct7g`,
+					labels: false,
+					link: false,
+					user: {
+						name: `dari`,
+						handle: `darius`,
+					},
+					score: {
+						up: 1,
+						down: 1,
+					},
+					concise: false,
+					description: `# butts\nlol`,
+					title: null,
+					userIsUploader: true,
+					created: new Date(Date.now() - 10000000000).toString(),
+					updated: new Date(Date.now() - 1000000000).toString(),
+					comments: [
+						{
+							postId: `gZdcct7g`,
+							labels: false,
+							link: false,
+							user: {
+								name: `dari`,
+								handle: `darius`,
+							},
+							score: {
+								up: 1,
+								down: 1,
+							},
+							concise: false,
+							description: `what about thighs?`,
+							title: null,
+							userIsUploader: true,
+							created: new Date(Date.now() - 100000000).toString(),
+							updated: new Date(Date.now() - 100000000).toString(),
+						},
+					],
+				},
+				{
+					postId: null,
+					labels: false,
+					link: false,
+				}*/
+			]'>
+				<Comment v-bind='comment' comment/>
+			</li>
+		</ul>
+
 			</div>
 		</div>
 		<div class='content' v-else-if='isMobile'>
 			<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
 			<div class='container'>
 				<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
-				<main v-resize='onResize'>
+				<main>
 					<Subtitle static='right' class='privacy' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-					<Title :isLoading='isLoading' size='2rem' static='left'>{{post?.title || 'this is an example title'}}</Title>
+					<Title v-else :isLoading='isLoading' size='2em' static='left'>THIS ISN'T FINISHED, PLEASE FINISH THE MOBILE VERSION</Title>
 					<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
 					<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
 					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :datetime='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :datetime='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
-					<ThemeMenu />
 				</main>
+				<ThemeMenu />
 			</div>
 		</div>
 	</Error>
@@ -48,19 +112,23 @@
 
 <script>
 import { ref } from 'vue';
-import { khatch, getMediaUrl, isMobile } from '../utilities';
-import { apiErrorMessage, postsHost, uploadHost } from '../config/constants';
-import Loading from '../components/Loading.vue';
-import Title from '../components/Title.vue';
-import Subtitle from '../components/Subtitle.vue';
-import Error from '../components/Error.vue';
-import ThemeMenu from '../components/ThemeMenu.vue';
-import Media from '../components/Media.vue';
-import Sidebar from '../components/Sidebar.vue';
-import Timestamp from '../components/Timestamp.vue';
-import Markdown from '../components/Markdown.vue';
-import Profile from '../components/Profile.vue';
-import Score from '../components/Score.vue';
+import { khatch, getMediaUrl, isMobile } from '@/utilities';
+import { apiErrorMessage, postsHost, uploadHost } from '@/config/constants';
+import Report from '@/components/Report.vue';
+import Button from '@/components/Button.vue';
+import Loading from '@/components/Loading.vue';
+import Title from '@/components/Title.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Error from '@/components/Error.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
+import Media from '@/components/Media.vue';
+import Sidebar from '@/components/Sidebar.vue';
+import Timestamp from '@/components/Timestamp.vue';
+import Markdown from '@/components/Markdown.vue';
+import Profile from '@/components/Profile.vue';
+import Score from '@/components/Score.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue'
+import Post from '@/components/Post.vue'
 
 export default {
 	name: 'Post',
@@ -71,6 +139,8 @@ export default {
 		},
 	},
 	components: {
+		Report,
+		Comment: Post,
 		Timestamp,
 		ThemeMenu,
 		Loading,
@@ -82,14 +152,8 @@ export default {
 		Markdown,
 		Profile,
 		Score,
-	},
-	setup() {
-		const description = ref(null);
-		const title = ref(null);
-		return {
-			description,
-			title,
-		};
+		MarkdownEditor,
+		Button,
 	},
 	data() {
 		return {
@@ -136,7 +200,7 @@ export default {
 		isError()
 		{ return this.errorMessage !== null; },
 		isUpdated()
-		{ return this.post !== null ? Math.round(this.post.created) !== Math.round(this.post.updated) : false; },
+		{ return this.post !== null ? this.post.created !== this.post.updated : false; },
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
 		mediaElement() {
@@ -146,7 +210,7 @@ export default {
 			return null;
 		},
 		showPrivacy()
-		{ return this.post?.privacy != 'public'; },
+		{ return this.post?.privacy && this.post.privacy.toLowerCase() !== 'public'; },
 		showEdit()
 		{ return true; },
 	},
@@ -179,8 +243,8 @@ export default {
 					method: 'POST',
 					body: {
 						post_id: this.postId,
-						title: this.$refs.title.value,
-						description: this.$refs.description.value,
+						title: this.post.title.trim(),
+						description: this.post.description.trim(),
 					},
 				})
 				.then(response => {
@@ -193,8 +257,8 @@ export default {
 					this.error = error;
 					console.error(error);
 				});
-			this.post.title = this.$refs.title.value;
-			this.post.description = this.$refs.description.value;
+			this.post.title = this.post.title.trim();
+			this.post.description = this.post.description.trim();
 			this.post.updated = Date.now();
 			this.editing = false;
 		},
@@ -214,10 +278,9 @@ main {
 	border-radius: 3px 0 0 3px;
 	display: flex;
 	flex-direction: column;
-	align-items: start;
+	align-items: flex-start;
 	position: relative;
 	padding: 25px;
-	overflow: hidden;
 }
 .media {
 	grid-area: media;
@@ -228,6 +291,9 @@ main {
 	-o-transition: none;
 	transition: none;
 	max-width: calc(100vw - max(20vw, 200px) - 25px);
+}
+html.solarized-dark .media, html.solarized-light .media {
+	--bg2color: var(--bg1color);
 }
 .sidebar {
 	grid-area: sidebar;
@@ -244,6 +310,7 @@ main {
 	grid-area: main;
 	display: flex;
 	flex-direction: column;
+	position: relative;
 }
 .description {
 	font-size: 1.3em;
@@ -273,19 +340,61 @@ form {
 textarea {
 	width: 100%;
 	height: 30em;
-	margin: 0 0 25px;
-	background: var(--bg2color);
-	color: var(--textcolor);
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
-	padding: 0.5em;
+	resize: vertical;
 }
 .update-button {
 	position: absolute;
 	right: 25px;
 	bottom: 25px;
+	display: flex;
+}
+.update-button button, .update-button a {
+	margin-right: 25px;
+}
+.update-button > :last-child {
+	margin: 0;
 }
 input {
 	display: block;
+}
+.title-field {
+	font-size: 1em;
+}
+
+ul {
+	list-style: none;
+	padding: 0 25px 0 0;
+	margin: 25px 0 0;
+	display: block;
+	position: relative;
+}
+ul > :last-child, ul > :last-child .post {
+	margin: 0;
+}
+ul p {
+	margin: 0 0 0.25em 25px;
+}
+ul .post {
+	background: var(--bg1color);
+}
+ul .post .loading {
+	--bg1color: var(--bg2color);
+}
+ul .edit-button {
+	background: var(--bg2color);
+}
+.comment-label, .comment-label button {
+	display: flex;
+	align-items: center;
+}
+.comment-label button {
+	margin-left: 25px;
+	color: var(--subtlecolor);
+}
+.comment-label button:hover {
+	color: var(--icolor);
+}
+.report:hover {
+	background: var(--bg2color);
 }
 </style>

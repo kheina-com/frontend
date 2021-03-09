@@ -1,5 +1,5 @@
 <template>
-	<a @click='toggleDisplayType'>{{displayAbsolute ? absoluteTime : relativeTime()}}</a>
+	<button @click.stop='toggleDisplayType'>{{displayAbsolute ? absoluteTime : relativeTime()}}</button>
 </template>
 
 <script>
@@ -84,9 +84,12 @@ export default {
 </script>
 
 <style scoped>
-a
-{
+button {
+	color: var(--subtlecolor);
 	text-decoration-style: dotted;
 	text-decoration-line: underline;
+}
+button:hover {
+	color: var(--icolor);
 }
 </style>

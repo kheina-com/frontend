@@ -19,12 +19,11 @@ export default {
 </script>
 
 <style scoped>
-.submit
-{
+.submit {
 	right: 0;
+	white-space: nowrap;
 }
-input#submit
-{
+input#submit {
 	display: none;
 	top: -100vh;
 	opacity: 0;

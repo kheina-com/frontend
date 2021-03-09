@@ -40,10 +40,11 @@
 			</table>
 		</div>
 	</div>
+	<label class='themebutton' for='themecheck'><a>theme</a></label>
 </template>
 
 <script>
-import { setCookie, getCookie } from '../utilities';
+import { setCookie, getCookie } from '@/utilities';
 
 export default {
 	name: 'ThemeMenu',
@@ -142,5 +143,13 @@ select
 	border: 1px solid var(--bordercolor);
 	width: 125px;
 }
-
+label {
+	cursor: pointer;
+	position: absolute;
+	right: 0;
+	font-size: 0.9em;
+	color: var(--subtlecolor);
+	margin-right: 25px;
+	bottom: -1.25rem;
+}
 </style>
