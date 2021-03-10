@@ -112,7 +112,7 @@
 
 <script>
 import { ref } from 'vue';
-import { khatch, getMediaUrl, isMobile } from '@/utilities';
+import { khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, uploadHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
@@ -170,7 +170,10 @@ export default {
 				response.json().then(r => {
 					console.log(r);
 					if (response.status < 300)
-					{ this.post = r; }
+					{
+						this.post = r;
+						setTitle(`${this.post?.title || this.postId} by ${this.post.user.handle}`);
+					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)

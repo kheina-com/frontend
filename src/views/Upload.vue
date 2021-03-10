@@ -5,7 +5,7 @@
 			<Title static='center'>New Post</Title>
 			<Subtitle static='center'>Your post will be live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
 			<div class='form'>
-				<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadDone'>
+				<Loading :lazy='false' :isLoading='isUploading' >
 					<div class='field'>
 						<div>
 							<span>File</span>
@@ -14,23 +14,17 @@
 								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
 							</div>
 						</div>
-						<div>
-							Optional
-						</div>
 					</div>
 					<template v-slot:onLoad>
 						<ProgressBar :fill='uploadProgress'/>
 					</template>
 				</Loading>
-				<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else />
+				<!-- <Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else /> -->
 
 				<div class='field'>
 					<div>
 						<span>Title</span>
 						<input class='interactable text' style='display: block; width: 100%' v-model='title'>
-					</div>
-					<div>
-						some shit
 					</div>
 				</div>
 				<div class='field'>
@@ -39,9 +33,6 @@
 						<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
 						<MarkdownEditor v-model:value='description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;'/>
 					</div>
-					<div>
-						some shit
-					</div>
 				</div>
 				<div class='field'>
 					<div>
@@ -49,9 +40,6 @@
 						<div ref='tagDiv' class='tag-field interactable text' contenteditable='true'>
 							{{tags}}
 						</div>
-					</div>
-					<div>
-						How people find your post via the search bar
 					</div>
 				</div>
 				<div class='field'>
@@ -67,13 +55,13 @@
 							]"
 						/>
 					</div>
-					<div>
+					<!-- <div>
 						Public - Anyone can see, and appears in searches
 						<br>
 						Unlisted - Hidden from searches, but anyone with a link can view
 						<br>
 						Private - Only people you explicitly invite can view
-					</div>
+					</div> -->
 				</div>
 				<div class='field'>
 					<div>
@@ -88,13 +76,13 @@
 							]"
 						/>
 					</div>
-					<div>
+					<!-- <div>
 						General - Appropriate for all audiences
 						<br>
 						Mature - Tasteful nudity
 						<br>
 						Explicit - Sex, porn, etc
-					</div>
+					</div> -->
 				</div>
 				<div class='actions'>
 					<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
@@ -216,12 +204,12 @@ export default {
 			khatch(`${postsHost}/v1/post/${this.postId}`)
 				.then(response => {
 					response.json().then(r => {
-						console.log(r);
+						console.log(Object.assign(r, { response }));
 						if (response.status < 300)
 						{
 							this.description = r.description;
 							this.title = r.title;
-							this.privacy = r.privacy;
+							this.privacy = r.privacy !== 'unpublished' ? r.privacy : this.privacy;
 							this.rating = r.rating;
 							this.tags = Object.values(r.tags).flat().join(' ');
 							this.mime = r.media_type?.mime_type;
@@ -229,12 +217,6 @@ export default {
 								this.uploadDone = true;
 								this.filename = r.filename;
 							}
-							if (this.tags.includes('general'))
-							{ this.rating = 'general'; }
-							else if (this.tags.includes('mature'))
-							{ this.rating = 'mature'; }
-							else if (this.tags.includes('explicit'))
-							{ this.rating = 'explicit'; }
 						}
 						else if (response.status === 401)
 						{ this.errorMessage = r.error; }
@@ -298,12 +280,13 @@ export default {
 				title: this.title,
 				description: this.description,
 				privacy: this.privacy,
-				tags: tagSplit(this.$refs.tagDiv.textContent).concat(this.rating),
+				rating: this.rating,
+				tags: tagSplit(this.$refs.tagDiv.textContent),
 				this_tags: this.tags,
 			});
 		},
 		uploadFile() {
-			if (this.isUploading || !this.file)
+			if (this.isUploading || this.uploadDone || !this.file)
 			{ return; }
 
 			this.isUploading = true;
@@ -343,15 +326,15 @@ export default {
 			}).filter(x => x);
 		},
 		savePost() {
-			let tags = tagSplit(this.$refs.tagDiv.textContent).concat(this.rating);
+			let tags = tagSplit(this.$refs.tagDiv.textContent);
 			this.showData();
 
 			khatch(`${uploadHost}/v1/update_post`, {
 					method: 'POST',
 					body: {
 						post_id: this.postId,
-						title: this.title.trim(),
-						description: this.description.trim(),
+						title: this.title ? this.title.trim() : null,
+						description: this.description ? this.description.trim() : null,
 					},
 				})
 				.then(response => {
@@ -410,6 +393,7 @@ export default {
 				});
 		},
 		publishPost() {
+			this.uploadFile();
 			this.savePost();
 
 			khatch(`${uploadHost}/v1/update_privacy`, {
@@ -449,20 +433,6 @@ main {
 }
 .form .field {
 	margin: 25px 0;
-}
-.field {
-	display: flex;
-}
-.field > :first-child {
-	display: block;
-	width: 100%;
-	position: relative;
-}
-.field > :last-child {
-	position: absolute;
-	display: flex;
-	align-items: center;
-	right: -25px;
 }
 .actions {
 	display: flex;

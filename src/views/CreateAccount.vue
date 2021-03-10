@@ -82,8 +82,8 @@ export default {
 						'content-type': 'application/json',
 					},
 					body: JSON.stringify({
-						name: this.$refs.email.value,
-						email: this.$refs.email.value,
+						name: this.$refs.email.value.trim(),
+						email: this.$refs.email.value.trim(),
 					}),
 				})
 				.then(response => {

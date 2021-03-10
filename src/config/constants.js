@@ -62,7 +62,7 @@ export const apiErrorMessage = 'An error occurred in your browser during an API 
 
 export const tagGroups = ['artist', 'sponsor', 'participant', 'species', 'gender', 'misc'];
 
-export const routerMetaTag = 'data-vue-router-controlled';
+export const routerMetaTag = 'data-v-router';
 
 export const mdGuide = `
 # Markdown Guide
