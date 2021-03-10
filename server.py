@@ -9,7 +9,7 @@ app = ServerApp(auth=False)
 
 
 @app.get('/{uri:path}')
-@KwargsCache(60 * 60)
+@KwargsCache(60)
 async def test(uri: str) :
 	uri = 'dist/' + uri.strip('\./')
 

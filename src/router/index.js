@@ -73,6 +73,14 @@ const routes = [
 							property: 'og:title',
 							content: 'Manage your kheina.com account.',
 						},
+						{
+							property: 'og:image',
+							content: '/assets/icon.png',
+						},
+						{
+							name: 'theme-color',
+							content: '#1E1F25',
+						},
 					],
 				},
 			},
@@ -222,7 +230,12 @@ const routes = [
 		name: 'upload',
 		component: Upload,
 		meta: {
+			title: 'Create new post',
 			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Create new post',
+				},
 				{
 					property: 'og:image',
 					content: '/assets/icon.png',
@@ -239,7 +252,12 @@ const routes = [
 		name: 'markdown',
 		component: MarkdownGuide,
 		meta: {
+			title: 'Markdown Guide',
 			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Markdown Guide',
+				},
 				{
 					property: 'og:image',
 					content: '/assets/icon.png',
@@ -256,7 +274,12 @@ const routes = [
 		name: 'report',
 		component: Report,
 		meta: {
+			title: 'Report Content',
 			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Report Content',
+				},
 				{
 					property: 'og:image',
 					content: '/assets/icon.png',
