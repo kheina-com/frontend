@@ -31,9 +31,6 @@ export default {
 		'update:value': null,
 		change: null,
 	},
-	mounted() {
-		this.emitValue(this.getValue(this.data[0]));
-	},
 	methods: {
 		getValue(index) {
 			return String(index.value !== undefined ? index.value : index.content);

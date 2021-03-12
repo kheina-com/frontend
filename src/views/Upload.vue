@@ -214,8 +214,8 @@ export default {
 							this.tags = Object.values(r.tags).flat().join(' ');
 							this.mime = r.media_type?.mime_type;
 							if (r.filename) {
-								// this.uploadDone = true;
-								// this.filename = r.filename;
+								this.uploadDone = true;
+								this.filename = r.filename;
 							}
 						}
 						else if (response.status === 401)
@@ -335,6 +335,7 @@ export default {
 						post_id: this.postId,
 						title: this.title ? this.title.trim() : null,
 						description: this.description ? this.description.trim() : null,
+						rating: this.rating,
 					},
 				})
 				.then(response => {

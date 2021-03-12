@@ -37,29 +37,56 @@
 					</Loading>
 					<ThemeMenu />
 				</main>
-		<ul>
-			<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
-			<li v-for='comment in comments'>
-				<Comment v-bind='comment' comment/>
-			</li>
-		</ul>
-
+				<ul>
+					<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+					<li v-for='comment in comments'>
+						<Comment v-bind='comment' comment/>
+					</li>
+				</ul>
 			</div>
 		</div>
-		<div class='content' v-else-if='isMobile'>
+		<div class='content' v-else>
 			<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
 			<div class='container'>
 				<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
 				<main>
-					<Subtitle static='right' class='privacy' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-					<Title v-else :isLoading='isLoading' size='2em' static='left'>THIS ISN'T FINISHED, PLEASE FINISH THE MOBILE VERSION</Title>
-					<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
+					<div class='post-header'>
+						<Score :score='post?.score' :postId='postId' />
+						<div>
+							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
+							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
+							<div class='privacy'>
+								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
+								<Button class='edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+							</div>
+							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
+						</div>
+					</div>
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-					<Markdown v-else :content='post.description' style='margin: 0 0 25px' />
-					<Loading :isLoading='isLoading'><Subtitle static='left'>posted <Timestamp :datetime='post?.created' />{{isUpdated ? ' (edited ' : ''}}<Timestamp :datetime='post?.updated' v-if='isUpdated' />{{isUpdated ? ')' : ''}}</Subtitle></Loading>
+					<div v-else-if='editing' style='width: 100%'>
+						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
+						<div class='update-button'>
+							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
+							<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
+							<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+						</div>
+					</div>
+					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
+					<Loading :isLoading='isLoading'>
+						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
+						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' /> (edited <Timestamp :datetime='post?.updated' />)</Subtitle>
+						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' /></Subtitle>
+						<Report :data='{ post: postId }' v-if='!isLoading'/>
+					</Loading>
+					<ThemeMenu />
 				</main>
-				<ThemeMenu />
 			</div>
+			<ul style='padding: 0 25px'>
+				<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+				<li v-for='comment in comments'>
+					<Comment v-bind='comment' comment/>
+				</li>
+			</ul>
 		</div>
 	</Error>
 </template>
@@ -248,8 +275,8 @@ export default {
 					method: 'POST',
 					body: {
 						post_id: this.postId,
-						title: this.post.title.trim(),
-						description: this.post.description.trim(),
+						title: this.post.title?.trim(),
+						description: this.post.description?.trim(),
 					},
 				})
 				.then(response => {
@@ -262,8 +289,8 @@ export default {
 					this.error = error;
 					console.error(error);
 				});
-			this.post.title = this.post.title.trim();
-			this.post.description = this.post.description.trim();
+			this.post.title = this.post.title?.trim();
+			this.post.description = this.post.description?.trim();
 			this.post.updated = Date.now();
 			this.editing = false;
 		},
