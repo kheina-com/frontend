@@ -223,7 +223,7 @@ export default {
 	font-size: 1em;
 	position: absolute;
 	width: 20vw;
-	min-width: 200px;
+	min-width: 12.5em;
 	background: var(--bg2color);
 	border-right: 1px solid var(--bordercolor);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
@@ -234,12 +234,18 @@ export default {
 	height: 100vh;
 	top: 0;
 	left: -25vw;
-	left: calc(min(-20vw, -200px) - 3px);
+	left: calc(min(-20vw, -12.5em) - 3px);
 	z-index: 9;
+	overflow: auto;
 }
-.menu.open {
+html.mobile .menu.open, .menu.open {
 	position: fixed;
 	left: 0;
+}
+html.mobile .menu {
+	width: 95vw;
+	left: -99vw;
+	left: calc(-95vw - 3px);
 }
 
 .menu .inner {
@@ -397,7 +403,7 @@ ul > :last-child {
 	transition: ease var(--fadetime);
 	position: relative;
 	left: 25vw;
-	left: calc(max(20vw, 200px) + 3px);
+	left: calc(max(20vw, 12.5em) + 3px);
 }
 .create i {
 	margin: 0;
@@ -405,8 +411,12 @@ ul > :last-child {
 .create p {
 	margin-left: -0.25em;
 }
-.menu.open .create .icon {
+html.mobile  .menu.open .create .icon, .menu.open .create .icon {
 	left: 0;
+}
+html.mobile .create .icon {
+	left: 99vw;
+	left: calc(95vw + 3px);
 }
 
 .edit-message-button {

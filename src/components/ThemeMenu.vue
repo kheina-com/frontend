@@ -6,7 +6,7 @@
 				<tr>
 					<td>theme</td>
 					<td>
-						<select id='themeselector' name='theme' class='interactable' @change='setTheme' :value='theme'>
+						<select id='themeselector' name='theme' class='interactable' @change='setTheme'>
 							<option value='kheina'>kheina</option>
 							<option value='light'>light mode</option>
 							<option value='e621'>e621</option>
@@ -25,7 +25,7 @@
 				<tr>
 					<td>accent</td>
 					<td>
-						<select id='accentselector' name='accent' class='interactable' @change='setAccent' :value='accent'>
+						<select id='accentselector' name='accent' class='interactable' @change='setAccent'>
 							<option value='none'>none</option>
 							<option value='winter'>winter</option>
 							<option value='spring'>spring</option>
@@ -55,20 +55,16 @@ export default {
 		}
 	},
 	methods: {
-		setTheme() {
-			// get theme data from menu
-			this.theme = document.getElementById('themeselector').value;
-			// set css
-			document.documentElement.className = this.theme + ' ' + this.accent;
-			// set cookie for next time
+		setTheme(event) {
+			document.documentElement.classList.remove(this.theme);
+			this.theme = event.target.value;
+			document.documentElement.classList.add(this.theme);
 			setCookie('theme', this.theme);
 		},
-		setAccent() {
-			// get accent data from menu
-			this.accent = document.getElementById('accentselector').value;
-			// set css
-			document.documentElement.className = this.theme + ' ' + this.accent;
-			// set cookie for next time
+		setAccent(event) {
+			document.documentElement.classList.remove(this.accent);
+			this.accent = event.target.value;
+			document.documentElement.classList.add(this.accent);
 			setCookie('accent', this.accent);
 		},
 	},
@@ -77,7 +73,8 @@ export default {
 		this.theme = getCookie('theme');
 		this.accent = getCookie('accent');
 		// set css
-		document.documentElement.className = this.theme + ' ' + this.accent;
+		document.documentElement.classList.add(this.theme);
+		document.documentElement.classList.add(this.accent);
 	},
 }
 </script>

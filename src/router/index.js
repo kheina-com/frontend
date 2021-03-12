@@ -226,32 +226,6 @@ const routes = [
 		},
 	},
 	{
-		path: '/s',
-		name: 'search',
-		props: true,
-		component: Search,
-		meta: {
-			title: (to) => `Search results for ${to.params.query}`,
-			metaTags: [
-				(to) => {
-					return {
-						name: 'description',
-						property: 'og:description',
-						content: `Search results for ${to.params.query}`,
-					};
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
-		},
-	},
-	{
 		path: '/create',
 		name: 'upload',
 		component: Upload,

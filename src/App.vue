@@ -10,6 +10,7 @@
 
 <script>
 import { ref } from 'vue';
+import { isMobile } from '@/utilities';
 import Footer from '@/components/Footer.vue'
 import Cookies from '@/components/Cookies.vue'
 import Banner from '@/components/Banner.vue'
@@ -28,6 +29,8 @@ export default {
 		};
 	},
 	mounted() {
+		if (isMobile())
+		{ document.documentElement.classList.add('mobile'); }
 		this.ResizeSensor(this.$refs.content, this.onResize);
 		this.onResize();
 	},
@@ -99,6 +102,10 @@ export default {
 </style>
 
 <style>
+html.mobile {
+	font-size: 30px;
+}
+
 .expand {
 	position: absolute;
 	left: 0;
