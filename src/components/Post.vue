@@ -24,7 +24,7 @@
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<img v-if='!isText' :src='getMediaThumbnailUrl(postId, 1200)' style='margin-bottom: 25px'>
+		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='!isText'/>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
@@ -45,6 +45,7 @@ import Score from '@/components/Score.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import Thumbnail from '@/components/Thumbnail.vue';
 
 export default {
 	name: 'Post',
@@ -59,6 +60,7 @@ export default {
 		Subtitle,
 		MarkdownEditor,
 		Button,
+		Thumbnail,
 	},
 	props: {
 		postId: {
@@ -194,7 +196,7 @@ export default {
 	margin-bottom: 0;
 }
 .score {
-	margin: -10px 10px 0 -10px;
+	margin: -0.5em 0.5em 0 -0.5em;
 }
 .nested .score {
 	--bg2color: var(--bg1color);

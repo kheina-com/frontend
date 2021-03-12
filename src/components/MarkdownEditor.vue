@@ -36,13 +36,17 @@ export default {
 			type: String,
 			default: 'both',
 		},
+		initRendered: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	emits: [
 		'update:value'
 	],
 	data() {
 		return {
-			preview: false,
+			preview: this.initRendered,
 		};
 	},
 	methods: {

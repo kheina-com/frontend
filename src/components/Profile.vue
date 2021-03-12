@@ -1,7 +1,9 @@
 <template>
 	<router-link :to='`/${handle}`' class='profile' v-if='link && !isLoading'>
 		<div class='inner'>
-			<Loading :isLoading='isLoading' class='image'><img :src='getMediaThumbnailUrl("nNSsjrxI", 400)'></Loading>
+			<Loading :isLoading='isLoading' class='image'>
+				<Thumbnail :post='`nNSsjrxI`' :size='400'/>
+			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{username}}</p></Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
@@ -10,7 +12,9 @@
 	</router-link>
 	<div class='profile' v-else>
 		<div class='inner'>
-			<Loading :isLoading='isLoading' class='image'><img :src='getMediaThumbnailUrl("nNSsjrxI", 400)'></Loading>
+			<Loading :isLoading='isLoading' class='image'>
+				<Thumbnail :post='`nNSsjrxI`' :size='400'/>
+			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{username}}</p></Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
@@ -20,11 +24,15 @@
 </template>
 
 <script>
-import { getMediaThumbnailUrl } from '@/utilities';
 import Loading from '@/components/Loading.vue'
+import Thumbnail from '@/components/Thumbnail.vue';
 
 export default {
 	name: 'Post',
+	components: {
+		Loading,
+		Thumbnail,
+	},
 	props: {
 		username: {
 			type: String,
@@ -71,12 +79,6 @@ export default {
 					return 'a verified artist';
 			}
 		},
-	},
-	components: {
-		Loading,
-	},
-	methods: {
-		getMediaThumbnailUrl,
 	},
 }
 </script>

@@ -16,7 +16,7 @@
 				<i class='material-icons icon' title='You are a moderator' v-if='isMod'>verified_user</i>
 				<Loading :isLoading='false' class='profile-image'>
 					<router-link :to='`/${handle}`' v-if='true'>
-						<img :src='getMediaThumbnailUrl("nNSsjrxI", 400)'>
+						<Thumbnail :post='`_V-EGBtH`' :size='100'/>
 					</router-link>
 				</Loading>
 			</div>
@@ -24,7 +24,7 @@
 				<router-link to='/account/login' class='interactable login'>Login</router-link>
 			</div>
 		</div>
-		<button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></button>
+		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
 		<div v-if='editMessage' class='markdown edit-message'>
 			<textarea ref='messageField' class='interactable text' v-model='message'></textarea>
 			<div style='display: flex; '>
@@ -44,6 +44,9 @@
 			</p>
 		</router-link>
 		<ul class='inner'>
+			<li>
+				<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
+			</li>
 			<li v-if='isMod'>
 				<router-link to='/mod'>
 					<i class='material-icons'>shield</i>Moderate
@@ -112,6 +115,7 @@ import { getMediaThumbnailUrl, authCookie, deleteCookie } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
+import Thumbnail from '@/components/Thumbnail.vue';
 
 export default {
 	name: 'Banner',
@@ -119,6 +123,7 @@ export default {
 		Markdown,
 		Loading,
 		Button,
+		Thumbnail,
 	},
 	props: {
 		onResize: {
@@ -408,11 +413,11 @@ ul > :last-child {
 	position: absolute;
 	right: 25px;
 	margin-top: 0.5em;
-	padding: 0.5em;
+	padding: 0.25em;
 	z-index: 8;
 }
 .edit-message-button i {
-	font-size: 1.5em;
+	margin: 0;
 }
 .edit-message {
 	display: flex;

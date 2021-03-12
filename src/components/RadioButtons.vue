@@ -7,7 +7,7 @@
 				:value='getValue(i)'
 				:id='name+getValue(i)'
 				@click='emitValue(getValue(i))'
-				:checked='i === data[0]'
+				:checked='getValue(i) === value'
 			>
 			<label :for='name+getValue(i)' >
 				<div class='radio'>

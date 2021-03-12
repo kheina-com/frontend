@@ -5,7 +5,7 @@
 			<Title static='center'>New Post</Title>
 			<Subtitle static='center'>Your post will be live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
 			<div class='form'>
-				<Loading :lazy='false' :isLoading='isUploading' >
+				<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadDone'>
 					<div class='field'>
 						<div>
 							<span>File</span>
@@ -19,7 +19,7 @@
 						<ProgressBar :fill='uploadProgress'/>
 					</template>
 				</Loading>
-				<!-- <Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else /> -->
+				<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else />
 
 				<div class='field'>
 					<div>
@@ -209,13 +209,13 @@ export default {
 						{
 							this.description = r.description;
 							this.title = r.title;
-							this.privacy = r.privacy !== 'unpublished' ? r.privacy : this.privacy;
+							this.privacy = r.privacy;
 							this.rating = r.rating;
 							this.tags = Object.values(r.tags).flat().join(' ');
 							this.mime = r.media_type?.mime_type;
 							if (r.filename) {
-								this.uploadDone = true;
-								this.filename = r.filename;
+								// this.uploadDone = true;
+								// this.filename = r.filename;
 							}
 						}
 						else if (response.status === 401)

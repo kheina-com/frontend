@@ -12,7 +12,7 @@
 					harmful content
 					other
 				</pre>
-				<p style='margin-bottom: 25px; text-align: center; width: 100%'>{{JSON.stringify($route.query)}}</p>
+				<p style='margin-bottom: 25px; text-align: center; width: 100%'>{{JSON.stringify(payload)}}</p>
 				Please describe the reason for your report below. The data above will also be included with your report, but please add all relevant details.
 				<textarea class='interactable text'></textarea>
 				<Button>Submit</Button>
@@ -45,6 +45,7 @@ export default {
 	},
 	data() {
 		return {
+			payload: this.$route.query,
 			errorDump: null,
 			errorMessage: null,
 		};

@@ -14,8 +14,8 @@ export default {
 	},
 	methods: {
 		navigate() {
-			let query = Object.entries(this.data).map(x => `${x[0]}=${x[1]}`).join('&');
-			let url = '/report' + (query ? '?' + query : '');
+			let query = Object.entries(Object.assign({ url: encodeURIComponent(this.$route.fullPath) }, this.data)).map(x => `${x[0]}=${x[1]}`).join('&');
+			let url = `/report?${query}`;
 			this.$router.push(url);
 		},
 	},
@@ -28,8 +28,10 @@ button {
 	align-items: center;
 	color: var(--subtlecolor);
 	border-radius: 3px;
-	padding: 0.1em 0.25em !important;
-	margin: -0.1em -0.25em !important;
+	padding: 0.25em 0.25em !important;
+	margin: -0.25em -0.25em !important;
+	position: relative;
+	z-index: 1;
 }
 button:hover {
 	color: var(--icolor);
@@ -37,5 +39,6 @@ button:hover {
 }
 i {
 	margin-right: 0.25em;
+	font-size: 1.2em;
 }
 </style>

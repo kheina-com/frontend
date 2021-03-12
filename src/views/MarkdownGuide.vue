@@ -1,13 +1,13 @@
 <template>
 	<main id='feature'>
-		<Markdown :content='content' />
+		<MarkdownEditor class='guide' height='60vh' resize='vertical' initRendered :value='content' />
 	</main>
 </template>
 
 <script>
 import { khatch } from '@/utilities';
 import { apiErrorMessage, mdGuide } from '@/config/constants';
-import Markdown from '@/components/Markdown.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
 
 export default {
 	name: 'MarkdownGuide',
@@ -19,7 +19,7 @@ export default {
 		};
 	},
 	components: {
-		Markdown,
+		MarkdownEditor,
 	},
 	computed: {
 	},
@@ -29,5 +29,15 @@ export default {
 </script>
 
 <style scoped>
-
+main {
+	background: var(--bg1color);
+	position: relative;
+	padding: 25px;
+}
+.guide {
+	margin: 0 auto;
+	min-width: 800px;
+	width: 40vw;
+	position: relative;
+}
 </style>

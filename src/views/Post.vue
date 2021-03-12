@@ -38,54 +38,8 @@
 					<ThemeMenu />
 				</main>
 		<ul>
-			<p class='comment-label'>2 Comments <button><i class='material-icons-round'>sort</i>sort by</button></p>
-			<li v-for='comment in [
-				/*{
-					postId: `gZdcct7g`,
-					labels: false,
-					link: false,
-					user: {
-						name: `dari`,
-						handle: `darius`,
-					},
-					score: {
-						up: 1,
-						down: 1,
-					},
-					concise: false,
-					description: `# butts\nlol`,
-					title: null,
-					userIsUploader: true,
-					created: new Date(Date.now() - 10000000000).toString(),
-					updated: new Date(Date.now() - 1000000000).toString(),
-					comments: [
-						{
-							postId: `gZdcct7g`,
-							labels: false,
-							link: false,
-							user: {
-								name: `dari`,
-								handle: `darius`,
-							},
-							score: {
-								up: 1,
-								down: 1,
-							},
-							concise: false,
-							description: `what about thighs?`,
-							title: null,
-							userIsUploader: true,
-							created: new Date(Date.now() - 100000000).toString(),
-							updated: new Date(Date.now() - 100000000).toString(),
-						},
-					],
-				},
-				{
-					postId: null,
-					labels: false,
-					link: false,
-				}*/
-			]'>
+			<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+			<li v-for='comment in comments'>
 				<Comment v-bind='comment' comment/>
 			</li>
 		</ul>
@@ -129,6 +83,7 @@ import Profile from '@/components/Profile.vue';
 import Score from '@/components/Score.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import Post from '@/components/Post.vue'
+import { authCookie } from '../utilities';
 
 export default {
 	name: 'Post',
@@ -162,6 +117,53 @@ export default {
 			errorDump: null,
 			errorMessage: null,
 			sidebarStyle: null,
+			comments: [
+				{
+					postId: 'gZdcct7g',
+					labels: false,
+					link: false,
+					user: {
+						name: 'dari',
+						handle: 'darius',
+					},
+					score: {
+						up: 1,
+						down: 0,
+					},
+					concise: false,
+					description: '# butts\nlol',
+					title: null,
+					userIsUploader: false,
+					created: new Date(Date.now() - 10000000000).toString(),
+					updated: new Date(Date.now() - 1000000000).toString(),
+					comments: [
+						{
+							postId: 'gZdcct7g',
+							labels: false,
+							link: false,
+							user: {
+								name: 'dari',
+								handle: 'darius',
+							},
+							score: {
+								up: 2,
+								down: 0,
+							},
+							concise: false,
+							description: 'what about thighs?',
+							title: null,
+							userIsUploader: false,
+							created: new Date(Date.now() - 100000000).toString(),
+							updated: new Date(Date.now() - 100000000).toString(),
+						},
+					],
+				},
+				{
+					postId: null,
+					labels: false,
+					link: false,
+				}
+			]
 		};
 	},
 	created() {
@@ -334,8 +336,7 @@ html.solarized-dark .media, html.solarized-light .media {
 	display: block;
 }
 .score {
-	margin-right: 10px;
-	margin-left: -10px;
+	margin: -0.5em 0.5em 0 -0.5em;
 }
 form {
 	width: 100%;

@@ -50,9 +50,9 @@ export function getMediaUrl(postId, filename)
 	return `https://cdn.kheina.com/file/kheina-content/${postId}/${filename}`;
 }
 
-export function getMediaThumbnailUrl(postId, resolution=800)
+export function getMediaThumbnailUrl(postId, resolution=800, extension='webp')
 {
-	return `https://cdn.kheina.com/file/kheina-content/${postId}/thumbnails/${resolution}.jpg`;
+	return `https://cdn.kheina.com/file/kheina-content/${postId}/thumbnails/${resolution}.${extension}`;
 }
 
 export function round(num, precision)
