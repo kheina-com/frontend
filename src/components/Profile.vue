@@ -1,8 +1,8 @@
 <template>
-	<router-link :to='`/${handle}`' class='profile' v-if='link && !isLoading'>
+	<router-link :to='`/${handle}`' class='profile' v-if='link && !isLoading' @click.stop>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
-				<Thumbnail :post='`nNSsjrxI`' :size='400'/>
+				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{username}}</p></Loading>
@@ -13,7 +13,7 @@
 	<div class='profile' v-else>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
-				<Thumbnail :post='`nNSsjrxI`' :size='400'/>
+				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{username}}</p></Loading>
@@ -41,6 +41,10 @@ export default {
 		handle: {
 			type: String,
 			default: 'handle',
+		},
+		icon: {
+			type: String,
+			default: null,
 		},
 		isLoading: {
 			type: Boolean,

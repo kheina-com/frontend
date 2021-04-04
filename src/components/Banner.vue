@@ -2,9 +2,20 @@
 	<!-- eslint-disable vue/no-multiple-template-root -->
 	<div class='banner'>
 		<div class='nav'>
-			<button ref='menuButton' @click='openMenu' class='menu-button icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
-				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-			</button>
+			<div ref='menuButton' class='menu-button'>
+				<button @click='openMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
+					<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
+				</button>
+				<router-link to='/create' class='create' title='Create new post'>
+					<div class='icon'>
+						<i class='material-icons'>create</i>
+					</div>
+					<p>
+						Create
+					</p>
+				</router-link>
+			</div>
+
 			<form class='search-bar' v-on:submit.prevent='noop'>
 				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
 				<div class='cover'></div>
@@ -14,9 +25,9 @@
 				<i class='material-icons icon' title='You are verified!' v-if='isVerified'>verified</i>
 				<i class='kheina-icons icon' title='You are an admin' v-if='isAdmin'>sword</i>
 				<i class='material-icons icon' title='You are a moderator' v-if='isMod'>verified_user</i>
-				<Loading :isLoading='false' class='profile-image'>
-					<router-link :to='`/${handle}`' v-if='true'>
-						<Thumbnail :post='`_V-EGBtH`' :size='100'/>
+				<Loading :isLoading='isIconLoading' class='profile-image'>
+					<router-link :to='`/${$store.state.user?.handle}`'>
+						<Thumbnail :post='userIcon' v-model:isLoading='isIconLoading' :size='100'/>
 					</router-link>
 				</Loading>
 			</div>
@@ -35,14 +46,6 @@
 		<Markdown :content='message' v-else-if='message'/>
 	</div>
 	<div class='menu' ref='menu'>
-		<router-link to='/create' class='create' title='Create new post'>
-			<div class='icon'>
-				<i class='material-icons'>create</i>
-			</div>
-			<p>
-				Create
-			</p>
-		</router-link>
 		<ul class='inner'>
 			<li>
 				<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
@@ -111,7 +114,7 @@
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, authCookie, deleteCookie } from '@/utilities';
+import { getMediaThumbnailUrl, deleteCookie } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
@@ -149,6 +152,7 @@ export default {
 			editMessage: false,
 			menuOpen: false,
 			handle: 'handle',
+			isIconLoading: true,
 		};
 	},
 	computed: {
@@ -156,13 +160,13 @@ export default {
 			return false;
 		},
 		isMod() {
-			return Boolean(authCookie()?.scope?.includes('mod'));
+			return Boolean(this.$store.state.auth?.scope?.includes('mod'));
 		},
 		isAdmin() {
-			return Boolean(authCookie()?.scope?.includes('admin'));
+			return Boolean(this.$store.state.auth?.scope?.includes('admin'));
 		},
 		isLoggedIn() {
-			return authCookie() !== null;
+			return Boolean(this.$store.state.auth);
 		},
 		searchValue() {
 			if (this.$route.path.startsWith('/s/'))
@@ -175,6 +179,9 @@ export default {
 		showUploadButton() {
 			return this.$route.path !== '/create';
 		},
+		userIcon() {
+			return this.$store.state.user?.icon;
+		},
 	},
 	methods: {
 		getMediaThumbnailUrl,
@@ -184,7 +191,7 @@ export default {
 		},
 		signOut() {
 			deleteCookie('kh-auth');
-			location.reload(); 
+			this.$store.commit('setAuth', null);
 		},
 		openMenu() {
 			this.menuOpen = !this.menuOpen;
@@ -221,7 +228,7 @@ export default {
 <style scoped>
 .menu {
 	font-size: 1em;
-	position: absolute;
+	position: fixed;
 	width: 20vw;
 	min-width: 12.5em;
 	background: var(--bg2color);
@@ -236,10 +243,8 @@ export default {
 	left: -25vw;
 	left: calc(min(-20vw, -12.5em) - 3px);
 	z-index: 9;
-	overflow: auto;
 }
 html.mobile .menu.open, .menu.open {
-	position: fixed;
 	left: 0;
 }
 html.mobile .menu {
@@ -307,7 +312,7 @@ textarea {
 .profile-image {
 	width: 2rem;
 	height: 2rem;
-	padding: 0.25rem;
+	margin: 0.25rem;
 }
 .profile-image *  {
 	display: block;
@@ -326,7 +331,7 @@ textarea {
 	position: relative;
 }
 .search-bar input {
-	min-width: 300px;
+	min-width: 400px;
 	width: 30vw;
 }
 i {
@@ -365,6 +370,9 @@ ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
+	overflow: auto;
+	height: 80%;
+	height: calc(100% - 3.5rem);
 }
 ul li {
 	margin: 0 0 0.5em;
@@ -388,6 +396,9 @@ ul > :last-child {
     margin: 0 0 0 2.5rem;
 	padding: 0 1em 0 0;
     height: 2.5rem;
+	z-index: 10;
+	left: 0;
+	top: 0;
 }
 .icon {
 	display: flex;
@@ -396,14 +407,14 @@ ul > :last-child {
 	width: 2.5rem;
 	height: 2.5rem;
 }
-.create .icon {
+.create p {
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 	position: relative;
-	left: 25vw;
-	left: calc(max(20vw, 12.5em) + 3px);
+	right: 25vw;
+	right: calc(max(20vw, 12.5em) + 3px);
 }
 .create i {
 	margin: 0;
@@ -411,8 +422,8 @@ ul > :last-child {
 .create p {
 	margin-left: -0.25em;
 }
-html.mobile  .menu.open .create .icon, .menu.open .create .icon {
-	left: 0;
+html.mobile .open .create p, .open .create p {
+	right: 0;
 }
 html.mobile .create .icon {
 	left: 99vw;

@@ -15,8 +15,7 @@ export default {
 	methods: {
 		navigate() {
 			let query = Object.entries(Object.assign({ url: encodeURIComponent(this.$route.fullPath) }, this.data)).map(x => `${x[0]}=${x[1]}`).join('&');
-			let url = `/report?${query}`;
-			this.$router.push(url);
+			this.$router.push(`/report?${query}`);
 		},
 	},
 }

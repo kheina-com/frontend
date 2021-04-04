@@ -13,34 +13,38 @@ export default {
 			default: null,
 		},
 		size: {
-			type: String,
+			type: Number,
 			default: null,
 		},
+		isLoading: Boolean,
 	},
-	data () {
+	data() {
 		return {
-			src: null,
+			webpFailed: false,
 		};
 	},
-	mounted() {
-		this.src = getMediaThumbnailUrl(this.post, this.size);
+	computed: {
+		src() {
+			if (this.webpFailed)
+			{ return getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
+			return getMediaThumbnailUrl(this.post, this.size);
+		},
 	},
 	methods: {
 		onLoad() {
+			console.log('thumbnail loaded');
+			this.$emit('update:isLoading', false);
 		},
 		onError() {
-			this.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
+			if (this.post)
+			{ this.webpFailed = true; }
 		},
 	},
 }
 </script>
 
 <style scoped>
-.media img, .media video {
-	width: 100%;
-}
-.media p {
-	align-self: center;
-	text-align: center;
+img {
+	object-fit: cover;
 }
 </style>

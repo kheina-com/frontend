@@ -110,7 +110,6 @@ import Profile from '@/components/Profile.vue';
 import Score from '@/components/Score.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import Post from '@/components/Post.vue'
-import { authCookie } from '../utilities';
 
 export default {
 	name: 'Post',
@@ -152,6 +151,7 @@ export default {
 					user: {
 						name: 'dari',
 						handle: 'darius',
+						icon: 'yZQnofj2',
 					},
 					score: {
 						up: 1,

@@ -3,6 +3,8 @@ import App from '@/App.vue';
 import Router from '@/router'
 import { routerMetaTag } from '@/config/constants';
 import { setMeta } from '@/utilities/index.js';
+import Vuex from 'vuex';
+import global from './global';
 
 Router.beforeEach((to, from, next) => {
 	// This goes through the matched routes from last to first, combining routes metadata.
@@ -39,5 +41,7 @@ Router.beforeEach((to, from, next) => {
 });
 
 createApp(App)
+	.use(Vuex)
+	.use(global)
 	.use(Router)
 	.mount('#app');

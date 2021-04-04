@@ -10,6 +10,7 @@ import Upload from '../views/Upload.vue';
 import MarkdownGuide from '../views/MarkdownGuide.vue';
 import Report from '../views/Report.vue';
 import Account from '../views/Account.vue';
+import User from '../views/User.vue';
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
 const routes = [
@@ -313,7 +314,7 @@ const routes = [
 		path: '/:handle',
 		name: 'user',
 		props: true,
-		component: Search, // User,
+		component: User,
 		meta: {
 			metaTags: [
 				{

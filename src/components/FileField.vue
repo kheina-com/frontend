@@ -45,7 +45,7 @@ export default {
 			this.hasFile = true;
 		},
 		addFile(file) {
-			this.$emit(`update:file`, file);
+			this.$emit('update:file', file);
 			const reader = new FileReader();
 			reader.readAsDataURL(file);
 			reader.addEventListener('load', () => this.readerOnLoad(reader), false);

@@ -10,7 +10,7 @@
 
 <script>
 import { ref } from 'vue';
-import { isMobile } from '@/utilities';
+import { authCookie, isMobile } from '@/utilities';
 import Footer from '@/components/Footer.vue'
 import Cookies from '@/components/Cookies.vue'
 import Banner from '@/components/Banner.vue'
@@ -29,6 +29,9 @@ export default {
 		};
 	},
 	mounted() {
+		const auth = authCookie();
+		if (auth)
+		{ this.$store.commit('setAuth', authCookie()); }
 		if (isMobile())
 		{ document.documentElement.classList.add('mobile'); }
 		this.ResizeSensor(this.$refs.content, this.onResize);

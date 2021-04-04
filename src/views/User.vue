@@ -1,30 +1,17 @@
 <template>
-	<main v-if='!isError'>
-		<Loading :lazy='false' :isLoading='isLoading'>
-		<Title static='center'>Login<template v-slot:super><router-link to='/account/create'>Create</router-link></template></Title>
-		<form action='' method='post' enctype='multipart/form-data' class='centerx'>
-			<div>
-				<span>Email</span>
-				<input ref='email' type='email' id='email' name='email' value='' class='interactable text'>
-			</div>
-			<div>
-				<span>Password</span>
-				<div style='display: flex'>
-					<input ref='password' type='password' id='password' name='password' value='' autocomplete='off' class='interactable text password'>
-					<Submit :onClick='sendLogin'>Submit »</Submit>
-				</div>
-			</div>
-		</form>
-		</Loading>
-		<ThemeMenu />
-	</main>
-	<Error :dump='errorDump' :message='errorMessage' v-else/>
+	<Error :dump='errorDump' :message='errorMessage'>
+		<main v-if='!isError'>
+			<Loading :lazy='false' :isLoading='isLoading'>
+				{{JSON.stringify(user)}}
+			</Loading>
+			<ThemeMenu />
+		</main>
+	</Error>
 </template>
 
 <script>
-import { ref } from 'vue';
-import { authCookie, khatch, setCookie } from '@/utilities';
-import { apiErrorMessage, accountHost } from '@/config/constants';
+import { khatch, setTitle } from '@/utilities';
+import { apiErrorMessage, usersHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
@@ -35,21 +22,19 @@ import Sidebar from '@/components/Sidebar.vue';
 import Submit from '@/components/Submit.vue'
 
 export default {
-	name: 'Login',
-	setup() {
-		const email = ref(null);
-		const password = ref(null);
-
-		return {
-			email,
-			password,
-		};
+	name: 'User',
+	props: {
+		handle: {
+			type: String,
+			default: null,
+		},
 	},
 	data() {
 		return {
-			isLoading: false,
+			isLoading: true,
 			errorMessage: null,
 			errorDump: null,
+			user: null,
 		};
 	},
 	components: {
@@ -62,47 +47,39 @@ export default {
 		Error,
 		Media,
 	},
+	created() {
+		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
+			.then(response => {
+				response.json().then(r => {
+					console.log(r);
+					if (response.status < 300)
+					{
+						this.user = r;
+						setTitle(this.user?.name || this.user?.handle);
+						this.isLoading = false;
+					}
+					else if (response.status === 401)
+					{ this.errorMessage = r.error; }
+					else if (response.status === 404)
+					{ this.errorMessage = r.error; }
+					else
+					{
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = r;
+					}
+				});
+			})
+			.catch(error => {
+				this.errorMessage = apiErrorMessage;
+				this.error = error;
+				console.error(error);
+			});
+
+		window.addEventListener('resize', this.onResize);
+	},
 	computed: {
-		isError()
-		{ return this.errorMessage !== null; },
 	},
 	methods: {
-		sendLogin() {
-			this.isLoading = true;
-			khatch(`${accountHost}/v1/login`, {
-					method:'POST',
-					credentials: 'include',
-					body: {
-						email: this.$refs.email.value,
-						password: this.$refs.password.value,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						console.log(r);
-						if (response.status < 300)
-						{
-							setCookie('kh-auth', r.token_data.token, r.token_data.expires - new Date().valueOf() / 1000);
-							this.$store.commit('setAuth', authCookie());
-							this.$router.push('/');
-						}
-						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
-						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
-						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
-					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
-					console.error(error);
-				});
-		},
 	},
 }
 </script>

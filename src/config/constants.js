@@ -28,6 +28,7 @@ let pHost = null;
 let tHost = null;
 let aHost = null;
 let uHost = null;
+let usrHost = null;
 
 switch (environment)
 {
@@ -36,6 +37,7 @@ switch (environment)
 		tHost = 'https://tags.kheina.com';
 		aHost = 'https://account.kheina.com';
 		uHost = 'https://upload.kheina.com';
+		usrHost = 'https://users.kheina.com';
 		break;
 
 	case 'dev' :
@@ -43,6 +45,7 @@ switch (environment)
 		tHost = 'https://dev.kheina.com/tags';
 		aHost = 'https://dev.kheina.com/acct';
 		uHost = 'https://dev.kheina.com/upload';
+		usrHost = 'https://dev.kheina.com/users';
 		break;
 
 	case 'local' :
@@ -50,6 +53,7 @@ switch (environment)
 		tHost = 'https://dev.kheina.com/tags';
 		aHost = 'https://dev.kheina.com/acct';
 		uHost = 'https://dev.kheina.com/upload';
+		usrHost = 'https://dev.kheina.com/users';
 		break;
 }
 
@@ -57,6 +61,7 @@ export const postsHost = pHost;
 export const tagsHost = tHost;
 export const accountHost = aHost;
 export const uploadHost = uHost;
+export const usersHost = usrHost;
 
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
 

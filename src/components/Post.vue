@@ -12,7 +12,7 @@
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
 				<Title :isLoading='isLoading' size='1.5em' static='left' style='margin-bottom: 0.25em' v-if='(title || isLoading) && !comment'>{{isLoading ? 'this is an example title' : title}}</Title>
-				<Profile :isLoading='isLoading' :username='user?.name' :handle='user?.handle' :link='false' />
+				<Profile :isLoading='isLoading' :username='user?.name' :handle='user?.handle' :icon='user?.icon' />
 			</div>
 		</div>
 		<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
@@ -136,7 +136,7 @@ export default {
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
-		{ return (this.isLoading || !this.link ? 'post nolink' : 'post interactable') + (this.nested ? ' nested' : ''); },
+		{ return (this.isLoading || !this.link ? 'post' : 'post link') + (this.nested ? ' nested' : ''); },
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
@@ -157,6 +157,18 @@ export default {
 }
 </script>
 
+<style>
+.post.link .title {
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.post.link:hover .title {
+	color: var(--icolor);
+}
+</style>
+
 <style scoped>
 .post {
 	border-radius: 3px;
@@ -165,14 +177,24 @@ export default {
 	padding: 25px;
 	align-items: flex-start;
 	position: relative;
-}
-.post.nested {
-	background: var(--bg2color);
-}
-.post.nolink {
+	overflow: hidden;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	border: 1px solid var(--bordercolor);
 	border-radius: 3px;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.post.link {
+	cursor: pointer;
+}
+.post.link:hover {
+	border-color: var(--icolor);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
+}
+.post.nested {
+	background: var(--bg2color);
 }
 .post img {
 	max-width: 100%;
