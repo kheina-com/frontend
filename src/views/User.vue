@@ -1,21 +1,23 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
 	<Error :dump='errorDump' :message='errorMessage'>
-		<div style='width: 60vw; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; margin-bottom: -128px; padding: 25px 0; z-index: 1; position: relative'>
+		<div :style='`${isMobile ? "margin: 0 25px -128px;" : "width: 60vw; margin: 0 auto -128px;"} display: flex; justify-content: space-between; align-items: end; padding: 25px 0; z-index: 1; position: relative`'>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
 					<Thumbnail :size='400' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
 				</router-link>
 			</Loading>
-			<p v-if='user?.website' style='display: flex; align-items: center'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
-			<p style='display: flex; align-items: center'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created' style='color: var(--textcolor)'/></span></p>
-			<div style='text-align: right'>
+			<div>
+				<p v-if='user?.website' style='display: flex; align-items: center'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+				<p style='display: flex; align-items: center'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created' style='color: var(--textcolor)'/></span></p>
+			</div>
+			<div style='display: flex; flex-direction: column; align-items: end'>
 				<h2 style='margin: 0; display: flex; align-items: center'>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
 				<p style='margin: 0'>@{{user?.handle}}</p>
 			</div>
 		</div>
 		<main>
-			<Markdown :content='user?.description' style='margin-top: 25px; width: 60vw; margin: 25px auto 0'/>
+			<Markdown :content='user?.description' :style='`margin-top: 25px; ${isMobile ? "" : "width: 60vw;"} margin: 25px auto 0`'/>
 			<div style='margin-top: 25px'>
 				<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
 				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
@@ -26,7 +28,7 @@
 </template>
 
 <script>
-import { khatch, setTitle } from '@/utilities';
+import { khatch, setTitle, isMobile } from '@/utilities';
 import { apiErrorMessage, postsHost, usersHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -128,6 +130,7 @@ export default {
 			});
 	},
 	computed: {
+		isMobile,
 	},
 	methods: {
 	},
