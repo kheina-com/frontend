@@ -28,7 +28,7 @@ button {
 	color: var(--subtlecolor);
 	border-radius: 3px;
 	padding: 0.25em 0.25em !important;
-	margin: -0.25em -0.25em !important;
+	margin: -0.1em -0.25em -0.25em !important;
 	position: relative;
 	z-index: 1;
 }

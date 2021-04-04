@@ -92,7 +92,6 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import { khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, uploadHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
@@ -260,7 +259,7 @@ export default {
 
 			let rect = this.mediaElement.getBoundingClientRect();
 			let right = window.innerWidth - rect.right;
-			let margin = Math.max(window.innerWidth * 0.2, 200) - 0.1;
+			let margin = Math.max(window.innerWidth * 0.2, 300) - 0.1;
 
 			if (rect.left < margin)
 			{ this.mediaElement.style = 'margin: 0 auto 25px 0'; }
@@ -301,7 +300,7 @@ export default {
 <style scoped>
 .container {
 	display: grid;
-	grid-template-columns: [sidebar-start] max(20vw, 200px) [sidebar-end main-start] auto [main-end];
+	grid-template-columns: [sidebar-start] max(20vw, 300px) [sidebar-end main-start] auto [main-end];
 	grid-template-rows: [sidebar-start main-start] auto [sidebar-end main-end];
 }
 main {
@@ -322,7 +321,7 @@ main {
 	-moz-transition: none;
 	-o-transition: none;
 	transition: none;
-	max-width: calc(100vw - max(20vw, 200px) - 25px);
+	max-width: calc(100vw - max(20vw, 300px) - 25px);
 }
 html.solarized-dark .media, html.solarized-light .media {
 	--bg2color: var(--bg1color);
