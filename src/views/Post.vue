@@ -16,7 +16,7 @@
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 								<Button class='edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 							</div>
-							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
+							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' :icon='post?.user.icon' />
 						</div>
 					</div>
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
@@ -59,7 +59,7 @@
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 								<Button class='edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 							</div>
-							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' />
+							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' :icon='post?.user.icon' />
 						</div>
 					</div>
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
