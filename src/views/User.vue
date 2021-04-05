@@ -1,7 +1,20 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
 	<Error :dump='errorDump' :message='errorMessage'>
-		<div :style='`${isMobile ? "margin: 0 25px -128px;" : "width: 60vw; margin: 0 auto -128px;"} display: flex; justify-content: space-between; align-items: end; padding: 25px 0; z-index: 1; position: relative`'>
+		<div style='width: 70vw; margin: 0 auto -128px; display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-if='!isMobile'>
+			<Loading :isLoading='isIconLoading' class='profile-image'>
+				<router-link :to='`/p/${user?.icon}`'>
+					<Thumbnail :size='400' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
+				</router-link>
+			</Loading>
+			<p v-if='user?.website' style='display: flex; align-items: center'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+			<p style='display: flex; align-items: center'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created' style='color: var(--textcolor)'/></span></p>
+			<div style='display: flex; flex-direction: column; align-items: flex-end'>
+				<h2 style='margin: 0; display: flex; align-items: center'>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
+				<p style='margin: 0'>@{{user?.handle}}</p>
+			</div>
+		</div>
+		<div style='margin: 0 25px -128px display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-else>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
 					<Thumbnail :size='400' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
@@ -11,13 +24,13 @@
 				<p v-if='user?.website' style='display: flex; align-items: center'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
 				<p style='display: flex; align-items: center'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created' style='color: var(--textcolor)'/></span></p>
 			</div>
-			<div style='display: flex; flex-direction: column; align-items: end'>
+			<div style='display: flex; flex-direction: column; align-items: flex-end'>
 				<h2 style='margin: 0; display: flex; align-items: center'>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
 				<p style='margin: 0'>@{{user?.handle}}</p>
 			</div>
 		</div>
 		<main>
-			<Markdown :content='user?.description' :style='`margin-top: 25px; ${isMobile ? "" : "width: 60vw;"} margin: 25px auto 0`'/>
+			<Markdown :content='user?.description' :style='`margin-top: 25px; ${isMobile ? "" : "width: 70vw;"} margin: 25px auto 0`'/>
 			<div style='margin-top: 25px'>
 				<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
 				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
@@ -142,103 +155,5 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 100px 25px 25px;
-}
-form div {
-	width: 100%;
-}
-form .text
-{
-	width: 100%;
-	color: var(--textcolor);
-	padding: 0.5em;
-}
-form .text:hover
-{ color: var(--icolor); }
-form .text:active, form .text:focus
-{ color: var(--textcolor); }
-input
-{
-	display: inline-block;
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
-	background: var(--bg2color);
-	color: var(--textcolor);
-	font-size: 1em;
-	padding: 1px 3px;
-}
-form
-{
-	width: 50em;
-	max-width: calc(100% - 50px);
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	margin: 0 auto;
-}
-form span
-{
-	position: relative;
-	left: 25px;
-	padding: 0 0 2px;
-	display: inline-block;
-}
-form .maxrating, form .integratedsearch
-{
-	margin: -14px 0 9px;
-	padding: 0.5em 0;
-	display: inline-block;
-	width: calc(100% - 80px);
-	line-height: 3;
-}
-form .maxrating input, form .integratedsearch input, form .submit input
-{
-	top: -100vh;
-	opacity: 0;
-	height: 0;
-	width: 0;
-}
-form input
-{ margin: 0 0 25px; }
-form p
-{ margin-left: 25px; }
-
-form
-{ max-width: 22em; }
-form input.submit
-{ float: right; }
-form input#passwordRepeat
-{
-	width: 225px;
-	width: calc(100% - 125px);
-}
-form input.valid:active, form input.valid:focus
-{ border-color: var(--valid); }
-form input.error:active, form input.error:focus
-{ border-color: var(--error); }
-
-label.hide-password
-{
-	position: absolute;
-	right: 0;
-	margin: 0.5em;
-	height: 24px;
-}
-label.hide-password svg
-{ height: 24px; }
-div#password-pwned
-{
-	position: absolute;
-	right: 10px;
-	display: inline-block;
-	/* pointer-events: none; */
-	margin-top: 7px;
-	height: 24px;
-}
-input#hide-password
-{ display: none; }
-div#password-pwned svg
-{ height: 24px; }
-.password {
-	margin: 0 25px 0 0;
 }
 </style>

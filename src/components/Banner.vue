@@ -75,12 +75,12 @@
 				<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
 			</li>
 			<li v-if='isLoggedIn'>
-				<router-link :to='`/${handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
+				<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
 			</li>
 			<li v-if='isLoggedIn'>
 				<ul>
 					<li >
-						<router-link :to='`/${handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
+						<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
 					</li>
 				</ul>
 			</li>
@@ -151,7 +151,6 @@ export default {
 			message: 'Black Lives Matter. [blacklivesmatters.carrd.co](https://blacklivesmatters.carrd.co/)',
 			editMessage: false,
 			menuOpen: false,
-			handle: 'handle',
 			isIconLoading: true,
 		};
 	},
@@ -230,7 +229,7 @@ export default {
 	font-size: 1em;
 	position: fixed;
 	width: 20vw;
-	min-width: 12.5em;
+	min-width: 18em;
 	background: var(--bg2color);
 	border-right: 1px solid var(--bordercolor);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
@@ -241,7 +240,7 @@ export default {
 	height: 100vh;
 	top: 0;
 	left: -25vw;
-	left: calc(min(-20vw, -12.5em) - 3px);
+	left: calc(min(-20vw, -18em) - 3px);
 	z-index: 9;
 }
 html.mobile .menu.open, .menu.open {
@@ -414,7 +413,7 @@ ul > :last-child {
 	transition: ease var(--fadetime);
 	position: relative;
 	right: 25vw;
-	right: calc(max(20vw, 12.5em) + 3px);
+	right: calc(max(20vw, 18em) + 3px);
 }
 .create i {
 	margin: 0;
