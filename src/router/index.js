@@ -316,7 +316,14 @@ const routes = [
 		props: true,
 		component: User,
 		meta: {
+			title: (to) => `Retrieving user @${to.params.handle}...`,
 			metaTags: [
+				(to) => {
+					return {
+						property: 'og:title',
+						content: `Retrieving user @${to.params.handle}...`,
+					};
+				},
 				{
 					property: 'og:image',
 					content: '/assets/icon.png',

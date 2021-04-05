@@ -60,21 +60,21 @@ export default {
 			this.theme = event.target.value;
 			document.documentElement.classList.add(this.theme);
 			setCookie('theme', this.theme);
+			this.$store.state.theme.theme = this.theme;
+			this.$store.state.theme.bg1color = getComputedStyle(document.body).getPropertyValue('--bg1color');
 		},
 		setAccent(event) {
 			document.documentElement.classList.remove(this.accent);
 			this.accent = event.target.value;
 			document.documentElement.classList.add(this.accent);
 			setCookie('accent', this.accent);
+			this.$store.state.theme.accent = this.accent;
 		},
 	},
 	created() {
 		// get theme data from cookie
 		this.theme = getCookie('theme');
 		this.accent = getCookie('accent');
-		// set css
-		document.documentElement.classList.add(this.theme);
-		document.documentElement.classList.add(this.accent);
 	},
 }
 </script>

@@ -7,6 +7,7 @@ export default createStore({
 	state: {
 		auth: null,
 		user: null,
+		theme: null,
 	},
 	mutations: {
 		setAuth(state, auth) {

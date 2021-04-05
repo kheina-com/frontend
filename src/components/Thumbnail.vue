@@ -32,7 +32,6 @@ export default {
 	},
 	methods: {
 		onLoad() {
-			console.log('thumbnail loaded');
 			this.$emit('update:isLoading', false);
 		},
 		onError() {

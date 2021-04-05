@@ -10,7 +10,7 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, isMobile } from '@/utilities';
+import { authCookie, getCookie, isMobile } from '@/utilities';
 import Footer from '@/components/Footer.vue'
 import Cookies from '@/components/Cookies.vue'
 import Banner from '@/components/Banner.vue'
@@ -28,12 +28,25 @@ export default {
 			content,
 		};
 	},
-	mounted() {
+	created() {
+		const theme = getCookie('theme');
+		const accent = getCookie('accent');
+		document.documentElement.classList.add(theme);
+		document.documentElement.classList.add(accent);
+
+		this.$store.state.theme = {
+			theme,
+			accent,
+			bg1color: getComputedStyle(document.body).getPropertyValue('--bg1color'),
+		};
+
 		const auth = authCookie();
 		if (auth)
 		{ this.$store.commit('setAuth', authCookie()); }
 		if (isMobile())
 		{ document.documentElement.classList.add('mobile'); }
+	},
+	mounted() {
 		this.ResizeSensor(this.$refs.content, this.onResize);
 		this.onResize();
 	},

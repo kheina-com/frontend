@@ -1,21 +1,20 @@
 <template>
 	<!-- eslint-disable vue/no-multiple-template-root -->
 	<div class='banner'>
-		<div class='nav'>
-			<div ref='menuButton' class='menu-button'>
-				<button @click='openMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
-					<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-				</button>
-				<router-link to='/create' class='create' title='Create new post'>
-					<div class='icon'>
-						<i class='material-icons'>create</i>
-					</div>
-					<p>
-						Create
-					</p>
-				</router-link>
-			</div>
-
+		<div ref='menuButton' class='menu-button'>
+			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
+				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
+			</button>
+			<router-link to='/create' class='create' title='Create new post'>
+				<div class='icon'>
+					<i class='material-icons'>create</i>
+				</div>
+				<p>
+					Create
+				</p>
+			</router-link>
+		</div>
+		<div class='nav' :style='`background: ${navBgColor}`'>
 			<form class='search-bar' v-on:submit.prevent='noop'>
 				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
 				<div class='cover'></div>
@@ -38,7 +37,7 @@
 		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
 		<div v-if='editMessage' class='markdown edit-message'>
 			<textarea ref='messageField' class='interactable text' v-model='message'></textarea>
-			<div style='display: flex; '>
+			<div style='display: flex'>
 				<Button @click='updateMessage'>update</button>
 				<Button @click='removeMessage' red>remove</button>
 			</div>
@@ -79,7 +78,7 @@
 			</li>
 			<li v-if='isLoggedIn'>
 				<ul>
-					<li >
+					<li>
 						<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
 					</li>
 				</ul>
@@ -114,7 +113,8 @@
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, deleteCookie } from '@/utilities';
+import { getMediaThumbnailUrl, deleteCookie, khatch } from '@/utilities';
+import { configHost } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
@@ -148,11 +148,27 @@ export default {
 	},
 	data() {
 		return {
-			message: 'Black Lives Matter. [blacklivesmatters.carrd.co](https://blacklivesmatters.carrd.co/)',
+			message: null,
 			editMessage: false,
 			menuOpen: false,
+			isMessageLoading: true,
 			isIconLoading: true,
 		};
+	},
+	mounted() {
+		khatch(`${configHost}/v1/banner`)
+			.then(response => {
+				response.json().then(r => {
+					if (response.status < 300)
+					{ this.message = r.banner; }
+					else
+					{ console.error(error); }
+					this.isMessageLoading = false;
+				});
+			})
+			.catch(error => {
+				console.error(error);
+			});
 	},
 	computed: {
 		isVerified() {
@@ -181,6 +197,9 @@ export default {
 		userIcon() {
 			return this.$store.state.user?.icon;
 		},
+		navBgColor() {
+			return this.$store.state.theme.bg1color + Math.round(0.975 * 256).toString(16);
+		},
 	},
 	methods: {
 		getMediaThumbnailUrl,
@@ -192,7 +211,7 @@ export default {
 			deleteCookie('kh-auth');
 			this.$store.commit('setAuth', null);
 		},
-		openMenu() {
+		toggleMenu() {
 			this.menuOpen = !this.menuOpen;
 			if (this.menuOpen)
 			{
@@ -211,14 +230,28 @@ export default {
 		},
 		updateMessage() {
 			this.editMessage = false;
-			// send post to service that doesn't exist
+			this.isMessageLoading = true;
+			khatch(`${configHost}/v1/update_config`, {
+					method: 'POST',
+					body: {
+						config: 'banner',
+						value: this.message,
+					},
+				})
+				.then(response => {
+					if (response.status < 300)
+					{ this.isMessageLoading = false; }
+					else
+					{ console.error(response); }
+				})
+				.catch(error => {
+					console.error(error);
+				});
 			setTimeout(this.onResize, 0);
 		},
 		removeMessage() {
-			this.editMessage = false;
-			// send post to service that doesn't exist
 			this.message = null;
-			setTimeout(this.onResize, 0);
+			this.updateMessage();
 		},
 	},
 }
@@ -241,7 +274,7 @@ export default {
 	top: 0;
 	left: -25vw;
 	left: calc(min(-20vw, -18em) - 3px);
-	z-index: 9;
+	z-index: 101;
 }
 html.mobile .menu.open, .menu.open {
 	left: 0;
@@ -264,17 +297,23 @@ html.mobile .menu {
 	width: 100%;
 	background: var(--bg1color);
 	text-align: center;
+	padding-top: 2.5rem;
 }
 .nav {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	height: 2.5rem;
+	top: 0;
+	position: fixed;
+	width: 100%;
+	z-index: 100;
 }
 .menu-button {
 	left: 0;
-	position: absolute;
-	z-index: 10;
+	top: 0;
+	position: fixed;
+	z-index: 103;
 }
 .menu-button.open {
 	position: fixed;
