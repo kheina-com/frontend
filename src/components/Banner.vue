@@ -1,5 +1,4 @@
 <template>
-	<!-- eslint-disable vue/no-multiple-template-root -->
 	<div class='banner'>
 		<div ref='menuButton' class='menu-button'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
@@ -19,6 +18,7 @@
 				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
 				<div class='cover'></div>
 				<button @click='runSearchQuery'><i class='material-icons-round'>search</i></button>
+				<i class='material-icons-round' style='position: absolute; left: -1.8em; top: 0; margin: 0.4em' title='Search help'>help_outline</i>
 			</form>
 			<div class='profile' v-if='isLoggedIn'>
 				<i class='material-icons icon' title='You are verified!' v-if='isVerified'>verified</i>
@@ -164,6 +164,7 @@ export default {
 					else
 					{ console.error(error); }
 					this.isMessageLoading = false;
+					setTimeout(this.onResize, 0);
 				});
 			})
 			.catch(error => {
@@ -229,7 +230,6 @@ export default {
 			setTimeout(this.onResize, 0);
 		},
 		updateMessage() {
-			this.editMessage = false;
 			this.isMessageLoading = true;
 			khatch(`${configHost}/v1/update_config`, {
 					method: 'POST',
@@ -240,7 +240,7 @@ export default {
 				})
 				.then(response => {
 					if (response.status < 300)
-					{ this.isMessageLoading = false; }
+					{ this.isMessageLoading = this.editMessage = false; }
 					else
 					{ console.error(response); }
 				})

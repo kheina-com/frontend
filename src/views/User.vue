@@ -4,7 +4,7 @@
 		<div style='width: 70vw; margin: 0 auto -128px; display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-if='!isMobile'>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
-					<Thumbnail :size='400' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
 				</router-link>
 			</Loading>
 			<p v-if='user?.website' style='display: flex; align-items: center'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
@@ -17,7 +17,7 @@
 		<div style='margin: 0 25px -128px display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-else>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
-					<Thumbnail :size='400' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
 				</router-link>
 			</Loading>
 			<div>
@@ -43,6 +43,7 @@
 <script>
 import { khatch, setTitle, isMobile } from '@/utilities';
 import { apiErrorMessage, postsHost, usersHost } from '@/config/constants';
+import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
@@ -86,6 +87,7 @@ export default {
 		Markdown,
 		Timestamp,
 		Post,
+		Button,
 	},
 	created() {
 		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)

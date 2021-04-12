@@ -1,5 +1,6 @@
 <template>
-	<!-- eslint-disable vue/no-multiple-template-root -->
+	<!-- eslint-disable vue/no-use-v-if-with-v-for-->
+	<!-- eslint-disable vue/require-v-for-key-->
 	<Loading :isLoading='tags === null'><h4>{{group}}</h4></Loading>
 	<ul>
 		<li v-if='tags !== null' v-for='tag in tags'>
@@ -8,7 +9,7 @@
 			</router-link>
 		</li>
 		<li v-else v-for='i in loadingMap[group]'>
-			<Loading><p>hi</p></Loading>
+			<Loading><p>hello</p></Loading>
 		</li>
 	</ul>
 </template>

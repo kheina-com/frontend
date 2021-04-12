@@ -1,5 +1,4 @@
 <template>
-	<!-- eslint-disable vue/no-v-model-argument -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)'>
 		<div class='privacy'>
 			<div v-if='labels && !isLoading'>

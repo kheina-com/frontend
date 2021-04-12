@@ -1,5 +1,4 @@
 <template>
-	<!-- eslint-disable vue/no-multiple-template-root -->
 	<Banner :onResize='onResize' />
 	<div ref='content' id='content'>
 		<router-view :key='$route.fullPath' />

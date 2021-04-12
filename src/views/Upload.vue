@@ -1,15 +1,16 @@
 <template>
-	<!-- eslint-disable vue/no-v-model-argument -->
 	<Error :dump='errorDump' :message='errorMessage'>
 		<main>
 			<Title static='center'>New Post</Title>
 			<Subtitle static='center'>Your post will be live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
 			<div class='form'>
-				<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadDone'>
+				<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadUnavailable'>
 					<div class='field'>
 						<div>
 							<span>File</span>
-							<FileField v-model:file='file'/>
+							<FileField v-model:file='file' :showSlot='uploadDone'>
+								<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%' />
+							</FileField>
 							<div class='field actions' v-if='file !== null'>
 								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
 							</div>
@@ -149,6 +150,7 @@ export default {
 			showUpload: false,
 			isUploading: false,
 			uploadProgress: 0,
+			uploadUnavailable: false,
 			uploadDone: false,
 			mime: null,
 			filename: null,
@@ -217,6 +219,8 @@ export default {
 								this.uploadDone = true;
 								this.filename = r.filename;
 							}
+							if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+							{ this.uploadUnavailable = true; }
 						}
 						else if (response.status === 401)
 						{ this.errorMessage = r.error; }
@@ -286,7 +290,7 @@ export default {
 			});
 		},
 		uploadFile() {
-			if (this.isUploading || this.uploadDone || !this.file)
+			if (this.isUploading || this.uploadUnavailable || !this.file)
 			{ return; }
 
 			this.isUploading = true;

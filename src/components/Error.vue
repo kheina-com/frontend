@@ -1,5 +1,4 @@
 <template>
-	<!-- eslint-disable vue/no-multiple-template-root -->
 	<main style='display: block' v-if='isError'>
 		<Title static='center'>Error</Title>
 		<Subtitle style='margin: 0 0 25px' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>

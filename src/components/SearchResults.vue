@@ -1,5 +1,4 @@
 <template>
-	<!-- eslint-disable vue/no-multiple-template-root -->
 	<main>
 		<Title>Results</Title>
 		<Subtitle>searched {{commafy(stats.images)}} images from {{commafy(stats.artists)}} artists in {{prettyTime(elapsedtime)}}</Subtitle>

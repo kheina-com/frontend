@@ -1,9 +1,9 @@
 <template>
-	<!-- eslint-disable vue/no-multiple-template-root -->
 	<form>
 		<input ref='file' @input='fileAdded' :id='id' type='file' size='50' autocomplete='off'>
 		<label @drop.prevent='onDrop' @dragenter.prevent @dragover.prevent :for='id' class='interactable upload'>
-			<Media v-if='hasFile' :mime='file.type' :src='src' :link='false' :lazy='false' style='border-radius: 3px'/>
+			<slot v-if='hasSlot && showSlot'/>
+			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' :lazy='false' style='border-radius: 3px'/>
 			<div v-else>
 				<i class='material-icons'>upload_file</i>Drag or Click to Upload File
 			</div>
@@ -19,6 +19,10 @@ export default {
 	name: 'FileField',
 	props: {
 		file: File,
+		showSlot: {
+			type: Boolean,
+			default: true,
+		},
 		id: {
 			type: String,
 			default: 'file',
@@ -57,20 +61,10 @@ export default {
 			this.addFile(event.dataTransfer.files[0]);
 		},
 	},
-	mounted() {
-		// this.$refs.file.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
-		// 	e.preventDefault();
-		// 	e.stopPropagation();
-		// });
-		// this.$refs.file.on('dragover dragenter', function() {
-		// 	$form.addClass('is-dragover');
-		// });
-		// this.$refs.file.on('dragleave dragend drop', function() {
-		// 	$form.removeClass('is-dragover');
-		// });
-		// this.$refs.file.on('drop', function(e) {
-		// 	droppedFiles = e.originalEvent.dataTransfer.files;
-		// });
+	computed: {
+		hasSlot() {
+			return Boolean(this.$slots.default);
+		},
 	},
 }
 </script>

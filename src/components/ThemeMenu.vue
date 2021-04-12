@@ -6,7 +6,7 @@
 				<tr>
 					<td>theme</td>
 					<td>
-						<select id='themeselector' name='theme' class='interactable' @change='setTheme'>
+						<select ref='theme' name='theme' class='interactable' @change='setTheme'>
 							<option value='kheina'>kheina</option>
 							<option value='light'>light mode</option>
 							<option value='e621'>e621</option>
@@ -25,7 +25,7 @@
 				<tr>
 					<td>accent</td>
 					<td>
-						<select id='accentselector' name='accent' class='interactable' @change='setAccent'>
+						<select ref='accent' name='accent' class='interactable' @change='setAccent'>
 							<option value='none'>none</option>
 							<option value='winter'>winter</option>
 							<option value='spring'>spring</option>
@@ -44,10 +44,20 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { setCookie, getCookie } from '@/utilities';
 
 export default {
 	name: 'ThemeMenu',
+	setup() {
+		const accent = ref(null);
+		const theme = ref(null);
+
+		return {
+			accent,
+			theme,
+		};
+	},
 	data() {
 		return {
 			theme: 'none',
@@ -71,10 +81,12 @@ export default {
 			this.$store.state.theme.accent = this.accent;
 		},
 	},
-	created() {
-		// get theme data from cookie
+	mounted() {
 		this.theme = getCookie('theme');
 		this.accent = getCookie('accent');
+
+		this.$refs.theme.value = this.theme;
+		this.$refs.theme.accent = this.accent;
 	},
 }
 </script>
