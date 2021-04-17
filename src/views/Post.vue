@@ -3,7 +3,7 @@
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<Error :dump='errorDump' :message='errorMessage'>
 		<div class='container' v-if='!isMobile'>
-			<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
+			<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
 				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
 				<main>
@@ -48,7 +48,7 @@
 		<div class='content' v-else>
 			<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
 			<div class='container'>
-				<Sidebar :tags='post?.tags' class='sidebar' :style='sidebarStyle'/>
+				<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 				<main>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
@@ -93,7 +93,7 @@
 
 <script>
 import { khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, postsHost, uploadHost } from '@/config/constants';
+import { apiErrorMessage, postsHost, tagsHost, uploadHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -139,6 +139,7 @@ export default {
 		return {
 			editing: false,
 			post: null,
+			tags: null,
 			errorDump: null,
 			errorMessage: null,
 			sidebarStyle: null,
@@ -219,6 +220,31 @@ export default {
 				console.error(error);
 			});
 
+		khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`)
+			.then(response => {
+				response.json().then(r => {
+					console.log(r);
+					if (response.status < 300)
+					{
+						this.tags = r;
+					}
+					else if (response.status === 401)
+					{ this.errorMessage = r.error; }
+					else if (response.status === 404)
+					{ this.errorMessage = r.error; }
+					else
+					{
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = r;
+					}
+				});
+			})
+			.catch(error => {
+				this.errorMessage = apiErrorMessage;
+				this.error = error;
+				console.error(error);
+			});
+
 		window.addEventListener('resize', this.onResize);
 	},
 	unmounted() {
@@ -228,8 +254,6 @@ export default {
 		isMobile,
 		isLoading()
 		{ return this.post === null; },
-		isError()
-		{ return this.errorMessage !== null; },
 		isUpdated()
 		{ return this.post !== null ? this.post.created !== this.post.updated : false; },
 		mediaUrl()

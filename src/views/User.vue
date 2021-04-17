@@ -97,7 +97,8 @@ export default {
 					if (response.status < 300)
 					{
 						this.user = r;
-						setTitle(this.user?.name || this.user?.handle);
+						setTitle(this.user?.name || this.user.handle);
+						this.$router.replace(this.user.handle);
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }

@@ -23,7 +23,7 @@
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='!isText'/>
+		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='hasMedia'/>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
@@ -130,8 +130,8 @@ export default {
 		{ return this.errorDump !== null || this.errorMessage !== null; },
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
-		isText()
-		{ return this.tags !== null ? this.tags.includes('text') : true; },
+		hasMedia()
+		{ return this.tags !== null ? !this.tags.includes('text') : true; },
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
