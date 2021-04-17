@@ -4,7 +4,7 @@
 	<Loading :isLoading='tags === null'><h4>{{group}}</h4></Loading>
 	<ul>
 		<li v-if='tags !== null' v-for='tag in tags'>
-			<router-link :to='`/s/${tag}`' :style='`color: var(${colorMap[group]})`'>
+			<router-link :to='`/t/${tag}`' :style='`color: var(${colorMap[group]})`'>
 				{{tag.replace(/_/g, ' ')}}
 			</router-link>
 		</li>

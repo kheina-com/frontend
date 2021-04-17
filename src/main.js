@@ -37,6 +37,8 @@ Router.beforeEach((to, from, next) => {
 		.map(tag => typeof tag === 'function' ? tag(to, from) : tag)
 		.forEach(tag => setMeta(tag));
 
+	window.scrollTo(0, 0);
+
 	next();
 });
 

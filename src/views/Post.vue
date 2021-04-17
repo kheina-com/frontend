@@ -157,6 +157,9 @@ export default {
 						up: 1,
 						down: 0,
 					},
+					tags: [
+						'text',
+					],
 					concise: false,
 					description: '# butts\nlol',
 					title: null,
@@ -176,6 +179,9 @@ export default {
 								up: 2,
 								down: 0,
 							},
+							tags: [
+								'text',
+							],
 							concise: false,
 							description: 'what about thighs?',
 							title: null,
@@ -189,6 +195,9 @@ export default {
 					postId: null,
 					labels: false,
 					link: false,
+					tags: [
+						'text',
+					],
 				}
 			]
 		};
@@ -372,7 +381,13 @@ html.solarized-dark .media, html.solarized-light .media {
 	margin: 0 0 25px;
 }
 .profile {
-	margin-top: 0.25em;
+	padding: 0.25em;
+	margin: -0.25em;
+	margin-top: 0;
+	border-radius: 3px;
+}
+a.profile:hover {
+	background: var(--bg2color);
 }
 .post-header {
 	display: flex;

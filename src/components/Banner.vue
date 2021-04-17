@@ -18,7 +18,7 @@
 				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
 				<div class='cover'></div>
 				<button @click='runSearchQuery'><i class='material-icons-round'>search</i></button>
-				<i class='material-icons-round' style='position: absolute; left: -1.8em; top: 0; margin: 0.4em' title='Search help'>help_outline</i>
+				<i class='material-icons-round' style='position: absolute; right: -1.8em; top: 0; margin: 0.39em' title='Search help'>help_outline</i>
 			</form>
 			<div class='profile' v-if='isLoggedIn'>
 				<i class='material-icons icon' title='You are verified!' v-if='isVerified'>verified</i>
@@ -185,7 +185,7 @@ export default {
 			return Boolean(this.$store.state.auth);
 		},
 		searchValue() {
-			if (this.$route.path.startsWith('/s/'))
+			if (this.$route.path.match(/^\/[st]\//))
 			{ return decodeURIComponent(this.$route.path.substring(3)); }
 			else if (this.$refs.search)
 			{ return this.$refs.search.value; }
@@ -199,7 +199,7 @@ export default {
 			return this.$store.state.user?.icon;
 		},
 		navBgColor() {
-			return this.$store.state.theme.bg1color + Math.round(0.975 * 256).toString(16);
+			return this.$store.state.theme.bg1color + Math.round(0.95 * 256).toString(16);
 		},
 	},
 	methods: {

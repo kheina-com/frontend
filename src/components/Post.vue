@@ -208,7 +208,16 @@ export default {
 	--bg2color: var(--bg1color);
 }
 .profile {
-	margin: 0;
+	padding: 0.25em;
+	margin: -0.25em;
+	margin-top: 0;
+	border-radius: 3px;
+}
+a.profile:hover {
+	background: var(--bg2color);
+}
+.post.nested a.profile:hover {
+	background: var(--bg1color);
 }
 .post .markdown {
 	margin: 0 0 25px;
