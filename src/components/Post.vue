@@ -33,7 +33,7 @@
 		</Loading>
 		<Report :data='{ post: postId }' v-if='!isLoading'/>
 	</div>
-	<ol v-if='comments'>
+	<ol v-if='comments && comments.length > 0'>
 		<li v-for='comment in comments'>
 			<Post v-bind='comment' comment @loaded='onLoad' :loadTrigger='childTrigger' />
 		</li>
