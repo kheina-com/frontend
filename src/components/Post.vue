@@ -1,7 +1,9 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)'>
-		<div class='privacy'>
+	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self'>
+		<div class='guide-line' ref='guide' v-if='parent' :style='`height: ${guideHeight}px`'></div>
+		<div class='labels'>
+			<router-link :to='`/p/${postId}`' v-if='!link' class='direct-link'><i class="material-icons">open_in_new</i></router-link>
 			<div v-if='labels && !isLoading'>
 				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
 				<Subtitle static='right' v-if='comment'>comment</Subtitle>
@@ -24,7 +26,7 @@
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='hasMedia'/>
+		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='hasMedia' :onLoad='onLoad'/>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
@@ -33,13 +35,13 @@
 	</div>
 	<ol v-if='comments'>
 		<li v-for='comment in comments'>
-			<div class='guide-line'></div>
-			<Post v-bind='comment' comment/>
+			<Post v-bind='comment' comment @loaded='onLoad' :loadTrigger='childTrigger' />
 		</li>
 	</ol>
 </template>
 
 <script>
+import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile } from '@/utilities';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
@@ -95,6 +97,10 @@ export default {
 		},
 		comments: {
 			type: Array,
+			default: [],
+		},
+		loadTrigger: {
+			type: Boolean,
 			default: null,
 		},
 
@@ -130,10 +136,31 @@ export default {
 			default: null,
 		},
 	},
+	emits: [
+		'loaded',
+	],
+	setup() {
+		const guide = ref(null);
+		const self = ref(null);
+
+		return {
+			guide,
+			self,
+		};
+	},
 	data() {
 		return {
 			editing: false,
+			guideHeight: null,
+			parent: null,
+			childTrigger: null,
 		};
+	},
+	mounted() {
+		let parent = this.$refs.self.parentElement.parentElement.parentElement.children[0];
+		if (parent.classList.contains('comment'))
+		{ this.parent = parent; }
+		this.onLoad();
 	},
 	computed: {
 		isMobile,
@@ -160,8 +187,23 @@ export default {
 		editToggle() {
 			this.editing = !this.editing;
 		},
+		onLoad() {
+			console.log('loaded', this.$refs.self);
+			if (this.parent)
+			{
+				let self = this.$refs.self.getBoundingClientRect();
+				this.guideHeight = (self.top + self.bottom) / 2 - this.parent.getBoundingClientRect().bottom;
+			}
+			this.$emit('loaded');
+			this.childTrigger = !this.childTrigger;
+		},
 		updatePost() {
 			// actually update the post
+		},
+	},
+	watch: {
+		loadTrigger() {
+			this.onLoad();
 		},
 	},
 }
@@ -187,7 +229,6 @@ export default {
 	padding: 25px;
 	align-items: flex-start;
 	position: relative;
-	overflow: hidden;
 	border: 1px solid var(--bordercolor);
 	border-radius: 3px;
 	-webkit-transition: ease var(--fadetime);
@@ -243,7 +284,9 @@ a.profile:hover {
 	background: var(--bg1color);
 }
 .post .markdown {
-	margin: 0 0 25px;
+	margin: -10px -10px 15px;
+	padding: 10px;
+	overflow: hidden;
 }
 .post > :last-child {
 	margin-bottom: 0;
@@ -257,7 +300,7 @@ a.profile:hover {
 .nested .loading {
 	--bg2color: var(--bg1color);
 }
-.privacy {
+.labels {
 	display: flex;
 	position: absolute;
 	right: 25px;
@@ -311,12 +354,20 @@ ol {
 .guide-line {
 	position: absolute;
 	bottom: 50%;
-	left: -13px;
+	left: -14px;
 	height: calc(50% + 25px);
 	width: 13px;
-	border-bottom-left-radius: 3px;
-	border-width: 0 0 1px 1px;
+	border-bottom-left-radius: 12px;
+	border-width: 0 0 2px 2px;
 	border-color: var(--linecolor);
 	border-style: solid;
+	z-index: -1;
+}
+.direct-link {
+	color: var(--subtlecolor);
+	display: block;
+}
+.direct-link i {
+	font-size: 1.2em;
 }
 </style>

@@ -38,7 +38,7 @@
 					<ThemeMenu />
 				</main>
 				<ol>
-					<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+					<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
 					<li v-for='comment in comments'>
 						<Comment v-bind='comment' comment/>
 					</li>
@@ -82,7 +82,7 @@
 				</main>
 			</div>
 			<ol style='padding: 0 25px'>
-				<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+				<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
 				<li v-for='comment in comments'>
 					<Comment v-bind='comment' comment/>
 				</li>
@@ -187,6 +187,54 @@ export default {
 							userIsUploader: false,
 							created: new Date(Date.now() - 100000000).toString(),
 							updated: new Date(Date.now() - 100000000).toString(),
+							comments: [
+								{
+									postId: 'nNSsjrxI',
+									labels: false,
+									link: false,
+									user: {
+										name: 'dari',
+										handle: 'darius',
+										icon: 'yZQnofj2',
+									},
+									score: {
+										up: 2,
+										down: 0,
+									},
+									tags: [],
+									concise: false,
+									description: 'ḿ̷̨̧̡̨̧̢̢̢̧̨̧̡̡̨̡̢̨̢̢̛̛̹͙̲̩̰̥̲͔̹̜̖̭͓͈̞̬͍̭̬͉̦͖͈̼͚̱̺͙͕͈̪̦̗̖͇͇̜͎̰̬͙͓̩̻͎͇͇̺̬̞̮̼̘̜̘̘̣͔͍͍̝̰̪̥̭̙̲̲͉̭̝͎̱̱̫̩̘̺͕̹̣̹̺͙̭̼̲̻̘͓͓̟̝̮͔͔̩͖̦̲̩̪͉̣̗̮̳̠̳͓̥̗̻̮͈̯͕̟͔̪̻̯̘͓̺̱̭̫͖̺̻̟̙̤̜̜͕̪̘͉̘̮͖̪̪̱̰̺̥̺̖̹͉͚͇̝͉̣̖̱͓͍̦͇̝͕̭̉͗͐̐̀̏̔͐̌̒̊͊͑̒̇̂̐̅͛̉̇̃̈́́̌̈̎̍̆͛̌̌̒͐̏̄̐̾͗̑͊̂̽̐͛̎̂̀̀͑̀̄̍̒́͆͒̿͗͋̀̎͊̉̄̒̌̏̊̑̊̄̃̈́̈́̄͆̄͆̽̔̔̅̐̒͒͂͊̄̾̊̏̿́̔͊̓͌̌͂̿̋̈́̈́̈́̽̈́͌̀̊͘̚̚͘̕̚͘̕͜͜͜͜͝͝͠͠͝͠ͅͅͅͅͅǫ̷̡̡̨͕͚͎͇̲̫͔̺̳̙͓̮̙̗͖͙̘̞̲̣̪͍͈̰̜̗̙̞̣̬͔͍̭̩̝̠̬̦̹̤̬͖̱̼͎̺͔͍͖͖̟̦̹̩̘̦̝͕͍̭̍̿̄̈̓̉͛̈́͒̊̑̉̅̽̑̍͋͂͊̌̆̒̈́̆̂̿͐̓͛̆̓̆̀̽͑̈́͆̒̓̇̊̚͜ͅͅẁ̶̨̢̧̨̛̛͚̘̰̩̫̳̪̦̟̲̟͖̻̩͖̳̥͈̘̯̼̙̦͐̏͂̈́̈́̓́̅̑̌̈́̌̐͋̂̔̆͐̍̓̅̂̅̎̈́͗́̒͌̄̈́̓͑̿͑͊́͊́̃̈͐̀̌͒̏̊͗͐̎̈̓̇́͂́̉̔̍́͋̂́̍̃̈́̈́̊̽̂̌̉̆͊̿͊̊̀͂̌̏̈́͒̄͊̍̇̄̿̒̔͆̓̂̐̎̐̃͊̈͗̃̓̈̄̈̅͂̓͘̚͘̕͘͘̚̚͘͠͝͠͝͝͝͝͝͝',
+									title: null,
+									userIsUploader: false,
+									created: new Date(Date.now() - 100000000).toString(),
+									updated: new Date(Date.now() - 100000000).toString(),
+									comments: [],
+								},
+							],
+						},
+						{
+							postId: 'aaaaaaaa',
+							labels: false,
+							link: false,
+							user: {
+								name: 'dari',
+								handle: 'darius',
+								icon: 'yZQnofj2',
+							},
+							score: {
+								up: 2,
+								down: 0,
+							},
+							tags: [
+								'text',
+							],
+							concise: false,
+							description: 'I ran out of interesting things to say',
+							title: null,
+							userIsUploader: false,
+							created: new Date(Date.now() - 100000000).toString(),
+							updated: new Date(Date.now() - 100000000).toString(),
+							comments: [],
 						},
 					],
 				},
@@ -197,6 +245,7 @@ export default {
 					tags: [
 						'text',
 					],
+					comments: [],
 				}
 			]
 		};
@@ -209,7 +258,7 @@ export default {
 					if (response.status < 300)
 					{
 						this.post = r;
-						setTitle(`${this.post?.title || this.postId} by ${this.post.user.handle}`);
+						setTitle(`${this.post?.title || this.postId} by ${this.post.user.name || this.post.user.handle}`);
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
@@ -233,9 +282,7 @@ export default {
 				response.json().then(r => {
 					console.log(r);
 					if (response.status < 300)
-					{
-						this.tags = r;
-					}
+					{ this.tags = r; }
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -274,10 +321,28 @@ export default {
 		},
 		showPrivacy()
 		{ return this.post?.privacy && this.post.privacy.toLowerCase() !== 'public'; },
+		countComments()
+		{
+			if (!this.comments)
+			{ return null; }
+
+			let count = this.comments.length;
+			this.comments.forEach(comment => {
+				count += this.countNestedComments(comment);
+			});
+
+			return count;
+		}
 	},
 	methods: {
-		onResize()
-		{
+		countNestedComments(post) {
+			let count = post.comments.length;
+			post.comments.forEach(comment => {
+				count += this.countNestedComments(comment);
+			});
+			return count;
+		},
+		onResize() {
 			if (!this.mediaElement)
 			{ return; }
 

@@ -1,5 +1,5 @@
 <template>
-	<img :src='src' @load='onLoad' @error='onError'>
+	<img :src='src' @load='loaded' @error='onError'>
 </template>
 
 <script>
@@ -16,6 +16,10 @@ export default {
 			type: Number,
 			default: null,
 		},
+		onLoad: { 
+			type: Function,
+			default() { },
+		},
 		isLoading: Boolean,
 	},
 	data() {
@@ -31,8 +35,9 @@ export default {
 		},
 	},
 	methods: {
-		onLoad() {
+		loaded(event) {
 			this.$emit('update:isLoading', false);
+			this.onLoad(event);
 		},
 		onError() {
 			if (this.post)

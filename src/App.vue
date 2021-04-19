@@ -163,17 +163,17 @@ pre, code, .code, textarea
 	font-size: 0.9em;
 	font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace;
 }
-body
-{
+html {
+	background: var(--bg0color);	
+}
+body {
 	min-height: 100vh;
 	display: flex;
 	background-size: cover;
 	background-position: center;
 }
-body, html
-{
+body, html {
 	text-rendering: optimizelegibility;
-	background: var(--bg0color);	
 	margin: 0;
 	padding: 0;
 	color: var(--textcolor);
@@ -452,9 +452,9 @@ html.e621
 	--blue: #d0d;
 	/* sienna */
 }
-html.e621 body
+html.e621
 {
-	background-image: url(/assets/themes/stripe.png);
+	background: url(/assets/themes/stripe.png) var(--bg0color);
 	background-repeat: repeat;
 	background-position: center top;
 	background-size: auto;
@@ -604,6 +604,7 @@ html.discord
 	--bg2color: #26272B;
 	--textcolor: #DCDDDE;
 	--bordercolor: #1E1F23;
+	--linecolor: var(--bg1color);
 	--borderhover: #7289DA;
 	--subtlecolor: #72767D;
 	--shadowcolor: #202225;
@@ -618,6 +619,7 @@ html.xfire
 	--bg2color: #1D1C22;
 	--textcolor: #ABC6E3;
 	--bordercolor: #00020A;
+	--linecolor: var(--subtlecolor);
 	--borderhover: #3D73D7;
 	--subtlecolor: #ABC6E3A0;
 	--shadowcolor: #00000080;
