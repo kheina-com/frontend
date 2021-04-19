@@ -8,8 +8,8 @@
 					<div class='field'>
 						<div>
 							<span>File</span>
-							<FileField v-model:file='file' :showSlot='uploadDone'>
-								<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%' />
+							<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
+								<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh' style='width: 100%' />
 							</FileField>
 							<div class='field actions' v-if='file !== null'>
 								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
@@ -206,14 +206,13 @@ export default {
 			khatch(`${postsHost}/v1/post/${this.postId}`)
 				.then(response => {
 					response.json().then(r => {
-						console.log(Object.assign(r, { response }));
+						console.log(r);
 						if (response.status < 300)
 						{
 							this.description = r.description;
 							this.title = r.title;
 							this.privacy = r.privacy;
 							this.rating = r.rating;
-							this.tags = Object.values(r.tags).flat().join(' ');
 							this.mime = r.media_type?.mime_type;
 							if (r.filename) {
 								this.uploadDone = true;
@@ -238,6 +237,32 @@ export default {
 					this.errorDump = error;
 					console.error(error);
 				});
+
+			khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`)
+				.then(response => {
+					response.json().then(r => {
+						console.log(r);
+						if (response.status < 300)
+						{
+							this.tags = Object.values(r).flat().join(' ');
+						}
+						else if (response.status === 401)
+						{ this.errorMessage = r.error; }
+						else if (response.status === 404)
+						{ this.errorMessage = r.error; }
+						else
+						{
+							this.errorMessage = apiErrorMessage;
+							this.errorDump = r;
+						}
+					});
+				})
+				.catch(error => {
+					this.errorMessage = apiErrorMessage;
+					this.error = error;
+					console.error(error);
+				});
+
 		}
 		else
 		{
@@ -287,6 +312,15 @@ export default {
 				rating: this.rating,
 				tags: tagSplit(this.$refs.tagDiv.textContent),
 				this_tags: this.tags,
+				meta: {
+					filename: this.filename,
+					showUpload: this.showUpload,
+					isUploading: this.isUploading,
+					uploadProgress: this.uploadProgress,
+					uploadUnavailable: this.uploadUnavailable,
+					uploadDone: this.uploadDone,
+				},
+				this: this,
 			});
 		},
 		uploadFile() {
@@ -467,7 +501,7 @@ main {
 	align-items: flex-start;
 	flex-flow: wrap;
 }
-.tags ul {
+.tags ol {
 	padding: 0.5em;
 	background: var(--bg2color);
 	border: 1px solid var(--bordercolor);
@@ -484,7 +518,7 @@ main {
 	margin: 0;
 	border: none;
 }
-.tag-field ul {
+.tag-field ol {
 	padding: 0.25em 1em 0.5em;
 	margin: 0;
 	position: absolute;
@@ -492,7 +526,7 @@ main {
 .tag-field li {
 	margin: 0 0 0.5em;
 }
-.tag-field ul > :last-child {
+.tag-field ol > :last-child {
 	margin: 0;
 }
 
@@ -509,7 +543,7 @@ p {
 h4 {
 	margin: 0;
 }
-ul {
+ol {
 	padding: 0;
 	margin: 0 12.5px;
 }
@@ -518,7 +552,6 @@ li {
 }
 
 .media {
-	margin: 25px auto;
 	display: flex;
 	justify-content: center;
 }

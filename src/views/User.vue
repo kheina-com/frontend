@@ -14,7 +14,7 @@
 				<p style='margin: 0'>@{{user?.handle}}</p>
 			</div>
 		</div>
-		<div style='margin: 0 25px -128px display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-else>
+		<div style='margin: 0 25px -128px; display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-else>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
 					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
@@ -30,8 +30,12 @@
 			</div>
 		</div>
 		<main>
+			<Button class='interactable edit-profile-button' title='Edit profile' v-if='isSelf'>
+				<i class='material-icons'>edit</i>
+				Edit Profile
+			</Button>
 			<Markdown :content='user?.description' :style='`margin-top: 25px; ${isMobile ? "" : "width: 70vw;"} margin: 25px auto 0`'/>
-			<div style='margin-top: 25px'>
+			<div>
 				<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
 				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
 			</div>
@@ -147,6 +151,9 @@ export default {
 	},
 	computed: {
 		isMobile,
+		isSelf() {
+			return this.$store.state.user && this.$store.state.user?.handle === this.user?.handle;
+		},
 	},
 	methods: {
 	},
@@ -157,6 +164,15 @@ export default {
 main {
 	background: var(--bg1color);
 	position: relative;
-	padding: 100px 25px 25px;
+	padding: 125px 25px 25px;
 }
+.edit-profile-button {
+	position: absolute;
+	right: 30vw;
+}
+i {
+	margin: 0 0.25em 0 0;
+	font-size: 1.2em;
+}
+
 </style>

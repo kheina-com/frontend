@@ -37,12 +37,12 @@
 					</Loading>
 					<ThemeMenu />
 				</main>
-				<ul>
+				<ol>
 					<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
 					<li v-for='comment in comments'>
 						<Comment v-bind='comment' comment/>
 					</li>
-				</ul>
+				</ol>
 			</div>
 		</div>
 		<div class='content' v-else>
@@ -81,12 +81,12 @@
 					<ThemeMenu />
 				</main>
 			</div>
-			<ul style='padding: 0 25px'>
+			<ol style='padding: 0 25px'>
 				<p class='comment-label'>{{comments ? comments.length : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
 				<li v-for='comment in comments'>
 					<Comment v-bind='comment' comment/>
 				</li>
-			</ul>
+			</ol>
 		</div>
 	</Error>
 </template>
@@ -168,20 +168,19 @@ export default {
 					updated: new Date(Date.now() - 1000000000).toString(),
 					comments: [
 						{
-							postId: 'gZdcct7g',
+							postId: 'nNSsjrxI',
 							labels: false,
 							link: false,
 							user: {
 								name: 'dari',
 								handle: 'darius',
+								icon: 'yZQnofj2',
 							},
 							score: {
 								up: 2,
 								down: 0,
 							},
-							tags: [
-								'text',
-							],
+							tags: [],
 							concise: false,
 							description: 'what about thighs?',
 							title: null,
@@ -275,8 +274,6 @@ export default {
 		},
 		showPrivacy()
 		{ return this.post?.privacy && this.post.privacy.toLowerCase() !== 'public'; },
-		showEdit()
-		{ return true; },
 	},
 	methods: {
 		onResize()
@@ -430,27 +427,18 @@ input {
 	font-size: 1em;
 }
 
-ul {
+ol {
 	list-style: none;
 	padding: 0 25px 0 0;
 	margin: 25px 0 0;
 	display: block;
 	position: relative;
 }
-ul > :last-child, ul > :last-child .post {
+ol > :last-child, ol > :last-child .post {
 	margin: 0;
 }
-ul p {
+ol p {
 	margin: 0 0 0.25em 25px;
-}
-ul .post {
-	background: var(--bg1color);
-}
-ul .post .loading {
-	--bg1color: var(--bg2color);
-}
-ul .edit-button {
-	background: var(--bg2color);
 }
 .comment-label, .comment-label button {
 	display: flex;
@@ -465,5 +453,10 @@ ul .edit-button {
 }
 .report:hover {
 	background: var(--bg2color);
+}
+
+/* theme overrides */
+html.e621 main {
+	margin-left: 0;
 }
 </style>

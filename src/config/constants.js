@@ -1,27 +1,27 @@
 export default 0;
 
-let constant = null;
+let env = null;
 
 switch (window.location.hostname.toLowerCase())
 {
 	case 'kheina.com' :
-		constant = 'prod';
+		env = 'prod';
 		break;
 
 	case 'dev.kheina.com' :
-		constant = 'dev';
+		env = 'dev';
 		break;
 
 	case 'localhost' :
-		constant = 'local';
+		env = 'local';
 		break;
 
 	case '127.0.0.1' :
-		constant = 'local';
+		env = 'local';
 		break;
 }
 
-export const environment = constant;
+export const environment = env;
 
 
 let pHost = null;

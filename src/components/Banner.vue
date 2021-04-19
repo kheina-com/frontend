@@ -45,7 +45,10 @@
 		<Markdown :content='message' v-else-if='message'/>
 	</div>
 	<div class='menu' ref='menu'>
-		<ul class='inner'>
+		<ol class='inner'>
+			<li v-if='environment == "local"'>
+				<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
+			</li>
 			<li>
 				<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
 			</li>
@@ -55,14 +58,14 @@
 				</router-link>
 			</li>
 			<li v-if='isAdmin'>
-				<ul>
+				<ol>
 					<li >
 						<button><i class='material-icons'>add_moderator</i>Add Mod</button>
 					</li>
 					<li >
 						<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
 					</li>
-				</ul>
+				</ol>
 			</li>
 			<li>
 				<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
@@ -77,11 +80,11 @@
 				<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
 			</li>
 			<li v-if='isLoggedIn'>
-				<ul>
+				<ol>
 					<li>
 						<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
 					</li>
-				</ul>
+				</ol>
 			</li>
 			<li v-if='isLoggedIn'>
 				<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Account</router-link>
@@ -107,14 +110,14 @@
 			<li>
 				<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
 			</li>
-		</ul>
+		</ol>
 	</div>
 </template>
 
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, deleteCookie, khatch } from '@/utilities';
-import { configHost } from '@/config/constants.js';
+import { configHost, environment } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
@@ -153,6 +156,7 @@ export default {
 			menuOpen: false,
 			isMessageLoading: true,
 			isIconLoading: true,
+			environment,
 		};
 	},
 	mounted() {
@@ -404,7 +408,7 @@ button:hover /*, button:active, button:focus */
 	right: 0.5em;
 	top: 0.5em;
 }
-ul {
+ol {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -412,21 +416,21 @@ ul {
 	height: 80%;
 	height: calc(100% - 3.5rem);
 }
-ul li {
+ol li {
 	margin: 0 0 0.5em;
 }
-ul li, li a, li button, .create {
+ol li, li a, li button, .create {
 	display: flex;
 	align-items: center;
 }
-li ul {
+li ol {
 	margin: 0 0 0 25px;
 }
-ul i, .menu i {
+ol i, .menu i {
 	display: inline-block;
 	margin: 0 0.25em 0 0;
 }
-ul > :last-child {
+ol > :last-child {
 	margin: 0;
 }
 .create {

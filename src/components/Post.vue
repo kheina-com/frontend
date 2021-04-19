@@ -1,4 +1,5 @@
 <template>
+	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)'>
 		<div class='privacy'>
 			<div v-if='labels && !isLoading'>
@@ -30,6 +31,12 @@
 		</Loading>
 		<Report :data='{ post: postId }' v-if='!isLoading'/>
 	</div>
+	<ol v-if='comments'>
+		<li v-for='comment in comments'>
+			<div class='guide-line'></div>
+			<Post v-bind='comment' comment/>
+		</li>
+	</ol>
 </template>
 
 <script>
@@ -86,6 +93,10 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		comments: {
+			type: Array,
+			default: null,
+		},
 
 		// post fields
 		user: Object,
@@ -135,7 +146,7 @@ export default {
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
-		{ return (this.isLoading || !this.link ? 'post' : 'post link') + (this.nested ? ' nested' : ''); },
+		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : '') + (this.comment ? ' comment' : ''); },
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
@@ -177,7 +188,6 @@ export default {
 	align-items: flex-start;
 	position: relative;
 	overflow: hidden;
-	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	border: 1px solid var(--bordercolor);
 	border-radius: 3px;
 	-webkit-transition: ease var(--fadetime);
@@ -190,11 +200,24 @@ export default {
 }
 .post.link:hover {
 	border-color: var(--icolor);
-	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 .post.nested {
 	background: var(--bg2color);
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
+.post.nested.link:hover {
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
+}
+.post {
+	background: var(--bg1color);
+}
+.post .loading {
+	--bg1color: var(--bg2color);
+}
+.post .edit-button {
+	background: var(--bg2color);
+}
+
 .post img {
 	max-width: 100%;
 	max-height: 300px;
@@ -276,5 +299,24 @@ textarea {
 }
 .nested .report:hover {
 	background: var(--bg1color);
+}
+
+ol {
+	list-style: none;
+	padding: 0;
+	margin: 25px 0 25px 25px;
+	display: block;
+	position: relative;
+}
+.guide-line {
+	position: absolute;
+	bottom: 50%;
+	left: -13px;
+	height: calc(50% + 25px);
+	width: 13px;
+	border-bottom-left-radius: 3px;
+	border-width: 0 0 1px 1px;
+	border-color: var(--linecolor);
+	border-style: solid;
 }
 </style>

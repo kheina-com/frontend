@@ -36,48 +36,49 @@ export default {
 			if (time === null)
 			{ return null; }
 			let conversion = 1;
-			let units = 'seconds';
+			let unit = 'second';
 			if (time > 31556952)
 			{
 				conversion = 1 / 31556952;
-				units = 'years';
+				unit = 'year';
 			}
 			else if (time > 2592000)
 			{
 				conversion = 1 / 2592000;
-				units = 'months';
+				unit = 'month';
 			}
 			else if (time > 86400) // 24 hours in seconds
 			{
 				conversion = 1 / 86400;
-				units = 'days';
+				unit = 'day';
 			}
 			else if (time > 5400) // 90 minutes in seconds
 			{
 				conversion = 1 / 3600;
-				units = 'hours';
+				unit = 'hour';
 			}
 			else if (time > 60)
 			{
 				conversion = 1 / 60;
-				units = 'minutes';
+				unit = 'minute';
 			}
 			else if (time < 0.000001)
 			{
 				conversion = 1000000000;
-				units = 'nanoseconds';
+				unit = 'nanosecond';
 			}
 			else if (time < 0.001)
 			{
 				conversion = 1000000;
-				units = 'microseconds';
+				unit = 'microsecond';
 			}
 			else if (time < 1)
 			{
 				conversion = 1000;
-				units = 'milliseconds';
+				unit = 'millisecond';
 			}
-			return (time * conversion).toFixed(fixed) + ' ' + units;
+			let value = (time * conversion).toFixed(fixed);
+			return value + ' ' + unit + (value === '1' ? '' : 's');
 		},
 	},
 }

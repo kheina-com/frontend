@@ -398,6 +398,7 @@ html
 	--blockquote: var(--bordercolor);
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;
+	--linecolor: var(--bordercolor);
 	--borderhover: #F29B17;
 	--subtlecolor: #EEEEEE80;
 	--shadowcolor: #00000080;
@@ -437,6 +438,7 @@ html.e621
 	--bg3color: hsla(0,0%,100%,.05);
 	--textcolor: #EEE;
 	--bordercolor: #0000;
+	--linecolor: var(--blockquote);
 	--borderhover: #0000;
 	--blockquote: #b4c7d9;
 	--subtlecolor: #B4C7D9;

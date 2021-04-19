@@ -1,16 +1,16 @@
 <template>
 	<div>
 		<h3>Tags</h3>
-		<ul v-if='tags'>
+		<ol v-if='tags'>
 			<li v-for='(value, name) in sortTagGroups(tags)'>
 				<TagGroup :group='name' :tags='value' />
 			</li>
-		</ul>
-		<ul v-else>
+		</ol>
+		<ol v-else>
 			<li v-for='name in tagGroups'>
 				<TagGroup :group='name' />
 			</li>
-		</ul>
+		</ol>
 	</div>
 </template>
 
@@ -61,7 +61,7 @@ h3 {
 	padding: 0 12.5px 12px;
 }
 
-ul {
+ol {
 	list-style: none;
 	margin: 0 25px 0;
 	padding: 0;

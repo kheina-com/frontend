@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/no-use-v-if-with-v-for-->
 	<!-- eslint-disable vue/require-v-for-key-->
 	<Loading :isLoading='tags === null'><h4>{{group}}</h4></Loading>
-	<ul>
+	<ol>
 		<li v-if='tags !== null' v-for='tag in tags'>
 			<router-link :to='`/t/${tag}`' :style='`color: var(${colorMap[group]})`'>
 				{{tag.replace(/_/g, ' ')}}
@@ -11,7 +11,7 @@
 		<li v-else v-for='i in loadingMap[group]'>
 			<Loading><p>hello</p></Loading>
 		</li>
-	</ul>
+	</ol>
 </template>
 
 <script>
@@ -71,12 +71,12 @@ export default {
 </script>
 
 <style scoped>
-ul {
+ol {
 	list-style: none;
 	margin: 0 0 0 25px;
 	padding: 0;
 }
-ul li {
+ol li {
 	margin: 0 0 0.5em;
 }
 h4 {
