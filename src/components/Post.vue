@@ -188,7 +188,6 @@ export default {
 			this.editing = !this.editing;
 		},
 		onLoad() {
-			console.log('loaded', this.$refs.self);
 			if (this.parent)
 			{
 				let self = this.$refs.self.getBoundingClientRect();

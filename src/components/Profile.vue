@@ -1,5 +1,5 @@
 <template>
-	<router-link :to='`/${handle}`' class='profile' v-if='link && !isLoading' @click.stop>
+	<a :href='`/${handle}`' class='profile' v-if='link && !isLoading' @click.stop='navigateToUser'>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
 				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
@@ -9,7 +9,7 @@
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
 			</div>
 		</div>
-	</router-link>
+	</a>
 	<div class='profile' v-else>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
@@ -82,6 +82,11 @@ export default {
 				default :
 					return 'a verified artist';
 			}
+		},
+	},
+	methods: {
+		navigateToUser() {
+			this.$router.push('/' + this.handle);
 		},
 	},
 }

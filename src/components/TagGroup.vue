@@ -73,7 +73,7 @@ export default {
 <style scoped>
 ol {
 	list-style: none;
-	margin: 0 0 0 25px;
+	margin: 0 0 0 10px;
 	padding: 0;
 }
 ol li {
