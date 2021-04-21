@@ -1,7 +1,7 @@
-from aiohttp import ClientResponse, ClientTimeout, request as request_async
-from kh_common.config.constants import posts_host, users_host
-from fastapi.responses import FileResponse, HTMLResponse
 from kh_common.exceptions.http_error import NotFound
+from aiohttp import ClientResponse, ClientTimeout, request as request_async
+# from kh_common.config.constants import posts_host, users_host
+from fastapi.responses import FileResponse, HTMLResponse
 from kh_common.caching import ArgsCache, SimpleCache
 from kh_common.logging import getLogger
 from kh_common.server import ServerApp
@@ -14,6 +14,23 @@ from os import path
 app = ServerApp(auth=False)
 api_timeout = 5
 logger = getLogger()
+
+concise_regex = re_compile(r'(.+(?:[\n\r]+.+){0,2})([\s\S]+)?')
+description_limit = 300
+
+markdown_regex = re_compile('|'.join([
+	r'\[.+\]\((.+)\)',
+	r'#{1,6} ',
+	r'`+',
+]))
+
+post_uri_regex = re_compile(r'^\/p\/([a-zA-Z0-9_-]{8})$')
+user_uri_regex = re_compile(r'^\/([^\/]+)$')
+
+header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}">'
+header_image = '<meta property="og:image" content="{0}"><meta property="twitter:image" content="{0}">'
+header_description = '<meta name="description" property="og:description" content="{0}"><meta property="twitter:description" content="{0}">'
+header_defaults = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary_large_image">'
 
 
 async def fetchUserData(handle) :
@@ -39,7 +56,7 @@ async def fetchUserData(handle) :
 
 async def fetchPostData(post_id) :
 	if len(post_id) != 8 :
-		return { }
+		return None
 
 	try :
 		async with request_async(
@@ -61,12 +78,34 @@ async def fetchPostData(post_id) :
 		logger.exception('error while fetching post data from frontend server.')
 
 
-post_uri_regex = re_compile(r'^\/p\/([a-zA-Z0-9_-]{8})$')
-user_uri_regex = re_compile(r'^\/([^\/]+)$')
-header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}">'
-header_image = '<meta property="og:image" content="{0}"><meta property="twitter:image" content="{0}">'
-header_description = '<meta name="description" property="og:description" content="{0}"><meta property="twitter:description" content="{0}">'
-header_defaults = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary_large_image">'
+def firstGroupOrEmptyString(match) :
+	try :
+		return next(filter(None, match.groups()))
+
+	except StopIteration :
+		return None
+
+
+def demarkdown(string) :
+	return markdown_regex.sub(firstGroupOrEmptyString, string)
+
+
+def concise(string: str) :
+	match = concise_regex.match(demarkdown(string))
+
+	if len(match[1]) > description_limit :
+		description = match[1][:description_limit]
+		cut = True
+
+	elif match[2] :
+		description = match[1]
+		cut = True
+
+	else :
+		cut = False
+		description = match[0]
+
+	return description + ('...' if cut else '')
 
 
 @ArgsCache(60)
@@ -83,8 +122,8 @@ async def matchHeaders(uri: str) :
 
 		return ''.join([
 			header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.jpeg'),
-			header_description.format(escape(data['description'])) if data['description'] else '',
+			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.jpeg') if data['media_type'] else '',
+			header_description.format(escape(concise(data['description']))) if data['description'] else '',
 			header_defaults,
 		])
 
@@ -104,8 +143,8 @@ async def matchHeaders(uri: str) :
 
 		return ''.join([
 			header_title.format(escape(title)),
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpeg'),
-			header_description.format(escape(data['description'])) if data['description'] else '',
+			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpeg') if data['media_type'] else '',
+			header_description.format(escape(concise(data['description']))) if data['description'] else '',
 			header_defaults,
 		])
 

@@ -9,6 +9,12 @@ dist
 **/credentials
 credentials
 
+# python files
+**/__pycache__
+**/Pipfile
+**/.py*
+server.py
+
 # config files
 .vscode
 
