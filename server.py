@@ -1,6 +1,6 @@
 from kh_common.exceptions.http_error import NotFound
 from aiohttp import ClientResponse, ClientTimeout, request as request_async
-# from kh_common.config.constants import posts_host, users_host
+from kh_common.config.constants import posts_host, users_host
 from fastapi.responses import FileResponse, HTMLResponse
 from kh_common.caching import ArgsCache, SimpleCache
 from kh_common.logging import getLogger
@@ -110,8 +110,6 @@ def concise(string: str) :
 
 @ArgsCache(60)
 async def matchHeaders(uri: str) :
-	headers = None
-
 	match = post_uri_regex.match(uri)
 
 	if match :
