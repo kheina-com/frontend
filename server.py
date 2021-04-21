@@ -92,14 +92,14 @@ async def matchHeaders(uri: str) :
 		data = await fetchUserData(match[0])
 
 		if data['name'] :
-			title = f'{data['name']} (@{data['handle']}) - kheina.com'
+			title = f'{data["name"]} (@{data["handle"]}) - kheina.com'
 
 		else :
-			title = f'@{data['handle']} - kheina.com'
+			title = f'@{data["handle"]} - kheina.com'
 
 		return ''.join([
 			header_title.format(escape(title)),
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data['icon']}/thumbnails/1200.jpeg'),
+			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpeg'),
 			header_description.format(escape(data['description'])) if data['description'] else '',
 		])
 
