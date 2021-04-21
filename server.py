@@ -36,8 +36,6 @@ async def fetchUserData(handle) :
 	except Exception :
 		logger.exception('error while fetching user data from frontend server.')
 
-	return { }
-
 
 async def fetchPostData(post_id) :
 	if len(post_id) != 8 :
@@ -62,8 +60,6 @@ async def fetchPostData(post_id) :
 	except Exception :
 		logger.exception('error while fetching post data from frontend server.')
 
-	return { }
-
 
 post_uri_regex = re_compile(r'^\/p\/([a-zA-Z0-9_-]{8})$')
 user_uri_regex = re_compile(r'^\/([^\/]+)$')
@@ -79,17 +75,24 @@ async def matchHeaders(uri: str) :
 	match = post_uri_regex.match(uri)
 
 	if match :
-		data = await fetchPostData(match[0])
+		data = await fetchPostData(match[1])
+
+		if not data :
+			return None
+
 		return ''.join([
-			header_title.format(escape(data['title'] or match[0]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[0]}/thumbnails/1200.jpeg'),
+			header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
+			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.jpeg'),
 			header_description.format(escape(data['description'])) if data['description'] else '',
 		])
 
 	match = user_uri_regex.match(uri)
 
 	if match :
-		data = await fetchUserData(match[0])
+		data = await fetchUserData(match[1])
+
+		if not data :
+			return None
 
 		if data['name'] :
 			title = f'{data["name"]} (@{data["handle"]}) - kheina.com'
@@ -111,7 +114,7 @@ def vueIndexHtml() :
 	return open('dist/index.html').read()
 
 
-@app.get('/{uri:path}')
+@app.get('{uri:path}')
 async def test(uri: str) :
 	local_uri = 'dist/' + uri.strip('\./')
 
