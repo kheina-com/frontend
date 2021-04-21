@@ -16,7 +16,7 @@ api_timeout = 5
 logger = getLogger()
 
 concise_regex = re_compile(r'(.+(?:[\n\r]+.+){0,2})([\s\S]+)?')
-description_limit = 300
+description_limit = 200
 
 markdown_regex = re_compile('|'.join([
 	r'\[.+\]\((.+)\)',
@@ -94,7 +94,7 @@ def concise(string: str) :
 	match = concise_regex.match(demarkdown(string))
 
 	if len(match[1]) > description_limit :
-		description = match[1][:description_limit]
+		description = match[1][:description_limit - 3]
 		cut = True
 
 	elif match[2] :
