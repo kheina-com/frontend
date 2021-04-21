@@ -66,6 +66,7 @@ user_uri_regex = re_compile(r'^\/([^\/]+)$')
 header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}">'
 header_image = '<meta property="og:image" content="{0}"><meta property="twitter:image" content="{0}">'
 header_description = '<meta name="description" property="og:description" content="{0}"><meta property="twitter:description" content="{0}">'
+header_defaults = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary_large_image">'
 
 
 @ArgsCache(60)
@@ -84,7 +85,7 @@ async def matchHeaders(uri: str) :
 			header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
 			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.jpeg'),
 			header_description.format(escape(data['description'])) if data['description'] else '',
-			'<meta property="twitter:site" content="@kheinacom">',
+			header_defaults,
 		])
 
 	match = user_uri_regex.match(uri)
@@ -105,7 +106,7 @@ async def matchHeaders(uri: str) :
 			header_title.format(escape(title)),
 			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpeg'),
 			header_description.format(escape(data['description'])) if data['description'] else '',
-			'<meta property="twitter:site" content="@kheinacom">',
+			header_defaults,
 		])
 
 	return None
