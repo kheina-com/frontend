@@ -34,7 +34,7 @@ async def fetchPostData(post_id) :
 		logger.exception('error while fetching post data from frontend server.')
 
 
-async def postHeaders(match) :
+async def postMetaTags(match) :
 	data = await fetchPostData(match[1])
 
 	if not data :

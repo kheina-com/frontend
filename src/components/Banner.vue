@@ -1,5 +1,6 @@
 <template>
 	<div class='banner'>
+		<div class='nav-backdrop'></div>
 		<div ref='menuButton' class='menu-button'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
@@ -26,7 +27,7 @@
 				<i class='material-icons icon' title='You are a moderator' v-if='isMod'>verified_user</i>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
-						<Thumbnail :post='userIcon' v-model:isLoading='isIconLoading' :size='100'/>
+						<Thumbnail :post='userIcon' v-model:isLoading='isIconLoading' :size='200'/>
 					</router-link>
 				</Loading>
 			</div>
@@ -43,74 +44,76 @@
 			</div>
 		</div>
 		<Markdown :content='message' v-else-if='message'/>
-	</div>
-	<div class='menu' ref='menu'>
-		<ol class='inner'>
-			<li v-if='environment == "local"'>
-				<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
-			</li>
-			<li>
-				<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
-			</li>
-			<li v-if='isMod'>
-				<router-link to='/mod'>
-					<i class='material-icons'>shield</i>Moderate
-				</router-link>
-			</li>
-			<li v-if='isAdmin'>
-				<ol>
-					<li >
-						<button><i class='material-icons'>add_moderator</i>Add Mod</button>
-					</li>
-					<li >
-						<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
-					</li>
-				</ol>
-			</li>
-			<li>
-				<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
-			</li>
-			<li>
-				<router-link to='/tags'><i class='material-icons-round'>tag</i>Tags</router-link>
-			</li>
-			<li>
-				<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
-			</li>
-			<li v-if='isLoggedIn'>
-				<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
-			</li>
-			<li v-if='isLoggedIn'>
-				<ol>
-					<li>
-						<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
-					</li>
-				</ol>
-			</li>
-			<li v-if='isLoggedIn'>
-				<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Account</router-link>
-			</li>
-			<li v-if='isLoggedIn'>
-				<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
-			</li>
-			<li v-if='!isLoggedIn'>
-				<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
-			</li>
-			<li v-if='!isLoggedIn'>
-				<router-link to='/account/login'><i class='material-icons-round'>login</i>Login</router-link>
-			</li>
-			<li>
-				<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
-			</li>
-			<li>
-				<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
-			</li>
-			<li>
-				<router-link to='/bug'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
-			</li>
-			<li>
-				<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
-			</li>
-		</ol>
+		<div class='menu' ref='menu'>
+			<ol class='inner'>
+				<li v-if='environment == "local"'>
+					<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
+				</li>
+				<li>
+					<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
+				</li>
+				<li v-if='isMod'>
+					<router-link to='/mod'>
+						<i class='material-icons'>shield</i>Moderate
+					</router-link>
+				</li>
+				<li v-if='isAdmin'>
+					<ol>
+						<li >
+							<button><i class='material-icons'>add_moderator</i>Add Mod</button>
+						</li>
+						<li >
+							<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
+						</li>
+					</ol>
+				</li>
+				<li>
+					<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
+				</li>
+				<li>
+					<router-link to='/tags'><i class='material-icons-round'>tag</i>Tags</router-link>
+				</li>
+				<li>
+					<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
+				</li>
+				<li v-if='isLoggedIn'>
+					<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
+				</li>
+				<li v-if='isLoggedIn'>
+					<ol>
+						<li>
+							<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
+						</li>
+					</ol>
+				</li>
+				<li v-if='isLoggedIn'>
+					<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Account</router-link>
+				</li>
+				<li v-if='isLoggedIn'>
+					<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
+				</li>
+				<li v-if='!isLoggedIn'>
+					<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
+				</li>
+				<li v-if='!isLoggedIn'>
+					<router-link to='/account/login'><i class='material-icons-round'>login</i>Login</router-link>
+				</li>
+				<li>
+					<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
+				</li>
+				<li>
+					<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
+				</li>
+				<li>
+					<router-link to='/bug'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+				</li>
+				<li>
+					<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
+				</li>
+			</ol>
+		</div>
+		<div class='screen-cover' ref='screenCover' v-show='menuOpen' @click='toggleMenu'>
+		</div>
 	</div>
 </template>
 
@@ -142,11 +145,13 @@ export default {
 		const menu = ref(null);
 		const messageField = ref(null);
 		const menuButton = ref(null);
+		const screenCover = ref(null);
 		return {
 			search,
 			menu,
 			messageField,
 			menuButton,
+			screenCover,
 		};
 	},
 	data() {
@@ -221,11 +226,13 @@ export default {
 			if (this.menuOpen)
 			{
 				this.$refs.menu.classList.add('open');
+				this.$refs.screenCover.classList.add('open');
 				this.$refs.menuButton.classList.add('open');
 			}
 			else
 			{
 				this.$refs.menu.classList.remove('open');
+				this.$refs.screenCover.classList.remove('open');
 				this.$refs.menuButton.classList.remove('open');
 			}
 		},
@@ -278,7 +285,7 @@ export default {
 	top: 0;
 	left: -25vw;
 	left: calc(min(-20vw, -18em) - 3px);
-	z-index: 101;
+	z-index: 1;
 }
 html.mobile .menu.open, .menu.open {
 	left: 0;
@@ -287,6 +294,23 @@ html.mobile .menu {
 	width: 95vw;
 	left: -99vw;
 	left: calc(-95vw - 3px);
+}
+
+.screen-cover {
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+	position: fixed;
+	height: 100vh;
+	width: 100vw;
+	top: 0;
+	left: 0;
+	background: #0000;
+}
+
+.screen-cover.open {
+	background: #0008;
 }
 
 .menu .inner {
@@ -302,6 +326,8 @@ html.mobile .menu {
 	background: var(--bg1color);
 	text-align: center;
 	padding-top: 2.5rem;
+	position: relative;
+	z-index: 100;
 }
 .nav {
 	display: flex;
@@ -311,7 +337,14 @@ html.mobile .menu {
 	top: 0;
 	position: fixed;
 	width: 100%;
-	z-index: 100;
+}
+.nav-backdrop {
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	height: 2.5rem;
+	top: 0;
+	position: fixed;
+	width: 100%;
+	z-index: -3;
 }
 .menu-button {
 	left: 0;
@@ -328,6 +361,9 @@ html.mobile .menu {
 }
 .markdown {
 	padding: 20px 0 25px;
+	position: relative;
+	z-index: -2;
+	background: var(--bg1color);
 }
 textarea {
 	margin-bottom: 25px;
@@ -477,7 +513,7 @@ html.mobile .create .icon {
 	right: 25px;
 	margin-top: 0.5em;
 	padding: 0.25em;
-	z-index: 8;
+	z-index: -1;
 }
 .edit-message-button i {
 	margin: 0;

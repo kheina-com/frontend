@@ -1,9 +1,10 @@
 from kh_common.server import ServerApp
 from fastapi.responses import FileResponse, HTMLResponse
 from kh_common.caching import ArgsCache, SimpleCache
-from headers.home import homeHeaders, home_regex
-from headers.post import postHeaders, post_regex
-from headers.user import userHeaders, user_regex
+from headers.post import postMetaTags, post_regex
+from headers.user import userMetaTags, user_regex
+from headers.tag import tagMetaTags, tag_regex
+from headers.home import homeMetaTags
 from asyncio import ensure_future
 from os import path
 
@@ -12,26 +13,29 @@ app = ServerApp(auth=False)
 
 
 uri_map = {
-	post_regex: postHeaders,
-	user_regex: userHeaders,
-	home_regex: homeHeaders,
+	post_regex: postMetaTags,
+	user_regex: userMetaTags,
+	tag_regex: tagMetaTags,
 }
 
 
+@SimpleCache(60)  # change to inf on switch to kube
+def vueIndex() :
+	return open('dist/index.html').read()
+
+
 @ArgsCache(60)
-async def matchHeaders(uri: str) :
+async def matchMetaTags(uri: str) :
+	metaTags = None
+
 	for regex, handler in uri_map.items() :
 		match = regex.match(uri)
 
 		if match :
-			return await handler(match)
+			metaTags = await handler(match)
+			break
 
-	return None
-
-
-@SimpleCache(60)
-def vueIndexHtml() :
-	return open('dist/index.html').read()
+	return metaTags or await homeMetaTags()
 
 
 @app.get('{uri:path}')
@@ -41,12 +45,11 @@ async def test(uri: str) :
 	if path.isfile(local_uri) :
 		return FileResponse(local_uri)
 
-	headers = ensure_future(matchHeaders(uri))
-	html = vueIndexHtml()
-	headers = await headers
+	metaTags = ensure_future(matchMetaTags(uri))
+	html = vueIndex()
+	metaTags = await metaTags
 
-	if headers :
-		html = html.replace('<head>', '<head>' + headers)
+	html = html.replace('<head>', '<head>' + metaTags)
 
 	return HTMLResponse(html)
 
