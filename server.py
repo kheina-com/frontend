@@ -12,8 +12,8 @@ app = ServerApp(auth=False)
 
 
 uri_map = {
-	post_regex: generatePostHeaders,
-	user_regex: generateUserHeaders,
+	post_regex: postHeaders,
+	user_regex: userHeaders,
 	home_regex: homeHeaders,
 }
 
