@@ -24,9 +24,6 @@ markdown_regex = re_compile('|'.join([
 	r'`+',
 ]))
 
-post_uri_regex = re_compile(r'^\/p\/([a-zA-Z0-9_-]{8})$')
-user_uri_regex = re_compile(r'^\/([^\/]+)$')
-
 header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}">'
 header_image = '<meta property="og:image" content="{0}"><meta property="twitter:image" content="{0}">'
 header_description = '<meta name="description" property="og:description" content="{0}"><meta property="twitter:description" content="{0}">'
@@ -108,43 +105,65 @@ def concise(string: str) :
 	return description + ('...' if cut else '')
 
 
+async def generatePostHeaders(match) :
+	data = await fetchPostData(match[1])
+
+	if not data :
+		return None
+
+	return ''.join([
+		header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
+		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.webp') if data['media_type'] else '',
+		header_description.format(escape(concise(data['description']))) if data['description'] else '',
+		header_defaults,
+	])
+
+
+async def generateUserHeaders(match) :
+	data = await fetchUserData(match[1])
+
+	if not data :
+		return None
+
+	if data['name'] :
+		title = f'{data["name"]} (@{data["handle"]}) - kheina.com'
+
+	else :
+		title = f'@{data["handle"]} - kheina.com'
+
+	return ''.join([
+		header_title.format(escape(title)),
+		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.webp') if data['media_type'] else '',
+		header_description.format(escape(concise(data['description']))) if data['description'] else '',
+		header_defaults,
+	])
+
+
+@SimpleCache(float('inf'))
+async def homeHeaders(match) :
+	return ''.join([
+		header_title.format('kheina.com'),
+		header_image.format('https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png'),
+		header_description.format('Building a new home for all things fluff, scaled, and feathered!'),
+		'<meta property="twitter:site" content="@kheinacom">',
+		'<meta property="twitter:card" content="summary">',
+	])
+
+
+uri_map = {
+	re_compile(r'^\/p\/([a-zA-Z0-9_-]{8})$'): generatePostHeaders,
+	re_compile(r'^\/([^\/]+)$'): generateUserHeaders,
+	re_compile(r'^\/?$'): homeHeaders,
+}
+
+
 @ArgsCache(60)
 async def matchHeaders(uri: str) :
-	match = post_uri_regex.match(uri)
+	for regex, handler in uri_map.items() :
+		match = regex.match(uri)
 
-	if match :
-		data = await fetchPostData(match[1])
-
-		if not data :
-			return None
-
-		return ''.join([
-			header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.jpeg') if data['media_type'] else '',
-			header_description.format(escape(concise(data['description']))) if data['description'] else '',
-			header_defaults,
-		])
-
-	match = user_uri_regex.match(uri)
-
-	if match :
-		data = await fetchUserData(match[1])
-
-		if not data :
-			return None
-
-		if data['name'] :
-			title = f'{data["name"]} (@{data["handle"]}) - kheina.com'
-
-		else :
-			title = f'@{data["handle"]} - kheina.com'
-
-		return ''.join([
-			header_title.format(escape(title)),
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpeg') if data['media_type'] else '',
-			header_description.format(escape(concise(data['description']))) if data['description'] else '',
-			header_defaults,
-		])
+		if match :
+			return await handler(match)
 
 	return None
 
