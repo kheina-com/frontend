@@ -123,11 +123,10 @@ export default {
 				console.error(error);
 			});
 
-		khatch(`${postsHost}/v1/fetch_posts`, {
+		khatch(`${postsHost}/v1/fetch_user_posts`, {
 				method: 'POST',
 				body: {
-					sort: 'hot', // change to latest when added
-					tags: [this.handle],
+					handle: this.handle,
 				},
 			})
 			.then(response => {
@@ -204,6 +203,7 @@ main.mobile {
 	height: 200px;
 	border-radius: 5px;
 	border: solid 3px var(--bordercolor);
+	background: var(--bordercolor);
 }
 
 .header {
@@ -230,7 +230,7 @@ main.mobile {
 
 
 .edit-profile-button {
-	margin: 0 auto;
+	margin: 0 auto 25px;
 }
 i {
 	margin: 0 0.25em 0 0;

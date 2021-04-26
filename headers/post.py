@@ -42,7 +42,7 @@ async def postMetaTags(match) :
 
 	return ''.join([
 		header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
-		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.webp') if data['media_type'] else '',
+		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.jpg') if data['media_type'] else '',
 		header_description.format(escape(concise(data['description']))) if data['description'] else '',
 		header_defaults,
 	])
