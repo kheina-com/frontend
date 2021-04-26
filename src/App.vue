@@ -56,7 +56,8 @@ export default {
 	},
 	methods: {
 		onResize() {
-			this.$refs.content.style.top = `${Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2)}px`;
+			this.$store.contentOffset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
+			this.$refs.content.style.top = `${this.$store.contentOffset}px`;
 		},
 		ResizeSensor(element, callback)
 		{ // https://stackoverflow.com/a/47965966

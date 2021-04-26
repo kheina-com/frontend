@@ -1,5 +1,5 @@
 <template>
-	<a :href='`/${handle}`' class='profile' v-if='link && !isLoading' @click.stop='navigateToUser'>
+	<a :href='`/${handle}`' class='profile' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
 				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>

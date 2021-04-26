@@ -8,7 +8,7 @@ import global from './global';
 
 Router.beforeEach((to, from, next) => {
 	// This goes through the matched routes from last to first, combining routes metadata.
-	// eg. if we have /some/deep/nested/route, /route's metadata will be prioritized, with nested, deep, some, being used for fallback
+	// eg. if we have /some/deep/nested/route, route's metadata will be prioritized, with nested, deep, some, being used for fallback
 
 	let meta = { };
 	to.matched.slice().forEach(route => {

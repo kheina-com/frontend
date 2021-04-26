@@ -84,7 +84,7 @@ export default {
 						{
 							setCookie('kh-auth', r.token_data.token, r.token_data.expires - new Date().valueOf() / 1000);
 							this.$store.commit('setAuth', authCookie());
-							this.$router.push('/');
+							this.$router.push(this.$route.query?.path ? this.$route.query.path : '/');
 						}
 						else if (response.status === 401)
 						{ this.errorMessage = r.error; }

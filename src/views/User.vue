@@ -1,32 +1,34 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
 	<Error :dump='errorDump' :message='errorMessage'>
-		<div style='width: 70vw; margin: 0 auto -128px; display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-if='!isMobile'>
+		<div class='header' :style='`height: ${$store.contentOffset + 300 + 5}px; background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
+		</div>
+		<div class='user' v-if='!isMobile'>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' class='thumbnail'/>
 				</router-link>
 			</Loading>
-			<p v-if='user?.website' style='display: flex; align-items: center'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
-			<p style='display: flex; align-items: center'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created' style='color: var(--textcolor)'/></span></p>
-			<div style='display: flex; flex-direction: column; align-items: flex-end'>
-				<h2 style='margin: 0; display: flex; align-items: center'>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
-				<p style='margin: 0'>@{{user?.handle}}</p>
+			<p v-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+			<p class='user-field'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created'/></span></p>
+			<div class='user-name'>
+				<h2>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
+				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
-		<div style='margin: 0 25px -128px; display: flex; justify-content: space-between; align-items: flex-end; padding: 25px 0; z-index: 1; position: relative' v-else>
+		<div class='user mobile' v-else>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' style='width: 200px; height: 200px; border-radius: 5px; border: solid 3px var(--bordercolor)'/>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' class='thumbnail'/>
 				</router-link>
 			</Loading>
 			<div>
-				<p v-if='user?.website' style='display: flex; align-items: center'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
-				<p style='display: flex; align-items: center'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created' style='color: var(--textcolor)'/></span></p>
+				<p v-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+				<p class='user-field'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created'/></span></p>
 			</div>
-			<div style='display: flex; flex-direction: column; align-items: flex-end'>
-				<h2 style='margin: 0; display: flex; align-items: center'>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
-				<p style='margin: 0'>@{{user?.handle}}</p>
+			<div class='user-name'>
+				<h2>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
+				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
 		<main>
@@ -34,7 +36,7 @@
 				<i class='material-icons'>edit</i>
 				Edit Profile
 			</Button>
-			<Markdown :content='user?.description' :style='`margin-top: 25px; ${isMobile ? "" : "width: 70vw;"} margin: 25px auto 0`'/>
+			<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""' :style='``'/>
 			<div>
 				<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
 				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
@@ -154,6 +156,10 @@ export default {
 		isSelf() {
 			return this.$store.state.user && this.$store.state.user?.handle === this.user?.handle;
 		},
+		height() {
+			console.log(this.$store.contentOffset);
+			return this.$store.contentOffset ? this.$store.contentOffset + 50 : 0;
+		},
 	},
 	methods: {
 	},
@@ -165,10 +171,66 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 125px 25px 25px;
+	margin: 25px auto 0;
 }
-.edit-profile-button {
+main.mobile {
+	width: 70vw;	
+}
+
+.user-name {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+.user-name h2 {
+	margin: 0;
+	display: flex;
+	align-items: center;
+}
+
+.user-field {
+	display: flex;
+	align-items: center;
+}
+.user-field span button {
+	color: var(--textcolor);
+}
+.user-field span button:hover {
+	color: var(--icolor);
+}
+
+.thumbnail {
+	width: 200px;
+	height: 200px;
+	border-radius: 5px;
+	border: solid 3px var(--bordercolor);
+}
+
+.header {
+	top: -25px;
+	width: 100vw;
 	position: absolute;
-	right: 30vw;
+	background-size: cover;
+	background-position: center;
+}
+
+.user {
+	width: 70vw;
+	margin: 0 auto -128px;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	padding: 300px 0 0;
+	z-index: 1;
+	position: relative;
+}
+.user.mobile {
+	margin: 0 25px -128px;
+}
+
+
+.edit-profile-button {
+	margin: 0 auto;
 }
 i {
 	margin: 0 0.25em 0 0;

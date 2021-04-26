@@ -32,7 +32,7 @@
 				</Loading>
 			</div>
 			<div class='profile' v-else>
-				<router-link to='/account/login' class='interactable login'>Login</router-link>
+				<router-link :to='`/account/login?path=${$route.fullPath}`' class='interactable login'>Login</router-link>
 			</div>
 		</div>
 		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
@@ -96,7 +96,7 @@
 					<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
 				</li>
 				<li v-if='!isLoggedIn'>
-					<router-link to='/account/login'><i class='material-icons-round'>login</i>Login</router-link>
+					<router-link :to='`/account/login?path=${$route.fullPath}`'><i class='material-icons-round'>login</i>Login</router-link>
 				</li>
 				<li>
 					<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>

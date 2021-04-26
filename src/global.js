@@ -8,6 +8,7 @@ export default createStore({
 		auth: null,
 		user: null,
 		theme: null,
+		contentOffset: null,
 	},
 	mutations: {
 		setAuth(state, auth) {
