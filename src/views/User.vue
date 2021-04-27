@@ -200,9 +200,6 @@ main {
 	padding: 125px 25px 25px;
 	margin: 25px auto 0;
 }
-main.mobile {
-	width: 70vw;	
-}
 
 .user-name {
 	display: flex;
@@ -255,6 +252,7 @@ main.mobile {
 }
 .user.mobile {
 	margin: 0 25px -128px;
+	width: auto;
 }
 
 
