@@ -9,6 +9,7 @@ export default createStore({
 		user: null,
 		theme: null,
 		contentOffset: null,
+		bannerHeight: null,
 	},
 	mutations: {
 		setAuth(state, auth) {

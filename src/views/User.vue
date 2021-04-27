@@ -1,9 +1,9 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
 	<Error :dump='errorDump' :message='errorMessage'>
-		<div class='header' :style='`height: ${$store.contentOffset + 300 + 5}px; background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
+		<div class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
 		</div>
-		<div class='user' v-if='!isMobile'>
+		<div class='user' v-if='!isMobile' :style='`padding-top: ${400 - $store.contentOffset}px`'>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
 					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' class='thumbnail'/>
@@ -36,7 +36,7 @@
 				<i class='material-icons'>edit</i>
 				Edit Profile
 			</Button>
-			<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""' :style='``'/>
+			<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
 			<div>
 				<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
 				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
@@ -155,10 +155,6 @@ export default {
 		isSelf() {
 			return this.$store.state.user && this.$store.state.user?.handle === this.user?.handle;
 		},
-		height() {
-			console.log(this.$store.contentOffset);
-			return this.$store.contentOffset ? this.$store.contentOffset + 50 : 0;
-		},
 	},
 	methods: {
 	},
@@ -207,7 +203,8 @@ main.mobile {
 }
 
 .header {
-	top: -25px;
+	top: -26px;
+	height: 403px;
 	width: 100vw;
 	position: absolute;
 	background-size: cover;

@@ -7,10 +7,10 @@
 			</button>
 			<router-link to='/create' class='create' title='Create new post'>
 				<div class='icon'>
-					<i class='material-icons'>create</i>
+					<i class='material-icons'>upload</i>
 				</div>
 				<p>
-					Create
+					Upload
 				</p>
 			</router-link>
 		</div>
@@ -112,7 +112,7 @@
 				</li>
 			</ol>
 		</div>
-		<div class='screen-cover' ref='screenCover' v-show='menuOpen' @click='toggleMenu'>
+		<div class='screen-cover' ref='screenCover' @click='toggleMenu'>
 		</div>
 	</div>
 </template>
@@ -291,9 +291,9 @@ html.mobile .menu.open, .menu.open {
 	left: 0;
 }
 html.mobile .menu {
-	width: 95vw;
-	left: -99vw;
-	left: calc(-95vw - 3px);
+	width: 75vw;
+	left: -75vw;
+	left: calc(-75vw - 3px);
 }
 
 .screen-cover {
@@ -307,10 +307,12 @@ html.mobile .menu {
 	top: 0;
 	left: 0;
 	background: #0000;
+	pointer-events: none;
 }
 
 .screen-cover.open {
 	background: #0008;
+	pointer-events: all;
 }
 
 .menu .inner {
