@@ -1,7 +1,7 @@
 <template>
 	<Banner :onResize='onResize' />
 	<div ref='content' id='content'>
-		<router-view :key='$route.fullPath' />
+		<router-view :key='$route.fullPath' :resizeTrigger='resizeTrigger' />
 		<Footer/>
 	</div>
 	<Cookies/>
@@ -25,6 +25,11 @@ export default {
 		const content = ref(null);
 		return {
 			content,
+		};
+	},
+	data() {
+		return {
+			resizeTrigger: null,
 		};
 	},
 	created() {
@@ -56,6 +61,7 @@ export default {
 	},
 	methods: {
 		onResize() {
+			this.resizeTrigger = !this.resizeTrigger;
 			this.$store.bannerHeight = this.banner.clientHeight;
 			this.$store.contentOffset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
 			this.$refs.content.style.top = `${this.$store.contentOffset}px`;

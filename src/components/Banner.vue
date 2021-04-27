@@ -208,7 +208,10 @@ export default {
 			return this.$store.state.user?.icon;
 		},
 		navBgColor() {
-			return this.$store.state.theme.bg1color + Math.round(0.95 * 256).toString(16);
+			let bg1color = this.$store.state.theme.bg1color.trim();
+			if (bg1color.length < 6)
+			{ bg1color = '#' + bg1color.substring(1) + bg1color.substring(1); }
+			return bg1color + Math.round(0.95 * 256).toString(16);
 		},
 	},
 	methods: {

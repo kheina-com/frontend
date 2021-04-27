@@ -1,9 +1,9 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
 	<Error :dump='errorDump' :message='errorMessage'>
-		<div class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
+		<div ref='header' class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
 		</div>
-		<div class='user' v-if='!isMobile' :style='`padding-top: ${400 - $store.contentOffset}px`'>
+		<div ref='profile' class='user' v-if='!isMobile'>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
 					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' class='thumbnail'/>
@@ -16,7 +16,7 @@
 				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
-		<div class='user mobile' v-else>
+		<div ref='profile' class='user mobile' v-else>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
 				<router-link :to='`/p/${user?.icon}`'>
 					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' class='thumbnail'/>
@@ -31,7 +31,7 @@
 				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
-		<main>
+		<main ref='main'>
 			<Button class='interactable edit-profile-button' title='Edit profile' v-if='isSelf'>
 				<i class='material-icons'>edit</i>
 				Edit Profile
@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { khatch, setTitle, isMobile } from '@/utilities';
 import { apiErrorMessage, postsHost, usersHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
@@ -70,15 +71,7 @@ export default {
 			type: String,
 			default: null,
 		},
-	},
-	data() {
-		return {
-			isIconLoading: true,
-			errorMessage: null,
-			errorDump: null,
-			user: null,
-			posts: null,
-		};
+		resizeTrigger: Boolean,
 	},
 	components: {
 		Submit,
@@ -94,6 +87,26 @@ export default {
 		Timestamp,
 		Post,
 		Button,
+	},
+	setup() {
+		const main = ref(null);
+		const header = ref(null);
+		const profile = ref(null);
+
+		return {
+			main,
+			header,
+			profile,
+		};
+	},
+	data() {
+		return {
+			isIconLoading: true,
+			errorMessage: null,
+			errorDump: null,
+			user: null,
+			posts: null,
+		};
 	},
 	created() {
 		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
@@ -132,7 +145,11 @@ export default {
 			.then(response => {
 				response.json().then(r => {
 					if (response.status < 300)
-					{ this.posts = r.posts; }
+					{
+						this.posts = r.posts;
+						this.onResize();
+						// setTimeout
+					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -150,6 +167,9 @@ export default {
 				console.error(error);
 			});
 	},
+	mounted() {
+		this.onResize();
+	},
 	computed: {
 		isMobile,
 		isSelf() {
@@ -157,6 +177,18 @@ export default {
 		},
 	},
 	methods: {
+		onResize() {
+			console.log('resized');
+			let mainTop = this.$refs.main.getBoundingClientRect().top;
+			this.$refs.header.style.height = `${mainTop - this.$store.bannerHeight}px`;
+			this.$refs.header.style.top = `-${this.$store.contentOffset - this.$store.bannerHeight}px`;
+			this.$refs.profile.style.paddingTop = `${(window.innerHeight / 2) - this.$store.contentOffset}px`;
+		},
+	},
+	watch: {
+		resizeTrigger() {
+			this.onResize();
+		},
 	},
 }
 </script>
@@ -203,8 +235,8 @@ main.mobile {
 }
 
 .header {
-	top: -26px;
-	height: 403px;
+	top: -25px;
+	height: 0;
 	width: 100vw;
 	position: absolute;
 	background-size: cover;
