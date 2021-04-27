@@ -110,10 +110,10 @@
 				<li>
 					<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
 				</li>
+				<ThemeSelector class='theme-menu'/>
 			</ol>
 		</div>
-		<div class='screen-cover' ref='screenCover' @click='toggleMenu'>
-		</div>
+		<div class='screen-cover' ref='screenCover' @click='toggleMenu'></div>
 	</div>
 </template>
 
@@ -125,6 +125,8 @@ import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
 import Thumbnail from '@/components/Thumbnail.vue';
+import ThemeSelector from '@/components/ThemeSelector.vue';
+
 
 export default {
 	name: 'Banner',
@@ -133,6 +135,7 @@ export default {
 		Loading,
 		Button,
 		Thumbnail,
+		ThemeSelector,
 	},
 	props: {
 		onResize: {
@@ -472,7 +475,7 @@ ol i, .menu i {
 	margin: 0 0.25em 0 0;
 }
 ol > :last-child {
-	margin: 0;
+	margin-bottom: 0;
 }
 .create {
 	position: absolute;
@@ -530,5 +533,8 @@ html.mobile .create .icon {
 }
 .edit-message button {
 	margin: 0 12.5px
+}
+.theme-menu {
+	margin-top: 25px;
 }
 </style>

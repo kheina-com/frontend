@@ -469,7 +469,8 @@ html.e621
 }
 html.e621 main
 {
-	margin: 0 0.82em;
+	margin-left: 0.82em;
+	margin-right: 0.82em;
 	border-radius: 6px;
 }
 html.e621 div.themes
@@ -504,10 +505,12 @@ html.wikipedia
 }
 html.wikipedia body
 { background-image: linear-gradient(#FFF 2.5em,#F6F6F6 5em); }
-html.wikipedia main
-{
+html.wikipedia main {
 	border-top: 1px solid #A7D7F9;
 	border-bottom: 1px solid #A7D7F9;
+}
+html.wikipedia .nav-backdrop {
+	border-bottom: 1px solid var(--bordercolor);
 }
 html.e621 .source
 {
@@ -517,7 +520,7 @@ html.e621 .source
 html.e621 .top .source h2
 { margin-top: 8px; }
 html.e621 .more .source .left
-{ margin: 0 0 0 8px; }
+{ margin-bottom: 8px; }
 
 html.terminal
 {

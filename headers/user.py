@@ -45,7 +45,7 @@ async def userMetaTags(match) :
 
 	return ''.join([
 		header_title.format(escape(title)),
-		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.webp') if data['icon'] else default_image,
+		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpg') if data['icon'] else default_image,
 		header_description.format(escape(concise(data['description']))) if data['description'] else '',
 		header_defaults,
 	])

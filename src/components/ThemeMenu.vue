@@ -1,105 +1,30 @@
 <template>
 	<div class='themes'>
 		<input id='themecheck' type='checkbox' name='themes'>
-		<div class='theme-menu'>
-			<table>
-				<tr>
-					<td>theme</td>
-					<td>
-						<select ref='theme' name='theme' class='interactable' @change='setTheme'>
-							<option value='kheina'>kheina</option>
-							<option value='light'>light mode</option>
-							<option value='e621'>e621</option>
-							<option value='youtube'>youtube</option>
-							<option value='wikipedia'>wikipedia</option>
-							<option value='terminal'>terminal</option>
-							<option value='solarized-dark'>solarized dark</option>
-							<option value='solarized-light'>solarized light</option>
-							<option value='furaffinity'>fur affinity</option>
-							<option value='discord'>discord</option>
-							<option value='xfire'>xfire</option>
-							<option value='gay'>gay</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>accent</td>
-					<td>
-						<select ref='accent' name='accent' class='interactable' @change='setAccent'>
-							<option value='none'>none</option>
-							<option value='winter'>winter</option>
-							<option value='spring'>spring</option>
-							<option value='summer'>summer</option>
-							<option value='autumn'>autumn</option>
-							<option value='hex'>hex grid</option>
-							<option value='fox'>fox</option>
-							<option value='snep'>snep</option>
-						</select>
-					</td>
-				</tr>
-			</table>
-		</div>
+		<ThemeSelector class='theme-menu'/>
 	</div>
 	<label class='themebutton' for='themecheck'><a>theme</a></label>
 </template>
 
 <script>
-import { ref } from 'vue';
-import { setCookie, getCookie } from '@/utilities';
+import ThemeSelector from '@/components/ThemeSelector.vue';
+
 
 export default {
 	name: 'ThemeMenu',
-	setup() {
-		const accent = ref(null);
-		const theme = ref(null);
-
-		return {
-			accent,
-			theme,
-		};
-	},
-	data() {
-		return {
-			theme: 'none',
-			accent: 'none',
-		}
-	},
-	methods: {
-		setTheme(event) {
-			document.documentElement.classList.remove(this.theme);
-			this.theme = event.target.value;
-			document.documentElement.classList.add(this.theme);
-			setCookie('theme', this.theme);
-			this.$store.state.theme.theme = this.theme;
-			this.$store.state.theme.bg1color = getComputedStyle(document.body).getPropertyValue('--bg1color');
-		},
-		setAccent(event) {
-			document.documentElement.classList.remove(this.accent);
-			this.accent = event.target.value;
-			document.documentElement.classList.add(this.accent);
-			setCookie('accent', this.accent);
-			this.$store.state.theme.accent = this.accent;
-		},
-	},
-	mounted() {
-		this.theme = getCookie('theme');
-		this.accent = getCookie('accent');
-
-		this.$refs.theme.value = this.theme;
-		this.$refs.theme.accent = this.accent;
+	components: {
+		ThemeSelector,
 	},
 }
 </script>
 
 <style scoped>
-.changemascot
-{
+.changemascot {
 	font-size: 0.9em;
 	text-align: center;
 }
 
-.theme-menu select.interactable
-{
+.theme-menu select.interactable {
 	padding: 0;
 	margin: 0;
 	background: var(--bg1color);
@@ -107,8 +32,7 @@ export default {
 .theme-menu select.interactable option
 { color: var(--textcolor) !important; }
 
-.themes
-{
+.themes {
 	overflow: hidden;
 	position: absolute;
 	width: 300px;
@@ -122,8 +46,7 @@ export default {
 { display: none; }
 .themes input:checked ~ .theme-menu
 { top: 5px; }
-.theme-menu
-{
+.theme-menu {
 	top: 105%;
 	top: calc(100% + 5px);
 	right: -25px;
@@ -144,14 +67,6 @@ export default {
 { text-align: right; }
 .themes td:first-child
 { padding-right: 8px; }
-select
-{
-	border-radius: 3px;
-	background: var(--bg1color);
-	color: var(--textcolor);
-	border: 1px solid var(--bordercolor);
-	width: 125px;
-}
 label {
 	cursor: pointer;
 	position: absolute;

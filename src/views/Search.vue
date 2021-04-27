@@ -104,9 +104,6 @@ main {
 	display: flex;
 	flex-direction: column;
 }
-</style>
-
-<style>
 .post {
 	margin: 0 0 25px;
 }

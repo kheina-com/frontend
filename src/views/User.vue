@@ -2,29 +2,49 @@
 	<!-- eslint-disable vue/valid-v-for -->
 	<Error :dump='errorDump' :message='errorMessage'>
 		<div ref='header' class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
+			<a class='add-image-button' v-if='isEditing'>
+				<i class='material-icons-round'>add_a_photo</i>
+			</a>
 		</div>
 		<div ref='profile' class='user' v-if='!isMobile'>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
-				<router-link :to='`/p/${user?.icon}`'>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' class='thumbnail'/>
+				<a class='thumbnail' v-if='isEditing'>
+					<div class='add-image-button'>
+						<i class='material-icons-round'>add_a_photo</i>
+					</div>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+				</a>
+				<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 				</router-link>
 			</Loading>
-			<p v-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
-			<p class='user-field'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created'/></span></p>
+			<div class='user-field' v-if='isEditing'>
+				<i class='material-icons'>public</i>
+				<input v-model='user.website' class='interactable text'>
+			</div>
+			<p v-else-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+			<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><span>Joined <Timestamp :datetime='user?.created'/></span></p>
 			<div class='user-name'>
-				<h2>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
+				<input v-model='user.name' class='interactable text' v-if='isEditing'>
+				<h2 v-else>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
 				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
 		<div ref='profile' class='user mobile' v-else>
 			<Loading :isLoading='isIconLoading' class='profile-image'>
-				<router-link :to='`/p/${user?.icon}`'>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading' class='thumbnail'/>
+				<a class='thumbnail' v-if='isEditing'>
+					<div class='add-image-button'>
+						<i class='material-icons-round'>add_a_photo</i>
+					</div>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+				</a>
+				<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 				</router-link>
 			</Loading>
 			<div>
 				<p v-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
-				<p class='user-field'><i class='material-icons'>schedule</i><span>joined <Timestamp :datetime='user?.created'/></span></p>
+				<p class='user-field'><i class='material-icons'>schedule</i><span>Joined <Timestamp :datetime='user?.created'/></span></p>
 			</div>
 			<div class='user-name'>
 				<h2>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
@@ -32,22 +52,23 @@
 			</div>
 		</div>
 		<main ref='main'>
-			<Button class='interactable edit-profile-button' title='Edit profile' v-if='isSelf'>
+			<Button class='interactable edit-profile-button' title='Edit profile' @click='toggleEdit' v-if='isSelf'>
 				<i class='material-icons'>edit</i>
 				Edit Profile
 			</Button>
 			<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
-			<div>
+			<div class='results'>
 				<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
 				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
 			</div>
-			<ThemeMenu />
+			<ThemeMenu/>
 		</main>
 	</Error>
 </template>
 
 <script>
 import { ref } from 'vue';
+import { Cropper } from 'vue-advanced-cropper';
 import { khatch, setTitle, isMobile } from '@/utilities';
 import { apiErrorMessage, postsHost, usersHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
@@ -64,6 +85,7 @@ import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 
+
 export default {
 	name: 'User',
 	props: {
@@ -74,6 +96,7 @@ export default {
 		resizeTrigger: Boolean,
 	},
 	components: {
+		Cropper,
 		Submit,
 		ThemeMenu,
 		Loading,
@@ -106,18 +129,18 @@ export default {
 			errorDump: null,
 			user: null,
 			posts: null,
+			isEditing: false,
 		};
 	},
 	created() {
 		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
 			.then(response => {
 				response.json().then(r => {
-					console.log(r);
 					if (response.status < 300)
 					{
 						this.user = r;
-						setTitle(this.user?.name || this.user.handle);
-						this.$router.replace(this.user.handle);
+						setTitle(this.user?.name ? `${this.user.name} (@${this.user.handle}) - kheina.com` : `@${this.user.handle} - kheina.com`);
+						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user.handle));
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
@@ -148,7 +171,6 @@ export default {
 					{
 						this.posts = r.posts;
 						this.onResize();
-						// setTimeout
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
@@ -169,6 +191,9 @@ export default {
 	},
 	mounted() {
 		this.onResize();
+		if (this.$route.query?.edit)
+		{ this.isEditing = true; }
+		console.log('editing: ' + this.isEditing);
 	},
 	computed: {
 		isMobile,
@@ -178,10 +203,12 @@ export default {
 	},
 	methods: {
 		onResize() {
-			console.log('resized');
 			this.$refs.header.style.height = `${this.$refs.main.getBoundingClientRect().top + window.scrollY - this.$store.bannerHeight}px`;
 			this.$refs.header.style.top = `-${this.$store.contentOffset - this.$store.bannerHeight}px`;
-			this.$refs.profile.style.paddingTop = `${(window.innerHeight / 2) - this.$store.contentOffset}px`;
+			this.$refs.profile.style.marginTop = `${(window.innerHeight / 2) - this.$store.contentOffset}px`;
+		},
+		toggleEdit() {
+			this.isEditing = !this.isEditing;
 		},
 	},
 	watch: {
@@ -223,11 +250,16 @@ main {
 }
 
 .thumbnail {
-	width: 200px;
-	height: 200px;
 	border-radius: 5px;
 	border: solid 3px var(--bordercolor);
 	background: var(--bordercolor);
+	display: flex;
+	overflow: hidden;
+	position: relative;
+}
+.thumbnail, .thumbnail img, .thumbnail video {
+	width: 200px;
+	height: 200px;
 }
 
 .header {
@@ -245,9 +277,10 @@ main {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-end;
-	padding: 300px 0 0;
+	padding: 0;
 	z-index: 1;
 	position: relative;
+	pointer-events: none;
 }
 .user.mobile {
 	margin: 0 25px -128px;
@@ -262,5 +295,22 @@ i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
 }
+.results > :last-child {
+	margin-bottom: 0;
+}
 
+
+/* ===== editing ===== */
+.add-image-button {
+	background: #0005;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.add-image-button i {
+	font-size: 70px;
+}
 </style>

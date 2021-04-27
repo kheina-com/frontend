@@ -524,4 +524,7 @@ ol p {
 html.e621 main {
 	margin-left: 0;
 }
+html.wikipedia main {
+	border-left: 1px solid #A7D7F9;
+}
 </style>
