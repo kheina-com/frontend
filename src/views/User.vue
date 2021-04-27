@@ -179,8 +179,7 @@ export default {
 	methods: {
 		onResize() {
 			console.log('resized');
-			let mainTop = this.$refs.main.getBoundingClientRect().top;
-			this.$refs.header.style.height = `${mainTop - this.$store.bannerHeight}px`;
+			this.$refs.header.style.height = `${this.$refs.main.getBoundingClientRect().top + window.scrollY - this.$store.bannerHeight}px`;
 			this.$refs.header.style.top = `-${this.$store.contentOffset - this.$store.bannerHeight}px`;
 			this.$refs.profile.style.paddingTop = `${(window.innerHeight / 2) - this.$store.contentOffset}px`;
 		},
