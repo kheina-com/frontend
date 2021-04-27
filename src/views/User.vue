@@ -2,19 +2,19 @@
 	<!-- eslint-disable vue/valid-v-for -->
 	<Error :dump='errorDump' :message='errorMessage'>
 		<div ref='header' class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
-			<a class='add-image-button' v-if='isEditing'>
+			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 		</div>
 		<div ref='profile' class='user' v-if='!isMobile'>
-			<Loading :isLoading='isIconLoading' class='profile-image'>
-				<a class='thumbnail' v-if='isEditing'>
-					<div class='add-image-button'>
-						<i class='material-icons-round'>add_a_photo</i>
-					</div>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-				</a>
-				<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
+				<div class='add-image-button'>
+					<i class='material-icons-round'>add_a_photo</i>
+				</div>
+				<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+			</a>
+			<Loading :isLoading='isIconLoading' class='profile-image' v-else>
+				<router-link :to='`/p/${user?.icon}`' class='thumbnail'>
 					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 				</router-link>
 			</Loading>
@@ -31,23 +31,28 @@
 			</div>
 		</div>
 		<div ref='profile' class='user mobile' v-else>
-			<Loading :isLoading='isIconLoading' class='profile-image'>
-				<a class='thumbnail' v-if='isEditing'>
-					<div class='add-image-button'>
-						<i class='material-icons-round'>add_a_photo</i>
-					</div>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-				</a>
-				<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
+				<div class='add-image-button'>
+					<i class='material-icons-round'>add_a_photo</i>
+				</div>
+				<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+			</a>
+			<Loading :isLoading='isIconLoading' class='profile-image' v-else>
+				<router-link :to='`/p/${user?.icon}`' class='thumbnail'>
 					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 				</router-link>
 			</Loading>
-			<div>
+			<div class='user-field' v-if='isEditing'>
+				<i class='material-icons'>public</i>
+				<input v-model='user.website' class='interactable text'>
+			</div>
+			<div v-else>
 				<p v-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
 				<p class='user-field'><i class='material-icons'>schedule</i><span>Joined <Timestamp :datetime='user?.created'/></span></p>
 			</div>
 			<div class='user-name'>
-				<h2>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
+				<input v-model='user.name' class='interactable text' v-if='isEditing'>
+				<h2 v-else>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
 				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
@@ -63,12 +68,25 @@
 			</div>
 			<ThemeMenu/>
 		</main>
+		<div class='image-uploader' v-if='isUploadBanner || isUploadIcon' @mousedown='disableUploads'>
+			<div style='background: var(--bg2color)'>
+				<Cropper
+					src='https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png'
+					:stencil-props='{
+						aspectRatio: 1,
+					}'
+					style='height: 800px; width: 800px'
+					@v-model='cropData'
+				/>
+			</div>
+		</div>
 	</Error>
 </template>
 
 <script>
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
+import 'vue-advanced-cropper/dist/style.css';
 import { khatch, setTitle, isMobile } from '@/utilities';
 import { apiErrorMessage, postsHost, usersHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
@@ -130,6 +148,9 @@ export default {
 			user: null,
 			posts: null,
 			isEditing: false,
+			isUploadIcon: false,
+			isUploadBanner: false,
+			cropData: null,
 		};
 	},
 	created() {
@@ -209,6 +230,18 @@ export default {
 		},
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
+		},
+		toggleIconUpload() {
+			this.isUploadIcon = !this.isUploadIcon;
+		},
+		toggleBannerUpload() {
+			this.isUploadBanner = !this.isUploadBanner;
+		},
+		disableUploads() {
+			this.isUploadBanner = this.isUploadIcon = false;
+		},
+		onImageCrop({ coordinates, canvas }) {
+			console.log(coordinates, canvas);
 		},
 	},
 	watch: {
@@ -312,5 +345,17 @@ i {
 }
 .add-image-button i {
 	font-size: 70px;
+}
+.image-uploader {
+	background: #0008;
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 </style>
