@@ -9,13 +9,13 @@ import DOMPurify from 'dompurify';
 import { markdownTokenizer, edit } from '@/utilities';
 // import { highlight, getLanguage } from 'highlight.js';
 
-const inlineText = edit(/^([`~]+|[^`~])(?:(?= *\n)|[\s\S]*?(?:(?=[\\<!\[`*~]|\b_| *\n|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= *\n)|[^charset](?=[charset]*end)|(?=end\S))|(?=[charset]*end))/, 'i')
-	.replace(/end/g, '[@#%:^]')
+const inlineText = edit(/^([`~]+|[^`~])(?:(?= *\n)|[\s\S]*?(?:(?=[\\<!\[`*~]|\b_| *\n|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= *\n)|[^endcharset](?=[charset]*[end])|(?=[end]\S))|(?=[charset]*[end]))/, 'i')
+	.replace(/end/g, '@#%:^')
 	.replace(/charset/g, "a-zA-Z0-9.!#$%^&'*+\\/=?_`{\\|}~-")
 	.getRegex();
 
 const inlineUrl = edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^[A-Za-z0-9._+-]*(end)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])*(?![-_])/, 'i')
-	.replace(/end/g, '[@#%:^]')
+	.replace(/end/g, '@#%:^')
 	.getRegex();
 
 
@@ -118,8 +118,8 @@ export default {
 	margin: 0;
 }
 .markdown img {
-	max-width: 10em;
-	max-height: 10em;
+	max-width: 1.2em;
+	max-height: 1.2em;
 	width: 100%;
 }
 .markdown img.emoji {
