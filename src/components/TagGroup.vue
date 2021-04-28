@@ -37,7 +37,7 @@ export default {
 			colorMap: {
 				artist: '--pink',
 				sponsor: '--green',
-				participant: '--violet',
+				subject: '--violet',
 				species: '--red',
 				gender: '--blue',
 				misc: '--subtlecolor',
@@ -45,7 +45,7 @@ export default {
 			loadingMap: {
 				artist: 1,
 				sponsor: 1,
-				participant: 1,
+				subject: 1,
 				species: 3,
 				gender: 1,
 				misc: 3,

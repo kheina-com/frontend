@@ -69,15 +69,16 @@
 			<ThemeMenu/>
 		</main>
 		<div class='image-uploader' v-if='isUploadBanner || isUploadIcon' @mousedown='disableUploads'>
-			<div style='background: var(--bg2color)'>
+			<div style='background: var(--bg2color)' @mousedown.stop>
 				<Cropper
+					ref='cropper'
 					src='https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png'
 					:stencil-props='{
 						aspectRatio: 1,
 					}'
-					style='height: 800px; width: 800px'
-					@v-model='cropData'
+					:style='`height: 800px; width: 800px`'
 				/>
+				<Button @click.prevent.stop='showData'><i class='material-icons'>science</i>test</Button>
 			</div>
 		</div>
 	</Error>
@@ -133,11 +134,13 @@ export default {
 		const main = ref(null);
 		const header = ref(null);
 		const profile = ref(null);
+		const cropper = ref(null);
 
 		return {
 			main,
 			header,
 			profile,
+			cropper,
 		};
 	},
 	data() {
@@ -150,7 +153,6 @@ export default {
 			isEditing: false,
 			isUploadIcon: false,
 			isUploadBanner: false,
-			cropData: null,
 		};
 	},
 	created() {
@@ -189,10 +191,7 @@ export default {
 			.then(response => {
 				response.json().then(r => {
 					if (response.status < 300)
-					{
-						this.posts = r.posts;
-						this.onResize();
-					}
+					{ this.posts = r.posts; }
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -214,7 +213,6 @@ export default {
 		this.onResize();
 		if (this.$route.query?.edit)
 		{ this.isEditing = true; }
-		console.log('editing: ' + this.isEditing);
 	},
 	computed: {
 		isMobile,
@@ -242,6 +240,9 @@ export default {
 		},
 		onImageCrop({ coordinates, canvas }) {
 			console.log(coordinates, canvas);
+		},
+		showData() {
+			console.log(this.$refs.cropper.getResult());
 		},
 	},
 	watch: {
@@ -314,6 +315,9 @@ main {
 	z-index: 1;
 	position: relative;
 	pointer-events: none;
+}
+.user * {
+	pointer-events: all;
 }
 .user.mobile {
 	margin: 0 25px -128px;

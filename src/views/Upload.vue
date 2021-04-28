@@ -1,4 +1,5 @@
 <template>
+	<!-- eslint-disable vue/require-v-for-key -->
 	<Error :dump='errorDump' :message='errorMessage'>
 		<main>
 			<Title static='center'>New Post</Title>
@@ -39,8 +40,18 @@
 					<div>
 						<span>Tags</span>
 						<div ref='tagDiv' class='tag-field interactable text' contenteditable='true'>
-							{{tags}}
+							{{tagsField}}
 						</div>
+						<ol>
+							<li v-for='tag in [
+								"darius",
+								"trans(mtf)",
+							]'>
+								<Button class='interactable' @click='addTag(tag)'>
+									{{tag}}
+								</Button>
+							</li>
+						</ol>
 					</div>
 				</div>
 				<div class='field'>
@@ -87,7 +98,7 @@
 				</div>
 				<div class='actions'>
 					<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
-					<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
+					<Button @click='publishPost' green v-if='privacy === "unpublished"'><i class='material-icons'>publish</i>Publish</Button>
 					<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
 				</div>
 			</div>
@@ -144,7 +155,7 @@ export default {
 			errorDump: null,
 			errorMessage: null,
 			serverTags: null,
-			tags: new Set(),
+			savedTags: [],
 			recommendations: null,
 
 			showUpload: false,
@@ -160,7 +171,7 @@ export default {
 			postId: null,
 			description: null,
 			title: null,
-			tags: null,
+			tagsField: null,
 			privacy: null,
 			rating: null,
 		};
@@ -244,7 +255,8 @@ export default {
 						console.log(r);
 						if (response.status < 300)
 						{
-							this.tags = Object.values(r).flat().join(' ');
+							this.savedTags = Object.values(r).flat();
+							this.tagsField = this.savedTags.join(' ');
 						}
 						else if (response.status === 401)
 						{ this.errorMessage = r.error; }
@@ -301,6 +313,9 @@ export default {
 	},
 	methods: {
 		getMediaUrl,
+		addTag(tag) {
+			this.$refs.tagDiv.textContent += ' ' + tag;
+		},
 		showData() {
 			console.log({
 				errorMessage: this.errorMessage,
@@ -310,8 +325,8 @@ export default {
 				description: this.description,
 				privacy: this.privacy,
 				rating: this.rating,
-				tags: tagSplit(this.$refs.tagDiv.textContent),
-				this_tags: this.tags,
+				activeTags: tagSplit(this.$refs.tagDiv.textContent),
+				savedTags: this.savedTags,
 				meta: {
 					filename: this.filename,
 					showUpload: this.showUpload,
@@ -320,7 +335,6 @@ export default {
 					uploadUnavailable: this.uploadUnavailable,
 					uploadDone: this.uploadDone,
 				},
-				this: this,
 			});
 		},
 		uploadFile() {
@@ -352,19 +366,8 @@ export default {
 
 			ajax.send(formdata);
 		},
-		filterTags(group) {
-			return Array.from(this.tags).map(tag => {
-				if (this.serverTags.hasOwnProperty(tag))
-				{
-					if (this.serverTags[tag].group === group)
-					{ return tag; }
-				}
-				else if (group === 'misc')
-				{ return tag; }
-			}).filter(x => x);
-		},
 		savePost() {
-			let tags = tagSplit(this.$refs.tagDiv.textContent);
+			let activeTags = tagSplit(this.$refs.tagDiv.textContent);
 			this.showData();
 
 			khatch(`${uploadHost}/v1/update_post`, {
@@ -388,48 +391,68 @@ export default {
 				});
 
 			let removedTags = [];
-			tagSplit(this.tags).forEach(tag => {
-				if (!tags.includes(tag))
+			this.savedTags.forEach(tag => {
+				if (!activeTags.includes(tag))
 				{ removedTags.push(tag); }
 			});
-			console.log(JSON.parse(JSON.stringify({tags, this_tags: this.tags, removedTags, tagSplit: tagSplit(this.tags)})));
 
-			khatch(`${tagsHost}/v1/remove_tags`, {
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						tags: removedTags,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						console.log(r);
+			if (removedTags.length > 0)
+			{
+				khatch(`${tagsHost}/v1/remove_tags`, {
+						method: 'POST',
+						body: {
+							post_id: this.postId,
+							tags: removedTags,
+						},
+					})
+					.then(response => {
+						response.json().then(r => {
+							console.log(r);
+						});
+					})
+					.catch(error => {
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = error;
+						console.error(error);
 					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.errorDump = error;
-					console.error(error);
-				});
+			}
 
-			khatch(`${tagsHost}/v1/add_tags`, {
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						tags,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						console.log(r);
-						this.tags = Object.values(tags).flat().join(' ');
+			let newTags = [];
+			activeTags.forEach(tag => {
+				if (!this.savedTags.includes(tag))
+				{ newTags.push(tag); }
+			});
+
+			if (newTags.length > 0)
+			{
+				khatch(`${tagsHost}/v1/add_tags`, {
+						method: 'POST',
+						body: {
+							post_id: this.postId,
+							tags: activeTags,
+						},
+					})
+					.then(response => {
+						response.json().then(r => {
+							console.log(r);
+							this.tagsField = Object.values(activeTags).flat().join(' ');
+						});
+					})
+					.catch(error => {
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = error;
+						console.error(error);
 					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.errorDump = error;
-					console.error(error);
-				});
+			}
+
+			console.log(JSON.parse(JSON.stringify({
+				activeTags,
+				newTags,
+				removedTags,
+				savedTags: this.savedTags,
+			})));
+
+			this.savedTags = activeTags;
 		},
 		publishPost() {
 			this.uploadFile();
@@ -495,18 +518,6 @@ main {
 	padding: 0 0 2px;
 	display: inline-block;
 }
-.tags {
-	display: flex;
-	justify-content: center;
-	align-items: flex-start;
-	flex-flow: wrap;
-}
-.tags ol {
-	padding: 0.5em;
-	background: var(--bg2color);
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
-}
 .tag-field {
 	display: block;
 	height: 10em;
@@ -545,10 +556,16 @@ h4 {
 }
 ol {
 	padding: 0;
-	margin: 0 12.5px;
+	margin: 15px -12.5px -10px;
+	list-style: none;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	flex-wrap: wrap;
 }
 li {
 	list-style: none;
+	margin: 0 12.5px 10px;
 }
 
 .media {

@@ -70,7 +70,7 @@ export const usersHost = usrHost;
 
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
 
-export const tagGroups = ['artist', 'sponsor', 'participant', 'species', 'gender', 'misc'];
+export const tagGroups = ['artist', 'subject', 'sponsor', 'species', 'gender', 'misc'];
 
 export const routerMetaTag = 'data-v-router';
 

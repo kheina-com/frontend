@@ -417,7 +417,7 @@ html
 	--blue: steelblue;
 	--red: #c44f3b;
 	--cyan: darkcyan;
-	--violet: rebeccapurple;
+	--violet: #9451d7;
 }
 
 div.loadingicon img

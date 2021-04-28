@@ -212,16 +212,27 @@ export default {
 		},
 		navBgColor() {
 			let bg1color = this.$store.state.theme.bg1color.trim();
-			if (bg1color.length < 6)
-			{ bg1color = '#' + bg1color.substring(1) + bg1color.substring(1); }
-			return bg1color + Math.round(0.95 * 256).toString(16);
+			if (bg1color.length === 4)
+			{
+				return '#'
+					+ bg1color.substr(1, 1)
+					+ bg1color.substr(1, 1)
+					+ bg1color.substr(2, 1)
+					+ bg1color.substr(2, 1)
+					+ bg1color.substr(3, 1)
+					+ bg1color.substr(3, 1)
+					+ Math.round(0.95 * 256).toString(16);
+			}
+			if (bg1color.length === 7)
+			{ return bg1color + Math.round(0.95 * 256).toString(16); }
+			return bg1color;
 		},
 	},
 	methods: {
 		getMediaThumbnailUrl,
 		runSearchQuery() {
 			const query = this.$refs.search.value;
-			this.$router.push(query ? '/s/' + encodeURIComponent(this.$refs.search.value) : '/');
+			this.$router.push(query ? '/q/' + encodeURIComponent(this.$refs.search.value) : '/');
 		},
 		signOut() {
 			deleteCookie('kh-auth');

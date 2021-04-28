@@ -203,7 +203,7 @@ const routes = [
 		},
 	},
 	{
-		path: '/s/:query',
+		path: '/q/:query',
 		name: 'search',
 		props: true,
 		component: Search,
