@@ -98,7 +98,7 @@
 				</div>
 				<div class='actions'>
 					<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
-					<Button @click='publishPost' green v-if='privacy === "unpublished"'><i class='material-icons'>publish</i>Publish</Button>
+					<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
 					<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
 				</div>
 			</div>
@@ -229,8 +229,8 @@ export default {
 								this.uploadDone = true;
 								this.filename = r.filename;
 							}
-							if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
-							{ this.uploadUnavailable = true; }
+							// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+							// { this.uploadUnavailable = true; }
 						}
 						else if (response.status === 401)
 						{ this.errorMessage = r.error; }
