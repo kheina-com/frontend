@@ -154,6 +154,30 @@ export default {
 						icon: 'yZQnofj2',
 					},
 					score: {
+						up: Math.round(Math.random() * 1100000000),
+						down: 0,
+					},
+					tags: [
+						'text',
+					],
+					concise: false,
+					description: 'these are all test comments and you can totally ignore them. in fact, please do ignore them',
+					title: null,
+					userIsUploader: false,
+					created: new Date().toString(),
+					updated: new Date().toString(),
+					comments: []
+				},
+				{
+					postId: 'gZdcct7g',
+					labels: false,
+					link: false,
+					user: {
+						name: 'dari',
+						handle: 'darius',
+						icon: 'yZQnofj2',
+					},
+					score: {
 						up: 1,
 						down: 0,
 					},

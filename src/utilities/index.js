@@ -128,6 +128,16 @@ export async function khatch(url, options={ })
 	return response;
 }
 
+export function abbreviate(value) {
+	if (value > 1000000000)
+	{ return `${Math.round(value / 10000000) / 100}B`; }
+	if (value > 1000000)
+	{ return `${Math.round(value / 10000) / 100}M`; }
+	if (value > 1000)
+	{ return `${Math.round(value / 10) / 100}k`; }
+	return `${value}`;
+}
+
 export function authCookie()
 {
 	let auth = getCookie('kh-auth');

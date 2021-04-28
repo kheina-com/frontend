@@ -1,13 +1,13 @@
 <template>
 	<div class='score'>
 		<button @click.stop='vote(1)'>▲</button>
-		<Loading :isLoading='isLoading'><p>{{score ? score.up - score.down : 10}}</p></Loading>
+		<Loading :isLoading='isLoading'><p>{{score ? abbreviate(score.up - score.down) : 10}}</p></Loading>
 		<button @click.stop='vote(-1)'>▼</button>
 	</div>
 </template>
 
 <script>
-import { khatch } from '@/utilities';
+import { abbreviate, khatch } from '@/utilities';
 import { apiErrorMessage, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue'
 
@@ -30,6 +30,7 @@ export default {
 		},
 	},
 	methods: {
+		abbreviate,
 		vote(vote) {
 			khatch(`${postsHost}/v1/vote`, {
 					method: 'POST',
