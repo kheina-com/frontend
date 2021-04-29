@@ -94,9 +94,6 @@ export default {
 <style>
 .markdown {
 	width: 100%;
-	/* overflow: hidden;
-	padding: 1em;
-	margin: -1em; */
 }
 .markdown a:link, .markdown a:visited {
 	text-decoration: underline;

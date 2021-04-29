@@ -1,28 +1,27 @@
 <template>
 	<main v-if='!isError'>
-		<Loading :lazy='false' :isLoading='isLoading'>
-		<Title static='center'>Create Account</Title>
-		<form action='' method='post' enctype='multipart/form-data' class='centerx'>
-			<div v-if='!tokenProvided'>
-				<span>Token</span>
-				<input ref='token' type='token' id='token' name='token' value='' class='interactable text'>
-			</div>
-			<div>
-				<span>Name</span>
-				<input ref='name' type='name' id='name' name='name' value='' class='interactable text'>
-			</div>
-			<div>
-				<span>Handle</span>
-				<input ref='handle' type='handle' id='handle' name='handle' value='' class='interactable text'>
-			</div>
-			<div>
-				<span>Password</span>
-				<input ref='password' type='password' id='password' name='password' value='' autocomplete='off' class='interactable text'><i class='material-icons' ref='passwordPwned' :style='`color: var(--${passwordColor})`'>{{passwordIcon}}</i>
-				<input ref='passwordRepeat' type='password' id='passwordRepeat' name='passwordRepeat' value='' autocomplete='off' :class='`interactable text ${passwordRepeatClass}`'>
-			</div>
-			<Submit :onClick='sendFinalize'>Submit »</Submit>
-		</form>
+		<Loading :lazy='false' :isLoading='isLoading' v-if='tokenProvided'>
+			<Title static='center'>Create Account</Title>
+			<form action='' method='post' enctype='multipart/form-data' class='centerx'>
+				<div>
+					<span>Name</span>
+					<input ref='name' type='name' id='name' name='name' value='' class='interactable text'>
+				</div>
+				<div>
+					<span>Handle</span>
+					<input ref='handle' type='handle' id='handle' name='handle' value='' class='interactable text'>
+				</div>
+				<div>
+					<span>Password</span>
+					<input ref='password' type='password' id='password' name='password' value='' autocomplete='off' class='interactable text'><i class='material-icons' ref='passwordPwned' :style='`color: var(--${passwordColor})`'>{{passwordIcon}}</i>
+					<input ref='passwordRepeat' type='password' id='passwordRepeat' name='passwordRepeat' value='' autocomplete='off' :class='`interactable text ${passwordRepeatClass}`'>
+				</div>
+				<Submit :onClick='sendFinalize'>Submit »</Submit>
+			</form>
 		</Loading>
+		<p style='text-align: center' v-else>
+			Please check your email for a link to finish creating your account.
+		</p>
 		<ThemeMenu />
 	</main>
 	<Error :dump='errorDump' :message='errorMessage' v-else/>
@@ -463,5 +462,9 @@ label.hide-password svg
 
 .error {
 	border-color: var(--error);
+}
+
+.centerx {
+	margin: 0 auto;
 }
 </style>

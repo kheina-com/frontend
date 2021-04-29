@@ -61,10 +61,29 @@
 				<i class='material-icons'>edit</i>
 				Edit Profile
 			</Button>
-			<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
-			<div class='results'>
-				<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
-				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
+			<Button class='interactable edit-profile-button' title='switch between tags and posts' @click='tab = tab === "posts" ? "tags" : "posts"'>
+				<i class='material-icons'>{{tab === "posts" ? "cached" : "sync"}}</i>
+				{{tab === "posts" ? "Show tags" : "Show posts"}}
+			</Button>
+			<div v-show='tab === "posts"'>
+				<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
+				<div class='results'>
+					<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
+					<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
+				</div>
+			</div>
+			<div v-show='tab === "tags"'>
+				<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
+				<div class='results'>
+					<p v-if='!userTags' style='text-align: center'>loating tags...</p>
+					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
+					<ul v-else>
+						<li v-for='tag in userTags'>
+							tag: {{tag.tag}}
+							class: {{tag.class}}
+						</li>
+					</ul>
+				</div>
 			</div>
 			<ThemeMenu/>
 		</main>
@@ -89,7 +108,7 @@ import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { khatch, setTitle, isMobile } from '@/utilities';
-import { apiErrorMessage, postsHost, usersHost } from '@/config/constants';
+import { apiErrorMessage, postsHost, usersHost , tagsHost} from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -153,6 +172,8 @@ export default {
 			isEditing: false,
 			isUploadIcon: false,
 			isUploadBanner: false,
+			userTags: null,
+			tab: 'posts',
 		};
 	},
 	created() {
@@ -192,6 +213,28 @@ export default {
 				response.json().then(r => {
 					if (response.status < 300)
 					{ this.posts = r.posts; }
+					else if (response.status === 401)
+					{ this.errorMessage = r.error; }
+					else if (response.status === 404)
+					{ this.errorMessage = r.error; }
+					else
+					{
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = r;
+					}
+				});
+			})
+			.catch(error => {
+				this.errorMessage = apiErrorMessage;
+				this.error = error;
+				console.error(error);
+			});
+
+		khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`)
+			.then(response => {
+				response.json().then(r => {
+					if (response.status < 300)
+					{ this.userTags = r; }
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -336,6 +379,9 @@ i {
 	margin-bottom: 0;
 }
 
+ul {
+	list-style: none;
+}
 
 /* ===== editing ===== */
 .add-image-button {
