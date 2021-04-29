@@ -43,10 +43,8 @@
 							{{tagsField}}
 						</div>
 						<ol>
-							<li v-for='tag in [
-								"darius",
-								"trans(mtf)",
-							]'>
+							<p v-if='tagSuggestions === null'></p>
+							<li v-for='tag in tagSuggestions'>
 								<Button class='interactable' @click='addTag(tag)'>
 									{{tag}}
 								</Button>
@@ -156,7 +154,7 @@ export default {
 			errorMessage: null,
 			serverTags: null,
 			savedTags: [],
-			recommendations: null,
+			tagSuggestions: null,
 
 			showUpload: false,
 			isUploading: false,
@@ -275,6 +273,32 @@ export default {
 					console.error(error);
 				});
 
+			khatch(`${tagsHost}/v1/get_user_tags/${this.$store.state.user?.handle}`)
+				.then(response => {
+					response.json().then(r => {
+						if (response.status < 300)
+						{
+							this.tagSuggestions = [];
+							r.forEach(tag => {
+								this.tagSuggestions.push(tag.tag);
+							});
+						}
+						else if (response.status === 401)
+						{ this.errorMessage = r.error; }
+						else if (response.status === 404)
+						{ this.tagSuggestions = []; }
+						else
+						{
+							this.errorMessage = apiErrorMessage;
+							this.errorDump = r;
+						}
+					});
+				})
+				.catch(error => {
+					this.errorMessage = apiErrorMessage;
+					this.error = error;
+					console.error(error);
+				});
 		}
 		else
 		{
@@ -327,6 +351,7 @@ export default {
 				rating: this.rating,
 				activeTags: tagSplit(this.$refs.tagDiv.textContent),
 				savedTags: this.savedTags,
+				tagSuggestions: this.tagSuggestions,
 				meta: {
 					filename: this.filename,
 					showUpload: this.showUpload,

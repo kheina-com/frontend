@@ -76,7 +76,7 @@
 				<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
 				<div class='results'>
 					<p v-if='!userTags' style='text-align: center'>loating tags...</p>
-					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
+					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} has no tags.</p>
 					<ul v-else>
 						<li v-for='tag in userTags'>
 							tag: {{tag.tag}}
@@ -238,7 +238,7 @@ export default {
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
+					{ this.userTags = []; }
 					else
 					{
 						this.errorMessage = apiErrorMessage;

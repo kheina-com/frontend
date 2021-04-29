@@ -87,7 +87,6 @@ export default {
 		this.tokenProvided = this.$route.query.token ? true : false;
 	},
 	mounted() {
-		this.$refs.token.value = route.query?.token;
 		this.$refs.password.addEventListener('blur', this.checkPassword);
 		this.$refs.password.addEventListener('input', this.checkPassword);
 		this.$refs.password.addEventListener('keyup', this.checkPassword);
