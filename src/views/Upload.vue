@@ -10,7 +10,7 @@
 						<div>
 							<span>File</span>
 							<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
-								<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh' style='width: 100%' />
+								<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh' style='width: 100%' />
 							</FileField>
 							<div class='field actions' v-if='file !== null'>
 								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
