@@ -414,6 +414,7 @@ export default {
 								media: false,
 							});
 							this.newComment = null;
+							this.writeComment = null;
 						});
 				})
 				.catch(error => {
