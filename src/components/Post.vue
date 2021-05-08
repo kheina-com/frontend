@@ -31,9 +31,21 @@
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
 		</Loading>
-		<Report :data='{ post: postId }' v-if='!isLoading'/>
+		<div class='buttons'>
+			<Report :data='{ post: postId }' v-if='!isLoading'/>
+			<button class='reply-button' @click='replying = true' v-if='comment && !replying'>
+				reply
+			</button>
+		</div>
 	</div>
-	<ol v-if='comments && comments.length > 0'>
+	<ol v-if='replying || comments'>
+		<li v-if='replying'>
+			<MarkdownEditor v-model:value='replyMessage' resize='vertical' style='margin-bottom: 25px'/>
+			<div class='reply-buttons'>
+				<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
+				<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+			</div>
+		</li>
 		<li v-for='comment in comments'>
 			<Post :postId='comment.post_id' v-bind='comment' :link='false' comment @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
 		</li>
@@ -43,6 +55,7 @@
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
+import { uploadHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue'
@@ -109,7 +122,7 @@ export default {
 		},
 		comments: {
 			type: Array[Object],
-			default: [],
+			default: null,
 		},
 
 		// post fields
@@ -162,7 +175,8 @@ export default {
 			guideHeight: null,
 			parentElement: null,
 			// childTrigger: null,
-			reply: null,
+			replying: null,
+			replyMessage: null,
 		};
 	},
 	mounted() {
@@ -190,6 +204,50 @@ export default {
 	},
 	methods: {
 		getMediaThumbnailUrl,
+		postComment() {
+			let created = new Date();
+			let updated = created;
+
+			khatch(`${uploadHost}/v1/create_post`, {
+					method: 'POST',
+					body: {
+						reply_to: this.postId,
+						description: this.replyMessage.trim(),
+						rating: 'general',
+						privacy: 'public',
+					},
+				})
+				.then(response => {
+					response.json()
+						.then(r => {
+							console.log(r);
+							this.comments.unshift({
+								post_id: r.post_id,
+								user: this.$store.state.user,
+								blocked: false,
+								description: this.replyMessage.trim(),
+								rating: 'general',
+								score: {
+									up: 1,
+									down: 0,
+								},
+								created,
+								updated,
+								title: null,
+								media: false,
+								tags: [],
+								comments: [],
+							});
+							this.replyMessage = null;
+							this.replying = null;
+						});
+				})
+				.catch(error => {
+					this.errorMessage = apiErrorMessage;
+					this.error = error;
+					console.error(error);
+				});
+		},
 		navigateToPost(postId) {
 			this.$router.push('/p/' + postId);
 		},
@@ -359,6 +417,12 @@ ol {
 	display: block;
 	position: relative;
 }
+ol li {
+	margin-bottom: 25px;
+}
+ol > :last-child, ol > :last-child .post {
+	margin: 0;
+}
 .guide-line {
 	position: absolute;
 	bottom: 50%;
@@ -377,5 +441,21 @@ ol {
 }
 .direct-link i {
 	font-size: 1.2em;
+}
+.buttons {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+.reply-button {
+	color: var(--subtlecolor);
+}
+.reply-button:hover {
+	color: var(--icolor);
+}
+
+.reply-buttons {
+	display: flex;
+	justify-content: flex-end;
 }
 </style>

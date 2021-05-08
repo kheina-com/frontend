@@ -58,7 +58,7 @@
 							<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 						</div>
-						<Button class='interactable' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
+						<Button class='interactable buttons' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 					</div>
 					<li v-for='comment in comments'>
 						<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
@@ -123,7 +123,7 @@
 						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 					</div>
-					<Button class='interactable' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
+					<Button class='interactable buttons' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 				</div>
 				<li v-for='comment in comments'>
 					<Comment :postId='comment.post_id' v-bind='comment' :link='false' comment/>
@@ -193,7 +193,7 @@ export default {
 			parent: null,
 		};
 	},
-	created() {
+	async created() {
 		khatch(`${postsHost}/v1/post/${this.postId}`)
 			.then(response => {
 				response.json().then(r => {
@@ -257,9 +257,8 @@ export default {
 				response.json().then(r => {
 					if (response.status < 300)
 					{
-						this.fetchNestedComments(r);
-						console.log(r);
-						this.comments = r;
+						this.fetchNestedComments(r)
+							.then(() => this.comments = r);
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
@@ -316,37 +315,42 @@ export default {
 	},
 	methods: {
 		fetchNestedComments(comments) {
-			comments.forEach(comment => {
-				khatch(`${postsHost}/v1/fetch_comments`, {
-						method: 'POST',
-						body: {
-							post_id: comment.post_id,
-							sort: 'best',
-						},
-					})
-					.then(response => {
-						response.json().then(r => {
-							if (response.status < 300)
-							{
-								this.fetchNestedComments(r);
-								comment.comments = r;
-							}
-							else if (response.status === 401)
-							{ this.errorMessage = r.error; }
-							else if (response.status === 404)
-							{ this.errorMessage = r.error; }
-							else
-							{
-								this.errorMessage = apiErrorMessage;
-								this.errorDump = r;
-							}
-						});
-					})
-					.catch(error => {
-						this.errorMessage = apiErrorMessage;
-						this.error = error;
-						console.error(error);
-					});
+			let i = 0;
+			return new Promise(resolve => {
+				if (comments.length === 0)
+				{ resolve(); }
+				comments.forEach(comment => {
+					khatch(`${postsHost}/v1/fetch_comments`, {
+							method: 'POST',
+							body: {
+								post_id: comment.post_id,
+								sort: 'best',
+							},
+						})
+						.then(response => {
+							response.json().then(r => {
+								if (response.status < 300)
+								{
+									this.fetchNestedComments(r)
+										.then(() => {
+											i++;
+											comment.comments = r;
+											if (i >= comments.length)
+											{ resolve(); }
+										});
+								}
+								else if (response.status === 401)
+								{ this.errorMessage = r.error; }
+								else if (response.status === 404)
+								{ this.errorMessage = r.error; }
+								else
+								{
+									this.errorMessage = apiErrorMessage;
+									this.errorDump = r;
+								}
+							});
+						})
+				});
 			});
 		},
 		fetchParent(postId) {
@@ -600,10 +604,12 @@ ol p {
 .comment-field {
 	display: flex;
 	justify-content: space-between;
+	align-items: flex-end;
 }
 .comment-field .buttons {
 	display: flex;
 	justify-content: flex-end;
+	margin-bottom: 25px;
 }
 .comment-label, .comment-label button {
 	display: flex;
