@@ -35,14 +35,15 @@
 	</div>
 	<ol v-if='comments && comments.length > 0'>
 		<li v-for='comment in comments'>
-			<Post v-bind='comment' comment @loaded='onLoad' :loadTrigger='childTrigger' />
+			<Post :postId='comment.post_id' v-bind='comment' :link='false' comment @loaded='onLoad' :loadTrigger='childTrigger' />
 		</li>
 	</ol>
 </template>
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, isMobile } from '@/utilities';
+import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
+import { postsHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue'
@@ -99,10 +100,6 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		comments: {
-			type: Array,
-			default: [],
-		},
 		loadTrigger: {
 			type: Boolean,
 			default: null,
@@ -110,6 +107,10 @@ export default {
 		media: {
 			type: Boolean,
 			default: true,
+		},
+		sort: {
+			type: String,
+			default: 'best',
 		},
 
 		// post fields
@@ -163,7 +164,29 @@ export default {
 			parentElement: null,
 			childTrigger: null,
 			reply: null,
+			comments: null,
 		};
+	},
+	created() {
+		if (this.comment)
+		{
+			khatch(`${postsHost}/v1/fetch_comments`, {
+					method: 'POST',
+					body: {
+						post_id: this.postId,
+						sort: this.sort,
+					},
+				})
+				.then(response => {
+					response.json().then(r => {
+						if (response.status < 300)
+						{ this.comments = r; }
+					});
+				})
+				.catch(error => {
+					console.error(error);
+				});
+		}
 	},
 	mounted() {
 		let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];

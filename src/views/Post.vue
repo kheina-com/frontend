@@ -71,6 +71,19 @@
 			<div class='container'>
 				<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 				<main>
+					<div v-if='parent !== null' class='parent'>
+						<p>Parent post</p>
+						<Loading :isLoading='!parent.postId'>
+							<router-link :to='`/p/${parent.postId}`' class='inner'>
+								<div class='parent-thumbnail'>
+									<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
+								</div>
+								<p>
+									{{parent.title || parent.postId}}
+								</p>
+							</router-link>
+						</Loading>
+					</div>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
 						<div>
@@ -113,7 +126,7 @@
 					<Button class='interactable' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 				</div>
 				<li v-for='comment in comments'>
-					<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
+					<Comment :postId='comment.post_id' v-bind='comment' :link='false' comment/>
 				</li>
 			</ol>
 		</div>
@@ -287,6 +300,8 @@ export default {
 		{
 			if (!this.comments)
 			{ return null; }
+
+			return this.comments.length;
 
 			let count = this.comments.length;
 			this.comments.forEach(comment => {
