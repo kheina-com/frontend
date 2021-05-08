@@ -255,9 +255,12 @@ export default {
 			})
 			.then(response => {
 				response.json().then(r => {
-					console.log(r);
 					if (response.status < 300)
-					{ this.comments = r; }
+					{
+						this.fetchNestedComments(r);
+						console.log(r);
+						this.comments = r;
+					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -301,8 +304,6 @@ export default {
 			if (!this.comments)
 			{ return null; }
 
-			return this.comments.length;
-
 			let count = this.comments.length;
 			this.comments.forEach(comment => {
 				count += this.countNestedComments(comment);
@@ -314,11 +315,44 @@ export default {
 		{ return this.$store.state.user && this.post?.user?.handle === this.$store.state.user?.handle; }
 	},
 	methods: {
+		fetchNestedComments(comments) {
+			comments.forEach(comment => {
+				khatch(`${postsHost}/v1/fetch_comments`, {
+						method: 'POST',
+						body: {
+							post_id: comment.post_id,
+							sort: 'best',
+						},
+					})
+					.then(response => {
+						response.json().then(r => {
+							if (response.status < 300)
+							{
+								this.fetchNestedComments(r);
+								comment.comments = r;
+							}
+							else if (response.status === 401)
+							{ this.errorMessage = r.error; }
+							else if (response.status === 404)
+							{ this.errorMessage = r.error; }
+							else
+							{
+								this.errorMessage = apiErrorMessage;
+								this.errorDump = r;
+							}
+						});
+					})
+					.catch(error => {
+						this.errorMessage = apiErrorMessage;
+						this.error = error;
+						console.error(error);
+					});
+			});
+		},
 		fetchParent(postId) {
 			khatch(`${postsHost}/v1/post/${postId}`)
 				.then(response => {
 					response.json().then(r => {
-						console.log(r);
 						if (response.status < 300)
 						{
 							r.postId = postId;
@@ -372,6 +406,7 @@ export default {
 								updated,
 								title: null,
 								tags: [],
+								comments: [],
 							});
 							this.newComment = null;
 						});

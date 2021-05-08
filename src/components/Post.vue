@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self'>
-		<div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div>
+		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
 			<router-link :to='`/p/${postId}`' v-if='!link' class='direct-link'><i class="material-icons">open_in_new</i></router-link>
 			<div v-if='labels && !isLoading'>
@@ -35,7 +35,7 @@
 	</div>
 	<ol v-if='comments && comments.length > 0'>
 		<li v-for='comment in comments'>
-			<Post :postId='comment.post_id' v-bind='comment' :link='false' comment @loaded='onLoad' :loadTrigger='childTrigger' />
+			<Post :postId='comment.post_id' v-bind='comment' :link='false' comment @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
 		</li>
 	</ol>
 </template>
@@ -43,7 +43,6 @@
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
-import { postsHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue'
@@ -100,17 +99,17 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		loadTrigger: {
-			type: Boolean,
-			default: null,
-		},
+		// loadTrigger: {
+		// 	type: Boolean,
+		// 	default: null,
+		// },
 		media: {
 			type: Boolean,
 			default: true,
 		},
-		sort: {
-			type: String,
-			default: 'best',
+		comments: {
+			type: Array[Object],
+			default: [],
 		},
 
 		// post fields
@@ -162,31 +161,9 @@ export default {
 			editing: false,
 			guideHeight: null,
 			parentElement: null,
-			childTrigger: null,
+			// childTrigger: null,
 			reply: null,
-			comments: null,
 		};
-	},
-	created() {
-		if (this.comment)
-		{
-			khatch(`${postsHost}/v1/fetch_comments`, {
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						sort: this.sort,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						// if (response.status < 300)
-						// { this.comments = r; }
-					});
-				})
-				.catch(error => {
-					console.error(error);
-				});
-		}
 	},
 	mounted() {
 		let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
@@ -226,16 +203,16 @@ export default {
 				this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
 			}
 			this.$emit('loaded');
-			this.childTrigger = !this.childTrigger;
+			// this.childTrigger = !this.childTrigger;
 		},
 		updatePost() {
 			// actually update the post
 		},
 	},
 	watch: {
-		loadTrigger() {
-			this.onLoad();
-		},
+		// loadTrigger() {
+		// 	this.onLoad();
+		// },
 	},
 }
 </script>
