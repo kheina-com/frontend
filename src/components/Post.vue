@@ -33,7 +33,7 @@
 		</Loading>
 		<div class='buttons'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
-			<button class='reply-button' @click='replying = true' v-if='comment && !replying'>
+			<button class='reply-button' @click='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-if='comment && !replying'>
 				reply
 			</button>
 		</div>

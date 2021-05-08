@@ -58,7 +58,7 @@
 							<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 						</div>
-						<Button class='interactable buttons' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
+						<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 					</div>
 					<li v-for='comment in comments'>
 						<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
@@ -123,10 +123,10 @@
 						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 					</div>
-					<Button class='interactable buttons' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
+					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 				</div>
 				<li v-for='comment in comments'>
-					<Comment :postId='comment.post_id' v-bind='comment' :link='false' comment/>
+					<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
 				</li>
 			</ol>
 		</div>
