@@ -179,8 +179,8 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						if (response.status < 300)
-						{ this.comments = r; }
+						// if (response.status < 300)
+						// { this.comments = r; }
 					});
 				})
 				.catch(error => {
