@@ -411,6 +411,7 @@ export default {
 								title: null,
 								tags: [],
 								comments: [],
+								media: false,
 							});
 							this.newComment = null;
 						});
