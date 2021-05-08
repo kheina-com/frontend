@@ -14,7 +14,7 @@ export default {
 		},
 		size: {
 			type: Number,
-			default: null,
+			default: 400,
 		},
 		onLoad: { 
 			type: Function,

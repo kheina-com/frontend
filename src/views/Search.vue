@@ -1,9 +1,11 @@
 <template>
 	<main v-if='!isError'>
-		<div class='results'>
+		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
-			<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
-		</div>
+			<li v-for='post in posts || 3' v-else>
+				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+			</li>
+		</ol>
 		<ThemeMenu />
 	</main>
 	<main v-else>
@@ -104,10 +106,15 @@ main {
 	display: flex;
 	flex-direction: column;
 }
-.post {
+ol {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+ol li {
 	margin: 0 0 25px;
 }
-.results > :last-child {
+ol > :last-child {
 	margin-bottom: 0;
 }
 </style>

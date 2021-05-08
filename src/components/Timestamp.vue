@@ -52,7 +52,7 @@ export default {
 				conversion = 1 / 86400;
 				unit = 'day';
 			}
-			else if (time > 5400) // 90 minutes in seconds
+			else if (time > 3600)
 			{
 				conversion = 1 / 3600;
 				unit = 'hour';

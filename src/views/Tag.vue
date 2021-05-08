@@ -52,10 +52,12 @@
 			<MarkdownEditor class='markdown-editor' v-model:value='updateBody.description' v-if='editing'/>
 			<Markdown :content='tagData?.description' class='markdown' v-else/>
 			<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
-			<div class='results'>
+			<ol class='results'>
 				<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
-				<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
-			</div>
+				<li v-for='post in posts || 3' v-else>
+					<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+				</li>
+			</ol>
 		</Error>
 		<ThemeMenu />
 	</main>
@@ -285,13 +287,15 @@ ul {
 .update-button {
 	margin: 0 auto 25px;
 }
-</style>
-
-<style>
-.post {
+ol {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+ol li {
 	margin: 0 0 25px;
 }
-.results > :last-child {
+ol > :last-child {
 	margin-bottom: 0;
 }
 </style>

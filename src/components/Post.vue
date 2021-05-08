@@ -1,12 +1,12 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self'>
-		<div class='guide-line' ref='guide' v-if='parent' :style='`height: ${guideHeight}px`'></div>
+		<div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div>
 		<div class='labels'>
 			<router-link :to='`/p/${postId}`' v-if='!link' class='direct-link'><i class="material-icons">open_in_new</i></router-link>
 			<div v-if='labels && !isLoading'>
 				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
-				<Subtitle static='right' v-if='comment'>comment</Subtitle>
+				<Subtitle static='right' v-if='parent'>comment</Subtitle>
 			</div>
 			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 		</div>
@@ -26,7 +26,7 @@
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='hasMedia' :onLoad='onLoad'/>
+		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='media' :onLoad='onLoad'/>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
@@ -91,6 +91,10 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		parent: {
+			type: String,
+			default: null,
+		},
 		comment: {
 			type: Boolean,
 			default: false,
@@ -102,6 +106,10 @@ export default {
 		loadTrigger: {
 			type: Boolean,
 			default: null,
+		},
+		media: {
+			type: Boolean,
+			default: true,
 		},
 
 		// post fields
@@ -152,14 +160,15 @@ export default {
 		return {
 			editing: false,
 			guideHeight: null,
-			parent: null,
+			parentElement: null,
 			childTrigger: null,
+			reply: null,
 		};
 	},
 	mounted() {
-		let parent = this.$refs.self.parentElement.parentElement.parentElement.children[0];
-		if (parent.classList.contains('comment'))
-		{ this.parent = parent; }
+		let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
+		if (parentElement.classList.contains('comment'))
+		{ this.parentElement = parentElement; }
 		this.onLoad();
 	},
 	computed: {
@@ -188,10 +197,10 @@ export default {
 			this.editing = !this.editing;
 		},
 		onLoad() {
-			if (this.parent)
+			if (this.parentElement)
 			{
 				let self = this.$refs.self.getBoundingClientRect();
-				this.guideHeight = (self.top + self.bottom) / 2 - this.parent.getBoundingClientRect().bottom;
+				this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
 			}
 			this.$emit('loaded');
 			this.childTrigger = !this.childTrigger;

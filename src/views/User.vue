@@ -212,7 +212,7 @@ export default {
 			.then(response => {
 				response.json().then(r => {
 					if (response.status < 300)
-					{ this.posts = r.posts; }
+					{ this.posts = r; }
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)

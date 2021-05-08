@@ -7,6 +7,19 @@
 			<div class='content'>
 				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
 				<main>
+					<div v-if='parent !== null' class='parent'>
+						<p>Parent post</p>
+						<Loading :isLoading='!parent.postId'>
+							<router-link :to='`/p/${parent.postId}`' class='inner'>
+								<div class='parent-thumbnail'>
+									<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
+								</div>
+								<p>
+									{{parent.title || parent.postId}}
+								</p>
+							</router-link>
+						</Loading>
+					</div>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
 						<div>
@@ -14,7 +27,7 @@
 							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<Button class='edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 							</div>
 							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' :icon='post?.user.icon' />
 						</div>
@@ -37,10 +50,18 @@
 					</Loading>
 					<ThemeMenu />
 				</main>
-				<ol>
-					<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+				<ol class='comments'>
+					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
+					<div class='comment-field'>
+						<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+						<div class='buttons' v-if='writeComment'>
+							<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
+							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+						</div>
+						<Button class='interactable' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
+					</div>
 					<li v-for='comment in comments'>
-						<Comment v-bind='comment' comment/>
+						<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
 					</li>
 				</ol>
 			</div>
@@ -57,7 +78,7 @@
 							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<Button class='edit-button' v-if='post?.user_is_uploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 							</div>
 							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' :icon='post?.user.icon' />
 						</div>
@@ -82,9 +103,13 @@
 				</main>
 			</div>
 			<ol style='padding: 0 25px'>
-				<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{comments?.length != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+				<div class='comments'>
+					<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+					<Button class='interactable' v-if='writeComment' @click='writeComment = false'><i class='material-icons-round'>cancel</i></Button>
+					<Button class='interactable' v-else @click='writeComment = true'><i class='material-icons-round'>comment</i>Comment</Button>
+				</div>
 				<li v-for='comment in comments'>
-					<Comment v-bind='comment' comment/>
+					<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
 				</li>
 			</ol>
 		</div>
@@ -109,6 +134,7 @@ import Profile from '@/components/Profile.vue';
 import Score from '@/components/Score.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import Post from '@/components/Post.vue'
+import Thumbnail from '@/components/Thumbnail.vue'
 
 export default {
 	name: 'Post',
@@ -134,6 +160,7 @@ export default {
 		Score,
 		MarkdownEditor,
 		Button,
+		Thumbnail,
 	},
 	data() {
 		return {
@@ -143,17 +170,24 @@ export default {
 			errorDump: null,
 			errorMessage: null,
 			sidebarStyle: null,
-			comments: [],
+			writeComment: null,
+			comments: null,
+			newComment: null,
+			parent: null,
 		};
 	},
 	created() {
 		khatch(`${postsHost}/v1/post/${this.postId}`)
 			.then(response => {
 				response.json().then(r => {
-					console.log(r);
 					if (response.status < 300)
 					{
 						this.post = r;
+						if (r.parent)
+						{
+							this.parent = false;
+							this.fetchParent(r.parent);
+						}
 						setTitle(`${this.post?.title || this.postId} by ${this.post.user.name || this.post.user.handle}`);
 					}
 					else if (response.status === 401)
@@ -176,9 +210,37 @@ export default {
 		khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`)
 			.then(response => {
 				response.json().then(r => {
-					console.log(r);
 					if (response.status < 300)
 					{ this.tags = r; }
+					else if (response.status === 401)
+					{ this.errorMessage = r.error; }
+					else if (response.status === 404)
+					{ this.errorMessage = r.error; }
+					else
+					{
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = r;
+					}
+				});
+			})
+			.catch(error => {
+				this.errorMessage = apiErrorMessage;
+				this.error = error;
+				console.error(error);
+			});
+
+		khatch(`${postsHost}/v1/fetch_comments`, {
+				method: 'POST',
+				body: {
+					post_id: this.postId,
+					sort: 'best',
+				},
+			})
+			.then(response => {
+				response.json().then(r => {
+					console.log(r);
+					if (response.status < 300)
+					{ this.comments = r; }
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -228,15 +290,89 @@ export default {
 			});
 
 			return count;
-		}
+		},
+		userIsUploader()
+		{ return this.$store.state.user && this.post?.user?.handle === this.$store.state.user?.handle; }
 	},
 	methods: {
+		fetchParent(postId) {
+			khatch(`${postsHost}/v1/post/${postId}`)
+				.then(response => {
+					response.json().then(r => {
+						console.log(r);
+						if (response.status < 300)
+						{
+							r.postId = postId;
+							this.parent = r;
+						}
+						else if (response.status === 401)
+						{ this.errorMessage = r.error; }
+						else if (response.status === 404)
+						{ this.errorMessage = r.error; }
+						else
+						{
+							this.errorMessage = apiErrorMessage;
+							this.errorDump = r;
+						}
+					});
+				})
+				.catch(error => {
+					this.errorMessage = apiErrorMessage;
+					this.error = error;
+					console.error(error);
+				});
+		},
+		postComment() {
+			let created = new Date();
+			let updated = created;
+
+			khatch(`${uploadHost}/v1/create_post`, {
+					method: 'POST',
+					body: {
+						reply_to: this.postId,
+						description: this.newComment.trim(),
+						rating: 'general',
+						privacy: 'public',
+					},
+				})
+				.then(response => {
+					response.json()
+						.then(r => {
+							console.log(r);
+							this.comments.unshift({
+								post_id: r.post_id,
+								user: this.$store.state.user,
+								blocked: false,
+								description: this.newComment.trim(),
+								rating: 'general',
+								score: {
+									up: 1,
+									down: 0,
+								},
+								created,
+								updated,
+								title: null,
+								tags: [],
+							});
+							this.newComment = null;
+						});
+				})
+				.catch(error => {
+					this.errorMessage = apiErrorMessage;
+					this.error = error;
+					console.error(error);
+				});
+		},
 		countNestedComments(post) {
-			let count = post.comments.length;
-			post.comments.forEach(comment => {
-				count += this.countNestedComments(comment);
-			});
-			return count;
+			if (post.comments)
+			{
+				let count = post.comments.length;
+				post.comments.forEach(comment => {
+					count += this.countNestedComments(comment);
+				});
+				return count;
+			}
+			return 0;
 		},
 		onResize() {
 			if (!this.mediaElement)
@@ -395,11 +531,22 @@ ol {
 	display: block;
 	position: relative;
 }
+ol li {
+	margin-bottom: 25px;
+}
 ol > :last-child, ol > :last-child .post {
 	margin: 0;
 }
 ol p {
 	margin: 0 0 0.25em 25px;
+}
+.comment-field {
+	display: flex;
+	justify-content: space-between;
+}
+.comment-field .buttons {
+	display: flex;
+	justify-content: flex-end;
 }
 .comment-label, .comment-label button {
 	display: flex;
@@ -414,6 +561,38 @@ ol p {
 }
 .report:hover {
 	background: var(--bg2color);
+}
+
+
+.parent {
+	margin-bottom: 25px;
+}
+.parent .inner {
+	display: flex;
+	align-items: center;
+	border-radius: 3px;
+	background: #0000;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+	padding: 0.25em;
+	margin: -0.25em;
+}
+.parent .inner:hover {
+	background: var(--bg2color);
+}
+.parent .inner p {
+	font-size: 1.2em;
+	margin-left: 0.5em;
+}
+.parent-thumbnail {
+	border-radius: 3px;
+	overflow: hidden;
+}
+.parent-thumbnail, .parent-thumbnail img {
+	width: 3em;
+	height: 3em;
 }
 
 /* theme overrides */
