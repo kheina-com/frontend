@@ -102,11 +102,15 @@
 					<ThemeMenu />
 				</main>
 			</div>
-			<ol style='padding: 0 25px'>
-				<div class='comments'>
+			<ol class='comments'>
+				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
+				<div class='comment-field'>
 					<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
-					<Button class='interactable' v-if='writeComment' @click='writeComment = false'><i class='material-icons-round'>cancel</i></Button>
-					<Button class='interactable' v-else @click='writeComment = true'><i class='material-icons-round'>comment</i>Comment</Button>
+					<div class='buttons' v-if='writeComment'>
+						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
+						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+					</div>
+					<Button class='interactable' @click='writeComment = true' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 				</div>
 				<li v-for='comment in comments'>
 					<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
@@ -539,6 +543,9 @@ ol > :last-child, ol > :last-child .post {
 }
 ol p {
 	margin: 0 0 0.25em 25px;
+}
+.mobile .comments {
+	padding: 0 25px;
 }
 .comment-field {
 	display: flex;
