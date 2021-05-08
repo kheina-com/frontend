@@ -204,7 +204,10 @@ export default {
 				})
 				.then(response => {
 					if (response.status < 300)
-					{ this.editing = false; }
+					{
+						this.editing = false;
+						this.tagData = this.updateBody;
+					}
 					else 
 					{
 						response.json().then(r => {
