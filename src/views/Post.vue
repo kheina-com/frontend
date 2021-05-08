@@ -67,7 +67,7 @@
 			</div>
 		</div>
 		<div class='content' v-else>
-			<Media :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
+			<Media v-if='isLoading || post.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
 			<div class='container'>
 				<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 				<main>
