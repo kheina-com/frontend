@@ -366,6 +366,7 @@ main {
 	margin: 0;
 	display: flex;
 	align-items: center;
+	text-align: right;
 }
 
 .user-field {

@@ -13,6 +13,7 @@ import Account from '../views/Account.vue';
 import User from '../views/User.vue';
 import Tag from '../views/Tag.vue';
 import Tags from '../views/Tags.vue';
+import Users from '../views/Users.vue';
 
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
@@ -334,6 +335,28 @@ const routes = [
 				{
 					property: 'og:title',
 					content: 'Report Content',
+				},
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/users',
+		name: 'users',
+		component: Users,
+		meta: {
+			title: 'all users',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'all users',
 				},
 				{
 					property: 'og:image',

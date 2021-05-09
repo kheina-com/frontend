@@ -19,14 +19,19 @@
 		</div>
 		<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
 		<div v-else-if='editing' style='width: 100%'>
-			<MarkdownEditor v-model:value='description' height='10em' resize='vertical' style='margin-bottom: 25px'/>
+			<MarkdownEditor v-model:value='description' height='10em' resize='vertical' class='bottom-margin'/>
 			<div class='update-button'>
 				<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
 				<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<Thumbnail :post='postId' :size='1200' style='margin-bottom: 25px' v-if='media' :onLoad='onLoad'/>
+		<div class='bottom-margin' v-if='media'>
+			<Thumbnail :post='postId' :size='1200'  v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad'/>
+			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
+				this post contains <b>{{rating}}</b> content, click here to show it anyway.
+			</button>
+		</div>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
@@ -34,13 +39,13 @@
 		<div class='buttons'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
 			<button class='reply-button' @click='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-if='comment && !replying'>
-				reply
+				Reply
 			</button>
 		</div>
 	</div>
 	<ol v-if='replying || (comments && comments.length != 0)'>
 		<li v-if='replying'>
-			<MarkdownEditor v-model:value='replyMessage' resize='vertical' style='margin-bottom: 25px'/>
+			<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
 			<div class='reply-buttons'>
 				<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 				<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i>Cancel</Button>
@@ -124,6 +129,10 @@ export default {
 			type: Array[Object],
 			default: null,
 		},
+		rating: {
+			type: String,
+			default: 'explicit',
+		},
 
 		// post fields
 		user: Object,
@@ -177,6 +186,7 @@ export default {
 			// childTrigger: null,
 			replying: null,
 			replyMessage: null,
+			acceptedMature: false,
 		};
 	},
 	mounted() {
@@ -457,5 +467,12 @@ ol > :last-child, ol > :last-child .post {
 .reply-buttons {
 	display: flex;
 	justify-content: flex-end;
+}
+.show-mature {
+	padding: 25px;
+	background: var(--bg1color);
+}
+.bottom-margin {
+	margin-bottom: 25px;
 }
 </style>
