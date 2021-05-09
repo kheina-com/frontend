@@ -12,6 +12,7 @@ import Report from '../views/Report.vue';
 import Account from '../views/Account.vue';
 import User from '../views/User.vue';
 import Tag from '../views/Tag.vue';
+import Tags from '../views/Tags.vue';
 
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
@@ -235,6 +236,31 @@ const routes = [
 		component: Tag,
 		meta: {
 			title: (to) => `Search results for ${to.params.tag}`,
+			metaTags: [
+				(to) => {
+					return {
+						name: 'description',
+						property: 'og:description',
+						content: `Search results for ${to.params.tag}`,
+					};
+				},
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/tags',
+		name: 'tags',
+		component: Tags,
+		meta: {
+			title: (to) => 'Tags',
 			metaTags: [
 				(to) => {
 					return {

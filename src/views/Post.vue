@@ -29,7 +29,7 @@
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 							</div>
-							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' :icon='post?.user.icon' />
+							<Profile :isLoading='isLoading' v-bind='post?.user'/>
 						</div>
 					</div>
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
@@ -93,7 +93,7 @@
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 							</div>
-							<Profile :isLoading='isLoading' :username='post?.user.name' :handle='post?.user.handle' :icon='post?.user.icon' />
+							<Profile :isLoading='isLoading' v-bind='post?.user'/>
 						</div>
 					</div>
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
@@ -619,7 +619,7 @@ ol p {
 }
 .comment-label button {
 	margin-left: 25px;
-	color: var(--subtlecolor);
+	color: var(--subtle);
 }
 .comment-label button:hover {
 	color: var(--icolor);

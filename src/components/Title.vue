@@ -48,7 +48,7 @@ p .super {
 	font-weight: bold;
 }
 .super, .super *
-{ color: var(--subtlecolor) !important; }
+{ color: var(--subtle) !important; }
 .title {
 	padding: 0;
 	overflow: hidden;

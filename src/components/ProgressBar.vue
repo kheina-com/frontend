@@ -94,7 +94,7 @@ export default {
 	font-style: italic;
 	bottom: 1px;
 	font-size: 0.85em;
-	color: var(--subtlecolor);
+	color: var(--subtle);
 }
 .progressbar p.left
 {

@@ -72,7 +72,7 @@ label {
 	position: absolute;
 	right: 0;
 	font-size: 0.9em;
-	color: var(--subtlecolor);
+	color: var(--subtle);
 	margin-right: 25px;
 	bottom: -1.25rem;
 }

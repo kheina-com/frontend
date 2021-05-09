@@ -5,7 +5,7 @@
 				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
 			</Loading>
 			<div class='user'>
-				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{username}}</p></Loading>
+				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{name}}</p></Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
 			</div>
 		</div>
@@ -16,7 +16,7 @@
 				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
 			</Loading>
 			<div class='user'>
-				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{username}}</p></Loading>
+				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{name}}</p></Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
 			</div>
 		</div>
@@ -34,7 +34,7 @@ export default {
 		Thumbnail,
 	},
 	props: {
-		username: {
+		name: {
 			type: String,
 			default: 'user name',
 		},
@@ -123,7 +123,7 @@ export default {
 	align-items: center;
 }
 .profile .handle {
-	color: var(--subtlecolor);
+	color: var(--subtle);
 }
 i {
 	display: inline-block;

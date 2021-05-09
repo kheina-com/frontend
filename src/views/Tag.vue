@@ -45,7 +45,7 @@
 				</div>
 				<div>
 					<h2>Owner</h2>
-					<Profile :isLoading='isLoading' :username='tagData?.owner?.name' :handle='tagData?.owner?.handle' :icon='tagData?.owner?.icon' v-if='tagData?.owner !== null'/>
+					<Profile :isLoading='isLoading' v-if='tagData?.owner' v-bind='tagData.owner'/>
 					<b v-else>None</b>
 				</div>
 			</div>
@@ -53,7 +53,7 @@
 			<Markdown :content='tagData?.description' class='markdown' v-else/>
 			<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
 			<ol class='results'>
-				<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
+				<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
 				<li v-for='post in posts || 3' v-else>
 					<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 				</li>
@@ -100,7 +100,7 @@ export default {
 				subject: '--violet',
 				species: '--red',
 				gender: '--blue',
-				misc: '--subtlecolor',
+				misc: '--subtle',
 			},
 			tagData: null,
 			posts: null,

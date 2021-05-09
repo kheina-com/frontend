@@ -74,6 +74,15 @@ export const tagGroups = ['artist', 'subject', 'sponsor', 'species', 'gender', '
 
 export const routerMetaTag = 'data-v-router';
 
+export const tagColorMap = {
+	artist: 'pink',
+	sponsor: 'green',
+	subject: 'violet',
+	species: 'red',
+	gender: 'blue',
+	misc: 'subtle',
+};
+
 export const mdGuide = `
 # Markdown Guide
 There are many fantastic guides available for markdown! kheina.com recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!

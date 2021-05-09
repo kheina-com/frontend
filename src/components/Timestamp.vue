@@ -86,7 +86,7 @@ export default {
 
 <style scoped>
 button {
-	color: var(--subtlecolor);
+	color: var(--subtle);
 	text-decoration-style: dotted;
 	text-decoration-line: underline;
 }

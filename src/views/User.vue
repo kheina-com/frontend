@@ -7,6 +7,25 @@
 			</a>
 		</div>
 		<div ref='profile' class='user' v-if='!isMobile'>
+			<ol class='tabs'>
+				<li>
+					<button @click='selectTab' class='posts'>
+						Posts
+					</button>
+				</li>
+				<div class='separator'></div>
+				<li>
+					<button @click='selectTab' class='tags'>
+						Tags
+					</button>
+				</li>
+				<div class='separator'></div>
+				<li>
+					<button @click='selectTab' class='favs'>
+						Favorites
+					</button>
+				</li>
+			</ol>
 			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
 				<div class='add-image-button'>
 					<i class='material-icons-round'>add_a_photo</i>
@@ -30,7 +49,26 @@
 				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
-		<div ref='profile' class='user mobile' v-else>
+		<div ref='profile' class='user' v-else>
+			<ol class='tabs'>
+				<li>
+					<button @click='selectTab' class='posts'>
+						Posts
+					</button>
+				</li>
+				<div class='separator'></div>
+				<li>
+					<button @click='selectTab' class='tags'>
+						Tags
+					</button>
+				</li>
+				<div class='separator'></div>
+				<li>
+					<button @click='selectTab' class='favs'>
+						Favorites
+					</button>
+				</li>
+			</ol>
 			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
 				<div class='add-image-button'>
 					<i class='material-icons-round'>add_a_photo</i>
@@ -61,29 +99,29 @@
 				<i class='material-icons'>edit</i>
 				Edit Profile
 			</Button>
-			<Button class='interactable edit-profile-button' title='switch between tags and posts' @click='tab = tab === "posts" ? "tags" : "posts"'>
-				<i class='material-icons'>{{tab === "posts" ? "cached" : "sync"}}</i>
-				{{tab === "posts" ? "Show tags" : "Show posts"}}
-			</Button>
 			<div v-show='tab === "posts"'>
-				<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
-				<div class='results'>
+				<Markdown :content='user?.description'/>
+				<ol class='results'>
 					<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
-					<Post v-for='post in posts || 3' :postId='post?.post_id' :nested='true' v-bind='post' v-else/>
-				</div>
+					<li v-for='post in posts || 3' v-else>
+						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+					</li>
+				</ol>
 			</div>
 			<div v-show='tab === "tags"'>
-				<Markdown :content='user?.description' :class='isMobile ? "mobile" : ""'/>
+				<Markdown :content='user?.description'/>
 				<div class='results'>
-					<p v-if='!userTags' style='text-align: center'>loating tags...</p>
+					<p v-if='!userTags' style='text-align: center'>loading tags...</p>
 					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} has no tags.</p>
-					<ul v-else>
+					<ul class='tags' v-else>
 						<li v-for='tag in userTags'>
-							tag: {{tag.tag}}
-							class: {{tag.class}}
+							<Tag :inheritedTags='tag.inherited_tags' v-bind='tag'/>
 						</li>
 					</ul>
 				</div>
+			</div>
+			<div v-show='tab === "favs"'>
+				<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
 			</div>
 			<ThemeMenu/>
 		</main>
@@ -122,6 +160,7 @@ import Thumbnail from '@/components/Thumbnail.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
+import Tag from '@/components/Tag.vue';
 
 
 export default {
@@ -148,6 +187,7 @@ export default {
 		Timestamp,
 		Post,
 		Button,
+		Tag,
 	},
 	setup() {
 		const main = ref(null);
@@ -173,6 +213,7 @@ export default {
 			isUploadIcon: false,
 			isUploadBanner: false,
 			userTags: null,
+			tabElement: null,
 			tab: 'posts',
 		};
 	},
@@ -253,6 +294,9 @@ export default {
 			});
 	},
 	mounted() {
+		this.tabElement = document.querySelector(`button.${this.tab}`);
+		this.tabElement.style.borderBottomWidth = '5px';
+		this.tabElement.style.paddingBottom = '20px';
 		this.onResize();
 		if (this.$route.query?.edit)
 		{ this.isEditing = true; }
@@ -264,6 +308,15 @@ export default {
 		},
 	},
 	methods: {
+		selectTab(event) {
+			console.log(this.tabElement, event.target);
+			this.tabElement.style.borderBottomWidth = '0';
+			this.tabElement.style.paddingBottom = '25px';
+			this.tab = event.target.className;
+			event.target.style.borderBottomWidth = '5px';
+			event.target.style.paddingBottom = '20px';
+			this.tabElement = event.target;
+		},
 		onResize() {
 			this.$refs.header.style.height = `${this.$refs.main.getBoundingClientRect().top + window.scrollY - this.$store.bannerHeight}px`;
 			this.$refs.header.style.top = `-${this.$store.contentOffset - this.$store.bannerHeight}px`;
@@ -300,7 +353,7 @@ export default {
 main {
 	background: var(--bg1color);
 	position: relative;
-	padding: 125px 25px 25px;
+	padding: calc(6.25em + 25px) 25px 25px;
 	margin: 25px auto 0;
 }
 
@@ -335,8 +388,8 @@ main {
 	position: relative;
 }
 .thumbnail, .thumbnail img, .thumbnail video {
-	width: 200px;
-	height: 200px;
+	width: 12.5em;
+	height: 12.5em;
 }
 
 .header {
@@ -350,7 +403,7 @@ main {
 
 .user {
 	width: 70vw;
-	margin: 0 auto -128px;
+	margin: 0 auto calc(-6.25em - 28px);
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-end;
@@ -362,11 +415,10 @@ main {
 .user * {
 	pointer-events: all;
 }
-.user.mobile {
-	margin: 0 25px -128px;
+.mobile .user {
+	margin: 0 25px calc(-6.25em - 28px);
 	width: auto;
 }
-
 
 .edit-profile-button {
 	margin: 0 auto 25px;
@@ -379,10 +431,52 @@ i {
 	margin-bottom: 0;
 }
 
-ul {
+ul, ol {
 	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
+.tabs {
+	position: absolute;
+	top: 6.5em;
+	left: 13em;
+	top: calc(6.25em + 3px);
+	left: calc(12.5em + 6px);
+}
+
+ol.tabs {
+	display: flex;
+}
+ol.tabs li {
+}
+ol.tabs button {
+	padding: 25px;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+	border-bottom: solid 0 var(--icolor);
+}
+ol.tabs .separator {
+	background: var(--bordercolor);
+	width: 1px;
+}
+
+ol.results li {
+	margin: 0 0 25px;
+}
+ol.results > :last-child {
+	margin-bottom: 0;
+}
+
+ul.tags li {
+	display: block;
+	margin: 0 0 25px;
+}
+ul.tags > :last-child {
+	margin-bottom: 0;
+}
 /* ===== editing ===== */
 .add-image-button {
 	background: #0005;

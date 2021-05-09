@@ -14,7 +14,7 @@
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
 				<Title :isLoading='isLoading' size='1.5em' static='left' style='margin-bottom: 0.25em' v-if='(title || isLoading) && !comment'>{{isLoading ? 'this is an example title' : title}}</Title>
-				<Profile :isLoading='isLoading' :username='user?.name' :handle='user?.handle' :icon='user?.icon' />
+				<Profile :isLoading='isLoading' v-bind='user'/>
 			</div>
 		</div>
 		<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
@@ -436,7 +436,7 @@ ol > :last-child, ol > :last-child .post {
 	z-index: -1;
 }
 .direct-link {
-	color: var(--subtlecolor);
+	color: var(--subtle);
 	display: block;
 }
 .direct-link i {
@@ -448,7 +448,7 @@ ol > :last-child, ol > :last-child .post {
 	justify-content: space-between;
 }
 .reply-button {
-	color: var(--subtlecolor);
+	color: var(--subtle);
 }
 .reply-button:hover {
 	color: var(--icolor);

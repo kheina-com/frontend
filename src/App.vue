@@ -203,7 +203,7 @@ input, textarea, select {
 	color: var(--textcolor);
 }
 *::placeholder {
-	color: var(--subtlecolor);
+	color: var(--subtle);
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
@@ -278,7 +278,7 @@ form, p
 .mascot span
 {
 	position: relative;
-	color: var(--subtlecolor);
+	color: var(--subtle);
 	left: 0.4em;
 	top: calc(-100% - 0.3em);
 }
@@ -328,7 +328,7 @@ p.center
 {
 	text-align: center;
 	margin: 0;
-	color: var(--subtlecolor);
+	color: var(--subtle);
 }
 .searchstats
 {
@@ -408,7 +408,7 @@ html
 	--bordercolor: #2D333A;
 	--linecolor: var(--bordercolor);
 	--borderhover: #F29B17;
-	--subtlecolor: #EEEEEE80;
+	--subtle: #EEEEEE80;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
 
@@ -432,7 +432,7 @@ html.light
 	--textcolor: #222222;
 	--bordercolor: #2D333A;
 	--borderhover: #F28817;
-	--subtlecolor: #00000080;
+	--subtle: #00000080;
 	--shadowcolor: #6D718680;
 	--activeshadowcolor: #6D7186B3;
 }
@@ -449,7 +449,7 @@ html.e621
 	--linecolor: var(--blockquote);
 	--borderhover: #0000;
 	--blockquote: #b4c7d9;
-	--subtlecolor: #B4C7D9;
+	--subtle: #B4C7D9;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 
@@ -485,7 +485,7 @@ html.youtube
 	--textcolor: #EEE;
 	--bordercolor: #404040;
 	--borderhover: #747474;
-	--subtlecolor: #909090;
+	--subtle: #909090;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 }
@@ -499,7 +499,7 @@ html.wikipedia
 	--textcolor: #222222;
 	--bordercolor: #C8CCD1;
 	--borderhover: #A7D7F9;
-	--subtlecolor: #54595D;
+	--subtle: #54595D;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 }
@@ -531,7 +531,7 @@ html.terminal
 	--textcolor: #00FF00;
 	--bordercolor: #00FF00;
 	--borderhover: #008000;
-	--subtlecolor: #008000;
+	--subtle: #008000;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 	filter: sepia(100%) saturate(550%) hue-rotate(90deg);
@@ -547,7 +547,7 @@ html.solarized-dark
 	--textcolor: #93a1a1;
 	--bordercolor: #586e75;
 	--borderhover: #b58900;
-	--subtlecolor: #657b83;
+	--subtle: #657b83;
 	--shadowcolor: #002b36;
 	--activeshadowcolor: #2aa19820;
 
@@ -572,7 +572,7 @@ html.solarized-light
 	--textcolor: #586e75;
 	--bordercolor: #586e75;
 	--borderhover: #cb4b16;
-	--subtlecolor: #839496;
+	--subtle: #839496;
 	--shadowcolor: #93a1a1;
 	--activeshadowcolor: #dc322f40;
 
@@ -597,7 +597,7 @@ html.furaffinity
 	--textcolor: #FFF;
 	--bordercolor: #DCDCDC;
 	--borderhover: #AFAFAF;
-	--subtlecolor: #CFCFCF;
+	--subtle: #CFCFCF;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 }
@@ -617,7 +617,7 @@ html.discord
 	--bordercolor: #1E1F23;
 	--linecolor: var(--bg1color);
 	--borderhover: #7289DA;
-	--subtlecolor: #72767D;
+	--subtle: #72767D;
 	--shadowcolor: #202225;
 	--activeshadowcolor: #202225;
 }
@@ -630,9 +630,9 @@ html.xfire
 	--bg2color: #1D1C22;
 	--textcolor: #ABC6E3;
 	--bordercolor: #00020A;
-	--linecolor: var(--subtlecolor);
+	--linecolor: var(--subtle);
 	--borderhover: #3D73D7;
-	--subtlecolor: #ABC6E3A0;
+	--subtle: #ABC6E3A0;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
 }

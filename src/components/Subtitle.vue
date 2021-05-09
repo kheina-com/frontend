@@ -29,7 +29,7 @@ export default {
 <style scoped>
 p
 {
-	color: var(--subtlecolor);
+	color: var(--subtle);
 	text-align: center;
 	margin: 0;
 }

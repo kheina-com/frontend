@@ -164,7 +164,7 @@ export default {
 				else
 				{
 					this.passwordIcon = 'timer';
-					this.passwordColor = 'subtlecolor';
+					this.passwordColor = 'subtle';
 					this.typingTimer = setTimeout(() => this.hasPasswordBeenPwned(this.$refs.password.value), this.typingInterval);
 				}
 			}

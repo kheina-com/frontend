@@ -4,7 +4,7 @@
 	<Loading :isLoading='tags === null'><h4>{{group.substr(0, 1).toUpperCase()}}{{group.substr(1).toLowerCase()}}</h4></Loading>
 	<ol>
 		<li v-if='tags !== null' v-for='tag in tags'>
-			<router-link :to='`/t/${tag}`' :style='`color: var(${colorMap[group]})`'>
+			<router-link :to='`/t/${tag}`' :style='`color: var(--${tagColorMap[group]})`'>
 				{{tag.replace(/_/g, ' ')}}
 			</router-link>
 		</li>
@@ -15,7 +15,8 @@
 </template>
 
 <script>
-import Loading from '@/components/Loading.vue'
+import Loading from '@/components/Loading.vue';
+import { tagColorMap } from '@/config/constants';
 
 export default {
 	name: 'TagGroup',
@@ -31,17 +32,10 @@ export default {
 	},
 	data() {
 		return {
+			tagColorMap,
 			post: null,
 			errorDump: null,
 			errorMessage: null,
-			colorMap: {
-				artist: '--pink',
-				sponsor: '--green',
-				subject: '--violet',
-				species: '--red',
-				gender: '--blue',
-				misc: '--subtlecolor',
-			},
 			loadingMap: {
 				artist: 1,
 				sponsor: 1,

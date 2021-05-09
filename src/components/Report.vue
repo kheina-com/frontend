@@ -25,7 +25,7 @@ export default {
 button {
 	display: flex;
 	align-items: center;
-	color: var(--subtlecolor);
+	color: var(--subtle);
 	border-radius: 3px;
 	padding: 0.25em 0.25em !important;
 	margin: -0.1em -0.25em -0.25em !important;
