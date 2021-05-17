@@ -39,7 +39,7 @@
 		<div class='buttons'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
 			<button class='reply-button' @click='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-if='comment && !replying'>
-				Reply
+				<i class='material-icons'>reply</i>Reply
 			</button>
 		</div>
 	</div>
@@ -458,6 +458,8 @@ ol > :last-child, ol > :last-child .post {
 	justify-content: space-between;
 }
 .reply-button {
+	display: flex;
+	align-items: center;
 	color: var(--subtle);
 }
 .reply-button:hover {

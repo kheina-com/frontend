@@ -45,7 +45,13 @@
 			<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><span>Joined <Timestamp :datetime='user?.created'/></span></p>
 			<div class='user-name'>
 				<input v-model='user.name' class='interactable text' v-if='isEditing'>
-				<h2 v-else>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
+				<h2 v-else>
+					{{user?.name}}
+					<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
+					<i class='kheina-icons' v-if='user?.admin' :title="`@${user.handle} is an admin`">sword</i>
+					<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a mod`">verified_user</i>
+					<i class='material-icons-round' v-else-if='user?.verified' :title="`@${user.handle} is a verified artist`">verified</i>
+				</h2>
 				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
@@ -90,17 +96,24 @@
 			</div>
 			<div class='user-name'>
 				<input v-model='user.name' class='interactable text' v-if='isEditing'>
-				<h2 v-else>{{user?.name}}<i class='material-icons' v-if='user?.privacy === "private"'>lock</i></h2>
+				<h2 v-else>
+					{{user?.name}}
+					<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
+					<i class='kheina-icons' v-if='user?.admin' :title="`@${user.handle} is an admin`">sword</i>
+					<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a mod`">verified_user</i>
+					<i class='material-icons-round' v-else-if='user?.verified' :title="`@${user.handle} is a verified artist`">verified</i>
+				</h2>
 				<p>@{{user?.handle}}</p>
 			</div>
 		</div>
 		<main ref='main'>
+			<MarkdownEditor v-model:value='user.description' class='description' v-if='isEditing'/>
+			<Markdown :content='user?.description' class='description' v-else/>
 			<Button class='interactable edit-profile-button' title='Edit profile' @click='toggleEdit' v-if='isSelf'>
-				<i class='material-icons'>edit</i>
-				Edit Profile
+				<i class='material-icons'>{{isEditing ? 'edit_off' : 'edit'}}</i>
+				{{isEditing ? 'Cancel' : 'Edit Profile'}}
 			</Button>
 			<div v-show='tab === "posts"'>
-				<Markdown :content='user?.description'/>
 				<ol class='results'>
 					<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
 					<li v-for='post in posts || 3' v-else>
@@ -109,7 +122,6 @@
 				</ol>
 			</div>
 			<div v-show='tab === "tags"'>
-				<Markdown :content='user?.description'/>
 				<div class='results'>
 					<p v-if='!userTags' style='text-align: center'>loading tags...</p>
 					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} has no tags.</p>
@@ -161,6 +173,7 @@ import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 import Tag from '@/components/Tag.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
 
 
 export default {
@@ -188,6 +201,7 @@ export default {
 		Post,
 		Button,
 		Tag,
+		MarkdownEditor,
 	},
 	setup() {
 		const main = ref(null);
@@ -368,6 +382,10 @@ main {
 	align-items: center;
 	text-align: right;
 }
+.user-name h2 i {
+	font-size: 1em;
+	margin-left: 0.25em;
+}
 
 .user-field {
 	display: flex;
@@ -424,7 +442,7 @@ main {
 .edit-profile-button {
 	margin: 0 auto 25px;
 }
-i {
+.user-field i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
 }
@@ -502,5 +520,8 @@ ul.tags > :last-child {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+.description {
+	margin-bottom: 25px;
 }
 </style>

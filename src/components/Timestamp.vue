@@ -1,5 +1,5 @@
 <template>
-	<button @click.stop='toggleDisplayType'>{{displayAbsolute ? absoluteTime : relativeTime()}}</button>
+	<button @click.prevent.stop='toggleDisplayType'>{{displayAbsolute ? absoluteTime : relativeTime()}}</button>
 </template>
 
 <script>

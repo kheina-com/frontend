@@ -5,7 +5,12 @@
 				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
 			</Loading>
 			<div class='user'>
-				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{name}}</p></Loading>
+				<Loading :isLoading='isLoading' span class='name'>
+					<p>{{name}}</p>
+					<i class='kheina-icons' v-if='admin' :title="`@${handle} is an admin`">sword</i>
+					<i class='material-icons' v-else-if='mod' :title="`@${handle} is a mod`">verified_user</i>
+					<i class='material-icons-round' v-else-if='verified' :title="`@${handle} is a verified artist`">verified</i>
+				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
 			</div>
 		</div>
@@ -54,14 +59,26 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+		admin: {
+			type: Boolean,
+			default: null,
+		},
+		mod: {
+			type: Boolean,
+			default: null,
+		},
 		verified: {
-			type: String,
+			type: Boolean,
 			default: null,
 		},
 	},
 	computed: {
 		iconClass() {
-			return this.verified === 'admin' ? 'kheina-icons' : 'material-icons';
+			if (this.admin)
+			{ return 'kheina-icons'; }
+			if (this.mod)
+			{ return 'material-icons'; }
+			return 'material-icons-round';
 		},
 		iconName() {
 			switch (this.verified) {
@@ -128,6 +145,6 @@ export default {
 i {
 	display: inline-block;
 	font-size: 1em;
-	margin-right: 0.25em;
+	margin-left: 0.25em;
 }
 </style>

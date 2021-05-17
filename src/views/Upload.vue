@@ -333,7 +333,7 @@ export default {
 	},
 	computed: {
 		mediaUrl()
-		{ return this.mime ? getMediaUrl(this.postId, this.file?.name || this.filename) : null; },
+		{ return this.mime ? this.getMediaUrl(this.postId, this.file?.name || this.filename) : null; },
 	},
 	methods: {
 		getMediaUrl,
@@ -377,6 +377,8 @@ export default {
 			ajax.upload.addEventListener('progress', (event) => this.uploadProgress = (event.loaded / event.total) * 100, false);
 			ajax.addEventListener('load', (event) => {
 				this.uploadDone = true;
+				this.isUploading = false;
+				this.file = null;
 				console.log(JSON.parse(event.target.responseText));
 			}, false);
 			ajax.addEventListener('error', (event) => {

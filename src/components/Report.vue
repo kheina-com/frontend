@@ -1,5 +1,5 @@
 <template>
-	<button @click.stop='navigate' class='report'><i class='kheina-icons'>report_content</i>Report Content</button>
+	<button @click.prevent.stop='navigate' class='report'><i class='kheina-icons'>report_content</i>Report Content</button>
 </template>
 
 <script>

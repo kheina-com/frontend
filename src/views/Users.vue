@@ -3,9 +3,18 @@
 		<ol class='results'>
 			<p v-if='users?.length === 0' style='text-align: center'>No users found!</p>
 			<li v-for='user in users' v-else>
-				<div>
-					<Profile v-bind='user'/>
-				</div>
+				<router-link :to='`/${user.handle}`' class='interactable'>
+					<div>
+						<Profile v-bind='user' :link='false' class='profile'/>
+						<div>
+							<p class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+							<p class='user-field'><i class='material-icons'>schedule</i><span>Joined <Timestamp :datetime='user?.created'/></span></p>
+						</div>
+					</div>
+					<div>
+						<Markdown :content='user?.description'/>
+					</div>
+				</router-link>
 			</li>
 		</ol>
 		<ThemeMenu />
@@ -22,6 +31,8 @@ import { apiErrorMessage, usersHost } from '@/config/constants';
 import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Profile from '@/components/Profile.vue';
+import Markdown from '@/components/Markdown.vue';
+import Timestamp from '@/components/Timestamp.vue';
 
 
 export default {
@@ -30,6 +41,8 @@ export default {
 		ThemeMenu,
 		Error,
 		Profile,
+		Markdown,
+		Timestamp,
 	},
 	data() {
 		return {
@@ -89,7 +102,33 @@ ol {
 ol li {
 	margin: 0 0 25px;
 }
+ol li a {
+	display: block;
+}
+ol li div {
+	display: flex;
+}
+ol li div div {
+	flex-direction: column;
+}
+
 ol > :last-child {
 	margin-bottom: 0;
+}
+
+.user-field {
+	display: flex;
+	align-items: center;
+	color: var(--textcolor);
+}
+.user-field span button {
+	color: var(--textcolor);
+}
+.user-field span button:hover {
+	color: var(--icolor);
+}
+i {
+	margin: 0 0.25em 0 0;
+	font-size: 1.2em;
 }
 </style>

@@ -59,11 +59,14 @@
 				</li>
 				<li v-if='isAdmin'>
 					<ol>
-						<li >
+						<li>
 							<button><i class='material-icons'>add_moderator</i>Add Mod</button>
 						</li>
-						<li >
+						<li>
 							<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
+						</li>
+						<li>
+							<router-link to='/users'><i class='material-icons-round'>people</i>All Users</router-link>
 						</li>
 					</ol>
 				</li>
