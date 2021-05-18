@@ -84,54 +84,23 @@ export default {
 </script>
 
 <style scoped>
-.changemascot {
-	font-size: 0.9em;
-	text-align: center;
-}
-
-.theme-menu select.interactable
-{
-	padding: 0;
-	margin: 0;
-	background: var(--bg1color);
-}
-.theme-menu select.interactable option
+select option
 { color: var(--textcolor) !important; }
 
-.themes
-{
-	overflow: hidden;
-	position: absolute;
-	width: 300px;
-	bottom: 0;
-	right: 0;
-	height: 100px;
-	pointer-events: none;
-	/* height: 120px; */
-}
-.themes input
-{ display: none; }
-.themes input:checked ~ .theme-menu
-{ top: 5px; }
-.theme-menu tr
+tr
 { text-align: right; }
-.themes td:first-child
+td:first-child
 { padding-right: 8px; }
-select
-{
+td:last-child {
+	width: 100%;
+}
+select {
+	padding: 0;
+	margin: 0;
 	border-radius: 3px;
 	background: var(--bg1color);
 	color: var(--textcolor);
 	border: 1px solid var(--bordercolor);
-	width: 125px;
-}
-label {
-	cursor: pointer;
-	position: absolute;
-	right: 0;
-	font-size: 0.9em;
-	color: var(--subtle);
-	margin-right: 25px;
-	bottom: -1.25rem;
+	width: 100%;
 }
 </style>
