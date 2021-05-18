@@ -15,6 +15,8 @@ import Tag from '../views/Tag.vue';
 import Tags from '../views/Tags.vue';
 import Users from '../views/Users.vue';
 
+import Test from '../views/Test.vue';
+
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
 const routes = [
@@ -368,6 +370,11 @@ const routes = [
 				},
 			],
 		},
+	},
+	{
+		path: '/test',
+		name: 'test',
+		component: Test,
 	},
 	// {
 	// 	path: '/s',

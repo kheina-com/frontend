@@ -6,26 +6,32 @@
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 		</div>
-		<div ref='profile' class='user' v-if='!isMobile'>
-			<ol class='tabs'>
-				<li>
-					<button @click='selectTab' class='posts'>
-						Posts
-					</button>
-				</li>
-				<div class='separator'></div>
-				<li>
-					<button @click='selectTab' class='tags'>
-						Tags
-					</button>
-				</li>
-				<div class='separator'></div>
-				<li>
-					<button @click='selectTab' class='favs'>
-						Favorites
-					</button>
-				</li>
-			</ol>
+		<div ref='profile' class='user'>
+			<div class='tabs'>
+				<ol>
+					<li>
+						<button @click='selectTab' class='posts'>
+							Posts
+						</button>
+					</li>
+					<div class='separator'></div>
+					<li>
+						<button @click='selectTab' class='tags'>
+							Tags
+						</button>
+					</li>
+					<div class='separator'></div>
+					<li>
+						<button @click='selectTab' class='favs'>
+							Favorites
+						</button>
+					</li>
+				</ol>
+				<Button>
+					<i class='material-icons'>person_add_alt</i>
+					Follow
+				</Button>
+			</div>
 			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
 				<div class='add-image-button'>
 					<i class='material-icons-round'>add_a_photo</i>
@@ -37,76 +43,27 @@
 					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 				</router-link>
 			</Loading>
-			<div class='user-field' v-if='isEditing'>
-				<i class='material-icons'>public</i>
-				<input v-model='user.website' class='interactable text'>
-			</div>
-			<p v-else-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
-			<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><span>Joined <Timestamp :datetime='user?.created'/></span></p>
-			<div class='user-name'>
-				<input v-model='user.name' class='interactable text' v-if='isEditing'>
-				<h2 v-else>
-					{{user?.name}}
-					<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
-					<i class='kheina-icons' v-if='user?.admin' :title="`@${user.handle} is an admin`">sword</i>
-					<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a mod`">verified_user</i>
-					<i class='material-icons-round' v-else-if='user?.verified' :title="`@${user.handle} is a verified artist`">verified</i>
-				</h2>
-				<p>@{{user?.handle}}</p>
-			</div>
-		</div>
-		<div ref='profile' class='user' v-else>
-			<ol class='tabs'>
-				<li>
-					<button @click='selectTab' class='posts'>
-						Posts
-					</button>
-				</li>
-				<div class='separator'></div>
-				<li>
-					<button @click='selectTab' class='tags'>
-						Tags
-					</button>
-				</li>
-				<div class='separator'></div>
-				<li>
-					<button @click='selectTab' class='favs'>
-						Favorites
-					</button>
-				</li>
-			</ol>
-			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
-				<div class='add-image-button'>
-					<i class='material-icons-round'>add_a_photo</i>
-				</div>
-				<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-			</a>
-			<Loading :isLoading='isIconLoading' class='profile-image' v-else>
-				<router-link :to='`/p/${user?.icon}`' class='thumbnail'>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-				</router-link>
-			</Loading>
-			<div class='user-field' v-if='isEditing'>
-				<i class='material-icons'>public</i>
-				<input v-model='user.website' class='interactable text'>
-			</div>
-			<div v-else>
-				<p v-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
-				<p class='user-field'><i class='material-icons'>schedule</i><span>Joined <Timestamp :datetime='user?.created'/></span></p>
-			</div>
-			<div class='user-name'>
-				<input v-model='user.name' class='interactable text' v-if='isEditing'>
-				<h2 v-else>
-					{{user?.name}}
-					<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
-					<i class='kheina-icons' v-if='user?.admin' :title="`@${user.handle} is an admin`">sword</i>
-					<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a mod`">verified_user</i>
-					<i class='material-icons-round' v-else-if='user?.verified' :title="`@${user.handle} is a verified artist`">verified</i>
-				</h2>
-				<p>@{{user?.handle}}</p>
-			</div>
 		</div>
 		<main ref='main'>
+			<div class='user-info'>
+				<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created' :short='isMobile'/></Loading></p>
+				<div class='user-field' v-if='isEditing'>
+					<i class='material-icons'>public</i>
+					<input v-model='user.website' class='interactable text'>
+				</div>
+				<p v-else-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+				<div class='user-name'>
+					<input v-model='user.name' class='interactable text' v-if='isEditing'>
+					<h2 v-else>
+						<Loading :isLoading='!user' span>{{user?.name || 'username'}}</Loading>
+						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
+						<i class='kheina-icons' v-if='user?.admin' :title="`@${user.handle} is an admin`">sword</i>
+						<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a mod`">verified_user</i>
+						<i class='material-icons-round' v-else-if='user?.verified' :title="`@${user.handle} is a verified artist`">verified</i>
+					</h2>
+					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
+				</div>
+			</div>
 			<MarkdownEditor v-model:value='user.description' class='description' v-if='isEditing'/>
 			<Markdown :content='user?.description' class='description' v-else/>
 			<Button class='interactable edit-profile-button' title='Edit profile' @click='toggleEdit' v-if='isSelf'>
@@ -367,8 +324,11 @@ export default {
 main {
 	background: var(--bg1color);
 	position: relative;
-	padding: calc(6.25em + 25px) 25px 25px;
+	padding: 7em 25px 25px;
 	margin: 25px auto 0;
+}
+.mobile main {
+	padding-top: 5em;
 }
 
 .user-name {
@@ -381,6 +341,8 @@ main {
 	display: flex;
 	align-items: center;
 	text-align: right;
+	position: absolute;
+	top: -1.3em;
 }
 .user-name h2 i {
 	font-size: 1em;
@@ -410,6 +372,11 @@ main {
 	width: 12.5em;
 	height: 12.5em;
 }
+.mobile .thumbnail, .mobile .thumbnail img, .mobile .thumbnail video {
+	width: 8em;
+	height: 8em;
+}
+
 
 .header {
 	top: -25px;
@@ -435,7 +402,7 @@ main {
 	pointer-events: all;
 }
 .mobile .user {
-	margin: 0 25px calc(-6.25em - 28px);
+	margin: 0 25px calc(-4em - 28px);
 	width: auto;
 }
 
@@ -458,18 +425,25 @@ ul, ol {
 
 .tabs {
 	position: absolute;
-	top: 6.5em;
-	left: 13em;
 	top: calc(6.25em + 3px);
 	left: calc(12.5em + 6px);
+	width: calc(100% - 12.5em - 6px);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.mobile .tabs {
+	top: calc(4em + 3px);
+	left: calc(8em + 6px);
+	width: calc(100% - 8em - 6px);
 }
 
-ol.tabs {
+.tabs ol {
 	display: flex;
 }
-ol.tabs li {
+.tabs ol li {
 }
-ol.tabs button {
+.tabs ol button {
 	padding: 25px;
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
@@ -477,9 +451,20 @@ ol.tabs button {
 	transition: ease var(--fadetime);
 	border-bottom: solid 0 var(--icolor);
 }
-ol.tabs .separator {
+.tabs ol .separator {
 	background: var(--bordercolor);
 	width: 1px;
+}
+
+.user-info {
+	width: 70vw;
+	margin: 0 auto 25px;
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+}
+.mobile .user-info {
+	width: auto;
 }
 
 ol.results li {

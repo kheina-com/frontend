@@ -44,8 +44,8 @@
 					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
 					<Loading :isLoading='isLoading'>
 						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
-						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' /> (edited <Timestamp :datetime='post?.updated' />)</Subtitle>
-						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' /></Subtitle>
+						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
+						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
 					</Loading>
 					<ThemeMenu />
@@ -108,8 +108,8 @@
 					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
 					<Loading :isLoading='isLoading'>
 						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
-						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' /> (edited <Timestamp :datetime='post?.updated' />)</Subtitle>
-						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' /></Subtitle>
+						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
+						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
 					</Loading>
 					<ThemeMenu />
