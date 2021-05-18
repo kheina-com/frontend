@@ -2,7 +2,7 @@
 	<router-link :to='`/t/${tag}`' class='tag'>
 		<h2>{{tag}}</h2>
 		<Profile v-bind='owner' v-if='owner' :link='false'/>
-		<p :style='`color: var(--${tagColorMap[tagClass]})`'>{{class}}</p>
+		<p :style='`color: var(--${tagColorMap[tagClass()]})`'>{{class}}</p>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
 		<p>Inherited Tags: {{inheritedTags}}</p>
 		<Markdown :content='description'/>
@@ -34,39 +34,9 @@ export default {
 			tagColorMap,
 		};
 	},
-	computed: {
+	methods: {
 		tagClass() {
 			return this.class;
-		},
-	},
-	methods: {
-		onResize() {
-			this.$refs.header.style.height = `${this.$refs.main.getBoundingClientRect().top + window.scrollY - this.$store.bannerHeight}px`;
-			this.$refs.header.style.top = `-${this.$store.contentOffset - this.$store.bannerHeight}px`;
-			this.$refs.profile.style.marginTop = `${(window.innerHeight / 2) - this.$store.contentOffset}px`;
-		},
-		toggleEdit() {
-			this.isEditing = !this.isEditing;
-		},
-		toggleIconUpload() {
-			this.isUploadIcon = !this.isUploadIcon;
-		},
-		toggleBannerUpload() {
-			this.isUploadBanner = !this.isUploadBanner;
-		},
-		disableUploads() {
-			this.isUploadBanner = this.isUploadIcon = false;
-		},
-		onImageCrop({ coordinates, canvas }) {
-			console.log(coordinates, canvas);
-		},
-		showData() {
-			console.log(this.$refs.cropper.getResult());
-		},
-	},
-	watch: {
-		resizeTrigger() {
-			this.onResize();
 		},
 	},
 }

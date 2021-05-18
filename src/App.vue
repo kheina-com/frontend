@@ -61,10 +61,14 @@ export default {
 	},
 	methods: {
 		onResize() {
+			if (this.$route?.meta.applyOffset !== undefined ? this.$route.meta.applyOffset : true)
+			{
+				let offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
+				this.$refs.content.style.top = `${offset}px`;
+			}
+			else
+			{ this.$refs.content.style.top = `${this.banner.clientHeight}px`;}
 			this.resizeTrigger = !this.resizeTrigger;
-			this.$store.bannerHeight = this.banner.clientHeight;
-			this.$store.contentOffset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
-			this.$refs.content.style.top = `${this.$store.contentOffset}px`;
 		},
 		ResizeSensor(element, callback)
 		{ // https://stackoverflow.com/a/47965966

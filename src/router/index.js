@@ -400,6 +400,7 @@ const routes = [
 		props: true,
 		component: User,
 		meta: {
+			applyOffset: false,
 			title: (to) => `Retrieving user @${to.params.handle}...`,
 			metaTags: [
 				(to) => {

@@ -6,45 +6,39 @@
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 		</div>
+		<main ref='main'>
 		<div ref='profile' class='user'>
-			<div class='tabs'>
-				<ol>
-					<li>
-						<button @click='selectTab' class='posts'>
-							Posts
-						</button>
-					</li>
+			<Loading :isLoading='isIconLoading' class='profile-image'>
+				<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
+					<div class='add-image-button'>
+						<i class='material-icons-round'>add_a_photo</i>
+					</div>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+				</button>
+				<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+				</router-link>
+			</Loading>
+			<div class='profile-buttons'>
+				<div class='tabs'>
+					<button @click='selectTab' class='posts'>
+						Posts
+					</button>
 					<div class='separator'></div>
-					<li>
-						<button @click='selectTab' class='tags'>
-							Tags
-						</button>
-					</li>
+					<button @click='selectTab' class='tags'>
+						Tags
+					</button>
 					<div class='separator'></div>
-					<li>
-						<button @click='selectTab' class='favs'>
-							Favorites
-						</button>
-					</li>
-				</ol>
+					<button @click='selectTab' class='favs'>
+						Favorites
+					</button>
+				</div>
 				<Button @click='following = !following' :red='following'>
 					<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
 					{{following ? 'Unfollow' : 'Follow'}}
 				</Button>
 			</div>
-			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
-				<div class='add-image-button'>
-					<i class='material-icons-round'>add_a_photo</i>
-				</div>
-				<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-			</a>
-			<Loading :isLoading='isIconLoading' class='profile-image' v-else>
-				<router-link :to='`/p/${user?.icon}`' class='thumbnail'>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-				</router-link>
-			</Loading>
 		</div>
-		<main ref='main'>
 			<div class='user-info'>
 				<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created' :short='isMobile'/></Loading></p>
 				<div class='user-field' v-if='isEditing'>
@@ -58,7 +52,7 @@
 						<Loading :isLoading='!user' span>{{user?.name || 'username'}}</Loading>
 						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
 						<i class='kheina-icons' v-if='user?.admin' :title="`@${user.handle} is an admin`">sword</i>
-						<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a mod`">verified_user</i>
+						<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a moderator`">verified_user</i>
 						<i class='material-icons-round' v-else-if='user?.verified' :title="`@${user.handle} is a verified artist`">verified</i>
 					</h2>
 					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
@@ -72,7 +66,7 @@
 			</Button>
 			<div v-show='tab === "posts"'>
 				<ol class='results'>
-					<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} hasn't made any posts yet.</p>
+					<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || handle}} hasn't made any posts yet.</p>
 					<li v-for='post in posts || 3' v-else>
 						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 					</li>
@@ -81,7 +75,7 @@
 			<div v-show='tab === "tags"'>
 				<div class='results'>
 					<p v-if='!userTags' style='text-align: center'>loading tags...</p>
-					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || user?.handle}} has no tags.</p>
+					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || handle}} has no tags.</p>
 					<ul class='tags' v-else>
 						<li v-for='tag in userTags'>
 							<Tag :inheritedTags='tag.inherited_tags' v-bind='tag'/>
@@ -269,7 +263,6 @@ export default {
 		this.tabElement = document.querySelector(`button.${this.tab}`);
 		this.tabElement.style.borderBottomWidth = '5px';
 		this.tabElement.style.paddingBottom = '20px';
-		this.onResize();
 		if (this.$route.query?.edit)
 		{ this.isEditing = true; }
 	},
@@ -281,18 +274,12 @@ export default {
 	},
 	methods: {
 		selectTab(event) {
-			console.log(this.tabElement, event.target);
 			this.tabElement.style.borderBottomWidth = '0';
 			this.tabElement.style.paddingBottom = '25px';
 			this.tab = event.target.className;
 			event.target.style.borderBottomWidth = '5px';
 			event.target.style.paddingBottom = '20px';
 			this.tabElement = event.target;
-		},
-		onResize() {
-			this.$refs.header.style.height = `${this.$refs.main.getBoundingClientRect().top + window.scrollY - this.$store.bannerHeight}px`;
-			this.$refs.header.style.top = `-${this.$store.contentOffset - this.$store.bannerHeight}px`;
-			this.$refs.profile.style.marginTop = `${(window.innerHeight / 2) - this.$store.contentOffset}px`;
 		},
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
@@ -313,11 +300,6 @@ export default {
 			console.log(this.$refs.cropper.getResult());
 		},
 	},
-	watch: {
-		resizeTrigger() {
-			this.onResize();
-		},
-	},
 }
 </script>
 
@@ -325,14 +307,12 @@ export default {
 main {
 	background: var(--bg1color);
 	position: relative;
-	padding: 7em 25px 25px;
-	margin: 25px auto 0;
-}
-.mobile main {
-	padding-top: 5em;
+	padding: 0 25px 25px;
+	margin: 0 auto;
 }
 
 .user-name {
+	white-space: nowrap;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
@@ -361,12 +341,14 @@ main {
 	color: var(--icolor);
 }
 
-.thumbnail {
+.profile-image {
 	border-radius: 5px;
 	border: solid 3px var(--bordercolor);
-	background: var(--bordercolor);
-	display: flex;
+	background: var(--bg2color);
 	overflow: hidden;
+}
+.thumbnail {
+	display: flex;
 	position: relative;
 }
 .thumbnail, .thumbnail img, .thumbnail video {
@@ -380,17 +362,18 @@ main {
 
 
 .header {
-	top: -25px;
-	height: 0;
-	width: 100vw;
-	position: absolute;
+	top: 0;
+	height: 25vw;
+	width: 100%;
+	position: relative;
 	background-size: cover;
 	background-position: center;
 }
 
 .user {
 	width: 70vw;
-	margin: 0 auto calc(-6.25em - 28px);
+	margin: 0 auto -6em;
+	top: calc(-6.25em - 3px);
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-end;
@@ -403,7 +386,8 @@ main {
 	pointer-events: all;
 }
 .mobile .user {
-	margin: 0 25px calc(-4em - 28px);
+	top: calc(-4em - 3px);
+	margin-bottom: calc(-4em + 22px);
 	width: auto;
 }
 
@@ -424,7 +408,7 @@ ul, ol {
 	padding: 0;
 }
 
-.tabs {
+.profile-buttons {
 	position: absolute;
 	top: calc(6.25em + 3px);
 	left: calc(12.5em + 6px);
@@ -433,18 +417,16 @@ ul, ol {
 	justify-content: space-between;
 	align-items: center;
 }
-.mobile .tabs {
+.mobile .profile-buttons {
 	top: calc(4em + 3px);
 	left: calc(8em + 6px);
 	width: calc(100% - 8em - 6px);
 }
 
-.tabs ol {
+.tabs {
 	display: flex;
 }
-.tabs ol li {
-}
-.tabs ol button {
+.tabs button {
 	padding: 25px;
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
@@ -452,7 +434,7 @@ ul, ol {
 	transition: ease var(--fadetime);
 	border-bottom: solid 0 var(--icolor);
 }
-.tabs ol .separator {
+.tabs .separator {
 	background: var(--bordercolor);
 	width: 1px;
 }
