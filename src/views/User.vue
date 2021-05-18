@@ -27,9 +27,9 @@
 						</button>
 					</li>
 				</ol>
-				<Button>
-					<i class='material-icons'>person_add_alt</i>
-					Follow
+				<Button @click='following = !following' :red='following'>
+					<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
+					{{following ? 'Unfollow' : 'Follow'}}
 				</Button>
 			</div>
 			<a class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
@@ -186,6 +186,7 @@ export default {
 			userTags: null,
 			tabElement: null,
 			tab: 'posts',
+			following: false,
 		};
 	},
 	created() {
