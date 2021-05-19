@@ -8,7 +8,7 @@
 				<Loading :isLoading='isLoading' span class='name'>
 					<p>{{name}}</p>
 					<i class='kheina-icons' v-if='admin' :title="`@${handle} is an admin`">sword</i>
-					<i class='material-icons' v-else-if='mod' :title="`@${handle} is a mod`">verified_user</i>
+					<i class='material-icons' v-else-if='mod' :title="`@${handle} is a moderator`">verified_user</i>
 					<i class='material-icons-round' v-else-if='verified' :title="`@${handle} is a verified artist`">verified</i>
 				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>

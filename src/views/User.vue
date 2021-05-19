@@ -32,6 +32,11 @@
 					<button @click='selectTab' class='favs'>
 						Favorites
 					</button>
+					<div class='separator' v-if='isSelf'></div>
+					<button @click='selectTab' class='uploads' v-if='isSelf'>
+						<i class='material-icons' title='this tab is only visible to you'>lock</i>
+						Uploads
+					</button>
 				</div>
 				<Button @click='following = !following' :red='following'>
 					<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
@@ -86,6 +91,14 @@
 			<div v-show='tab === "favs"'>
 				<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
 			</div>
+			<div v-show='tab === "uploads"'>
+				<ol class='results'>
+					<p v-if='posts?.length === 0' style='text-align: center'>you haven't made any posts yet.</p>
+					<li v-for='post in posts || 3' v-else>
+						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+					</li>
+				</ol>
+			</div>
 			<ThemeMenu/>
 		</main>
 		<div class='image-uploader' v-if='isUploadBanner || isUploadIcon' @mousedown='disableUploads'>
@@ -94,7 +107,7 @@
 					ref='cropper'
 					src='https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png'
 					:stencil-props='{
-						aspectRatio: 1,
+						aspectRatio: isUploadBanner ? 4 : 1,
 					}'
 					:style='`height: 800px; width: 800px`'
 				/>
@@ -184,6 +197,11 @@ export default {
 		};
 	},
 	created() {
+		const tabs = new Set(['posts', 'tags', 'favs']);
+
+		if (tabs.has(this.$route.query?.tab))
+		{ this.tab = this.$route.query.tab; }
+
 		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
 			.then(response => {
 				response.json().then(r => {
@@ -210,54 +228,7 @@ export default {
 				console.error(error);
 			});
 
-		khatch(`${postsHost}/v1/fetch_user_posts`, {
-				method: 'POST',
-				body: {
-					handle: this.handle,
-				},
-			})
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{ this.posts = r; }
-					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
-					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
-					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
-				});
-			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
-
-		khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{ this.userTags = r; }
-					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
-					else if (response.status === 404)
-					{ this.userTags = []; }
-					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
-				});
-			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
+			this.fetchData();
 	},
 	mounted() {
 		this.tabElement = document.querySelector(`button.${this.tab}`);
@@ -280,15 +251,112 @@ export default {
 			event.target.style.borderBottomWidth = '5px';
 			event.target.style.paddingBottom = '20px';
 			this.tabElement = event.target;
+
+			this.fetchData();
+		},
+		fetchData() {
+			switch (this.tab) {
+				case 'posts' :
+					this.posts = null;
+
+					khatch(`${postsHost}/v1/fetch_user_posts`, {
+							method: 'POST',
+							body: {
+								handle: this.handle,
+							},
+						})
+						.then(response => {
+							response.json().then(r => {
+								if (response.status < 300)
+								{ this.posts = r; }
+								else if (response.status === 401)
+								{ this.errorMessage = r.error; }
+								else if (response.status === 404)
+								{ this.errorMessage = r.error; }
+								else
+								{
+									this.errorMessage = apiErrorMessage;
+									this.errorDump = r;
+								}
+							});
+						})
+						.catch(error => {
+							this.errorMessage = apiErrorMessage;
+							this.error = error;
+							console.error(error);
+						});
+					break;
+
+				case 'tags' :
+					this.userTags = null;
+
+					khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`)
+						.then(response => {
+							response.json().then(r => {
+								if (response.status < 300)
+								{ this.userTags = r; }
+								else if (response.status === 401)
+								{ this.errorMessage = r.error; }
+								else if (response.status === 404)
+								{ this.userTags = []; }
+								else
+								{
+									this.errorMessage = apiErrorMessage;
+									this.errorDump = r;
+								}
+							});
+						})
+						.catch(error => {
+							this.errorMessage = apiErrorMessage;
+							this.error = error;
+							console.error(error);
+						});
+					break;
+
+				case 'favs' :
+					// nothing, yet
+					break;
+
+				case 'uploads' :
+					this.posts = null;
+
+					khatch(`${postsHost}/v1/fetch_my_posts`, {
+							method: 'POST',
+							body: {
+								sort: 'hot',
+							},
+						})
+						.then(response => {
+							response.json().then(r => {
+								if (response.status < 300)
+								{ this.posts = r; }
+								else if (response.status === 401)
+								{ this.errorMessage = r.error; }
+								else if (response.status === 404)
+								{ this.errorMessage = r.error; }
+								else
+								{
+									this.errorMessage = apiErrorMessage;
+									this.errorDump = r;
+								}
+							});
+						})
+						.catch(error => {
+							this.errorMessage = apiErrorMessage;
+							this.error = error;
+							console.error(error);
+						});
+					break;
+			}
 		},
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
 		},
 		toggleIconUpload() {
-			this.isUploadIcon = !this.isUploadIcon;
+			this.isUploadIcon = true;
 		},
 		toggleBannerUpload() {
-			this.isUploadBanner = !this.isUploadBanner;
+			this.isUploadBanner = true;
 		},
 		disableUploads() {
 			this.isUploadBanner = this.isUploadIcon = false;
@@ -437,6 +505,15 @@ ul, ol {
 .tabs .separator {
 	background: var(--bordercolor);
 	width: 1px;
+}
+
+.uploads {
+	display: flex;
+	justify-content: center;
+}
+.uploads i {
+	margin: 0 0.25em 0 0;
+	font-size: 1.2em;
 }
 
 .user-info {

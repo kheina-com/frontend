@@ -26,7 +26,7 @@
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<div class='bottom-margin' v-if='media'>
+		<div class='bottom-margin' v-if='media && !isLoading'>
 			<Thumbnail :post='postId' :size='1200'  v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
@@ -329,7 +329,7 @@ export default {
 	background: var(--bg1color);
 }
 .post .loading {
-	--bg1color: var(--bg2color);
+	/* --bg1color: var(--bg2color); */
 }
 .post .edit-button {
 	background: var(--bg2color);
