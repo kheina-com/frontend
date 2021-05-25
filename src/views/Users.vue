@@ -20,7 +20,7 @@
 		<ThemeMenu />
 	</main>
 	<main v-else>
-		<Error :dump='errorDump' :message='errorMessage' />
+		<Error v-model:dump='errorDump' v-model:message='errorMessage' />
 		<ThemeMenu />
 	</main>
 </template>

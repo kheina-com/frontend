@@ -1,5 +1,5 @@
 <template>
-	<main style='display: block' v-if='isError'>
+	<main class='error' v-if='isError'>
 		<Title static='center'>Error</Title>
 		<Subtitle style='margin: 0 0 25px' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
 		<p class='message'>Hmmm, looks like something went wrong.</p>
@@ -11,7 +11,8 @@
 			<CopyText :content='dump' />
 		</div>
 		<div style='display: flex; justify-content: center'>
-			<router-link :to='`/`' class='interactable'>home</router-link>
+			<button class='interactable' @click='$emit(`update:message`, null); $emit(`update:dump`, null)'>Back</button>
+			<router-link :to='`/`' class='interactable'>Home</router-link>
 		</div>
 		<ThemeMenu />
 	</main>
@@ -44,11 +45,15 @@ export default {
 			return Boolean(this.message);
 		},
 	},
+	emits: [
+		'update:message',
+		'update:dump',
+	],
 }
 </script>
 
 <style scoped>
-main {
+main.error {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
@@ -84,10 +89,7 @@ pre.message
 	border-radius: 3px;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
-@media screen and (max-width:90rem)
-{
-	p.message
-	{ padding: 0; }
+button {
+	margin-right: 25px;
 }
-
 </style>

@@ -12,10 +12,6 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		short: {
-			type: Boolean,
-			default: false,
-		},
 	},
 	data() {
 		return {
@@ -24,7 +20,7 @@ export default {
 	},
 	mounted() {
 		if (this.live)
-		{ setTimeout(this.updateSelf, 1000); }
+		{ setTimeout(this.updateSelf, this.timeout()); }
 	},
 	computed: {
 		date() {
@@ -44,18 +40,20 @@ export default {
 			if (this.displayAbsolute)
 			{ return; }
 			this.$forceUpdate();
-			setTimeout(this.updateSelf, 1000);
+			setTimeout(this.updateSelf, this.timeout());
 		},
 		relativeTime()
-		{ return this.prettyTime((Date.now() - this.date.valueOf()) / 1000, 0) + (this.short ? '' : ' ago'); },
+		{ return this.prettyTime((Date.now() - this.date.valueOf()) / 1000, 0) + ' ago'; },
 		toggleDisplayType() {
 			this.displayAbsolute = !this.displayAbsolute;
 			if (!this.displayAbsolute && this.live)
-			{ setTimeout(this.updateSelf, 1000); }
+			{ setTimeout(this.updateSelf); }
 		},
-		prettyTime(time, fixed=2) {
-			if (time === null)
-			{ return null; }
+		timeout() {
+			let conversion = 1000 / this.conversion((Date.now() - this.date.valueOf()) / 1000).conversion;
+			return (this.date.valueOf() - Date.now()) % conversion;
+		},
+		conversion(time) {
 			let conversion = 1;
 			let unit = 'second';
 			if (time > 31556952)
@@ -68,7 +66,7 @@ export default {
 				conversion = 1 / 2592000;
 				unit = 'month';
 			}
-			else if (time > 86400) // 24 hours in seconds
+			else if (time > 86400)
 			{
 				conversion = 1 / 86400;
 				unit = 'day';
@@ -98,8 +96,14 @@ export default {
 				conversion = 1000;
 				unit = 'millisecond';
 			}
-			let value = (time * conversion).toFixed(fixed);
-			return value + ' ' + unit + (value === '1' ? '' : 's');
+			return { conversion, unit };
+		},
+		prettyTime(time, fixed=2) {
+			if (time === null)
+			{ return null; }
+			const conversion = this.conversion(time);
+			let value = (time * conversion.conversion).toFixed(fixed);
+			return value + ' ' + conversion.unit + (value === '1' ? '' : 's');
 		},
 	},
 }

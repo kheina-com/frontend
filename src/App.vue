@@ -61,13 +61,14 @@ export default {
 	},
 	methods: {
 		onResize() {
+			let offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
+			this.$store.contentOffset = offset - this.banner.clientHeight;
+
 			if (this.$route?.meta.applyOffset !== undefined ? this.$route.meta.applyOffset : true)
-			{
-				let offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
-				this.$refs.content.style.top = `${offset}px`;
-			}
+			{ this.$refs.content.style.top = `${offset}px`; }
 			else
-			{ this.$refs.content.style.top = `${this.banner.clientHeight}px`;}
+			{ this.$refs.content.style.top = `${this.banner.clientHeight}px`; }
+
 			this.resizeTrigger = !this.resizeTrigger;
 		},
 		ResizeSensor(element, callback)

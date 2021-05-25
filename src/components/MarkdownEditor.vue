@@ -42,7 +42,7 @@ export default {
 		},
 	},
 	emits: [
-		'update:value'
+		'update:value',
 	],
 	data() {
 		return {

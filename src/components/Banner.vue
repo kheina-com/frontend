@@ -22,9 +22,9 @@
 				<i class='material-icons-round' style='position: absolute; right: -1.8em; top: 0; margin: 0.39em' title='Search help'>help_outline</i>
 			</form>
 			<div class='profile' v-if='isLoggedIn'>
-				<i class='material-icons icon' title='You are verified!' v-if='isVerified'>verified</i>
 				<i class='kheina-icons icon' title='You are an admin' v-if='isAdmin'>sword</i>
-				<i class='material-icons icon' title='You are a moderator' v-if='isMod'>verified_user</i>
+				<i class='material-icons icon' title='You are a moderator' v-else-if='isMod'>verified_user</i>
+				<i class='material-icons icon' title='You are verified!' v-else-if='isVerified'>verified</i>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
 						<Thumbnail :post='userIcon' v-model:isLoading='isIconLoading' :size='200'/>
@@ -458,6 +458,10 @@ i {
 button:hover /*, button:active, button:focus */
 { color: var(--icolor); }
 
+.mobile .search-bar {
+	font-size: 1.5em;
+}
+
 .search-bar .cover {
 	position: absolute;
 	background: linear-gradient(to right, #0000 0, var(--bg2color) 50%);
@@ -494,11 +498,14 @@ ol > :last-child {
 .create {
 	position: absolute;
     margin: 0 0 0 2.5rem;
-	padding: 0 1em 0 0;
+	padding: 0;
     height: 2.5rem;
 	z-index: 10;
 	left: 0;
 	top: 0;
+}
+.open .create {
+	padding-right: 1em;
 }
 .icon {
 	display: flex;
@@ -515,12 +522,10 @@ ol > :last-child {
 	position: relative;
 	right: 25vw;
 	right: calc(max(20vw, 18em) + 3px);
+	margin-left: -0.25em;
 }
 .create i {
 	margin: 0;
-}
-.create p {
-	margin-left: -0.25em;
 }
 html.mobile .open .create p, .open .create p {
 	right: 0;
@@ -551,4 +556,47 @@ html.mobile .create .icon {
 .theme-menu {
 	margin-top: 25px;
 }
+
+/* MOBILE */
+.mobile .menu ol {
+	font-size: 2rem;
+}
+.mobile .menu .inner {
+	margin-top: 5rem;
+}
+.mobile .banner {
+	padding-top: 4rem;
+}
+.mobile .nav {
+	height: 4rem;
+}
+.mobile .nav-backdrop {
+	height: 4rem;
+}
+
+.mobile .profile-image {
+	width: 3.5rem;
+	height: 3.5rem;
+	margin: 0.25rem;
+}
+.mobile .profile-image *  {
+	display: block;
+	width: 3.5rem;
+	height: 3.5rem;
+}
+
+.mobile ol {
+	height: calc(100% - 7rem);
+}
+.mobile .create {
+    margin-left: 4rem;
+    height: 4rem;
+	font-size: 2rem;
+}
+.mobile .icon {
+	width: 4rem;
+	height: 4rem;
+	font-size: 2rem;
+}
+
 </style>

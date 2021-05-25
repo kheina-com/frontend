@@ -2,7 +2,7 @@
 	<main v-if='!isError'>
 		<Loading :lazy='false' :isLoading='isLoading'>
 		<Title static='center'>Create Account</Title>
-		<form action='' method='post' enctype='multipart/form-data'>
+		<div class='form'>
 			<div>
 				<span>Email</span>
 				<input ref='email' type='email' id='email' name='email' value='' class='interactable text'>
@@ -14,15 +14,16 @@
 					<Submit :onClick='sendCreate'>Submit »</Submit>
 				</div>
 			</div>
-		</form>
+		</div>
 		</Loading>
 		<ThemeMenu />
 	</main>
-	<Error :dump='errorDump' :message='errorMessage' v-else/>
+	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-else/>
 </template>
 
 <script>
 import { ref } from 'vue';
+import { khatch } from '@/utilities';
 import { apiErrorMessage, accountHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -74,17 +75,12 @@ export default {
 	methods: {
 		sendCreate() {
 			this.isLoading = true;
-			fetch(`${accountHost}/v1/create`,
-				{
+			khatch(`${accountHost}/v1/create`, {
 					method:'POST',
-					credentials: 'include',
-					headers: {
-						'content-type': 'application/json',
-					},
-					body: JSON.stringify({
-						name: this.$refs.email.value.trim(),
+					body: {
+						name: this.$refs.name.value.trim(),
 						email: this.$refs.email.value.trim(),
-					}),
+					},
 				})
 				.then(response => {
 					if (response.status < 300)
@@ -93,10 +89,16 @@ export default {
 					{
 						response.json()
 							.then(r => {
-								this.errorMessage = apiErrorMessage;
-								this.errorDump = r;
+								if (response.status === 400)
+								{ this.errorMessage = r.error; }
+								else
+								{
+									this.errorMessage = apiErrorMessage;
+									this.errorDump = r;
+								}
 							});
 					}
+					this.isLoading = false;
 				})
 				.catch(error => {
 					this.errorMessage = apiErrorMessage;
@@ -115,18 +117,18 @@ main {
 	padding: 25px;
 	display: block;
 }
-form div {
+.form div {
 	width: 100%;
 }
-form .text
+.form .text
 {
 	width: 100%;
 	color: var(--textcolor);
 	padding: 0.5em;
 }
-form .text:hover
+.form .text:hover
 { color: var(--icolor); }
-form .text:active, form .text:focus
+.form .text:active, .form .text:focus
 { color: var(--textcolor); }
 input
 {
@@ -138,7 +140,7 @@ input
 	font-size: 1em;
 	padding: 1px 3px;
 }
-form
+.form
 {
 	width: 800px;
 	max-width: calc(100% - 50px);
@@ -147,14 +149,14 @@ form
 	align-items: flex-end;
 	margin: 0 auto;
 }
-form span
+.form span
 {
 	position: relative;
 	left: 25px;
 	padding: 0 0 2px;
 	display: inline-block;
 }
-form .maxrating, form .integratedsearch
+.form .maxrating, .form .integratedsearch
 {
 	margin: -14px 0 9px;
 	padding: 0.5em 0;
@@ -162,28 +164,28 @@ form .maxrating, form .integratedsearch
 	width: calc(100% - 80px);
 	line-height: 3;
 }
-form .maxrating input, form .integratedsearch input, form .submit input
+.form .maxrating input, .form .integratedsearch input, .form .submit input
 {
 	top: -100vh;
 	opacity: 0;
 	height: 0;
 	width: 0;
 }
-form input
+.form input
 { margin: 0 0 25px; }
-form p
+.form p
 { margin-left: 25px; }
 
-form input.submit
+.form input.submit
 { float: right; }
-form input#passwordRepeat
+.form input#passwordRepeat
 {
 	width: 225px;
 	width: calc(100% - 125px);
 }
-form input.valid:active, form input.valid:focus
+.form input.valid:active, .form input.valid:focus
 { border-color: var(--valid); }
-form input.error:active, form input.error:focus
+.form input.error:active, .form input.error:focus
 { border-color: var(--error); }
 
 label.hide-password
@@ -207,18 +209,18 @@ i
 input#hide-password
 { display: none; }
 
-form
+.form
 { max-width: 350px; }
-form input.submit
+.form input.submit
 { float: right; }
-form input#passwordRepeat
+.form input#passwordRepeat
 {
 	width: 225px;
 	width: calc(100% - 125px);
 }
-form input.valid:active, form input.valid:focus
+.form input.valid:active, .form input.valid:focus
 { border-color: var(--valid); }
-form input.error:active, form input.error:focus
+.form input.error:active, .form input.error:focus
 { border-color: var(--error); }
 
 label.hide-password

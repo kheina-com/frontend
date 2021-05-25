@@ -1,6 +1,6 @@
 <template>
 	<main >
-		<Error :dump='errorDump' :message='errorMessage'>
+		<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 			<button class='interactable edit-button' @click='editToggle' v-if='editable'>
 				<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
 			</button>

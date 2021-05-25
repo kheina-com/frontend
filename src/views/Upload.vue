@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<Error :dump='errorDump' :message='errorMessage'>
+	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 		<main>
 			<Title static='center'>New Post</Title>
 			<Subtitle static='center'>Your post will be live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>

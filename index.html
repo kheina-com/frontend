@@ -28,14 +28,10 @@
 				margin: 0;
 				text-align: center;
 				width: 100%;
-				display: flex;
-				align-items: center;
-				height: 100vh;
+				background: #1E1F25;
 			}
 			main div {
-				background: #1E1F25;
 				padding: 25px;
-				width: 100%;
 			}
 			main img {
 				max-width: 100px;
@@ -46,10 +42,12 @@
 		<main>
 			<div>
 				<img src='/assets/logo.png'>
-				<h1>Javascript Required</h1>
-				<p>
-					kheina.com runs on Vue 3 and requires javascript to run correctly. Please check your browser settings and enable javascript.
-				</p>
+				<noscript>
+					<h1>Javascript Required</h1>
+					<p>
+						kheina.com runs on Vue 3 and requires javascript to run correctly. Please check your browser settings and enable javascript.
+					</p>
+				</noscript>
 			</div>
 		</main>
 	</body>

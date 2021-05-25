@@ -2,34 +2,58 @@
 	<main v-if='!isError'>
 		<Loading :lazy='false' :isLoading='isLoading' v-if='tokenProvided'>
 			<Title static='center'>Create Account</Title>
-			<form action='' method='post' enctype='multipart/form-data' class='centerx'>
-				<div>
-					<span>Name</span>
-					<input ref='name' type='name' id='name' name='name' value='' class='interactable text'>
+			<div class='form centerx'>
+				<div class='form-field'>
+					<div class='field-title'>
+						<span>
+							Name
+							<i class='material-icons' title='the name that will be displayed on the site. can be anything you want.'>help_outline</i>
+						</span>
+						<span style='color: var(--error)'>
+							invalid
+						</span>
+					</div>
+					<input ref='name' type='name' id='name' name='name' class='interactable text'>
 				</div>
-				<div>
-					<span>Handle</span>
-					<input ref='handle' type='handle' id='handle' name='handle' value='' class='interactable text'>
+				<div class='form-field'>
+					<div class='field-title'>
+						<span>
+							Handle
+							<i class='material-icons' title='your unique identifier across the site. determines your URL.'>help_outline</i>
+						</span>
+						<span style='color: var(--error)'>
+							unavailable
+						</span>
+					</div>
+					<input ref='handle' type='handle' id='handle' name='handle' class='interactable text'>
 				</div>
-				<div>
-					<span>Password</span>
-					<input ref='password' type='password' id='password' name='password' value='' autocomplete='off' class='interactable text'><i class='material-icons' ref='passwordPwned' :style='`color: var(--${passwordColor})`'>{{passwordIcon}}</i>
-					<input ref='passwordRepeat' type='password' id='passwordRepeat' name='passwordRepeat' value='' autocomplete='off' :class='`interactable text ${passwordRepeatClass}`'>
+				<div class='form-field'>
+					<div class='field-title'>
+						<span>
+							Password
+							<i class='material-icons' title='must be at least 10 characters.'>help_outline</i>
+						</span>
+						<span style='color: var(--error)'>
+							invalid
+						</span>
+					</div>
+					<input ref='password' type='password' id='password' name='password' autocomplete='off' class='interactable text'><i class='material-icons pwned-icon' ref='passwordPwned' :style='`color: var(--${passwordColor})`'>{{passwordIcon}}</i>
+					<input ref='passwordRepeat' type='password' id='passwordRepeat' name='passwordRepeat' placeholder='re-enter password' autocomplete='off' :class='`interactable text ${passwordRepeatClass}`'>
 				</div>
-				<Submit :onClick='sendFinalize'>Submit »</Submit>
-			</form>
+				<Button @click='sendFinalize'>Create Account</Button>
+			</div>
 		</Loading>
 		<p style='text-align: center' v-else>
 			Please check your email for a link to finish creating your account.
 		</p>
 		<ThemeMenu />
 	</main>
-	<Error :dump='errorDump' :message='errorMessage' v-else/>
+	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-else/>
 </template>
 
 <script>
 import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { khatch } from '@/utilities';
 import { apiErrorMessage, accountHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -38,7 +62,7 @@ import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
-import Submit from '@/components/Submit.vue'
+import Button from '@/components/Button.vue'
 
 export default {
 	name: 'FinalizeAccount',
@@ -74,7 +98,7 @@ export default {
 		};
 	},
 	components: {
-		Submit,
+		Button,
 		ThemeMenu,
 		Loading,
 		Sidebar,
@@ -103,26 +127,23 @@ export default {
 	methods: {
 		sendFinalize() {
 			this.isLoading = true;
-			fetch(`${accountHost}/v1/finalize`,
-				{
+			khatch(`${accountHost}/v1/finalize`, {
 					method:'POST',
-					credentials: 'include',
-					headers: {
-						'content-type': 'application/json',
-					},
-					body: JSON.stringify({
+					body: {
 						token: this.tokenProvided ? this.$route.query.token : this.$refs.token.value,
 						name: this.$refs.name.value,
 						handle: this.$refs.handle.value,
 						password: this.$refs.password.value,
-					}),
+					},
 				})
 				.then(response => {
+					if (response.status < 300)
+					{ this.$router.push('/account/login'); }
 					response.json()
 						.then(r => {
 							console.log(r);
-							if (response.status < 300)
-							{ this.$router.push('/account/login'); }
+							if (response.status === 400)
+							{ this.errorMessage = r.error; }
 							else if (response.status === 401)
 							{ this.errorMessage = r.error; }
 							else if (response.status === 404)
@@ -133,6 +154,7 @@ export default {
 								this.errorDump = r;
 							}
 						});
+					this.isLoading = false;
 				})
 				.catch(error => {
 					this.errorMessage = apiErrorMessage;
@@ -337,21 +359,18 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
-	overflow: hidden;
 	display: block;
 }
-form div {
-	width: 100%;
-}
-form .text
+
+.form .text
 {
 	width: 100%;
 	color: var(--textcolor);
 	padding: 0.5em;
 }
-form .text:hover
+.form .text:hover
 { color: var(--icolor); }
-form .text:active, form .text:focus
+.form .text:active, .form .text:focus
 { color: var(--textcolor); }
 input
 {
@@ -363,7 +382,7 @@ input
 	font-size: 1em;
 	padding: 1px 3px;
 }
-form
+.form
 {
 	width: 800px;
 	max-width: calc(100% - 50px);
@@ -371,14 +390,7 @@ form
 	flex-direction: column;
 	align-items: flex-end;
 }
-form span
-{
-	position: relative;
-	left: 25px;
-	padding: 0 0 2px;
-	display: inline-block;
-}
-form .maxrating, form .integratedsearch
+.form .maxrating, .form .integratedsearch
 {
 	margin: -14px 0 9px;
 	padding: 0.5em 0;
@@ -386,28 +398,28 @@ form .maxrating, form .integratedsearch
 	width: calc(100% - 80px);
 	line-height: 3;
 }
-form .maxrating input, form .integratedsearch input, form .submit input
+.form .maxrating input, .form .integratedsearch input, .form .submit input
 {
 	top: -100vh;
 	opacity: 0;
 	height: 0;
 	width: 0;
 }
-form input
+.form input
 { margin: 0 0 25px; }
-form p
+.form p
 { margin-left: 25px; }
 
-form input.submit
+.form input.submit
 { float: right; }
-form input#passwordRepeat
+.form input#passwordRepeat
 {
 	width: 225px;
 	width: calc(100% - 125px);
 }
-form input.valid:active, form input.valid:focus
+.form input.valid:active, .form input.valid:focus
 { border-color: var(--valid); }
-form input.error:active, form input.error:focus
+.form input.error:active, .form input.error:focus
 { border-color: var(--error); }
 
 label.hide-password
@@ -419,30 +431,22 @@ label.hide-password
 }
 label.hide-password svg
 { height: 24px; }
-i
-{
-	position: absolute;
-	right: 10px;
-	display: inline-block;
-	pointer-events: none;
-	margin-top: 7px;
-	height: 24px;
-}
+
 input#hide-password
 { display: none; }
 
-form
+.form
 { max-width: 350px; }
-form input.submit
+.form input.submit
 { float: right; }
-form input#passwordRepeat
+.form input#passwordRepeat
 {
 	width: 225px;
 	width: calc(100% - 125px);
 }
-form input.valid:active, form input.valid:focus
+.form input.valid:active, .form input.valid:focus
 { border-color: var(--valid); }
-form input.error:active, form input.error:focus
+.form input.error:active, .form input.error:focus
 { border-color: var(--error); }
 
 label.hide-password
@@ -465,5 +469,33 @@ label.hide-password svg
 
 .centerx {
 	margin: 0 auto;
+}
+
+.form-field {
+	width: 100%;
+}
+
+.field-title span {
+	display: flex;
+	align-items: center;
+}
+.field-title {
+	padding: 0 0 2px;
+	margin-left: 25px;
+	display: flex;
+	justify-content: space-between;
+}
+
+i {
+	font-size: 1.2em;
+	margin-left: 0.25em;
+}
+
+.pwned-icon {
+	position: absolute;
+	height: 24px;
+	margin-top: 7px;
+	display: inline-block;
+	pointer-events: none;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<Error :dump='errorDump' :message='errorMessage'>
+	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>

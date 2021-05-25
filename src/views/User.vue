@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
-	<Error :dump='errorDump' :message='errorMessage'>
+	<div v-if='!errorMessage'>
 		<div ref='header' class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
@@ -23,22 +23,31 @@
 				<div class='tabs'>
 					<button @click='selectTab' class='posts'>
 						Posts
+						<div class='border'/>
 					</button>
-					<div class='separator'></div>
+					<div class='separator'/>
+					<button @click='selectTab' class='sets'>
+						Sets
+						<div class='border'/>
+					</button>
+					<div class='separator'/>
 					<button @click='selectTab' class='tags'>
 						Tags
+						<div class='border'/>
 					</button>
-					<div class='separator'></div>
+					<div class='separator'/>
 					<button @click='selectTab' class='favs'>
 						Favorites
+						<div class='border'/>
 					</button>
-					<div class='separator' v-if='isSelf'></div>
-					<button @click='selectTab' class='uploads' v-if='isSelf'>
-						<i class='material-icons' title='this tab is only visible to you'>lock</i>
+					<div class='separator' v-if='isSelf'/>
+					<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
+						<i class='material-icons'>lock</i>
 						Uploads
+						<div class='border'/>
 					</button>
 				</div>
-				<Button @click='following = !following' :red='following'>
+				<Button @click='following = !following' :red='following' v-show='!isSelf'>
 					<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
 					{{following ? 'Unfollow' : 'Follow'}}
 				</Button>
@@ -77,6 +86,9 @@
 					</li>
 				</ol>
 			</div>
+			<div v-show='tab === "sets"'>
+				<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
+			</div>
 			<div v-show='tab === "tags"'>
 				<div class='results'>
 					<p v-if='!userTags' style='text-align: center'>loading tags...</p>
@@ -114,7 +126,8 @@
 				<Button @click.prevent.stop='showData'><i class='material-icons'>science</i>test</Button>
 			</div>
 		</div>
-	</Error>
+	</div>
+	<Error v-model:dump='errorDump' v-model:message='errorMessage' :style='`margin-top: 25vw`' v-else/>
 </template>
 
 <script>
@@ -232,8 +245,7 @@ export default {
 	},
 	mounted() {
 		this.tabElement = document.querySelector(`button.${this.tab}`);
-		this.tabElement.style.borderBottomWidth = '5px';
-		this.tabElement.style.paddingBottom = '20px';
+		this.tabElement.lastChild.style.borderBottomWidth = '5px';
 		if (this.$route.query?.edit)
 		{ this.isEditing = true; }
 	},
@@ -245,11 +257,11 @@ export default {
 	},
 	methods: {
 		selectTab(event) {
-			this.tabElement.style.borderBottomWidth = '0';
-			this.tabElement.style.paddingBottom = '25px';
+			this.tabElement.lastChild.style.borderBottomWidth = '0';
+			// this.tabElement.style.paddingBottom = '25px';
 			this.tab = event.target.className;
-			event.target.style.borderBottomWidth = '5px';
-			event.target.style.paddingBottom = '20px';
+			event.target.lastChild.style.borderBottomWidth = '5px';
+			// event.target.style.paddingBottom = '20px';
 			this.tabElement = event.target;
 
 			this.fetchData();
@@ -496,15 +508,22 @@ ul, ol {
 }
 .tabs button {
 	padding: 25px;
+	position: relative;
+}
+.tabs .separator {
+	background: var(--bordercolor);
+	width: 1px;
+}
+.tabs .border {
+	position: absolute;
+	width: 100%;
+	left: 0;
+	bottom: 0;
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 	border-bottom: solid 0 var(--icolor);
-}
-.tabs .separator {
-	background: var(--bordercolor);
-	width: 1px;
 }
 
 .uploads {
@@ -514,6 +533,7 @@ ul, ol {
 .uploads i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
+	pointer-events: none;
 }
 
 .user-info {

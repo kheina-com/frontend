@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<Error :dump='errorDump' :message='errorMessage'>
+	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 		<main>
 			<Title>Report Content</Title>
 			<div class='container'>
