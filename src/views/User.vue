@@ -47,12 +47,16 @@
 						<div class='border'/>
 					</button>
 				</div>
-				<Button @click='following = !following' :red='following' v-show='!isSelf'>
+				<Button @click='following = !following' :red='following' v-show='!(isSelf || isMobile)'>
 					<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
 					{{following ? 'Unfollow' : 'Follow'}}
 				</Button>
 			</div>
 		</div>
+			<Button @click='following = !following' :red='following' v-show='!isSelf && isMobile' style='margin-bottom: 25px'>
+				<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
+				{{following ? 'Unfollow' : 'Follow'}}
+			</Button>
 			<div class='user-info'>
 				<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created' :short='isMobile'/></Loading></p>
 				<div class='user-field' v-if='isEditing'>
