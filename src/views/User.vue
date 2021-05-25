@@ -37,7 +37,7 @@
 					</button>
 					<div class='separator'/>
 					<button @click='selectTab' class='favs'>
-						Favorites
+						{{isMobile ? 'Favs' : 'Favorites'}}
 						<div class='border'/>
 					</button>
 					<div class='separator' v-if='isSelf'/>
@@ -63,7 +63,7 @@
 					<i class='material-icons'>public</i>
 					<input v-model='user.website' class='interactable text'>
 				</div>
-				<p v-else-if='user?.website' class='user-field'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+				<p v-else-if='user?.website' class='user-field website'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
 				<div class='user-name'>
 					<input v-model='user.name' class='interactable text' v-if='isEditing'>
 					<h2 v-else>
@@ -424,6 +424,9 @@ main {
 .user-field span button:hover {
 	color: var(--icolor);
 }
+.user-field.website {
+	word-break: break-all;
+}
 
 .profile-image {
 	border-radius: 5px;
@@ -551,6 +554,14 @@ ul, ol {
 	width: auto;
 }
 
+.description {
+	margin: 0 auto 25px;
+	width: 70vw;
+}
+.mobile .description {
+	width: auto;
+}
+
 ol.results li {
 	margin: 0 0 25px;
 }
@@ -589,8 +600,5 @@ ul.tags > :last-child {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-}
-.description {
-	margin-bottom: 25px;
 }
 </style>

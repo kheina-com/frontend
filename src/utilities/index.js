@@ -172,6 +172,7 @@ const userLinks = {
 	u: 'https://www.reddit.com/u',
 	tw: 'https://www.twitch.tv',
 	yt: 'https://www.youtube.com/c',
+	tg: 'https://t.me',
 };
 
 export const markdownTokenizer = {

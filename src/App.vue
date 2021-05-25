@@ -407,7 +407,7 @@ html
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;
 	--linecolor: var(--bordercolor);
-	--borderhover: #F29B17;
+	--borderhover: var(--icolor);
 	--subtle: #EEEEEE80;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
@@ -431,11 +431,20 @@ html.light
 	--bg2color: #D8D9E0;
 	--textcolor: #222222;
 	--bordercolor: #2D333A;
-	--borderhover: #F28817;
 	--subtle: #00000080;
 	--shadowcolor: #6D718680;
 	--activeshadowcolor: #6D7186B3;
 }
+
+html.midnight
+{
+	--icolor: #2676D5;
+	--bg0color: #151416;
+	--bg1color: #000000;
+	--bg2color: #151416;
+	--bg3color: #000000;
+}
+
 
 html.e621
 {
@@ -530,7 +539,6 @@ html.terminal
 	--bg2color: #000000;
 	--textcolor: #00FF00;
 	--bordercolor: #00FF00;
-	--borderhover: #008000;
 	--subtle: #008000;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
@@ -546,7 +554,6 @@ html.solarized-dark
 	--bg3color: var(--bg1color);
 	--textcolor: #93a1a1;
 	--bordercolor: #586e75;
-	--borderhover: #b58900;
 	--subtle: #657b83;
 	--shadowcolor: #002b36;
 	--activeshadowcolor: #2aa19820;
@@ -571,7 +578,6 @@ html.solarized-light
 	--bg2color: #fdf6e3;
 	--textcolor: #586e75;
 	--bordercolor: #586e75;
-	--borderhover: #cb4b16;
 	--subtle: #839496;
 	--shadowcolor: #93a1a1;
 	--activeshadowcolor: #dc322f40;
@@ -596,7 +602,6 @@ html.furaffinity
 	--bg2color: #6A7283;
 	--textcolor: #FFF;
 	--bordercolor: #DCDCDC;
-	--borderhover: #AFAFAF;
 	--subtle: #CFCFCF;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
@@ -616,7 +621,6 @@ html.discord
 	--textcolor: #DCDDDE;
 	--bordercolor: #1E1F23;
 	--linecolor: var(--bg1color);
-	--borderhover: #7289DA;
 	--subtle: #72767D;
 	--shadowcolor: #202225;
 	--activeshadowcolor: #202225;
@@ -631,7 +635,6 @@ html.xfire
 	--textcolor: #ABC6E3;
 	--bordercolor: #00020A;
 	--linecolor: var(--subtle);
-	--borderhover: #3D73D7;
 	--subtle: #ABC6E3A0;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;

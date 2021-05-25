@@ -22,7 +22,7 @@ export default {
 	padding: 1em;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
-html.solarized-dark .upload-bubble, html.solarized-light .upload-bubble {
+html.solarized-dark .upload-bubble, html.solarized-light .upload-bubble, html.midnight .upload-bubble {
 	background: var(--bg1color);
 }
 .upload-bubble:hover {

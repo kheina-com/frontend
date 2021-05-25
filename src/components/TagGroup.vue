@@ -76,7 +76,7 @@ ol li {
 h4 {
 	margin: 0.25em 0;
 }
-html.solarized-dark .loading, html.solarized-light .loading {
+html.solarized-dark .loading, html.solarized-light .loading, html.midnight .loading {
 	--bg2color: var(--bg1color);
 }
 </style>

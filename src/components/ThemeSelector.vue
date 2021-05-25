@@ -6,6 +6,7 @@
 				<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme.theme'>
 					<option value='kheina'>kheina</option>
 					<option value='light'>light mode</option>
+					<option value='midnight'>midnight</option>
 					<option value='e621'>e621</option>
 					<option value='youtube'>youtube</option>
 					<option value='wikipedia'>wikipedia</option>

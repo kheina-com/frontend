@@ -510,7 +510,7 @@ main {
 	transition: none;
 	max-width: calc(100vw - max(20vw, 300px) - 25px);
 }
-html.solarized-dark .media, html.solarized-light .media {
+html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	--bg2color: var(--bg1color);
 }
 .sidebar {
