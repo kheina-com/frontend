@@ -181,7 +181,7 @@ html {
 }
 body {
 	min-height: 100vh;
-	display: flex;
+	display: block;
 	background-size: cover;
 	background-position: center;
 }
@@ -389,11 +389,6 @@ h3#percent
 
 .source span
 { padding: 0; }
-
-
-body
-{ display: block !important;}
-
 
 html
 {
