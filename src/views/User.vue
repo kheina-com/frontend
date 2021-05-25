@@ -58,7 +58,7 @@
 				{{following ? 'Unfollow' : 'Follow'}}
 			</Button>
 			<div class='user-info'>
-				<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created' :short='isMobile'/></Loading></p>
+				<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created'/></Loading></p>
 				<div class='user-field' v-if='isEditing'>
 					<i class='material-icons'>public</i>
 					<input v-model='user.website' class='interactable text'>

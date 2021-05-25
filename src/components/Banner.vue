@@ -5,14 +5,6 @@
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 			</button>
-			<router-link to='/create' class='create' title='Create new post'>
-				<div class='icon'>
-					<i class='material-icons'>upload</i>
-				</div>
-				<p>
-					Upload
-				</p>
-			</router-link>
 		</div>
 		<div class='nav' :style='`background: ${navBgColor}`'>
 			<form class='search-bar' v-on:submit.prevent='noop'>
@@ -45,6 +37,14 @@
 		</div>
 		<Markdown :content='message' v-else-if='message'/>
 		<div class='menu' ref='menu'>
+			<router-link to='/create' class='create' title='Create new post'>
+				<div class='icon'>
+					<i class='material-icons'>upload</i>
+				</div>
+				<p>
+					Upload
+				</p>
+			</router-link>
 			<ol class='inner'>
 				<li v-if='environment == "local"'>
 					<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
@@ -301,7 +301,7 @@ export default {
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
-	height: 100vh;
+	height: 100%;
 	top: 0;
 	left: -25vw;
 	left: calc(min(-20vw, -18em) - 3px);
@@ -378,7 +378,7 @@ html.mobile .menu {
 	position: fixed;
 }
 
-.menu-button i {
+.menu-button i, .create i {
 	font-size: 1.5em;
 }
 .markdown {
@@ -497,7 +497,7 @@ ol > :last-child {
 }
 .create {
 	position: absolute;
-    margin: 0 0 0 2.5rem;
+    margin: 0 0 0 5rem;
 	padding: 0;
     height: 2.5rem;
 	z-index: 10;
@@ -506,6 +506,10 @@ ol > :last-child {
 }
 .open .create {
 	padding-right: 1em;
+}
+.create .icon {
+	position: fixed;
+	left: 2.5rem;
 }
 .icon {
 	display: flex;
@@ -529,10 +533,6 @@ ol > :last-child {
 }
 html.mobile .open .create p, .open .create p {
 	right: 0;
-}
-html.mobile .create .icon {
-	left: 99vw;
-	left: calc(95vw + 3px);
 }
 
 .edit-message-button {
@@ -562,7 +562,7 @@ html.mobile .create .icon {
 	font-size: 2rem;
 }
 .mobile .menu .inner {
-	margin-top: 5rem;
+	margin-top: 4rem;
 }
 .mobile .banner {
 	padding-top: 4rem;
@@ -585,18 +585,21 @@ html.mobile .create .icon {
 	height: 3.5rem;
 }
 
+.mobile .create .icon {
+	left: 4rem;
+}
+
 .mobile ol {
 	height: calc(100% - 7rem);
 }
 .mobile .create {
-    margin-left: 4rem;
+    margin-left: 8rem;
     height: 4rem;
 	font-size: 2rem;
 }
 .mobile .icon {
 	width: 4rem;
 	height: 4rem;
-	font-size: 2rem;
+	font-size: 1.8rem;
 }
-
 </style>
