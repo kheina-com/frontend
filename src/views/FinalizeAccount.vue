@@ -10,7 +10,6 @@
 							<i class='material-icons' title='the name that will be displayed on the site. can be anything you want.'>help_outline</i>
 						</span>
 						<span style='color: var(--error)'>
-							invalid
 						</span>
 					</div>
 					<input ref='name' type='name' id='name' name='name' class='interactable text'>
@@ -22,7 +21,6 @@
 							<i class='material-icons' title='your unique identifier across the site. determines your URL.'>help_outline</i>
 						</span>
 						<span style='color: var(--error)'>
-							unavailable
 						</span>
 					</div>
 					<input ref='handle' type='handle' id='handle' name='handle' class='interactable text'>
@@ -34,7 +32,6 @@
 							<i class='material-icons' title='must be at least 10 characters.'>help_outline</i>
 						</span>
 						<span style='color: var(--error)'>
-							invalid
 						</span>
 					</div>
 					<input ref='password' type='password' id='password' name='password' autocomplete='off' class='interactable text'><i class='material-icons pwned-icon' ref='passwordPwned' :style='`color: var(--${passwordColor})`'>{{passwordIcon}}</i>
