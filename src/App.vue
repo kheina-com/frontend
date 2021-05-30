@@ -133,6 +133,9 @@ export default {
 html.mobile {
 	font-size: 30px;
 }
+body.menu-open {
+	overflow: hidden;
+}
 
 .expand {
 	position: absolute;
@@ -190,7 +193,6 @@ body, html {
 	margin: 0;
 	padding: 0;
 	color: var(--textcolor);
-	overflow-x: hidden;
 	scrollbar-color: #4D535A #151416;
 }
 a, input, label, textarea
@@ -411,6 +413,7 @@ html
 	--subtle: #EEEEEE80;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
+	--screen-cover: #00000080;
 
 	--pink: #aa23aa;
 	--green: forestgreen;
@@ -557,6 +560,7 @@ html.solarized-dark
 	--subtle: #657b83;
 	--shadowcolor: #002b36;
 	--activeshadowcolor: #2aa19820;
+	--screen-cover: #002b3680;
 
 	--error: #dc322f;
 	--warning: #cb4b16;
@@ -581,6 +585,7 @@ html.solarized-light
 	--subtle: #839496;
 	--shadowcolor: #93a1a1;
 	--activeshadowcolor: #dc322f40;
+	--screen-cover: #fdf6e380;
 
 	--error: #dc322f;
 	--warning: #cb4b16;

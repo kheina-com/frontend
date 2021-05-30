@@ -244,17 +244,9 @@ export default {
 		toggleMenu() {
 			this.menuOpen = !this.menuOpen;
 			if (this.menuOpen)
-			{
-				this.$refs.menu.classList.add('open');
-				this.$refs.screenCover.classList.add('open');
-				this.$refs.menuButton.classList.add('open');
-			}
+			{ document.body.classList.add('menu-open'); }
 			else
-			{
-				this.$refs.menu.classList.remove('open');
-				this.$refs.screenCover.classList.remove('open');
-				this.$refs.menuButton.classList.remove('open');
-			}
+			{ document.body.classList.remove('menu-open'); }
 		},
 		toggleEditMessage() {
 			this.editMessage = !this.editMessage;
@@ -307,13 +299,14 @@ export default {
 	left: calc(min(-20vw, -18em) - 3px);
 	z-index: 1;
 }
-html.mobile .menu.open, .menu.open {
-	left: 0;
-}
+
 html.mobile .menu {
 	width: 75vw;
 	left: -75vw;
 	left: calc(-75vw - 3px);
+}
+html.mobile .menu-open .menu, .menu-open .menu {
+	left: 0;
 }
 
 .screen-cover {
@@ -330,8 +323,8 @@ html.mobile .menu {
 	pointer-events: none;
 }
 
-.screen-cover.open {
-	background: #0008;
+.menu-open .screen-cover {
+	background: var(--screen-cover);
 	pointer-events: all;
 }
 
@@ -374,7 +367,7 @@ html.mobile .menu {
 	position: fixed;
 	z-index: 103;
 }
-.menu-button.open {
+.menu-open .menu-button {
 	position: fixed;
 }
 
@@ -504,7 +497,7 @@ ol > :last-child {
 	left: 0;
 	top: 0;
 }
-.open .create {
+.menu-open .create {
 	padding-right: 1em;
 }
 .create .icon {
@@ -531,7 +524,7 @@ ol > :last-child {
 .create i {
 	margin: 0;
 }
-html.mobile .open .create p, .open .create p {
+html.mobile .menu-open .create p, .menu-open .create p {
 	right: 0;
 }
 

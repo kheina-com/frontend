@@ -62,7 +62,7 @@ export default {
 			time -= minutes;
 			let hours = time % 86400;
 			time -= hours;
-			// days is now the time left in time
+			// days is now the time left in `time`
 			return `${String(time/86400).padStart(2, '0')}:${String(hours/3600).padStart(2, '0')}:${String(minutes/60).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 		},
 		toggleDisplayType() {

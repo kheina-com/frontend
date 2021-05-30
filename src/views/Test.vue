@@ -3,6 +3,11 @@
 		<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 			<Countdown :endtime='date'/>
 			<Timestamp :datetime='datetime' live/>
+			<div>
+				<Button @click='audio.play()'>
+					play me
+				</Button>
+			</div>
 		</Error>
 		<ThemeMenu />
 	</main>
@@ -13,6 +18,7 @@ import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
+import Button from '@/components/Button.vue';
 
 
 export default {
@@ -22,14 +28,17 @@ export default {
 		Error,
 		Countdown,
 		Timestamp,
+		Button,
 	},
 	data() {
 		return {
 			date: new Date(Date.now() + 500000000).toString(),
 			datetime: new Date(Date.now()).toString(),
+			audio: null,
 		}
 	},
 	mounted() {
+		this.audio = new Audio('assets/sounds/notify.ogg');
 	},
 	computed: {
 	},
