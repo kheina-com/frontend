@@ -5,7 +5,7 @@
 	<ol>
 		<li v-if='tags !== null' v-for='tag in tags'>
 			<router-link :to='`/t/${tag}`' :style='`color: var(--${tagColorMap[group]})`'>
-				{{tag.replace(/_/g, ' ')}}
+				{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
 			</router-link>
 		</li>
 		<li v-else v-for='i in loadingMap[group]'>

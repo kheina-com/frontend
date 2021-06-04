@@ -5,7 +5,8 @@
 			<slot v-if='hasSlot && showSlot'/>
 			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' :lazy='false' style='border-radius: 3px'/>
 			<div v-else>
-				<i class='material-icons'>upload_file</i>Drag or Click to Upload File
+				<i class='material-icons'>upload_file</i>
+				{{isMobile ? 'Tap' : 'Click or Drag'}} to Upload File
 			</div>
 		</label>
 	</form>
@@ -13,6 +14,7 @@
 
 <script>
 import { ref } from 'vue';
+import { isMobile } from '@/utilities';
 import Media from '@/components/Media.vue';
 
 export default {
@@ -62,6 +64,7 @@ export default {
 		},
 	},
 	computed: {
+		isMobile,
 		hasSlot() {
 			return Boolean(this.$slots.default);
 		},

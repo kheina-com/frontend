@@ -343,6 +343,9 @@ export default {
 }
 .post-header {
 	margin-bottom: 25px;
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
 }
 .nested .post-header {
 	--bg2color: var(--bg1color);

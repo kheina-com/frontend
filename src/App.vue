@@ -442,8 +442,8 @@ html.light
 html.midnight
 {
 	--icolor: #2676D5;
-	--bg0color: #151416;
-	--bg1color: #000000;
+	--bg0color: #000000;
+	--bg1color: #151416;
 	--bg2color: #151416;
 	--bg3color: #000000;
 }

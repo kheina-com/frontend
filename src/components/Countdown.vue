@@ -49,7 +49,7 @@ export default {
 			{ return; }
 			this.$forceUpdate();
 			if (this.date.valueOf() - Date.now() > 0)
-			{ setTimeout(this.updateSelf, 1000); }
+			{ setTimeout(this.updateSelf, this.timeout()); }
 		},
 		relativeTime() {
 			let time = (this.date.valueOf() - Date.now()) / 1000;
@@ -68,55 +68,30 @@ export default {
 		toggleDisplayType() {
 			this.displayAbsolute = !this.displayAbsolute;
 			if (!this.displayAbsolute && this.live)
-			{ setTimeout(this.updateSelf, 1000); }
+			{ setTimeout(this.updateSelf, this.timeout()); }
 		},
-		prettyTime(time, fixed=2) {
-			if (time === null)
-			{ return null; }
+		timeout() {
+			return (this.date.valueOf() - Date.now()) % 1000;
+		},
+		conversion(time) {
 			let conversion = 1;
-			let unit = 'second';
 			if (time > 31556952)
-			{
-				conversion = 1 / 31556952;
-				unit = 'year';
-			}
+			{ conversion = 1 / 31556952; }
 			else if (time > 2592000)
-			{
-				conversion = 1 / 2592000;
-				unit = 'month';
-			}
-			else if (time > 86400) // 24 hours in seconds
-			{
-				conversion = 1 / 86400;
-				unit = 'day';
-			}
+			{ conversion = 1 / 2592000; }
+			else if (time > 86400)
+			{ conversion = 1 / 86400; }
 			else if (time > 3600)
-			{
-				conversion = 1 / 3600;
-				unit = 'hour';
-			}
+			{ conversion = 1 / 3600; }
 			else if (time > 60)
-			{
-				conversion = 1 / 60;
-				unit = 'minute';
-			}
-			// else if (time < 0.000001)
-			// {
-			// 	conversion = 1000000000;
-			// 	unit = 'nanosecond';
-			// }
-			// else if (time < 0.001)
-			// {
-			// 	conversion = 1000000;
-			// 	unit = 'microsecond';
-			// }
-			// else if (time < 1)
-			// {
-			// 	conversion = 1000;
-			// 	unit = 'millisecond';
-			// }
-			let value = (time * conversion).toFixed(fixed);
-			return value + ' ' + unit + (value === '1' ? '' : 's');
+			{ conversion = 1 / 60; }
+			else if (time < 0.000001)
+			{ conversion = 1000000000; }
+			else if (time < 0.001)
+			{ conversion = 1000000; }
+			else if (time < 1)
+			{ conversion = 1000; }
+			return conversion;
 		},
 	},
 }

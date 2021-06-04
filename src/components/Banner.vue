@@ -5,7 +5,13 @@
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 			</button>
-		</div>
+			<router-link to='/notifications' class='icon notifications' title=''>
+				<i class='material-icons-round'>notifications</i>
+				<div class='counter' v-show='false'>
+					<span>1</span>
+				</div>
+			</router-link>
+			</div>
 		<div class='nav' :style='`background: ${navBgColor}`'>
 			<form class='search-bar' v-on:submit.prevent='noop'>
 				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
@@ -51,6 +57,17 @@
 				</li>
 				<li>
 					<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
+				</li>
+				<li>
+					<router-link to='/search'>
+						<div class='notifications'>
+							<i class='material-icons-round'>notifications</i>
+							<div class='counter' v-show='false'>
+								<span>1</span>
+							</div>
+						</div>
+						Notifications
+					</router-link>
 				</li>
 				<li v-if='isMod'>
 					<router-link to='/mod'>
@@ -467,7 +484,6 @@ ol {
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	overflow: auto;
 	height: 80%;
 	height: calc(100% - 3.5rem);
 }
@@ -490,7 +506,7 @@ ol > :last-child {
 }
 .create {
 	position: absolute;
-    margin: 0 0 0 5rem;
+    margin: 0 0 0 7.5rem;
 	padding: 0;
     height: 2.5rem;
 	z-index: 10;
@@ -502,7 +518,7 @@ ol > :last-child {
 }
 .create .icon {
 	position: fixed;
-	left: 2.5rem;
+	left: 5rem;
 }
 .icon {
 	display: flex;
@@ -510,6 +526,33 @@ ol > :last-child {
 	align-items: center;
 	width: 2.5rem;
 	height: 2.5rem;
+}
+.menu-button .notifications {
+	position: fixed;
+	left: 2.5rem;
+	top: 0;
+}
+.notifications {
+	display: flex;
+	position: relative;
+}
+.notifications .counter {
+	position: absolute;
+	top: 0;
+	right: -1.8em;
+	width: 5em;
+	pointer-events: none;
+}
+.menu .notifications .counter {
+	top: -0.5em;
+	right: -1.2em;
+}
+.notifications .counter span {
+	font-size: 0.5em;
+	background: var(--red);
+	padding: 0.25em 0.5em;
+	border-radius: 1em;
+	color: var(--textcolor);
 }
 .create p {
 	-webkit-transition: ease var(--fadetime);
@@ -579,14 +622,14 @@ html.mobile .menu-open .create p, .menu-open .create p {
 }
 
 .mobile .create .icon {
-	left: 4rem;
+	left: 8rem;
 }
 
 .mobile ol {
 	height: calc(100% - 7rem);
 }
 .mobile .create {
-    margin-left: 8rem;
+    margin-left: 12rem;
     height: 4rem;
 	font-size: 2rem;
 }
@@ -594,5 +637,8 @@ html.mobile .menu-open .create p, .menu-open .create p {
 	width: 4rem;
 	height: 4rem;
 	font-size: 1.8rem;
+}
+.mobile .menu-button .notifications {
+	left: 4rem;
 }
 </style>

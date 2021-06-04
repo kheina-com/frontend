@@ -22,7 +22,7 @@
 					</div>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
-						<div>
+						<div class='post-title'>
 							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
 							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
 							<div class='privacy'>
@@ -86,7 +86,7 @@
 					</div>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
-						<div>
+						<div class='post-title'>
 							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
 							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
 							<div class='privacy'>
@@ -546,6 +546,11 @@ a.profile:hover {
 .post-header {
 	display: flex;
 	margin-bottom: 25px;
+}
+.post-title {
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
 }
 .edit-button {
 	margin-left: 0.5em;
