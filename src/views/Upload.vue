@@ -513,6 +513,8 @@ export default {
 			this.uploadFile();
 			this.savePost();
 
+			this.privacy = this.update.privacy;
+
 			khatch(`${uploadHost}/v1/update_privacy`, {
 					method: 'POST',
 					body: {
