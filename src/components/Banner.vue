@@ -5,13 +5,13 @@
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 			</button>
-			<router-link to='/notifications' class='icon notifications' title=''>
+			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='isLoggedIn && !isMobile'>
 				<i class='material-icons-round'>notifications</i>
-				<div class='counter' v-show='false'>
+				<div class='counter' v-show='true'>
 					<span>1</span>
 				</div>
 			</router-link>
-			</div>
+		</div>
 		<div class='nav' :style='`background: ${navBgColor}`'>
 			<form class='search-bar' v-on:submit.prevent='noop'>
 				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
@@ -43,7 +43,7 @@
 		</div>
 		<Markdown :content='message' v-else-if='message'/>
 		<div class='menu' ref='menu'>
-			<router-link to='/create' class='create' title='Create new post'>
+			<router-link to='/create' :class='(isLoggedIn ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
 				<div class='icon'>
 					<i class='material-icons'>upload</i>
 				</div>
@@ -58,11 +58,11 @@
 				<li>
 					<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
 				</li>
-				<li>
-					<router-link to='/search'>
+				<li v-if='isLoggedIn'>
+					<router-link to='/notifications'>
 						<div class='notifications'>
 							<i class='material-icons-round'>notifications</i>
-							<div class='counter' v-show='false'>
+							<div class='counter' v-show='true'>
 								<span>1</span>
 							</div>
 						</div>
@@ -252,7 +252,7 @@ export default {
 		getMediaThumbnailUrl,
 		runSearchQuery() {
 			const query = this.$refs.search.value;
-			this.$router.push(query ? '/q/' + encodeURIComponent(this.$refs.search.value) : '/');
+			this.$router.push(query ? (query.includes(' ') ? '/q/' : '/t/') + encodeURIComponent(this.$refs.search.value) : '/');
 		},
 		signOut() {
 			deleteCookie('kh-auth');
@@ -513,12 +513,18 @@ ol > :last-child {
 	left: 0;
 	top: 0;
 }
+.create.logged-out {
+	margin-left: 5rem;
+}
 .menu-open .create {
 	padding-right: 1em;
 }
 .create .icon {
 	position: fixed;
 	left: 5rem;
+}
+.create.logged-out .icon {
+	left: 2.5rem;
 }
 .icon {
 	display: flex;
@@ -622,14 +628,14 @@ html.mobile .menu-open .create p, .menu-open .create p {
 }
 
 .mobile .create .icon {
-	left: 8rem;
+	left: 4rem;
 }
 
 .mobile ol {
 	height: calc(100% - 7rem);
 }
 .mobile .create {
-    margin-left: 12rem;
+    margin-left: 8rem;
     height: 4rem;
 	font-size: 2rem;
 }

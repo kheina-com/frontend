@@ -243,10 +243,6 @@ main {
 h2 {
 	margin: 0 0 10px;
 }
-.results {
-	display: flex;
-	flex-direction: column;
-}
 .profile {
 	padding: 0.25em;
 	margin: -0.25em;

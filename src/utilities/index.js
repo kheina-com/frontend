@@ -99,7 +99,7 @@ export function edit(regex, opt)
 	return obj;
 }
 
-export async function khatch(url, options={ })
+export async function khatch(url, options={ }, attempts=3)
 {
 	if (url.match(/https:\/\/(?:\w+\.)?kheina.com|http:\/\/localhost/))
 	{
@@ -123,7 +123,19 @@ export async function khatch(url, options={ })
 		options.body = JSON.stringify(options.body);
 	}
 
-	let response = await fetch(url, options);
+	let attempt = 1;
+	let response;
+
+	while (attempt <= attempts)
+	{
+		response = await fetch(url, options);
+
+		// we only want to retry when we think it might succeed
+		if (response.status <= 500)
+		{ break; }
+
+		await new Promise(r => setTimeout(r, attempt ** 2 * 1000));
+	}
 
 	return response;
 }

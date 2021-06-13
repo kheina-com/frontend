@@ -262,10 +262,8 @@ export default {
 	methods: {
 		selectTab(event) {
 			this.tabElement.lastChild.style.borderBottomWidth = '0';
-			// this.tabElement.style.paddingBottom = '25px';
 			this.tab = event.target.className;
 			event.target.lastChild.style.borderBottomWidth = '5px';
-			// event.target.style.paddingBottom = '20px';
 			this.tabElement = event.target;
 
 			this.fetchData();
@@ -304,29 +302,30 @@ export default {
 					break;
 
 				case 'tags' :
-					this.userTags = null;
-
-					khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`)
-						.then(response => {
-							response.json().then(r => {
-								if (response.status < 300)
-								{ this.userTags = r; }
-								else if (response.status === 401)
-								{ this.errorMessage = r.error; }
-								else if (response.status === 404)
-								{ this.userTags = []; }
-								else
-								{
-									this.errorMessage = apiErrorMessage;
-									this.errorDump = r;
-								}
+					if (this.userTags == null)
+					{
+						khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`)
+							.then(response => {
+								response.json().then(r => {
+									if (response.status < 300)
+									{ this.userTags = r; }
+									else if (response.status === 401)
+									{ this.errorMessage = r.error; }
+									else if (response.status === 404)
+									{ this.userTags = []; }
+									else
+									{
+										this.errorMessage = apiErrorMessage;
+										this.errorDump = r;
+									}
+								});
+							})
+							.catch(error => {
+								this.errorMessage = apiErrorMessage;
+								this.error = error;
+								console.error(error);
 							});
-						})
-						.catch(error => {
-							this.errorMessage = apiErrorMessage;
-							this.error = error;
-							console.error(error);
-						});
+					}
 					break;
 
 				case 'favs' :
@@ -514,7 +513,7 @@ ul, ol {
 	display: flex;
 }
 .tabs button {
-	padding: 25px;
+	padding: 20px 25px;
 	position: relative;
 }
 .tabs .separator {
@@ -560,6 +559,18 @@ ul, ol {
 }
 .mobile .description {
 	width: auto;
+}
+
+@media only screen and (max-width: 900px) {
+	.user {
+		width: auto;
+	}
+	.description {
+		width: auto;
+	}
+	.user-info {
+		width: auto;
+	}
 }
 
 ol.results li {

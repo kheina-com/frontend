@@ -3,7 +3,7 @@
 	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 		<main>
 			<Title static='center'>New Post</Title>
-			<Subtitle static='center'>Your post will be live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
+			<Subtitle static='center'>Your post {{privacy == 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
 			<div class='form'>
 				<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadUnavailable'>
 					<div class='field'>
@@ -26,14 +26,14 @@
 				<div class='field'>
 					<div>
 						<span>Title</span>
-						<input class='interactable text' style='display: block; width: 100%' v-model='title'>
+						<input class='interactable text' style='display: block; width: 100%' v-model='update.title'>
 					</div>
 				</div>
 				<div class='field'>
 					<div>
 						<span>Description</span>
 						<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
-						<MarkdownEditor v-model:value='description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;'/>
+						<MarkdownEditor v-model:value='update.description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;'/>
 					</div>
 				</div>
 				<div class='field'>
@@ -57,7 +57,7 @@
 						<span>Privacy</span>
 						<RadioButtons
 							name='privacy'
-							v-model:value='privacy'
+							v-model:value='update.privacy'
 							:data="[
 								{ content: 'public' },
 								{ content: 'unlisted' },
@@ -78,7 +78,7 @@
 						<span>Rating</span>
 						<RadioButtons
 							name='rating'
-							v-model:value='rating'
+							v-model:value='update.rating'
 							:data="[
 								{ content: 'general' },
 								{ content: 'mature' },
@@ -164,6 +164,7 @@ export default {
 			mime: null,
 			filename: null,
 			file: null,
+			update: { },
 
 			// request fields
 			postId: null,
@@ -175,39 +176,40 @@ export default {
 		};
 	},
 	created() {
-		khatch(`${tagsHost}/v1/lookup_tags`, {
-			method: 'POST',
-			body: {
-				tag: '',
-			},
-		})
-		.then(response => {
-			response.json().then(r => {
-				if (response.status < 300)
-				{
-					let serverTags = { };
-					for (const [group, tags] of Object.entries(r)) {
-						Object.keys(tags).forEach(k => tags[k]['group'] = group);
-						serverTags = Object.assign(serverTags, tags);
-					}
-					this.serverTags = serverTags;
-				}
-				else if (response.status === 401)
-				{ this.errorMessage = r.error; }
-				else if (response.status === 404)
-				{ this.errorMessage = r.error; }
-				else
-				{
-					this.errorMessage = apiErrorMessage;
-					this.errorDump = r;
-				}
-			});
-		})
-		.catch(error => {
-			this.errorMessage = apiErrorMessage;
-			this.errorDump = error;
-			console.error(error);
-		});
+		// khatch(`${tagsHost}/v1/lookup_tags`, {
+		// 	method: 'POST',
+		// 	body: {
+		// 		tag: '',
+		// 	},
+		// })
+		// .then(response => {
+		// 	response.json().then(r => {
+		// 		if (response.status < 300)
+		// 		{
+		// 			let serverTags = { };
+		// 			for (const [group, tags] of Object.entries(r)) {
+		// 				Object.keys(tags).forEach(k => tags[k]['group'] = group);
+		// 				serverTags = Object.assign(serverTags, tags);
+		// 			}
+		// 			this.serverTags = serverTags;
+		// 		}
+		// 		else if (response.status === 401)
+		// 		{ this.errorMessage = r.error; }
+		// 		else if (response.status === 404)
+		// 		{ this.errorMessage = r.error; }
+		// 		else
+		// 		{
+		// 			this.errorMessage = apiErrorMessage;
+		// 			this.errorDump = r;
+		// 		}
+		// 	});
+		// })
+		// .catch(error => {
+		// 	this.errorMessage = apiErrorMessage;
+		// 	this.errorDump = error;
+		// 	console.error(error);
+		// });
+
 		if (this.$route.query?.post)
 		{
 			this.postId = this.$route.query.post;
@@ -218,10 +220,10 @@ export default {
 						console.log(r);
 						if (response.status < 300)
 						{
-							this.description = r.description;
-							this.title = r.title;
-							this.privacy = r.privacy;
-							this.rating = r.rating;
+							this.description = this.update.description = r.description;
+							this.title = this.update.title = r.title;
+							this.privacy = this.update.privacy = r.privacy;
+							this.rating = this.update.rating = r.rating;
 							this.mime = r.media_type?.mime_type;
 							if (r.filename) {
 								this.uploadDone = true;
@@ -345,6 +347,7 @@ export default {
 				errorMessage: this.errorMessage,
 				errorDump: this.errorDump,
 				file: this.file,
+				update: this.update,
 				title: this.title,
 				description: this.description,
 				privacy: this.privacy,
@@ -376,6 +379,7 @@ export default {
 
 			ajax.upload.addEventListener('progress', (event) => this.uploadProgress = (event.loaded / event.total) * 100, false);
 			ajax.addEventListener('load', (event) => {
+				this.mime = this.file.type;
 				this.uploadDone = true;
 				this.isUploading = false;
 				this.file = null;
@@ -394,28 +398,52 @@ export default {
 			ajax.send(formdata);
 		},
 		savePost() {
-			let activeTags = tagSplit(this.$refs.tagDiv.textContent);
 			this.showData();
 
-			khatch(`${uploadHost}/v1/update_post`, {
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						title: this.title ? this.title.trim() : null,
-						description: this.description ? this.description.trim() : null,
-						rating: this.rating,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						console.log(r);
+			let sendUpdate = false;
+
+			if (this.title !== this.update.title)
+			{
+				sendUpdate = true;
+				this.title = this.update.title;
+			}
+
+			if (this.description !== this.update.description)
+			{
+				sendUpdate = true;
+				this.description = this.update.description;
+			}
+
+			if (this.rating !== this.update.rating)
+			{
+				sendUpdate = true;
+				this.rating = this.update.rating;
+			}
+
+			if (sendUpdate)
+			{
+				khatch(`${uploadHost}/v1/update_post`, {
+						method: 'POST',
+						body: {
+							post_id: this.postId,
+							title: this.title ? this.title.trim() : null,
+							description: this.description ? this.description.trim() : null,
+							rating: this.rating,
+						},
+					})
+					.then(response => {
+						response.json().then(r => {
+							console.log(r);
+						});
+					})
+					.catch(error => {
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = error;
+						console.error(error);
 					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.errorDump = error;
-					console.error(error);
-				});
+			}
+
+			let activeTags = tagSplit(this.$refs.tagDiv.textContent);
 
 			let removedTags = [];
 			this.savedTags.forEach(tag => {

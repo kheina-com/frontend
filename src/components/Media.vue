@@ -104,6 +104,7 @@ export default {
 <style scoped>
 .media img, .media video {
 	width: 100%;
+	display: block;
 }
 .media p {
 	align-self: center;

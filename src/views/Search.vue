@@ -160,10 +160,6 @@ main {
 	padding: 25px;
 	display: block;
 }
-.results {
-	display: flex;
-	flex-direction: column;
-}
 ol {
 	list-style-type: none;
 	margin: 0;
