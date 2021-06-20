@@ -43,11 +43,16 @@
 					</div>
 					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
 					<Loading :isLoading='isLoading'>
-						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
-						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
-						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
-						<Report :data='{ post: postId }' v-if='!isLoading'/>
+						<Subtitle static='left' v-if='post?.privacy === "unpublished"'>unpublished</Subtitle>
+						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
+						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' live/></Subtitle>
 					</Loading>
+					<div style='width: 100%; display: flex; justify-content: space-between; align-items: center' v-show='!isLoading'>
+						<Report :data='{ post: postId }' v-if='!isLoading'/>
+						<button style='color: var(--subtle)'><i class='material-icons-round' style='display: block'>repeat</i></button>
+						<button style='color: var(--subtle)'><i class='material-icons-round' style='display: block'>favorite</i></button>
+						<button style='color: var(--subtle)'><i class='material-icons-round' style='display: block'>more_horiz</i></button>
+					</div>
 					<ThemeMenu />
 				</main>
 				<ol class='comments'>
@@ -67,7 +72,7 @@
 			</div>
 		</div>
 		<div class='content' v-else>
-			<Media v-if='isLoading || post.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' />
+			<Media v-if='isLoading || post.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' loadingStyle='100vw; 100vw'/>
 			<div class='container'>
 				<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 				<main>
@@ -493,7 +498,7 @@ export default {
 main {
 	background: var(--bg1color);
 	grid-area: main;
-	border-radius: 3px 0 0 3px;
+	border-radius: var(--border-radius) 0 0 3px;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -538,7 +543,7 @@ html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	padding: 0.25em;
 	margin: -0.25em;
 	margin-top: 0;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 a.profile:hover {
 	background: var(--bg2color);
@@ -640,7 +645,7 @@ ol p {
 .parent .inner {
 	display: flex;
 	align-items: center;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	background: #0000;
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
@@ -657,7 +662,7 @@ ol p {
 	margin-left: 0.5em;
 }
 .parent-thumbnail {
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	overflow: hidden;
 }
 .parent-thumbnail, .parent-thumbnail img {
@@ -670,6 +675,6 @@ html.e621 main {
 	margin-left: 0;
 }
 html.wikipedia main {
-	border-left: 1px solid #A7D7F9;
+	border-left: var(--border-size) solid #A7D7F9;
 }
 </style>

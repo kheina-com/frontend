@@ -62,10 +62,10 @@ export default {
 	position: relative;
 	width: 100%;
 	height: 1.1em;
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	background: var(--bg2color);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	overflow: hidden;
 	margin: 8px auto 6px;
 	-webkit-transition: ease var(--fadetime);

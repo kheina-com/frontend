@@ -34,8 +34,8 @@ div.cookies
 	left: 25px;
 	bottom: 25px;
 	background: var(--bg1color);
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	padding: 25px;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }

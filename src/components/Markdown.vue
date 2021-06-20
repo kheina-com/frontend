@@ -3,34 +3,12 @@
 	</div>
 </template>
 
-<script>
+<script> 
 import marked from 'marked';
 import DOMPurify from 'dompurify';
-import { markdownTokenizer, edit } from '@/utilities';
-// import { highlight, getLanguage } from 'highlight.js';
-
-const inlineText = edit(/^([`~]+|[^`~])(?:(?= *\n)|[\s\S]*?(?:(?=[\\<!\[`*~]|\b_| *\n|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= *\n)|[^endcharset](?=[charset]*[end])|(?=[end]\S))|(?=[charset]*[end]))/, 'i')
-	.replace(/end/g, '@#%:^')
-	.replace(/charset/g, "a-zA-Z0-9.!#$%^&'*+\\/=?_`{\\|}~-")
-	.getRegex();
-
-const inlineUrl = edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^[A-Za-z0-9._+-]*(end)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])*(?![-_])/, 'i')
-	.replace(/end/g, '@#%:^')
-	.getRegex();
-
-
-marked.Lexer.lex = function (src, options) {
-	const lexer = new marked.Lexer(options);
-
-	// text determines where any given rule can start
-	lexer.tokenizer.rules.inline.text = inlineText;
-	lexer.tokenizer.rules.inline.url = inlineUrl;
-
-	return lexer.lex(src);
-};
+import { mdExtensions, mdTokenizer } from '@/utilities/markdown';
 
 marked.setOptions({
-	renderer: new marked.Renderer(),
 	// highlight: function(code, language) {
 	// 	const hljs = require('highlight.js');
 	// 	const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
@@ -44,7 +22,10 @@ marked.setOptions({
 	xhtml: false,
 });
 
-marked.use({ tokenizer: markdownTokenizer });
+marked.use({
+	extensions: mdExtensions,
+	tokenizer: mdTokenizer,
+});
 
 
 export default {
@@ -100,7 +81,7 @@ export default {
 	text-decoration-style: dotted;
 }
 .markdown h1, .markdown h2 {
-	border-bottom: solid 1px var(--blockquote);
+	border-bottom: var(--border-size) solid var(--blockquote);
 	padding: 0 5px 4px;
 	margin: 25px -5px 20px;
 	width: 100%;
@@ -115,19 +96,21 @@ export default {
 	margin: 0;
 }
 .markdown img {
-	max-width: 1.2em;
-	max-height: 1.2em;
+	max-width: 100%;
+	max-height: 10em;
 	width: 100%;
 }
 .markdown img.emoji {
-	max-width: 2em;
-	max-height: 2em;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	position: relative;
+	bottom: -0.2em;
 }
 .markdown hr {
 	height: 0;
 	color: #0000;
 	border: none;
-	border-bottom: solid 1px var(--blockquote);
+	border-bottom: var(--border-size) solid var(--blockquote);
 	margin: 12px -5px;
 }
 
@@ -139,7 +122,7 @@ export default {
 }
 .markdown pre, .markdown code {
 	background: var(--bg2color);
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 .markdown pre {
 	padding: 0.5em;
@@ -148,16 +131,16 @@ export default {
 }
 
 .markdown table {
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	border-spacing: 0;
 	background: var(--bg2color);
 	word-break: break-word;
 }
 .markdown table th, .markdown table td {
-	border-right: 1px solid var(--blockquote);
+	border-right: var(--border-size) solid var(--blockquote);
 	border-spacing: 0px;
-	border-bottom: 1px solid var(--blockquote);
+	border-bottom: var(--border-size) solid var(--blockquote);
 }
 .markdown table tbody > :last-child td {
 	border-bottom: none;

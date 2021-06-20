@@ -26,7 +26,7 @@ button {
 	display: flex;
 	align-items: center;
 	color: var(--subtle);
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	padding: 0.25em 0.25em !important;
 	margin: -0.1em -0.25em -0.25em !important;
 	position: relative;

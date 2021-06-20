@@ -17,7 +17,7 @@ export default {
 	left: 25px;
 	bottom: 25px;
 	background: var(--bg2color);
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	border-radius: 50%;
 	padding: 1em;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);

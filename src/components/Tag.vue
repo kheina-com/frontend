@@ -46,8 +46,8 @@ export default {
 .tag {
 	padding: 25px;
 	background: var(--bg2color);
-	border: solid 1px var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	display: block;
 }
 .tag:hover {

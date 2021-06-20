@@ -1,33 +1,28 @@
 <template>
-	<div v-if='!lazy' style='position: relative'>
-		<div :class='loadingClass'>
-			<slot name='default' />
-		</div>
+	<div v-if='!lazy' ref='content'>
+		<slot name='default'/>
 		<div class='loadingicon' v-show='isLoading'>
 			<img src='/assets/loading.webp' alt='Loading...'/>
 			<slot name='onLoad' />
 		</div>
-		<div class='loadingcover' v-show='isLoading'></div>
 	</div>
-	<div :class='lazyClass' v-else-if='!span'>
+	<div ref='content' v-else-if='!span'>
 		<slot name='default' />
 	</div>
-	<span :class='lazyClass' v-else>
+	<span ref='content' v-else>
 		<slot name='default' />
 	</span>
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
 	name: 'Loading',
 	props: {
 		isLoading: {
 			type: Boolean,
 			default: true,
-		},
-		onLoadingStyle: {
-			type: String,
-			default: 'opacity: 50%',
 		},
 		span: {
 			type: Boolean,
@@ -38,12 +33,26 @@ export default {
 			default: true,
 		},
 	},
-	computed: {
-		loadingClass() {
-			return this.isLoading ? 'content' : '';
+	setup() {
+		const content = ref(null);
+		return {
+			content,
+		};
+	},
+	methods: {
+		setLoadingClass(value) {
+			if (value)
+			{ this.$refs.content.classList.add('loading', this.lazy ? 'wave' : 'block') }
+			else
+			{ this.$refs.content.classList.remove('loading', this.lazy ? 'wave' : 'block') }
 		},
-		lazyClass() {
-			return this.isLoading ? 'loading wave' : '';
+	},
+	mounted() {
+		this.setLoadingClass(this.isLoading);
+	},
+	watch: {
+		isLoading(value) {
+			this.setLoadingClass(value);
 		},
 	},
 }
@@ -54,30 +63,19 @@ span {
 	display: inline-block;
 }
 
-/* *
-{
-	position: relative;
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
-} */
+.loading {
+	pointer-events: none;
+}
 
-div.content {
+.loading.block {
+	position: relative;
+}
+
+.loading.block * {
 	opacity: 50%;
 }
 
-div.loadingcover
-{
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-
-div.loadingicon
-{
+.loading div.loadingicon {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -87,13 +85,15 @@ div.loadingicon
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
+	opacity: 100%;
 }
 
-.loading {
-	border-radius: 3px;
+.loading div.loadingicon * {
+	opacity: 100%;
 }
 
 .loading.wave {
+	border-radius: var(--border-radius);
 	animation: wave 2s infinite linear forwards;
 	-webkit-animation: wave 2s infinite linear forwards;
 	background: var(--bg2color);
@@ -125,10 +125,10 @@ html.solarized-dark div.loadingicon img {
 </style>
 
 <style>
-.loading * {
+.loading.wave * {
 	opacity: 0% !important;
 }
-.loading, .loading *, .loading *:hover, .loading *:focus, .loading *:active {
+.loading.wave, .loading.wave *, .loading.wave *:hover, .loading.wave *:focus, .loading.wave *:active {
 	color: #00000000 !important;
 }
 </style>

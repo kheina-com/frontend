@@ -245,8 +245,8 @@ textarea {
 	margin: 0;
 	background: var(--bg2color);
 	color: var(--textcolor);
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	padding: 0.5em;
 }
 
@@ -294,9 +294,9 @@ form, p
 {
 	cursor: pointer;
 	position: relative;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	padding: 0.5em 1em;
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	display: inline-block;
 	font-weight: normal;
 	background: var(--bg2color);
@@ -349,9 +349,9 @@ p.center
 {
 	position: relative;
 	background: var(--bg2color);
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	padding: 8px;
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	display: inline-block;
 	min-height: 128px;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
@@ -414,6 +414,8 @@ html
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
 	--screen-cover: #00000080;
+	--border-size: 1px;
+	--border-radius: 3px;
 
 	--pink: #aa23aa;
 	--green: forestgreen;
@@ -421,6 +423,10 @@ html
 	--red: #c44f3b;
 	--cyan: darkcyan;
 	--violet: #9451d7;
+}
+html.mobile {
+	--border-size: 2px;
+	--border-radius: 5px;
 }
 
 div.loadingicon img
@@ -518,11 +524,11 @@ html.wikipedia
 html.wikipedia body
 { background-image: linear-gradient(#FFF 2.5em,#F6F6F6 5em); }
 html.wikipedia main {
-	border-top: 1px solid #A7D7F9;
-	border-bottom: 1px solid #A7D7F9;
+	border-top: var(--border-size) solid #A7D7F9;
+	border-bottom: var(--border-size) solid #A7D7F9;
 }
 html.wikipedia .nav-backdrop {
-	border-bottom: 1px solid var(--bordercolor);
+	border-bottom: var(--border-size) solid var(--bordercolor);
 }
 html.e621 .source
 {
@@ -613,8 +619,8 @@ html.furaffinity
 }
 html.furaffinity main
 {
-	border-top: 1px solid var(--bordercolor);
-	border-bottom: 1px solid var(--bordercolor);
+	border-top: var(--border-size) solid var(--bordercolor);
+	border-bottom: var(--border-size) solid var(--bordercolor);
 }
 
 html.discord

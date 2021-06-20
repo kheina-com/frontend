@@ -141,7 +141,7 @@ textarea {
 p {
 	padding: 0 0 2px 30px;
 	margin: 0 -5px;
-	border-bottom: 1px solid var(--bordercolor);
+	border-bottom: var(--border-size) solid var(--bordercolor);
 }
 h4 {
 	margin: 0;

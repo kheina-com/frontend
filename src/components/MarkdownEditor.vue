@@ -79,9 +79,9 @@ button i {
 }
 .markdown-container {
 	background: var(--bg2color);
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	padding: 25px;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 .markdown {
 	--bg3color: var(--bg0color);

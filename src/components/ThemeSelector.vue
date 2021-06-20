@@ -98,10 +98,10 @@ td:last-child {
 select {
 	padding: 0;
 	margin: 0;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	background: var(--bg1color);
 	color: var(--textcolor);
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	width: 100%;
 }
 </style>

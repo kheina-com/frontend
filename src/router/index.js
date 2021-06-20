@@ -238,7 +238,7 @@ const routes = [
 		props: true,
 		component: Tag,
 		meta: {
-			title: (to) => `Search results for ${to.params.tag}`,
+			title: (to) => `${to.params.tag}, tag - kheina.com`,
 			metaTags: [
 				(to) => {
 					return {

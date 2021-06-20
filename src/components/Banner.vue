@@ -1,11 +1,19 @@
 <template>
 	<div class='banner'>
 		<div class='nav-backdrop'></div>
-		<div ref='menuButton' class='menu-button'>
+		<div ref='menuButton' class='menu-button' v-if='isMobile'>
+			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
+				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
+				<div class='counter' v-show='!menuOpen'>
+					<span>1</span>
+				</div>
+			</button>
+		</div>
+		<div ref='menuButton' class='menu-button' v-else>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 			</button>
-			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='isLoggedIn && !isMobile'>
+			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='isLoggedIn'>
 				<i class='material-icons-round'>notifications</i>
 				<div class='counter' v-show='true'>
 					<span>1</span>
@@ -139,7 +147,7 @@
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, deleteCookie, khatch } from '@/utilities';
+import { getMediaThumbnailUrl, deleteCookie, isMobile, khatch } from '@/utilities';
 import { configHost, environment } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -204,6 +212,7 @@ export default {
 			});
 	},
 	computed: {
+		isMobile,
 		isVerified() {
 			return false;
 		},
@@ -304,7 +313,7 @@ export default {
 	width: 20vw;
 	min-width: 18em;
 	background: var(--bg2color);
-	border-right: 1px solid var(--bordercolor);
+	border-right: var(--border-size) solid var(--bordercolor);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
@@ -348,7 +357,7 @@ html.mobile .menu-open .menu, .menu-open .menu {
 .menu .inner {
 	padding: 0.5em 5px 0;
 	margin: 2.5rem 20px 25px;
-	border-top: 1px solid var(--bordercolor);
+	border-top: var(--border-size) solid var(--bordercolor);
 }
 .menu button {
 	font-size: 1em;
@@ -430,7 +439,7 @@ textarea {
 	height: 2rem;
 }
 .profile-image img {
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 .login {
 	font-size: 0.9em;
@@ -542,18 +551,21 @@ ol > :last-child {
 	display: flex;
 	position: relative;
 }
-.notifications .counter {
+.counter {
 	position: absolute;
 	top: 0;
-	right: -1.8em;
+	right: -0.9em;
 	width: 5em;
 	pointer-events: none;
 }
-.menu .notifications .counter {
+.menu-button .notifications .counter {
+	right: -1.8em;
+}
+.menu .counter {
 	top: -0.5em;
 	right: -1.2em;
 }
-.notifications .counter span {
+.counter span {
 	font-size: 0.5em;
 	background: var(--red);
 	padding: 0.25em 0.5em;

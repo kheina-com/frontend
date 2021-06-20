@@ -68,7 +68,7 @@ a, button {
 	border-color: var(--error);
 }
 .inline {
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	padding: 0.1em 0.25em !important;
 	margin: -0.1em -0.25em !important;
 }

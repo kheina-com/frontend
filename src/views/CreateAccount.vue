@@ -133,8 +133,8 @@ main {
 input
 {
 	display: inline-block;
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	background: var(--bg2color);
 	color: var(--textcolor);
 	font-size: 1em;

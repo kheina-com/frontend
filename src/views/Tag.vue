@@ -4,20 +4,23 @@
 			<button class='interactable edit-button' @click='editToggle' v-if='editable'>
 				<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
 			</button>
-			<div class='tag' v-if='editing'>
-				<div>
-					<h2>Tag</h2>
-					<input class='interactable text' v-model='updateBody.name'>
+			<Loading v-if='editing' :lazy='false' :isLoading='pendingUpdate'>
+				<div class='tag'>
+					<div>
+						<h2>Tag</h2>
+						<input class='interactable text' v-model='updateBody.name'>
+					</div>
+					<div>
+						<h2>Class</h2>
+						<input class='interactable text' v-model='updateBody.tag_class'>
+					</div>
+					<div>
+						<h2>Owner</h2>
+						<input class='interactable text' v-model='updateBody.owner'>
+					</div>
 				</div>
-				<div>
-					<h2>Class</h2>
-					<input class='interactable text' v-model='updateBody.tag_class'>
-				</div>
-				<div>
-					<h2>Owner</h2>
-					<input class='interactable text' v-model='updateBody.owner'>
-				</div>
-			</div>
+				<MarkdownEditor class='markdown-editor' v-model:value='updateBody.description'/>
+			</Loading>
 			<div class='tag' v-else>
 				<div>
 					<h2>Tag</h2>
@@ -49,8 +52,7 @@
 					<b v-else>None</b>
 				</div>
 			</div>
-			<MarkdownEditor class='markdown-editor' v-model:value='updateBody.description' v-if='editing'/>
-			<Markdown :content='tagData?.description' class='markdown' v-else/>
+			<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
 			<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
 			<ol class='results'>
 				<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
@@ -65,7 +67,7 @@
 
 <script>
 import { useRoute } from 'vue-router';
-import { khatch, isMobile } from '@/utilities';
+import { khatch, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
@@ -108,6 +110,7 @@ export default {
 			errorMessage: null,
 			editing: null,
 			updateBody: { },
+			pendingUpdate: false,
 		}
 	},
 	mounted() {
@@ -144,7 +147,10 @@ export default {
 			.then(response => {
 				response.json().then(r => {
 					if (response.status < 300)
-					{ this.tagData = r; }
+					{
+						this.tagData = r;
+						setTitle(`${r.tag}, ${r.class} tag - kheina.com`);
+					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
 					else if (response.status === 404)
@@ -184,6 +190,8 @@ export default {
 			this.updateBody.owner = this.tagData.owner?.handle;
 		},
 		updateTag() {
+			this.pendingUpdate = true;
+
 			let body = { tag: this.tag };
 
 			if (this.updateBody?.name && this.updateBody.name != this.tag)
@@ -205,8 +213,8 @@ export default {
 				.then(response => {
 					if (response.status < 300)
 					{
-						this.editing = false;
-						this.tagData = this.updateBody;
+						this.pendingUpdate = this.editing = false;
+						this.tagData = Object.assign(this.tagData, this.updateBody);
 					}
 					else 
 					{
@@ -247,7 +255,7 @@ h2 {
 	padding: 0.25em;
 	margin: -0.25em;
 	margin-top: 0;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 a.profile:hover {
 	background: var(--bg2color);

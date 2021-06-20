@@ -55,8 +55,8 @@ export default {
 	pointer-events: all;
 	background: var(--bg2color);
 	padding: 25px 50px 50px 25px;
-	border-left: 1px solid var(--bordercolor);
-	border-top: 1px solid var(--bordercolor);
+	border-left: var(--border-size) solid var(--bordercolor);
+	border-top: var(--border-size) solid var(--bordercolor);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);

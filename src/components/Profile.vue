@@ -119,7 +119,7 @@ export default {
 	align-items: center;
 }
 .profile .image, img {
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 .profile .image, .profile .image img {
 	display: block;

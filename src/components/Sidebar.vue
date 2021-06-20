@@ -57,7 +57,7 @@ export default {
 <style scoped>
 h3 {
 	margin: 0 12.5px 12px;
-	border-bottom: 1px solid var(--bordercolor);
+	border-bottom: var(--border-size) solid var(--bordercolor);
 	padding: 0 12.5px 12px;
 }
 

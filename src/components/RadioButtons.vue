@@ -58,10 +58,10 @@ label
 	cursor: pointer;
 	padding: 0.5em 1em;
 	margin: 0;
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	background: var(--bg2color);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	white-space: nowrap;
 	display: flex;
 	align-items: center;
@@ -93,7 +93,7 @@ label div.checkmark, label div.radio
 	margin: 0 0.5em 0 -0.3em;
 	height: 1.2em;
 	width: 1.2em;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	background: var(--bg1color);
 	pointer-events: none;
 }

@@ -77,7 +77,7 @@ export default {
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
 		linkStyle()
-		{ return this.isLoading && this.lazy ? this.loadingStyle : (this.isError ? 'background: var(--error); display: flex; justify-content: center; border-radius: 3px; ' + this.loadingStyle : null); },
+		{ return this.isLoading && this.lazy ? this.loadingStyle : (this.isError ? 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + this.loadingStyle : null); },
 	},
 	mounted() {
 		this.load();

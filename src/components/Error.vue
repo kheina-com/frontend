@@ -85,8 +85,8 @@ pre.message
 	margin: 0 0 25px;
 	line-height: 2em;
 	white-space: pre-wrap;
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
 button {

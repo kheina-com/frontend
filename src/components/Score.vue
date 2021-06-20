@@ -32,6 +32,8 @@ export default {
 	methods: {
 		abbreviate,
 		vote(vote) {
+			if (isLoading)
+			{ return; }
 			khatch(`${postsHost}/v1/vote`, {
 					method: 'POST',
 					body: {
@@ -66,8 +68,8 @@ export default {
 
 <style scoped>
 .post {
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
 	padding: 25px;
@@ -76,7 +78,7 @@ export default {
 .post img {
 	max-width: 100%;
 	max-height: 10vh;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	margin: 0 auto;
 }
 .post-header {
@@ -97,7 +99,7 @@ export default {
 }
 button {
 	padding: 0.25em 0.5em;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 button:hover {
 	background: var(--bg2color);

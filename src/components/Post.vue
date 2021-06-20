@@ -299,14 +299,14 @@ export default {
 
 <style scoped>
 .post {
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
 	padding: 25px;
 	align-items: flex-start;
 	position: relative;
-	border: 1px solid var(--bordercolor);
-	border-radius: 3px;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
@@ -338,7 +338,7 @@ export default {
 .post img {
 	max-width: 100%;
 	max-height: 300px;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
 }
 .post-header {
@@ -354,7 +354,7 @@ export default {
 	padding: 0.25em;
 	margin: -0.25em;
 	margin-top: 0;
-	border-radius: 3px;
+	border-radius: var(--border-radius);
 }
 a.profile:hover {
 	background: var(--bg2color);
