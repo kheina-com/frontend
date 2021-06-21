@@ -3,7 +3,7 @@
 		<input ref='file' @input='fileAdded' :id='id' type='file' size='50' autocomplete='off'>
 		<label @drop.prevent='onDrop' @dragenter.prevent @dragover.prevent :for='id' class='interactable upload'>
 			<slot v-if='hasSlot && showSlot'/>
-			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' :lazy='false' style='border-radius: var(--border-radius)'/>
+			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' :lazy='false' style='border-radius: var(--border-radius); margin: auto'/>
 			<div v-else>
 				<i class='material-icons'>upload_file</i>
 				{{isMobile ? 'Tap' : 'Click or Drag'}} to Upload File

@@ -6,13 +6,11 @@
 			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
 		</Loading>
 	</a>
-	<div class='media' v-else>
-		<Loading :isLoading='isLoading && lazy' :style='linkStyle'>
-			<p v-if='isError'>Could not load media.</p>
-			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo' >Your browser does not support this type of video.</video>
-			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
-		</Loading>
-	</div>
+	<Loading class='media' :isLoading='isLoading && lazy' :style='linkStyle' v-else>
+		<p v-if='isError'>Could not load media.</p>
+		<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo' >Your browser does not support this type of video.</video>
+		<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
+	</Loading>
 </template>
 
 <script>
@@ -103,7 +101,8 @@ export default {
 
 <style scoped>
 .media img, .media video {
-	width: 100%;
+	max-width: 100%;
+	max-height: 100%;
 	display: block;
 }
 .media p {

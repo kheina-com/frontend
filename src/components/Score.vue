@@ -1,7 +1,7 @@
 <template>
 	<div class='score'>
 		<button @click.stop='vote(1)'>▲</button>
-		<Loading :isLoading='isLoading'><p>{{score ? abbreviate(score.up - score.down) : 10}}</p></Loading>
+		<Loading :isLoading='isLoading'><p>{{score === null ? 'X' : score === undefined ? 10 : abbreviate(score.up - score.down)}}</p></Loading>
 		<button @click.stop='vote(-1)'>▼</button>
 	</div>
 </template>
@@ -26,14 +26,15 @@ export default {
 	},
 	computed: {
 		isLoading() {
-			return this.score === null || this.score === undefined;
+			return this.score === undefined;
 		},
 	},
 	methods: {
 		abbreviate,
 		vote(vote) {
-			if (this.isLoading)
+			if (this.score === undefined || this.score === null)
 			{ return; }
+
 			khatch(`${postsHost}/v1/vote`, {
 					method: 'POST',
 					body: {
@@ -46,8 +47,8 @@ export default {
 						console.log(r);
 						if (response.status < 300)
 						{
-							this.score.up = r[this.postId].up;
-							this.score.down = r[this.postId].down;
+							this.score.up = r.up;
+							this.score.down = r.down;
 						}
 						else
 						{

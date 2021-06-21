@@ -10,7 +10,7 @@
 						<div>
 							<span>File</span>
 							<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
-								<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh' style='width: 100%' />
+								<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh' />
 							</FileField>
 							<div class='field actions' v-if='file !== null'>
 								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
@@ -165,6 +165,7 @@ export default {
 			filename: null,
 			file: null,
 			update: { },
+			mediaUrl: null,
 
 			// request fields
 			postId: null,
@@ -228,6 +229,7 @@ export default {
 							if (r.filename) {
 								this.uploadDone = true;
 								this.filename = r.filename;
+								this.mediaUrl = this.getMediaUrl(this.postId, this.filename);
 							}
 							// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
 							// { this.uploadUnavailable = true; }
@@ -333,10 +335,6 @@ export default {
 			});
 		}
 	},
-	computed: {
-		mediaUrl()
-		{ return this.mime ? this.getMediaUrl(this.postId, this.file?.name || this.filename) : null; },
-	},
 	methods: {
 		getMediaUrl,
 		addTag(tag) {
@@ -370,6 +368,8 @@ export default {
 			{ return; }
 
 			this.isUploading = true;
+
+			this.mediaUrl = this.getMediaUrl(this.postId, encodeURIComponent(this.file.name));
 
 			let formdata = new FormData();
 			formdata.append('file', this.file);
