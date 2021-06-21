@@ -47,11 +47,11 @@
 						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
 						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' live/></Subtitle>
 					</Loading>
-					<div style='width: 100%; display: flex; justify-content: space-between; align-items: center' v-show='!isLoading'>
+					<div class='post-buttons' v-show='!isLoading'>
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
-						<button style='color: var(--subtle)'><i class='material-icons-round' style='display: block'>repeat</i></button>
-						<button style='color: var(--subtle)'><i class='material-icons-round' style='display: block'>favorite</i></button>
-						<button style='color: var(--subtle)'><i class='material-icons-round' style='display: block'>more_horiz</i></button>
+						<button><i class='material-icons-round'>repeat</i></button>
+						<button><i class='material-icons-round'>favorite</i></button>
+						<button><i class='material-icons-round'>more_horiz</i></button>
 					</div>
 					<ThemeMenu />
 				</main>
@@ -668,6 +668,22 @@ ol p {
 .parent-thumbnail, .parent-thumbnail img {
 	width: 3em;
 	height: 3em;
+}
+
+.post-buttons {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.post-buttons button {
+	color: var(--subtle);
+}
+.post-buttons button:hover {
+	color: var(--icolor);
+}
+.post-buttons button i {
+	display: block;
 }
 
 /* theme overrides */

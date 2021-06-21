@@ -32,7 +32,7 @@ export default {
 	methods: {
 		abbreviate,
 		vote(vote) {
-			if (isLoading)
+			if (this.isLoading)
 			{ return; }
 			khatch(`${postsHost}/v1/vote`, {
 					method: 'POST',

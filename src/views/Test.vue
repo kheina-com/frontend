@@ -8,6 +8,19 @@
 					play me
 				</Button>
 			</div>
+			<div>
+				<Button @click='$store.commit("createToast", {
+					title: "An error occurred during an API call",
+					description: "If you submit a bug report, please include the data below.",
+					dump: {
+						error: "Internal Server Error",
+						refid: "87e1b61cceeb495b9583afefd785e4a6",
+						status: 500,
+					},
+				})'>
+					toast
+				</Button>
+			</div>
 		</Error>
 		<ThemeMenu />
 	</main>

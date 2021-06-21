@@ -1,31 +1,26 @@
 <template>
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
-		<main>
-			<Title>Report Content</Title>
-			<div class='container'>
-				Select a report type below or enter your own
-				<pre>
-					dmca/copyright
-					improper rating
-					hate speech (better wording?) (abusive?)
-					harmful content
-					other
-				</pre>
-				<p style='margin-bottom: 25px; text-align: center; width: 100%'>{{JSON.stringify(payload)}}</p>
-				Please describe the reason for your report below. The data above will also be included with your report, but please add all relevant details.
-				<textarea class='interactable text'></textarea>
-				<Button>Submit</Button>
-			</div>
-			<ThemeMenu />
-		</main>
-	</Error>
+	<main>
+		<Title>Report Content</Title>
+		<div class='container'>
+			Select a report type below or enter your own
+			<pre>
+				dmca/copyright
+				improper rating
+				hate speech (better wording?) (abusive?)
+				harmful content
+				other
+			</pre>
+			<p style='margin-bottom: 25px; text-align: center; width: 100%'>{{JSON.stringify(payload)}}</p>
+			Please describe the reason for your report below. The data above will also be included with your report, but please add all relevant details.
+			<textarea class='interactable text'></textarea>
+			<Button>Submit</Button>
+		</div>
+		<ThemeMenu />
+	</main>
 </template>
 
 <script>
-import { khatch } from '@/utilities';
-import { apiErrorMessage } from '@/config/constants';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
 import Button from '@/components/Button.vue';

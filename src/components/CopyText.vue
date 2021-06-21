@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div v-show='content'>
 		<input ref='text' type='text' class='code' :value='copyValue' readonly />
 		<a role='button' @click='copy'><i class='material-icons'>content_copy</i></a>
 	</div>
@@ -21,7 +21,6 @@ export default {
 	},
 	computed: {
 		copyValue() {
-			console.log(this.content);
 			if (this.content instanceof Error)
 			{ return JSON.stringify({ 'error': this.content.toString(), 'stacktrace': this.content.stack.split('\n').filter(x => x) }); }
 			return JSON.stringify(this.content);
@@ -29,7 +28,6 @@ export default {
 	},
 	methods: {
 		copy() {
-			console.log(this.copyValue);
 			this.$refs.text.select();
 			document.execCommand('copy');
 		},

@@ -7,9 +7,7 @@
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
 					<p>{{name}}</p>
-					<i class='kheina-icons' v-if='admin' :title="`@${handle} is an admin`">sword</i>
-					<i class='material-icons' v-else-if='mod' :title="`@${handle} is a moderator`">verified_user</i>
-					<i class='material-icons-round' v-else-if='verified' :title="`@${handle} is a verified artist`">verified</i>
+					<i :class='iconClass' v-if='verified' :title='`@${handle} is ${verifiedDescription}`'>{{iconName}}</i>
 				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
 			</div>
@@ -21,7 +19,7 @@
 				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
 			</Loading>
 			<div class='user'>
-				<Loading :isLoading='isLoading' span class='name'><i :class='iconClass' v-if='verified' :title='`This user is ${verifiedDescription}`'>{{iconName}}</i><p>{{name}}</p></Loading>
+				<Loading :isLoading='isLoading' span class='name'><p>{{name}}</p><i :class='iconClass' v-if='verified' :title='`@${handle} is ${verifiedDescription}`'>{{iconName}}</i></Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
 			</div>
 		</div>
@@ -59,26 +57,21 @@ export default {
 			type: Boolean,
 			default: true,
 		},
-		admin: {
-			type: Boolean,
-			default: null,
-		},
-		mod: {
-			type: Boolean,
-			default: null,
-		},
 		verified: {
-			type: Boolean,
+			type: String,
 			default: null,
 		},
 	},
 	computed: {
 		iconClass() {
-			if (this.admin)
-			{ return 'kheina-icons'; }
-			if (this.mod)
-			{ return 'material-icons'; }
-			return 'material-icons-round';
+			switch (this.verified) {
+				case 'mod' :
+					return 'kheina-icons';
+				case 'admin' :
+					return 'kheina-icons';
+				default :
+					return 'material-icons-round';
+			}
 		},
 		iconName() {
 			switch (this.verified) {

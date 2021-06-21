@@ -98,7 +98,6 @@ export default {
 .markdown img {
 	max-width: 100%;
 	max-height: 10em;
-	width: 100%;
 }
 .markdown img.emoji {
 	max-width: 1.2em;

@@ -143,7 +143,7 @@ However, this does not include the additional features below.
 |:---------------------------------:|:-----------------------------:|
 |      \`https://example.com\`      |      https://example.com      |
 | \`[a link](https://kheina.com)\`  | [a link](https://kheina.com)  |
-| \`![an image](/assets/logo.png)\` | ![an image](/assets/logo.png) |
+| \`![an image](https://cdn.kheina.com/file/kheina-content/emoji/heart.webp)\` | ![an image](https://cdn.kheina.com/file/kheina-content/emoji/heart.webp) |
 
 
 ## Code Examples

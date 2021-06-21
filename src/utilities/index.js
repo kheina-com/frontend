@@ -106,6 +106,9 @@ export async function khatch(url, options={ }, attempts=3)
 		options.body = JSON.stringify(options.body);
 	}
 
+	if (options.hasOwnProperty('body') && !options?.method)
+	{ options.method = 'POST'; }
+
 	let attempt = 1;
 	let response;
 

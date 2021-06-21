@@ -4,6 +4,7 @@
 		<router-view :key='$route.fullPath' :resizeTrigger='resizeTrigger' />
 		<Footer/>
 	</div>
+	<Toast/>
 	<Cookies/>
 </template>
 
@@ -13,6 +14,7 @@ import { authCookie, getCookie, isMobile } from '@/utilities';
 import Footer from '@/components/Footer.vue'
 import Cookies from '@/components/Cookies.vue'
 import Banner from '@/components/Banner.vue'
+import Toast from '@/components/Toast.vue'
 
 export default {
 	name: 'App',
@@ -20,6 +22,7 @@ export default {
 		Footer,
 		Cookies,
 		Banner,
+		Toast,
 	},
 	setup() {
 		const content = ref(null);

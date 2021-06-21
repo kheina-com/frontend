@@ -26,7 +26,7 @@
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<div class='bottom-margin' v-if='media && !isLoading'>
+		<div class='bottom-margin' v-if='media_type && !isLoading'>
 			<Thumbnail :post='postId' :size='1200'  v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
@@ -121,9 +121,9 @@ export default {
 		// 	type: Boolean,
 		// 	default: null,
 		// },
-		media: {
-			type: Boolean,
-			default: true,
+		media_type: {
+			type: Object,
+			default: { },
 		},
 		comments: {
 			type: Array[Object],
@@ -244,7 +244,7 @@ export default {
 								created,
 								updated,
 								title: null,
-								media: false,
+								media_type: null,
 								tags: [],
 								comments: [],
 							});

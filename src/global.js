@@ -9,6 +9,7 @@ export default createStore({
 		user: null,
 		theme: null,
 		contentOffset: null,
+		toasts: {},
 	},
 	mutations: {
 		setAuth(state, auth) {
@@ -34,6 +35,17 @@ export default createStore({
 		},
 		setUser(state, user) {
 			state.user = user;
+		},
+		createToast(state, options) {
+			const id = Math.round(Math.random() * 1000000);
+			state.toasts[id] = {
+				id,
+				title: options?.title || '',
+				description: options?.description || '',
+				dump: options?.dump,
+				icon: options?.icon || 'warning',
+			};
+			setTimeout(() => delete state.toasts[id], (options?.time || 30) * 1000);
 		},
 	},
 });

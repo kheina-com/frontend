@@ -69,9 +69,9 @@
 					<h2 v-else>
 						<Loading :isLoading='!user' span>{{user?.name || 'username'}}</Loading>
 						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
-						<i class='kheina-icons' v-if='user?.admin' :title="`@${user.handle} is an admin`">sword</i>
-						<i class='material-icons' v-else-if='user?.mod' :title="`@${user.handle} is a moderator`">verified_user</i>
-						<i class='material-icons-round' v-else-if='user?.verified' :title="`@${user.handle} is a verified artist`">verified</i>
+						<i class='kheina-icons' v-if='user?.verified === "admin"' :title="`@${user.handle} is an admin`">sword</i>
+						<i class='material-icons' v-else-if='user?.verified === "mod"' :title="`@${user.handle} is a moderator`">verified_user</i>
+						<i class='material-icons-round' v-else-if='user?.verified === "artist"' :title="`@${user.handle} is a verified artist`">verified</i>
 					</h2>
 					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
 				</div>
