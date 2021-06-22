@@ -1,4 +1,6 @@
-import { getMediaUrl } from '@/utilities'
+import { getMediaThumbnailUrl, getMediaUrl, khatch } from '@/utilities';
+import { postsHost } from '@/config/constants';
+import store from '@/global';
 
 
 const htmlReplace = {
@@ -77,7 +79,7 @@ export const mdExtensions = [
 			return match ? match.index + match[1].length : null;
 		},
 		tokenizer(src) {
-			const rule = /^(\w*)@(\S+)/;
+			const rule = /^(\w*)@(\w+)/;
 			const match = rule.exec(src);
 			if (match && userLinks.hasOwnProperty(match[1]))
 			{
@@ -121,6 +123,76 @@ export const mdExtensions = [
 		},
 		renderer(token) {
 			return `<img src="${token.href}" alt="${token.text}" title="${token.title}" class="emoji">`;
+		},
+	},
+	{
+		name: 'post',
+		level: 'inline',
+		start(src) {
+			const rule = /(^|\s*)\^/;
+			const match = rule.exec(src);
+			return match ? match.index + match[1].length : null;
+		},
+		tokenizer(src) {
+			const rule = /^\^([a-zA-Z0-9_-]{8})/;
+			const match = rule.exec(src);
+
+			if (match)
+			{
+				return {
+					type: 'post',
+					raw: match[0],
+					text: match[1],
+					href: getMediaThumbnailUrl(match[1]),
+				};
+			}
+		},
+		renderer(token) {
+			const id = Math.round(Math.random() * 1000000000).toString();
+
+			khatch(`${postsHost}/v1/post/${token.text}`)
+			.then(response => {
+				response.json().then(r => {
+					if (response.status < 300)
+					{
+						const title = htmlEscape(r.title);
+						document.getElementById(id).innerHTML = `
+<img src="${token.href}" alt="${title}" title="${title}">
+<p>${title}</p>
+						`.trim();
+					}
+					else if (response.status === 401)
+					{
+						store.commit("createToast", {
+							title: "An error occurred during an API call",
+							description: r.error,
+						})
+					}
+					else if (response.status === 404)
+					{
+						store.commit("createToast", {
+							title: "An error occurred during an API call",
+							description: r.error,
+						})
+					}
+					else
+					{
+						store.commit("createToast", {
+							title: "An error occurred during an API call",
+							description: "If you submit a bug report, please include the data below.",
+							dump: r,
+						})
+					}
+				});
+			})
+			.catch(error => {
+				store.commit("createToast", {
+					title: "An error occurred during an API call",
+					description: error,
+				})
+			});
+
+			return `<a id="${id}" class="post" href="/p/${token.text}">${token.text}</a>`;
 		},
 	},
 ];

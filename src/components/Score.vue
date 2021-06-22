@@ -1,12 +1,13 @@
 <template>
-	<div class='score'>
+	<div class='score' ref='scoreElement'>
 		<button @click.stop='vote(1)'>▲</button>
-		<Loading :isLoading='isLoading'><p>{{score === null ? 'X' : score === undefined ? 10 : abbreviate(score.up - score.down)}}</p></Loading>
+		<Loading :isLoading='isLoading'><p>{{score === null ? 'X' : score === undefined ? 10 : abbreviate(score.total)}}</p></Loading>
 		<button @click.stop='vote(-1)'>▼</button>
 	</div>
 </template>
 
 <script>
+import { ref } from 'vue';
 import { abbreviate, khatch } from '@/utilities';
 import { apiErrorMessage, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue'
@@ -23,6 +24,13 @@ export default {
 	},
 	components: {
 		Loading,
+	},
+	setup() {
+		const scoreElement = ref(null);
+
+		return {
+			scoreElement,
+		};
 	},
 	computed: {
 		isLoading() {
@@ -64,36 +72,19 @@ export default {
 				});
 		},
 	},
+	watch: {
+		score(value) {
+			if (value === null)
+			{ this.$refs.scoreElement.classList.add('disabled'); }
+		},
+	},
 }
 </script>
 
 <style scoped>
-.post {
-	border: var(--border-size) solid var(--bordercolor);
-	border-radius: var(--border-radius);
-	display: flex;
-	flex-direction: column;
-	padding: 25px;
-	background: var(--bg2color);
-}
-.post img {
-	max-width: 100%;
-	max-height: 10vh;
-	border-radius: var(--border-radius);
-	margin: 0 auto;
-}
-.post-header {
-	margin-bottom: 25px;
-}
-.profile {
-	margin-top: 0.25em;
-	margin-bottom: 0;
-}
-.post .markdown {
-	margin: 0 0 25px;
-}
-.post > :last-child {
-	margin-bottom: 0;
+.disabled {
+	opacity: 50%;
+	pointer-events: none;
 }
 .score {
 	text-align: center;

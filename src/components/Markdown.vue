@@ -179,4 +179,32 @@ export default {
 	border: none;
 	padding: 0;
 }
+
+.markdown .post {
+	display: inline-block;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	overflow: hidden;
+	background: var(--bg2color);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.markdown .post:hover {
+	border-color: var(--icolor);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
+}
+.markdown .post p {
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+	margin: 0 0.25em 0.25em;
+}
+.markdown a.post:link, .markdown a.post:visited {
+	text-decoration: none;
+}
+
 </style>

@@ -48,7 +48,7 @@ export default {
 	pointer-events: all;
 	background: var(--bg2color);
 	padding: 25px;
-	border: 1px solid var(--bordercolor);
+	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
 	margin-bottom: 25px;
 	width: 20vw;
@@ -78,7 +78,7 @@ export default {
 	margin: 0 0 5px;
 	padding: 0 0 5px;
 	font-weight: bold;
-	border-bottom: 1px solid var(--bordercolor);
+	border-bottom: var(--border-size) solid var(--bordercolor);
 }
 
 p {

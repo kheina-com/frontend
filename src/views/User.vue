@@ -13,10 +13,10 @@
 					<div class='add-image-button'>
 						<i class='material-icons-round'>add_a_photo</i>
 					</div>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+					<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
 				</button>
 				<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
-					<Thumbnail :size='800' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+					<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
 				</router-link>
 			</Loading>
 			<div class='profile-buttons'>

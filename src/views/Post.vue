@@ -115,8 +115,13 @@
 						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
 						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
 						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
-						<Report :data='{ post: postId }' v-if='!isLoading'/>
 					</Loading>
+					<div class='post-buttons' v-show='!isLoading'>
+						<Report :data='{ post: postId }' v-if='!isLoading'/>
+						<button><i class='material-icons-round'>repeat</i></button>
+						<button><i class='material-icons-round'>favorite</i></button>
+						<button><i class='material-icons-round'>more_horiz</i></button>
+					</div>
 					<ThemeMenu />
 				</main>
 			</div>
@@ -678,9 +683,14 @@ ol p {
 }
 .post-buttons button {
 	color: var(--subtle);
+	background: #00000000;
+	padding: 0.25em 0.25em;
+	margin: -0.1em -0.25em -0.25em;
+	border-radius: var(--border-radius);
 }
 .post-buttons button:hover {
 	color: var(--icolor);
+	background: var(--bg2color);
 }
 .post-buttons button i {
 	display: block;

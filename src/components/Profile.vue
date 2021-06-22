@@ -66,7 +66,7 @@ export default {
 		iconClass() {
 			switch (this.verified) {
 				case 'mod' :
-					return 'kheina-icons';
+					return 'material-icons';
 				case 'admin' :
 					return 'kheina-icons';
 				default :
@@ -139,5 +139,8 @@ i {
 	display: inline-block;
 	font-size: 1em;
 	margin-left: 0.25em;
+}
+i.kheina-icons {
+	margin-left: 0.35em;
 }
 </style>
