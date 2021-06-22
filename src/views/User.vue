@@ -1,5 +1,6 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
+	<!-- eslint-disable vue/require-v-for-key -->
 	<div v-if='!errorMessage'>
 		<div ref='header' class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
@@ -63,11 +64,15 @@
 					<i class='material-icons'>public</i>
 					<input v-model='user.website' class='interactable text'>
 				</div>
-				<p v-else-if='user?.website' class='user-field website'><i class='material-icons'>public</i><Markdown :content='user?.website'/></p>
+				<p v-else-if='user?.website' class='user-field website'>
+					<i class='material-icons'>public</i>
+					<Markdown :content='user?.website' inline/>
+				</p>
 				<div class='user-name'>
 					<input v-model='user.name' class='interactable text' v-if='isEditing'>
 					<h2 v-else>
-						<Loading :isLoading='!user' span>{{user?.name || 'username'}}</Loading>
+						<Markdown :content='user?.name' inline v-if='user'/>
+						<Loading span v-else>username</Loading>
 						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
 						<i class='kheina-icons' v-if='user?.verified === "admin"' :title="`@${user.handle} is an admin`">sword</i>
 						<i class='material-icons' v-else-if='user?.verified === "mod"' :title="`@${user.handle} is a moderator`">verified_user</i>
@@ -84,7 +89,11 @@
 			</Button>
 			<div v-show='tab === "posts"'>
 				<ol class='results'>
-					<p v-if='posts?.length === 0' style='text-align: center'>{{user?.name || handle}} hasn't made any posts yet.</p>
+					<p v-if='posts?.length === 0' style='text-align: center'>
+						<Markdown :content='user?.name' inline v-if='user?.name'/>
+						<span v-else>@{{handle}}</span>
+						hasn't made any posts yet.
+					</p>
 					<li v-for='post in posts || 3' v-else>
 						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 					</li>
@@ -96,7 +105,11 @@
 			<div v-show='tab === "tags"'>
 				<div class='results'>
 					<p v-if='!userTags' style='text-align: center'>loading tags...</p>
-					<p v-else-if='userTags?.length === 0' style='text-align: center'>{{user?.name || handle}} has no tags.</p>
+					<p v-else-if='userTags?.length === 0' style='text-align: center'>
+						<Markdown :content='user?.name' inline v-if='user?.name'/>
+						<span v-else>@{{handle}}</span>
+						has no tags.
+					</p>
 					<ul class='tags' v-else>
 						<li v-for='tag in userTags'>
 							<Tag :inheritedTags='tag.inherited_tags' v-bind='tag'/>
@@ -155,6 +168,7 @@ import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 import Tag from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import { htmlEscape } from '@/utilities/markdown';
 
 
 export default {
@@ -589,7 +603,7 @@ ul.tags > :last-child {
 }
 /* ===== editing ===== */
 .add-image-button {
-	background: #0005;
+	background: var(--screen-cover);
 	width: 100%;
 	height: 100%;
 	position: absolute;
@@ -601,7 +615,7 @@ ul.tags > :last-child {
 	font-size: 70px;
 }
 .image-uploader {
-	background: #0008;
+	background: var(--screen-cover);
 	width: 100vw;
 	height: 100vh;
 	position: fixed;

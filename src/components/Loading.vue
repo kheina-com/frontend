@@ -6,12 +6,12 @@
 			<slot name='onLoad' />
 		</div>
 	</div>
-	<div ref='content' v-else-if='!span'>
-		<slot name='default' />
-	</div>
-	<span ref='content' v-else>
+	<span ref='content' v-else-if='span'>
 		<slot name='default' />
 	</span>
+	<div ref='content' v-else>
+		<slot name='default' />
+	</div>
 </template>
 
 <script>

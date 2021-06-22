@@ -694,6 +694,7 @@ ol p {
 }
 .post-buttons button i {
 	display: block;
+	font-size: 1.5em;
 }
 
 /* theme overrides */

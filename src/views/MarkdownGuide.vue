@@ -1,5 +1,6 @@
 <template>
 	<main id='feature'>
+		<p class='title'>click the <i class='material-icons'>visibility</i> to edit!</p>
 		<MarkdownEditor class='guide' height='60vh' resize='vertical' initRendered :value='content' />
 	</main>
 </template>
@@ -34,10 +35,18 @@ main {
 	position: relative;
 	padding: 25px;
 }
-.guide {
+.guide, .title {
 	margin: 0 auto;
 	min-width: 800px;
 	width: 40vw;
 	position: relative;
+}
+.title {
+	text-align: right;
+}
+.title i {
+	position: relative;
+	bottom: -0.2em;
+	font-size: 1.2em;
 }
 </style>

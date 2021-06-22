@@ -1,12 +1,12 @@
 <template>
-	<div class='markdown' v-html='renderMd(content)'>
-	</div>
+	<span class='markdown inline' v-html='renderedMd' v-if='inline'></span>
+	<div class='markdown' v-html='renderedMd' v-else></div>
 </template>
 
 <script> 
 import marked from 'marked';
 import DOMPurify from 'dompurify';
-import { mdExtensions, mdTokenizer } from '@/utilities/markdown';
+import { mdEscape, mdExtensions, mdTokenizer } from '@/utilities/markdown';
 
 marked.setOptions({
 	// highlight: function(code, language) {
@@ -36,10 +36,13 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		inline: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	data() {
 		return {
-			DOMPurify,
 			cut: false,
 		};
 	},
@@ -62,10 +65,14 @@ export default {
 
 					return match[1].substring(0, 500) + end;
 				}
+				if (this.inline)
+				{ return mdEscape(this.content); }
 				return this.content;
 			}
 		},
-		renderMd() {
+	},
+	computed: {
+		renderedMd() {
 			return this.content ? DOMPurify.sanitize(marked(this.mdString())) + (this.cut ? `	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>` : '') : '';
 		},
 	},
@@ -103,7 +110,8 @@ export default {
 	max-width: 1.2em;
 	max-height: 1.2em;
 	position: relative;
-	bottom: -0.2em;
+	bottom: -0.25em;
+	margin-top: -0.25em;
 }
 .markdown hr {
 	height: 0;
@@ -193,7 +201,7 @@ export default {
 	transition: ease var(--fadetime);
 }
 .markdown .post:hover {
-	border-color: var(--icolor);
+	border-color: var(--borderhover);
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 .markdown .post p {
@@ -207,4 +215,7 @@ export default {
 	text-decoration: none;
 }
 
+.markdown.inline p {
+	display: inline;
+}
 </style>

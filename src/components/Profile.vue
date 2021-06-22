@@ -6,7 +6,7 @@
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
-					<p>{{name}}</p>
+					<Markdown :content='name' inline/>
 					<i :class='iconClass' v-if='verified' :title='`@${handle} is ${verifiedDescription}`'>{{iconName}}</i>
 				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
@@ -19,7 +19,10 @@
 				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
 			</Loading>
 			<div class='user'>
-				<Loading :isLoading='isLoading' span class='name'><p>{{name}}</p><i :class='iconClass' v-if='verified' :title='`@${handle} is ${verifiedDescription}`'>{{iconName}}</i></Loading>
+				<Loading :isLoading='isLoading' span class='name'>
+					<Markdown :content='name' inline/>
+					<i :class='iconClass' v-if='verified' :title='`@${handle} is ${verifiedDescription}`'>{{iconName}}</i>
+				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
 			</div>
 		</div>
@@ -29,12 +32,14 @@
 <script>
 import Loading from '@/components/Loading.vue'
 import Thumbnail from '@/components/Thumbnail.vue';
+import Markdown from '@/components/Markdown';
 
 export default {
 	name: 'Post',
 	components: {
 		Loading,
 		Thumbnail,
+		Markdown,
 	},
 	props: {
 		name: {

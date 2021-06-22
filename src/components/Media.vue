@@ -2,13 +2,13 @@
 	<a :href='src' class='media' v-if='link'>
 		<Loading :isLoading='isLoading && lazy' :style='linkStyle'>
 			<p v-if='isError'>Could not load media.</p>
-			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo' >Your browser does not support this type of video.</video>
+			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo'>Your browser does not support this type of video.</video>
 			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
 		</Loading>
 	</a>
 	<Loading class='media' :isLoading='isLoading && lazy' :style='linkStyle' v-else>
 		<p v-if='isError'>Could not load media.</p>
-		<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo' >Your browser does not support this type of video.</video>
+		<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo'>Your browser does not support this type of video.</video>
 		<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
 	</Loading>
 </template>

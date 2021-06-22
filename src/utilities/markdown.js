@@ -13,6 +13,22 @@ const htmlReplace = {
 
 const htmlEscapeCharacters = new Set(Object.values(htmlReplace));
 
+const htmlRegex = new RegExp(`(?:${Object.keys(htmlReplace).map(x => '\\' + x).join('|')})(?:.{0,4};)?`, 'g');
+
+const mdReplace = {
+	'#': '\\#',
+	'|': '\\|',
+	'^': '\\^',
+	'{': '\\{',
+	'}': '\\}',
+	'-': '\\-',
+	'=': '\\=',
+};
+
+const mdEscapeCharacters = new Set(Object.values(mdReplace));
+
+const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => '\\' + x).join('|')})`, 'g');
+
 const userLinks = {
 	'': '', // default
 	t: 'https://twitter.com',
@@ -25,30 +41,20 @@ const userLinks = {
 };
 
 
-export function edit(regex, opt)
-{ // from https://github.com/markedjs/marked/blob/1aba5689a9a292912f876549360c25139a4102d9/src/helpers.js
-	regex = regex.source || regex;
-	opt = opt || '';
-	const obj = {
-		replace: (name, val) => {
-			val = val.source || val;
-			regex = regex.replace(name, val);
-			return obj;
-		},
-		getRegex: () => {
-			return new RegExp(regex, opt);
-		}
-	};
-	return obj;
-}
-
-
-const htmlRegex = new RegExp(`(?:${Object.keys(htmlReplace).join('|')})(?:.{0,4};)?`, 'g');
 export function htmlEscape(html) {
 	return html.replaceAll(htmlRegex, match => {
-		if (match.length > 1 && htmlEscapeCharacters.includes(match))
+		if (match.length > 1 && htmlEscapeCharacters.has(match))
 		{ return match; }
 		return htmlReplace[match];
+	});
+};
+
+
+export function mdEscape(md) {
+	return md.replaceAll(mdRegex, match => {
+		if (match.length > 1 && mdEscapeCharacters.has(match))
+		{ return match; }
+		return match.length > 1 ? match.substring(0, 1) + mdReplace[match.substring(1)] : mdReplace[match];
 	});
 };
 
