@@ -21,9 +21,9 @@ export default {
 	components: {
 		MarkdownEditor,
 	},
-	computed: {
-	},
-	methods: {
+	mounted() {
+		if (this.$route.query?.text)
+		{ this.content = this.$route.query.text; }
 	},
 }
 </script>
