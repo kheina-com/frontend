@@ -123,6 +123,7 @@ import Media from '@/components/Media';
 import ProgressBar from '@/components/ProgressBar';
 import FileField from '@/components/FileField';
 import RadioButtons from '@/components/RadioButtons';
+import MarkdownEditor from '@/components/MarkdownEditor';
 import Markdown from '@/components/Markdown';
 import CopyText from '@/components/CopyText';
 
@@ -141,6 +142,7 @@ export default {
 		Markdown,
 		Button,
 		CopyText,
+		MarkdownEditor,
 	},
 	setup() {
 		const tagRecommendations = ref(null);
