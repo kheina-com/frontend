@@ -33,7 +33,11 @@
 					<div>
 						<span>Description</span>
 						<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
-						<MarkdownEditor v-model:value='update.description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;'/>
+						<MarkdownEditor v-model:value='update.description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
+						<div class='markdown-editor' v-else>
+							<textarea v-model='update.description' class='interactable text'/>
+							<Markdown :content='update.description || "**Your description is empty.**"' />
+						</div>
 					</div>
 				</div>
 				<div class='field'>
@@ -107,20 +111,20 @@
 
 <script>
 import { ref } from 'vue';
-import { khatch, tagSplit, getCookie, getMediaUrl } from '@/utilities';
+import { khatch, tagSplit, getCookie, getMediaUrl, isMobile } from '@/utilities';
 import { apiErrorMessage, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
-import Loading from '@/components/Loading.vue';
-import Button from '@/components/Button.vue';
-import Title from '@/components/Title.vue';
-import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
-import ThemeMenu from '@/components/ThemeMenu.vue';
-import Media from '@/components/Media.vue';
-import ProgressBar from '@/components/ProgressBar.vue'
-import FileField from '@/components/FileField.vue'
-import RadioButtons from '@/components/RadioButtons.vue'
-import MarkdownEditor from '@/components/MarkdownEditor.vue'
-import CopyText from '@/components/CopyText.vue'
+import Loading from '@/components/Loading';
+import Button from '@/components/Button';
+import Title from '@/components/Title';
+import Subtitle from '@/components/Subtitle';
+import Error from '@/components/Error';
+import ThemeMenu from '@/components/ThemeMenu';
+import Media from '@/components/Media';
+import ProgressBar from '@/components/ProgressBar';
+import FileField from '@/components/FileField';
+import RadioButtons from '@/components/RadioButtons';
+import Markdown from '@/components/Markdown';
+import CopyText from '@/components/CopyText';
 
 export default {
 	name: 'Upload',
@@ -134,7 +138,7 @@ export default {
 		ProgressBar,
 		FileField,
 		RadioButtons,
-		MarkdownEditor,
+		Markdown,
 		Button,
 		CopyText,
 	},
@@ -334,6 +338,9 @@ export default {
 				console.error(error);
 			});
 		}
+	},
+	computed: {
+		isMobile,
 	},
 	methods: {
 		getMediaUrl,
@@ -546,7 +553,6 @@ main {
 }
 .form {
 	margin: 0 auto;
-	min-width: 800px;
 	width: 60vw;
 	position: relative;
 }
@@ -598,12 +604,6 @@ main {
 	margin: 0;
 }
 
-textarea {
-	width: 100%;
-	height: 5em;
-	margin: 0;
-	resize: vertical;
-}
 p {
 	padding: 0 0 2px 30px;
 	margin: 0 -5px;
@@ -628,5 +628,31 @@ li {
 .media {
 	display: flex;
 	justify-content: center;
+}
+
+.markdown-editor {
+	display: grid;
+	grid-template-columns: [editor-start] 1fr [editor-end] 25px [preview-start] 1fr [preview-end];
+}
+.markdown-editor textarea {
+	grid-area: editor;
+	resize: vertical;
+	min-height: 5em;
+	height: 100%;
+}
+.markdown-editor .markdown {
+	grid-area: preview;
+}
+
+@media only screen and (max-width: 1000px) {
+	.form {
+		width: auto;
+	}
+	/* .description {
+		width: auto;
+	}
+	.user-info {
+		width: auto;
+	} */
 }
 </style>

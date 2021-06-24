@@ -14,6 +14,7 @@ import User from '../views/User.vue';
 import Tag from '../views/Tag.vue';
 import Tags from '../views/Tags.vue';
 import Users from '../views/Users.vue';
+import SearchHelp from '../views/SearchHelp.vue';
 
 import Test from '../views/Test.vue';
 
@@ -315,6 +316,28 @@ const routes = [
 				{
 					property: 'og:title',
 					content: 'Markdown Guide',
+				},
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/search-help',
+		name: 'search-help',
+		component: SearchHelp,
+		meta: {
+			title: 'Search Help',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Search Help',
 				},
 				{
 					property: 'og:image',

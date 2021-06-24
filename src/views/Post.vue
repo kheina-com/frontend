@@ -58,7 +58,7 @@
 				<ol class='comments'>
 					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 					<div class='comment-field'>
-						<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+						<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <DropDown class='dropdown'><i class='material-icons-round'>sort</i>sort by</DropDown></p>
 						<div class='buttons' v-if='writeComment'>
 							<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
@@ -128,7 +128,7 @@
 			<ol class='comments'>
 				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 				<div class='comment-field'>
-					<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <button><i class='material-icons-round'>sort</i>sort by</button></p>
+					<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <DropDown><i class='material-icons-round'>sort</i>sort by</DropDown></p>
 					<div class='buttons' v-if='writeComment'>
 						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
@@ -146,22 +146,23 @@
 <script>
 import { khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost, uploadHost } from '@/config/constants';
-import Report from '@/components/Report.vue';
-import Button from '@/components/Button.vue';
-import Loading from '@/components/Loading.vue';
-import Title from '@/components/Title.vue';
-import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
-import ThemeMenu from '@/components/ThemeMenu.vue';
-import Media from '@/components/Media.vue';
-import Sidebar from '@/components/Sidebar.vue';
-import Timestamp from '@/components/Timestamp.vue';
-import Markdown from '@/components/Markdown.vue';
-import Profile from '@/components/Profile.vue';
-import Score from '@/components/Score.vue';
-import MarkdownEditor from '@/components/MarkdownEditor.vue'
-import Post from '@/components/Post.vue'
-import Thumbnail from '@/components/Thumbnail.vue'
+import Report from '@/components/Report';
+import Button from '@/components/Button';
+import Loading from '@/components/Loading';
+import Title from '@/components/Title';
+import Subtitle from '@/components/Subtitle';
+import Error from '@/components/Error';
+import ThemeMenu from '@/components/ThemeMenu';
+import Media from '@/components/Media';
+import Sidebar from '@/components/Sidebar';
+import Timestamp from '@/components/Timestamp';
+import Markdown from '@/components/Markdown';
+import Profile from '@/components/Profile';
+import Score from '@/components/Score';
+import MarkdownEditor from '@/components/MarkdownEditor';
+import Post from '@/components/Post';
+import Thumbnail from '@/components/Thumbnail';
+import DropDown from '@/components/DropDown';
 
 export default {
 	name: 'Post',
@@ -188,6 +189,7 @@ export default {
 		MarkdownEditor,
 		Button,
 		Thumbnail,
+		DropDown,
 	},
 	data() {
 		return {
@@ -628,7 +630,7 @@ ol p {
 	justify-content: flex-end;
 	margin-bottom: 25px;
 }
-.comment-label, .comment-label button {
+.comment-label, .comment-label button, .dropdown button {
 	display: flex;
 	align-items: center;
 }

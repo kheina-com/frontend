@@ -70,6 +70,10 @@ export const usersHost = usrHost;
 
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
 
+export const apiErrorMessageToast = 'An error occurred during an API call';
+
+export const apiErrorDescriptionToast = 'If you submit a bug report, please include the data below.';
+
 export const tagGroups = ['artist', 'subject', 'sponsor', 'species', 'gender', 'misc'];
 
 export const routerMetaTag = 'data-v-router';
@@ -125,17 +129,17 @@ However, this does not include the additional features below.
 
 
 ## Text Examples
-|         Markdown         |       Rendered       |
-|:------------------------:|:--------------------:|
-|       \`**bold**\`       |       **bold**       |
-|       \`__bold__\`       |       __bold__       |
-|       \`*italics*\`      |       *italics*      |
-|       \`_italics_\`      |       _italics_      |
-|   \`~~strikethrough~~\`  |   ~~strikethrough~~  |
-|   \`**_bold+italic_**\`  |   **_bold+italic_**  |
-|  \`**~~bold+strike~~**\` |  **~~bold+strike~~** |
-|  \`*~~italic+strike~~*\` |  *~~italic+strike~~* |
-| \`*~~__everything__~~*\` | *~~__everything__~~* |
+|        Markdown        |      Rendered      |
+|:----------------------:|:------------------:|
+|      \`**bold**\`      |      **bold**      |
+|      \`__bold__\`      |      __bold__      |
+|      \`*italics*\`     |      *italics*     |
+|      \`_italics_\`     |      _italics_     |
+|   \`~strikethrough~\`  |   ~strikethrough~  |
+|  \`**_bold+italic_**\` |  **_bold+italic_** |
+|  \`**~bold+strike~**\` |  **~bold+strike~** |
+|  \`*~italic+strike~*\` |  *~italic+strike~* |
+| \`*~__everything__~*\` | *~__everything__~* |
 
 
 ## Link Examples

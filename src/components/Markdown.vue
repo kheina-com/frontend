@@ -110,8 +110,9 @@ export default {
 	max-width: 1.2em;
 	max-height: 1.2em;
 	position: relative;
-	bottom: -0.25em;
+	bottom: 0.2em;
 	margin-top: -0.25em;
+	vertical-align: bottom;
 }
 .markdown hr {
 	height: 0;
@@ -209,7 +210,10 @@ export default {
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
-	margin: 0 0.25em 0.25em;
+	margin: 0.25em;
+}
+.markdown .post img {
+	display: block;
 }
 .markdown a.post:link, .markdown a.post:visited {
 	text-decoration: none;

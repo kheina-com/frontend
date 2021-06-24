@@ -426,6 +426,9 @@ html
 	--red: #c44f3b;
 	--cyan: darkcyan;
 	--violet: #9451d7;
+
+	--notification-text: #eee;
+	--notification-bg: var(--red);
 }
 html.mobile {
 	--border-size: 2px;

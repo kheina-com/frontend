@@ -1,5 +1,5 @@
 import { getMediaThumbnailUrl, getMediaUrl, khatch } from '@/utilities';
-import { postsHost } from '@/config/constants';
+import { postsHost, apiErrorDescriptionToast, apiErrorMessageToast } from '@/config/constants';
 import store from '@/global';
 
 
@@ -21,7 +21,7 @@ const mdReplace = {
 	'^': '\\^',
 	'{': '\\{',
 	'}': '\\}',
-	'-': '\\-',
+	// '-': '\\-',
 	'=': '\\=',
 };
 
@@ -75,6 +75,70 @@ export const mdTokenizer = {
 };
 
 
+const mdMaxId = parseInt('ffffffff', 16);
+
+const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, 0);
+
+const mdRequestCache = { };
+
+const mdRequestCacheLimit = 100;
+
+const mdMakeRequest = (url) => {
+	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit)
+	{ delete mdRequestCache[Object.keys(mdRequestCache)[0]]; }
+
+	const promise = new Promise(resolve => {
+
+		if (mdRequestCache.hasOwnProperty(url))
+		{
+			resolve(mdRequestCache[url]);
+			return;
+		}
+	
+		khatch(url)
+			.then(response => {
+				response.json().then(r => {
+					if (response.status < 300)
+					{
+						// description exists in a lot of responses, and is almost always the biggest one
+						// delete it just in case it exists to avoid taking up too much storage
+						if (r.hasOwnProperty('description'))
+						{ delete r.description; }
+						mdRequestCache[url] = r;
+						resolve(r);
+						return;
+					}
+					else if (response.status < 500)
+					{
+						store.commit("createToast", {
+							title: apiErrorMessageToast,
+							description: r.error,
+						});
+					}
+					else
+					{
+						store.commit("createToast", {
+							title: apiErrorMessageToast,
+							description: apiErrorDescriptionToast,
+							dump: r,
+						});
+					}
+					resolve();
+				});
+			})
+				.catch(error => {
+					console.error(error);
+					store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: error,
+					});
+					resolve();
+				});
+	});
+
+	return promise;
+};
+
 export const mdExtensions = [
 	{
 		name: 'handle',
@@ -114,7 +178,7 @@ export const mdExtensions = [
 			return match ? match.index + match[1].length : null;
 		},
 		tokenizer(src) {
-			const rule = /^:(\S+):/;
+			const rule = /^:([^\s:]+):/;
 			const match = rule.exec(src);
 			if (match)
 			{
@@ -154,51 +218,25 @@ export const mdExtensions = [
 			}
 		},
 		renderer(token) {
-			const id = Math.round(Math.random() * 1000000000).toString();
+			const id = mdRefId();
 
-			khatch(`${postsHost}/v1/post/${token.text}`)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
-						const title = htmlEscape(r.title);
-						document.getElementById(id).innerHTML = `
+			mdMakeRequest(`${postsHost}/v1/post/${token.text}`)
+				.then(r => {
+					const title = r?.title ? htmlEscape(r.title) : null;
+					const element = document.getElementById(id);
+
+					if (!element || !r)
+					{ return; }
+
+					element.innerHTML = `
+<a id="${id}" class="post" href="/p/${token.text}">
 <img src="${token.href}" alt="${title}" title="${title}">
-<p>${title}</p>
-						`.trim();
-					}
-					else if (response.status === 401)
-					{
-						store.commit("createToast", {
-							title: "An error occurred during an API call",
-							description: r.error,
-						})
-					}
-					else if (response.status === 404)
-					{
-						store.commit("createToast", {
-							title: "An error occurred during an API call",
-							description: r.error,
-						})
-					}
-					else
-					{
-						store.commit("createToast", {
-							title: "An error occurred during an API call",
-							description: "If you submit a bug report, please include the data below.",
-							dump: r,
-						})
-					}
+${title ? '<p>' + title + '</p>' : ''}
+</a>
+					`.trim();
 				});
-			})
-			.catch(error => {
-				store.commit("createToast", {
-					title: "An error occurred during an API call",
-					description: error,
-				})
-			});
 
-			return `<a id="${id}" class="post" href="/p/${token.text}">${token.text}</a>`;
+			return `<span id="${id}">${token.raw}</span>`;
 		},
 	},
 ];

@@ -59,17 +59,20 @@
 				{{following ? 'Unfollow' : 'Follow'}}
 			</Button>
 			<div class='user-info'>
-				<p class='user-field' v-if='!isEditing'><i class='material-icons'>schedule</i><Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created'/></Loading></p>
+				<p class='user-field' v-if='!isEditing'>
+					<i class='material-icons'>schedule</i>
+					<Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created'/></Loading>
+				</p>
 				<div class='user-field' v-if='isEditing'>
 					<i class='material-icons'>public</i>
-					<input v-model='user.website' class='interactable text'>
+					<input v-model='update.website' class='interactable text'>
 				</div>
 				<p v-else-if='user?.website' class='user-field website'>
 					<i class='material-icons'>public</i>
 					<Markdown :content='user?.website' inline/>
 				</p>
 				<div class='user-name'>
-					<input v-model='user.name' class='interactable text' v-if='isEditing'>
+					<input v-model='update.name' class='interactable text' v-if='isEditing'>
 					<h2 v-else>
 						<Markdown :content='user?.name' inline v-if='user'/>
 						<Loading span v-else>username</Loading>
@@ -81,12 +84,27 @@
 					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
 				</div>
 			</div>
-			<MarkdownEditor v-model:value='user.description' class='description' v-if='isEditing'/>
+			<MarkdownEditor v-model:value='update.description' class='description' v-if='isEditing'/>
 			<Markdown :content='user?.description' class='description' v-else/>
-			<Button class='interactable edit-profile-button' title='Edit profile' @click='toggleEdit' v-if='isSelf'>
-				<i class='material-icons'>{{isEditing ? 'edit_off' : 'edit'}}</i>
-				{{isEditing ? 'Cancel' : 'Edit Profile'}}
-			</Button>
+			<div class='edit-profile-button' v-if='isSelf'>
+				<div v-if='isEditing'>
+					<p>
+						Note: icon and banner are not able to be updated at this time
+					</p>
+					<Button class='interactable' title='Edit profile' @click='updateProfile'>
+						<i class='material-icons'>done</i>
+						Update Profile
+					</Button>
+					<Button class='interactable' title='Edit profile' @click='toggleEdit'>
+						<i class='material-icons'>edit_off</i>
+						Cancel
+					</Button>
+				</div>
+				<Button class='interactable' title='Edit profile' @click='toggleEdit' v-else>
+					<i class='material-icons'>edit</i>
+					Edit Profile
+				</Button>
+			</div>
 			<div v-show='tab === "posts"'>
 				<ol class='results'>
 					<p v-if='posts?.length === 0' style='text-align: center'>
@@ -152,7 +170,7 @@ import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { khatch, setTitle, isMobile } from '@/utilities';
-import { apiErrorMessage, postsHost, usersHost , tagsHost} from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, usersHost, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -168,7 +186,6 @@ import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 import Tag from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
-import { htmlEscape } from '@/utilities/markdown';
 
 
 export default {
@@ -225,6 +242,7 @@ export default {
 			tabElement: null,
 			tab: 'posts',
 			following: false,
+			update: null,
 		};
 	},
 	created() {
@@ -242,9 +260,7 @@ export default {
 						setTitle(this.user?.name ? `${this.user.name} (@${this.user.handle}) - kheina.com` : `@${this.user.handle} - kheina.com`);
 						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user.handle));
 					}
-					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
-					else if (response.status === 404)
+					else if (response.status < 500)
 					{ this.errorMessage = r.error; }
 					else
 					{
@@ -254,9 +270,9 @@ export default {
 				});
 			})
 			.catch(error => {
+				console.error(error);
 				this.errorMessage = apiErrorMessage;
 				this.error = error;
-				console.error(error);
 			});
 
 			this.fetchData();
@@ -297,48 +313,68 @@ export default {
 							response.json().then(r => {
 								if (response.status < 300)
 								{ this.posts = r; }
-								else if (response.status === 401)
-								{ this.errorMessage = r.error; }
-								else if (response.status === 404)
-								{ this.errorMessage = r.error; }
+								else if (response.status < 500)
+								{
+									this.$store.commit("createToast", {
+										title: apiErrorMessageToast,
+										description: r.error,
+									});
+								}
 								else
 								{
-									this.errorMessage = apiErrorMessage;
-									this.errorDump = r;
+									this.$store.commit("createToast", {
+										title: apiErrorMessageToast,
+										description: apiErrorDescriptionToast,
+										dump: r,
+									});
 								}
 							});
 						})
-						.catch(error => {
-							this.errorMessage = apiErrorMessage;
-							this.error = error;
-							console.error(error);
+					.catch(error => {
+						console.error(error);
+						this.$store.commit("createToast", {
+							title: apiErrorMessageToast,
+							description: error,
 						});
+					});
+					break;
+
+				case 'sets' :
+					// nothing, yet
 					break;
 
 				case 'tags' :
-					if (this.userTags == null)
+					if (this.userTags === null)
 					{
 						khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`)
 							.then(response => {
 								response.json().then(r => {
 									if (response.status < 300)
 									{ this.userTags = r; }
-									else if (response.status === 401)
-									{ this.errorMessage = r.error; }
-									else if (response.status === 404)
-									{ this.userTags = []; }
+									else if (response.status < 500)
+									{
+										this.$store.commit("createToast", {
+											title: apiErrorMessageToast,
+											description: r.error,
+										});
+									}
 									else
 									{
-										this.errorMessage = apiErrorMessage;
-										this.errorDump = r;
+										this.$store.commit("createToast", {
+											title: apiErrorMessageToast,
+											description: apiErrorDescriptionToast,
+											dump: r,
+										});
 									}
 								});
 							})
-							.catch(error => {
-								this.errorMessage = apiErrorMessage;
-								this.error = error;
-								console.error(error);
+						.catch(error => {
+							console.error(error);
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: error,
 							});
+						});
 					}
 					break;
 
@@ -359,27 +395,90 @@ export default {
 							response.json().then(r => {
 								if (response.status < 300)
 								{ this.posts = r; }
-								else if (response.status === 401)
-								{ this.errorMessage = r.error; }
-								else if (response.status === 404)
-								{ this.errorMessage = r.error; }
+								else if (response.status < 500)
+								{
+									this.$store.commit("createToast", {
+										title: apiErrorMessageToast,
+										description: r.error,
+									});
+								}
 								else
 								{
-									this.errorMessage = apiErrorMessage;
-									this.errorDump = r;
+									this.$store.commit("createToast", {
+										title: apiErrorMessageToast,
+										description: apiErrorDescriptionToast,
+										dump: r,
+									});
 								}
 							});
 						})
 						.catch(error => {
-							this.errorMessage = apiErrorMessage;
-							this.error = error;
 							console.error(error);
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: error,
+							});
 						});
 					break;
 			}
 		},
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
+			if (this.isEditing)
+			{
+				this.update = {
+					name: this.user?.name,
+					website: this.user?.website,
+					description: this.user?.description,
+				};
+			}
+		},
+		updateProfile() {
+			// name: str = None
+			// privacy: UserPrivacy = None
+			// icon: str = None
+			// website: str = None
+			// description: str = None
+
+			khatch(
+				`${usersHost}/v1/update_self`,
+				{
+					method: 'POST',
+					body: this.update,
+				}
+			).then(response => {
+				if (response.status < 300)
+				{
+					this.user = Object.assign(this.user, this.update);
+					this.isEditing = false;
+					return;
+				}
+				response.json()
+					.then(r => {
+						if (response.status < 500)
+						{
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: r.error,
+							});
+						}
+						else
+						{
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: apiErrorDescriptionToast,
+								dump: r,
+							});
+						}
+					});
+			})
+			.catch(error => {
+				console.error(error);
+				this.$store.commit("createToast", {
+					title: apiErrorMessageToast,
+					description: error,
+				});
+			});
 		},
 		toggleIconUpload() {
 			this.isUploadIcon = true;
@@ -491,8 +590,11 @@ main {
 	width: auto;
 }
 
-.edit-profile-button {
+.edit-profile-button button {
 	margin: 0 auto 25px;
+}
+.edit-profile-button p {
+	text-align: center;
 }
 .user-field i {
 	margin: 0 0.25em 0 0;

@@ -21,16 +21,10 @@
 			</router-link>
 		</div>
 		<div class='nav' :style='`background: ${navBgColor}`'>
-			<form class='search-bar' v-on:submit.prevent='noop'>
-				<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
-				<div class='cover'></div>
-				<button @click='runSearchQuery'><i class='material-icons-round'>search</i></button>
-				<i class='material-icons-round' style='position: absolute; right: -1.8em; top: 0; margin: 0.39em' title='Search help'>help_outline</i>
-			</form>
 			<div class='profile' v-if='isLoggedIn'>
 				<i class='kheina-icons icon' title='You are an admin' v-if='isAdmin'>sword</i>
 				<i class='material-icons icon' title='You are a moderator' v-else-if='isMod'>verified_user</i>
-				<i class='material-icons icon' title='You are verified!' v-else-if='isVerified'>verified</i>
+				<i class='material-icons icon' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='isVerified'>verified</i>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
 						<Thumbnail :post='userIcon' v-model:isLoading='isIconLoading' :size='200'/>
@@ -40,6 +34,18 @@
 			<div class='profile' v-else>
 				<router-link :to='`/account/login?path=${$route.fullPath}`' class='interactable login'>Login</router-link>
 			</div>
+			<form class='search-bar' v-on:submit.prevent='noop'>
+				<div class='search-input'>
+					<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
+					<div class='cover'></div>
+					<button @click='runSearchQuery'><i class='material-icons-round'>search</i></button>
+				</div>
+				<div class='search-help'>
+					<router-link to='/search-help' class='icon'>
+						<i class='material-icons-round' title='Search help'>help_outline</i>
+					</router-link>
+				</div>
+			</form>
 		</div>
 		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
 		<div v-if='editMessage' class='markdown edit-message'>
@@ -59,6 +65,7 @@
 					Upload
 				</p>
 			</router-link>
+			<div class='menu-border'></div>
 			<ol class='inner'>
 				<li v-if='environment == "local"'>
 					<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
@@ -214,7 +221,7 @@ export default {
 	computed: {
 		isMobile,
 		isVerified() {
-			return false;
+			return Boolean(this.$store.state.user?.verified);
 		},
 		isMod() {
 			return Boolean(this.$store.state.auth?.scope?.includes('mod'));
@@ -355,9 +362,9 @@ html.mobile .menu-open .menu, .menu-open .menu {
 }
 
 .menu .inner {
-	padding: 0.5em 5px 0;
-	margin: 2.5rem 20px 25px;
-	border-top: var(--border-size) solid var(--bordercolor);
+	padding: 0.5em 25px 0;
+	margin: 0 0 25px;
+	overflow: auto;
 }
 .menu button {
 	font-size: 1em;
@@ -447,10 +454,11 @@ textarea {
 }
 
 .search-bar {
-	position: relative;
+	display: flex;
+	align-items: center;
 }
 .search-bar input {
-	min-width: 400px;
+	min-width: 350px;
 	width: 30vw;
 }
 i {
@@ -476,9 +484,24 @@ i {
 }
 button:hover /*, button:active, button:focus */
 { color: var(--icolor); }
+.search-input {
+	position: relative;
+}
+.search-help {
+	width: 0;
+}
 
 .mobile .search-bar {
 	font-size: 1.5em;
+}
+
+.menu-border {
+	border-top: var(--border-size) solid var(--bordercolor);
+	margin: 2.5rem 20px 0;
+}
+
+.mobile .menu-border {
+	margin-top: 4em;
 }
 
 .search-bar .cover {
@@ -567,10 +590,10 @@ ol > :last-child {
 }
 .counter span {
 	font-size: 0.5em;
-	background: var(--red);
+	background: var(--notification-bg);
 	padding: 0.25em 0.5em;
 	border-radius: 1em;
-	color: var(--textcolor);
+	color: var(--notification-text);
 }
 .create p {
 	-webkit-transition: ease var(--fadetime);
@@ -614,9 +637,6 @@ html.mobile .menu-open .create p, .menu-open .create p {
 /* MOBILE */
 .mobile .menu ol {
 	font-size: 2rem;
-}
-.mobile .menu .inner {
-	margin-top: 4rem;
 }
 .mobile .banner {
 	padding-top: 4rem;

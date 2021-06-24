@@ -28,7 +28,7 @@ export default {
 </script>
 
 <style scoped>
-div.cookies
+.cookies
 {
 	position: fixed;
 	left: 25px;
@@ -38,8 +38,9 @@ div.cookies
 	border-radius: var(--border-radius);
 	padding: 25px;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	z-index: 1;
 }
-div.cookies .interactable
+.cookies .interactable
 {
 	margin: 0 0 0 25px;
 	display: inline-block;
