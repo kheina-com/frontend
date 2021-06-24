@@ -110,9 +110,9 @@ export default {
 	max-width: 1.2em;
 	max-height: 1.2em;
 	position: relative;
-	bottom: 0.2em;
 	margin-top: -0.25em;
 	vertical-align: bottom;
+	transform: translateY(calc(50% - 0.6em))
 }
 .markdown hr {
 	height: 0;
