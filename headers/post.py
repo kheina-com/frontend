@@ -1,4 +1,4 @@
-from utilities import api_timeout, concise, header_defaults, header_description, header_image, header_title
+from utilities import api_timeout, concise, demarkdown, header_defaults, header_description, header_image, header_title
 from aiohttp import ClientTimeout, request as request_async
 from kh_common.config.constants import posts_host
 from kh_common.logging import getLogger
@@ -41,7 +41,7 @@ async def postMetaTags(match) :
 		return None
 
 	return ''.join([
-		header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(data['user']['name'] or data['user']['handle'])),
+		header_title.format(escape(data['title'] or match[1]) + ' by ' + escape(demarkdown(data['user']['name'] or data['user']['handle']))),
 		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{match[1]}/thumbnails/1200.jpg') if data['media_type'] else '',
 		header_description.format(escape(concise(data['description']))) if data['description'] else '',
 		header_defaults,
