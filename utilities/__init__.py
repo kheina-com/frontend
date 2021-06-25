@@ -19,6 +19,17 @@ markdown_regex = re_compile('|'.join([
 	r'`+',
 ]))
 
+emoji_map = {
+	'heart': '♥️',
+	'trans-flag': '🏳️‍⚧️',
+}
+
+emoji_regex = re_compile(
+	':(' +
+	'|'.join(emoji_map.keys())
+	+ '):'
+)
+
 
 def firstGroupOrNone(match) :
 	try :
@@ -29,11 +40,14 @@ def firstGroupOrNone(match) :
 
 
 def demarkdown(string) :
-	return markdown_regex.sub(firstGroupOrNone, string)
+	return markdown_regex.sub(firstGroupOrNone, emoji_regex.sub(lambda x : emoji_map[x[1]], string))
 
 
 def concise(string: str) :
 	match = concise_regex.match(demarkdown(string))
+
+	if not match :
+		return None
 
 	if len(match[1]) > description_limit :
 		description = match[1][:description_limit - 3]
@@ -47,4 +61,4 @@ def concise(string: str) :
 		cut = False
 		description = match[0]
 
-	return description + ('...' if cut else '')
+	return description.strip() + ('...' if cut else '')

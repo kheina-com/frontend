@@ -1,4 +1,4 @@
-from utilities import api_timeout, concise, default_image, header_defaults, header_description, header_image, header_title
+from utilities import api_timeout, concise, default_image, demarkdown, header_defaults, header_description, header_image, header_title
 from aiohttp import ClientTimeout, request as request_async
 from kh_common.config.constants import users_host
 from kh_common.logging import getLogger
@@ -13,7 +13,7 @@ logger = getLogger()
 async def fetchUserData(handle) :
 	try :
 		async with request_async(
-			'get',
+			'GET',
 			f'{users_host}/v1/fetch_user/{handle}',
 			timeout=ClientTimeout(api_timeout),
 		) as response :
@@ -38,7 +38,7 @@ async def userMetaTags(match) :
 		return None
 
 	if data['name'] :
-		title = f'{data["name"]} (@{data["handle"]}) - kheina.com'
+		title = f'{escape(demarkdown(data["name"]))} (@{data["handle"]}) - kheina.com'
 
 	else :
 		title = f'@{data["handle"]} - kheina.com'
@@ -46,6 +46,6 @@ async def userMetaTags(match) :
 	return ''.join([
 		header_title.format(escape(title)),
 		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpg') if data['icon'] else default_image,
-		header_description.format(escape(concise(data['description']))) if data['description'] else '',
+		header_description.format(escape(concise(data['description']))) if data['description'] and data['description'].strip() else '',
 		header_defaults,
 	])
