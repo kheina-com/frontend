@@ -1,26 +1,17 @@
 <template>
 	<div class='banner'>
-		<div class='nav-backdrop'></div>
-		<div ref='menuButton' class='menu-button' v-if='isMobile'>
-			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
-				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-				<div class='counter' v-show='!menuOpen'>
-					<span>1</span>
-				</div>
-			</button>
+		<div class='nav-backdrop'/>
+		<div v-if='editMessage' class='markdown edit-message'>
+			<textarea ref='messageField' class='interactable text' v-model='message'></textarea>
+			<div style='display: flex'>
+				<Button @click='updateMessage'>update</button>
+				<Button @click='removeMessage' red>remove</button>
+			</div>
 		</div>
-		<div ref='menuButton' class='menu-button' v-else>
-			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
-				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-			</button>
-			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='isLoggedIn'>
-				<i class='material-icons-round'>notifications</i>
-				<div class='counter' v-show='true'>
-					<span>1</span>
-				</div>
-			</router-link>
-		</div>
-		<div class='nav' :style='`background: ${navBgColor}`'>
+		<Markdown :content='message' v-else-if='message'/>
+		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
+		<div class='nav'>
+			<div class='bg'/>
 			<div class='profile' v-if='isLoggedIn'>
 				<i class='kheina-icons icon' title='You are an admin' v-if='isAdmin'>sword</i>
 				<i class='material-icons icon' title='You are a moderator' v-else-if='isMod'>verified_user</i>
@@ -47,15 +38,7 @@
 				</div>
 			</form>
 		</div>
-		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
-		<div v-if='editMessage' class='markdown edit-message'>
-			<textarea ref='messageField' class='interactable text' v-model='message'></textarea>
-			<div style='display: flex'>
-				<Button @click='updateMessage'>update</button>
-				<Button @click='removeMessage' red>remove</button>
-			</div>
-		</div>
-		<Markdown :content='message' v-else-if='message'/>
+		<div class='screen-cover' ref='screenCover' @click='toggleMenu'></div>
 		<div class='menu' ref='menu'>
 			<router-link to='/create' :class='(isLoggedIn ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
 				<div class='icon'>
@@ -148,7 +131,25 @@
 				<ThemeSelector class='theme-menu'/>
 			</ol>
 		</div>
-		<div class='screen-cover' ref='screenCover' @click='toggleMenu'></div>
+		<div ref='menuButton' class='menu-button' v-if='isMobile'>
+			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
+				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
+				<div class='counter' v-show='!menuOpen'>
+					<span>1</span>
+				</div>
+			</button>
+		</div>
+		<div ref='menuButton' class='menu-button' v-else>
+			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
+				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
+			</button>
+			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='isLoggedIn'>
+				<i class='material-icons-round'>notifications</i>
+				<div class='counter' v-show='true'>
+					<span>1</span>
+				</div>
+			</router-link>
+		</div>
 	</div>
 </template>
 
@@ -246,23 +247,6 @@ export default {
 		userIcon() {
 			return this.$store.state.user?.icon;
 		},
-		navBgColor() {
-			let bg1color = this.$store.state.theme.bg1color.trim();
-			if (bg1color.length === 4)
-			{
-				return '#'
-					+ bg1color.substr(1, 1)
-					+ bg1color.substr(1, 1)
-					+ bg1color.substr(2, 1)
-					+ bg1color.substr(2, 1)
-					+ bg1color.substr(3, 1)
-					+ bg1color.substr(3, 1)
-					+ Math.round(0.95 * 256).toString(16);
-			}
-			if (bg1color.length === 7)
-			{ return bg1color + Math.round(0.95 * 256).toString(16); }
-			return bg1color;
-		},
 	},
 	methods: {
 		getMediaThumbnailUrl,
@@ -330,7 +314,6 @@ export default {
 	top: 0;
 	left: -25vw;
 	left: calc(min(-20vw, -18em) - 3px);
-	z-index: 1;
 }
 
 html.mobile .menu {
@@ -392,13 +375,18 @@ html.mobile .menu-open .menu, .menu-open .menu {
 	top: 0;
 	position: fixed;
 	width: 100%;
-	z-index: -3;
+}
+.nav .bg {
+	position: absolute;
+	background: var(--bg1color);
+	opacity: 95%;
+	width: 100%;
+	height: 100%;
 }
 .menu-button {
 	left: 0;
 	top: 0;
 	position: fixed;
-	z-index: 103;
 }
 .menu-open .menu-button {
 	position: fixed;
@@ -410,7 +398,6 @@ html.mobile .menu-open .menu, .menu-open .menu {
 .markdown {
 	padding: 20px 0 25px;
 	position: relative;
-	z-index: -2;
 	background: var(--bg1color);
 }
 textarea {
@@ -489,6 +476,7 @@ button:hover /*, button:active, button:focus */
 }
 .search-help {
 	width: 0;
+	z-index: 1;
 }
 
 .mobile .search-bar {
@@ -541,7 +529,6 @@ ol > :last-child {
     margin: 0 0 0 7.5rem;
 	padding: 0;
     height: 2.5rem;
-	z-index: 10;
 	left: 0;
 	top: 0;
 }
@@ -617,7 +604,6 @@ html.mobile .menu-open .create p, .menu-open .create p {
 	right: 25px;
 	margin-top: 0.5em;
 	padding: 0.25em;
-	z-index: -1;
 }
 .edit-message-button i {
 	margin: 0;

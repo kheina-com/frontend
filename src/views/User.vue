@@ -590,11 +590,18 @@ main {
 	width: auto;
 }
 
+.edit-profile-button div {
+	text-align: center;
+}
 .edit-profile-button button {
 	margin: 0 auto 25px;
 }
 .edit-profile-button p {
 	text-align: center;
+}
+.edit-profile-button div button {
+	display: flex inline;
+	margin: 25px 12.5px;
 }
 .user-field i {
 	margin: 0 0.25em 0 0;
