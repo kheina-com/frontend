@@ -144,7 +144,7 @@
 </template>
 
 <script>
-import { khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
+import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost, uploadHost } from '@/config/constants';
 import Report from '@/components/Report';
 import Button from '@/components/Button';
@@ -217,7 +217,7 @@ export default {
 							this.parent = false;
 							this.fetchParent(r.parent);
 						}
-						setTitle(`${this.post?.title || this.postId} by ${this.post.user.name || this.post.user.handle}`);
+						setTitle(`${this.post?.title || this.postId} by ${demarkdown(this.post.user.name || this.post.user.handle)}`);
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }

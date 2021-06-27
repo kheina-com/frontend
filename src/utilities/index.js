@@ -143,3 +143,34 @@ export function authCookie()
 	{ return null; }
 	return JSON.parse(atob(auth.split('.')[1]).match(/{.+}/)[0]);
 }
+
+const mdRegex = new RegExp([
+	`\[.+\]\((.+)\)`,
+	`#{1,6} `,
+	'`+',
+].join('|'), 'gi'); 
+
+const linkRegex = /\((.+)\)/;
+
+const emojiMap = {
+	'heart': '♥️',
+	'trans-flag': '🏳️‍⚧️',
+}
+
+const emojiRegex = new RegExp(
+	':(?:' +
+	Object.keys(emojiMap).join('|')
+	+ '):',
+	'gi'
+)
+
+export function demarkdown(string) {
+	return string
+		.replaceAll(emojiRegex, x => emojiMap[x.substring(1, x.length - 1)])
+		.replaceAll(mdRegex, x => {
+			const match = linkRegex.exec(x);
+			if (match)
+			{ return match[1]; }
+			return '';
+		});
+}

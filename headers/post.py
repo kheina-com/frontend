@@ -16,7 +16,7 @@ async def fetchPostData(post_id) :
 
 	try :
 		async with request_async(
-			'get',
+			'GET',
 			f'{posts_host}/v1/post/{post_id}',
 			timeout=ClientTimeout(api_timeout),
 		) as response :
