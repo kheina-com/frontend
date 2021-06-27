@@ -169,7 +169,7 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { khatch, setTitle, isMobile } from '@/utilities';
+import { demarkdown, khatch, setTitle, isMobile } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, usersHost, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -257,7 +257,7 @@ export default {
 					if (response.status < 300)
 					{
 						this.user = r;
-						setTitle(this.user?.name ? `${this.user.name} (@${this.user.handle}) - kheina.com` : `@${this.user.handle} - kheina.com`);
+						setTitle(this.user?.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) - kheina.com` : `@${this.user.handle} - kheina.com`);
 						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user.handle));
 					}
 					else if (response.status < 500)
