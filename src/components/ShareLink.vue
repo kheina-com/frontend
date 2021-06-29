@@ -39,6 +39,7 @@ export default {
 
 <style scoped>
 i {
+	font-size: 1.5em;
 	display: block;
 }
 button {

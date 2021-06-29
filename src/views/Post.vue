@@ -122,7 +122,7 @@
 							<Report :data='{ post: postId }' v-if='!isLoading'/>
 							<button><i class='material-icons-round'>repeat</i></button>
 							<button><i class='material-icons-round'>favorite</i></button>
-							<button><i class='material-icons-round'>share</i></button>
+							<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 							<button><i class='material-icons-round'>more_horiz</i></button>
 						</div>
 						<ThemeMenu />
