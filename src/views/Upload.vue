@@ -56,7 +56,7 @@
 						</ol>
 					</div>
 				</div>
-				<div class='field'>
+				<div class='field popup-info'>
 					<div>
 						<span>Privacy</span>
 						<RadioButtons
@@ -69,15 +69,14 @@
 							]"
 						/>
 					</div>
-					<!-- <div>
-						Public - Anyone can see, and appears in searches
-						<br>
-						Unlisted - Hidden from searches, but anyone with a link can view
-						<br>
-						Private - Only people you explicitly invite can view
-					</div> -->
+					<div class='selection-info'>
+						<p v-if='update.privacy === "public"'>Anyone can see, and appears in searches</p>
+						<p v-if='update.privacy === "unlisted"'>Hidden from searches, but anyone with a link can view</p>
+						<!-- <p v-if='update.privacy === "private"'>Only people you explicitly invite can view</p> -->
+						<p v-if='update.privacy === "private"'>Only you can view</p>
+					</div>
 				</div>
-				<div class='field'>
+				<div class='field popup-info'>
 					<div>
 						<span>Rating</span>
 						<RadioButtons
@@ -90,13 +89,71 @@
 							]"
 						/>
 					</div>
-					<!-- <div>
-						General - Appropriate for all audiences
-						<br>
-						Mature - Tasteful nudity
-						<br>
-						Explicit - Sex, porn, etc
-					</div> -->
+					<div class='selection-info'>
+						<p v-if='update.rating === "general"'>Appropriate for all audiences</p>
+						<p v-if='update.rating === "mature"'>Tasteful nudity, nudity where genitals are not the primary focus</p>
+						<p v-if='update.rating === "explicit"'>Sex, porn, or nudity where genitals are the primary focus</p>
+					</div>
+				</div>
+				<div class='field popup-info' v-show='false'>
+					<div>
+						<span>Flags</span>
+						<CheckBoxes
+							name='flags'
+							v-model:value='update.flags'
+							:data="[
+								'auction',
+								'emoji',
+								'user-icon',
+							]"
+						/>
+					</div>
+					<ul class='selection-info'>
+						<li v-if='update.flags && update.flags.includes("auction")'>Include bidding functions on your post</li>
+						<li v-if='update.flags && update.flags.includes("emoji")'>Create an emoji from your post, to be used across the site</li>
+						<li v-if='update.flags && update.flags.includes("user-icon")'>Make this post your current icon</li>
+					</ul>
+				</div>
+				<div class='field' v-if='update.flags && update.flags.includes("auction")'>
+					<p class='underline'>Auction Info</p>
+					<div class='multi-field'>
+						<div>
+							<span>Duration</span>
+							<input class='interactable text' placeholder='hours' v-model='update.title'>
+						</div>
+						<div>
+							<span>Minimum Bid Increment</span>
+							<input class='interactable text' placeholder='Leave Empty for $1' v-model='update.title'>
+						</div>
+						<div>
+							<span>Starting Bid</span>
+							<input class='interactable text' placeholder='Leave empty for $0' v-model='update.title'>
+						</div>
+						<div>
+							<span>Auto Buy</span>
+							<input class='interactable text' placeholder='Leave empty to omit' v-model='update.title'>
+						</div>
+					</div>
+					<div class='field'>
+						<span>Snipe Protection</span>
+						<div>
+						If a bid is made within <input class='interactable text' placeholder='Leave empty for 60' v-model='update.title'> minutes of the auction ending,
+						extend the auction by <input class='interactable text' placeholder='Leave empty for 60' v-model='update.title'> minutes.
+						</div>
+					</div>
+					<b style='text-align: center; display: block'>Note: kheina.com will not charge your clients for you. You must invoice your clients yourself or use a third party payment processor.</b>
+				</div>
+				<div class='field popup-info' v-if='update.flags && update.flags.includes("emoji")'>
+					<div>
+						<span>Emoji Name</span>
+						<div>
+							<input class='interactable text' :placeholder='emojiPlaceholder' v-model='update.emoji_name'>
+						</div>
+					</div>
+					<div class='selection-info'>
+						Your handle will be appended to the end of the emoji name for uniqueness.
+						Don't worry, it can still be used across the site, without any restrictions
+					</div>
 				</div>
 				<div class='actions'>
 					<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
@@ -126,6 +183,7 @@ import RadioButtons from '@/components/RadioButtons';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import Markdown from '@/components/Markdown';
 import CopyText from '@/components/CopyText';
+import CheckBoxes from '@/components/CheckBoxes';
 
 export default {
 	name: 'Upload',
@@ -143,6 +201,7 @@ export default {
 		Button,
 		CopyText,
 		MarkdownEditor,
+		CheckBoxes,
 	},
 	setup() {
 		const tagRecommendations = ref(null);
@@ -343,6 +402,19 @@ export default {
 	},
 	computed: {
 		isMobile,
+		emojiPlaceholder() {
+
+			return ':' +
+				(this.update.title || this.title || this.postId)
+					.toLowerCase()
+					.split(/\s+/)
+					.filter(x => x)
+					.join("-")
+					.replaceAll(/[^a-z-]/gi, "") +
+				'-' +
+				this.$store.state.user.handle +
+				':';
+		},
 	},
 	methods: {
 		getMediaUrl,
@@ -354,7 +426,7 @@ export default {
 				errorMessage: this.errorMessage,
 				errorDump: this.errorDump,
 				file: this.file,
-				update: this.update,
+				update: JSON.parse(JSON.stringify(this.update)),
 				title: this.title,
 				description: this.description,
 				privacy: this.privacy,
@@ -560,6 +632,44 @@ main {
 }
 .form .field {
 	margin: 25px 0;
+}
+.form .multi-field {
+	display: flex;
+	align-items: center;
+	flex-flow: wrap;
+	margin: 0 25px;
+}
+.form .multi-field div {
+	margin-right: 25px;
+}
+.form .multi-field div, .form .multi-field span {
+	display: block;
+}
+.form .multi-field :last-child, .form .multi-field span {
+	margin: 0;
+	left: 0;
+}
+.underline {
+	border-bottom: var(--border-size) solid var(--bordercolor);
+	margin-bottom: 5px;
+}
+.form .field.popup-info {
+	display: flex;
+	align-items: center;
+}
+.selection-info {
+	text-align: right;
+	width: 100%;
+}
+.selection-info p {
+	padding: 0;
+	margin: 0;
+}
+.selection-info li {
+	margin: 0 0 10px;
+}
+.selection-info > :last-child {
+	margin: 0;
 }
 .actions {
 	display: flex;

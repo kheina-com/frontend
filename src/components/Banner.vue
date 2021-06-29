@@ -602,8 +602,11 @@ html.mobile .menu-open .create p, .menu-open .create p {
 .edit-message-button {
 	position: absolute;
 	right: 25px;
-	margin-top: 0.5em;
 	padding: 0.25em;
+	top: calc(2.5rem + 20px);
+}
+.mobile .edit-message-button {
+	top: calc(4rem + 20px);
 }
 .edit-message-button i {
 	margin: 0;

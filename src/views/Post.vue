@@ -6,7 +6,7 @@
 			<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
 				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
-				<main>
+				<main class='main'>
 					<div v-if='parent !== null' class='parent'>
 						<p>Parent post</p>
 						<Loading :isLoading='!parent.postId'>
@@ -51,6 +51,7 @@
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
 						<button><i class='material-icons-round'>repeat</i></button>
 						<button><i class='material-icons-round'>favorite</i></button>
+						<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 						<button><i class='material-icons-round'>more_horiz</i></button>
 					</div>
 					<ThemeMenu />
@@ -75,55 +76,58 @@
 			<Media v-if='isLoading || post.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' loadingStyle='100vw; 100vw'/>
 			<div class='container'>
 				<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
-				<main>
-					<div v-if='parent !== null' class='parent'>
-						<p>Parent post</p>
-						<Loading :isLoading='!parent.postId'>
-							<router-link :to='`/p/${parent.postId}`' class='inner'>
-								<div class='parent-thumbnail'>
-									<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
+				<div class='main'>
+					<main>
+						<div v-if='parent !== null' class='parent'>
+							<p>Parent post</p>
+							<Loading :isLoading='!parent.postId'>
+								<router-link :to='`/p/${parent.postId}`' class='inner'>
+									<div class='parent-thumbnail'>
+										<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
+									</div>
+									<p>
+										{{parent.title || parent.postId}}
+									</p>
+								</router-link>
+							</Loading>
+						</div>
+						<div class='post-header'>
+							<Score :score='post?.score' :postId='postId' />
+							<div class='post-title'>
+								<input v-if='editing' class='interactable text title-field' v-model='post.title'>
+								<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
+								<div class='privacy'>
+									<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
+									<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 								</div>
-								<p>
-									{{parent.title || parent.postId}}
-								</p>
-							</router-link>
-						</Loading>
-					</div>
-					<div class='post-header'>
-						<Score :score='post?.score' :postId='postId' />
-						<div class='post-title'>
-							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
-							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
-							<div class='privacy'>
-								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+								<Profile :isLoading='isLoading' v-bind='post?.user'/>
 							</div>
-							<Profile :isLoading='isLoading' v-bind='post?.user'/>
 						</div>
-					</div>
-					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-					<div v-else-if='editing' style='width: 100%'>
-						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
-						<div class='update-button'>
-							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
-							<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-							<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+						<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
+						<div v-else-if='editing' style='width: 100%'>
+							<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
+							<div class='update-button'>
+								<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
+								<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
+								<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+							</div>
 						</div>
-					</div>
-					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
-					<Loading :isLoading='isLoading'>
-						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
-						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
-						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
-					</Loading>
-					<div class='post-buttons' v-show='!isLoading'>
-						<Report :data='{ post: postId }' v-if='!isLoading'/>
-						<button><i class='material-icons-round'>repeat</i></button>
-						<button><i class='material-icons-round'>favorite</i></button>
-						<button><i class='material-icons-round'>more_horiz</i></button>
-					</div>
-					<ThemeMenu />
-				</main>
+						<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
+						<Loading :isLoading='isLoading'>
+							<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
+							<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
+							<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
+						</Loading>
+						<div class='post-buttons' v-show='!isLoading'>
+							<Report :data='{ post: postId }' v-if='!isLoading'/>
+							<button><i class='material-icons-round'>repeat</i></button>
+							<button><i class='material-icons-round'>favorite</i></button>
+							<button><i class='material-icons-round'>share</i></button>
+							<button><i class='material-icons-round'>more_horiz</i></button>
+						</div>
+						<ThemeMenu />
+					</main>
+				</div>
 			</div>
 			<ol class='comments'>
 				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
@@ -145,7 +149,7 @@
 
 <script>
 import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, postsHost, tagsHost, uploadHost } from '@/config/constants';
+import { apiErrorMessage, environment, postsHost, tagsHost, uploadHost } from '@/config/constants';
 import Report from '@/components/Report';
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
@@ -163,6 +167,7 @@ import MarkdownEditor from '@/components/MarkdownEditor';
 import Post from '@/components/Post';
 import Thumbnail from '@/components/Thumbnail';
 import DropDown from '@/components/DropDown';
+import ShareLink from '@/components/ShareLink';
 
 export default {
 	name: 'Post',
@@ -190,9 +195,11 @@ export default {
 		Button,
 		Thumbnail,
 		DropDown,
+		ShareLink,
 	},
 	data() {
 		return {
+			environment,
 			editing: false,
 			post: null,
 			tags: null,
@@ -502,9 +509,11 @@ export default {
 	grid-template-columns: [sidebar-start] max(20vw, 300px) [sidebar-end main-start] auto [main-end];
 	grid-template-rows: [sidebar-start main-start] auto [sidebar-end main-end];
 }
+.main {
+	grid-area: main;
+}
 main {
 	background: var(--bg1color);
-	grid-area: main;
 	border-radius: var(--border-radius) 0 0 3px;
 	display: flex;
 	flex-direction: column;

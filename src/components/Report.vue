@@ -1,5 +1,5 @@
 <template>
-	<button @click.prevent.stop='navigate' class='report'><i class='kheina-icons'>report_content</i>Report Content</button>
+	<button @click.prevent.stop='navigate' class='report'><i class='kheina-icons'>report_content</i><span>Report Content</span></button>
 </template>
 
 <script>
@@ -39,5 +39,12 @@ button:hover {
 i {
 	margin-right: 0.25em;
 	font-size: 1.2em;
+}
+.mobile i {
+	margin-right: 0;
+	font-size: 1.5em;
+}
+.mobile span {
+	display: none;
 }
 </style>

@@ -4,13 +4,14 @@
 
 <script>
 export default {
-	name: 'ThemeMenu',
-	props: {
-	}
+	name: 'ThemeButton',
 }
 </script>
 
 <style scoped>
+.mobile .themebutton {
+	display: none;
+}
 .themebutton
 {
 	cursor: pointer;

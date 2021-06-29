@@ -32,6 +32,9 @@ export default {
 .theme-menu select.interactable option
 { color: var(--textcolor) !important; }
 
+.mobile .themes, .mobile .themebutton {
+	display: none;
+}
 .themes {
 	overflow: hidden;
 	position: absolute;
