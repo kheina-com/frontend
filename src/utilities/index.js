@@ -152,10 +152,7 @@ const mdRegex = new RegExp([
 
 const linkRegex = /\((.+)\)/;
 
-const emojiMap = {
-	'heart': '♥️',
-	'trans-flag': '🏳️‍⚧️',
-}
+import emojiMap from '@/config/emoji';
 
 const emojiRegex = new RegExp(
 	':(?:' +

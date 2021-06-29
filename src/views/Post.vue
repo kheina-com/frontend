@@ -24,7 +24,10 @@
 						<Score :score='post?.score' :postId='postId' />
 						<div class='post-title'>
 							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
-							<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
+							<h2 v-else>
+								<Loading span v-if='isLoading'>this is an example title</Loading>
+								<Markdown v-else :content='post?.title' inline/>
+							</h2>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
@@ -95,7 +98,10 @@
 							<Score :score='post?.score' :postId='postId' />
 							<div class='post-title'>
 								<input v-if='editing' class='interactable text title-field' v-model='post.title'>
-								<Title v-else :isLoading='isLoading' size='2em' static='left'>{{isLoading ? 'this is an example title' : post?.title}}</Title>
+								<h2 v-else>
+									<Loading span v-if='isLoading'>this is an example title</Loading>
+									<Markdown v-else :content='post?.title' inline/>
+								</h2>
 								<div class='privacy'>
 									<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 									<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
@@ -224,7 +230,7 @@ export default {
 							this.parent = false;
 							this.fetchParent(r.parent);
 						}
-						setTitle(`${this.post?.title || this.postId} by ${demarkdown(this.post.user.name || this.post.user.handle)}`);
+						setTitle(`${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`);
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
@@ -572,6 +578,11 @@ a.profile:hover {
 	display: flex;
 	flex-flow: column;
 	align-items: flex-start;
+}
+.post-title h2 {
+	font-size: 2em;
+	font-weight: normal;
+	margin: 0;
 }
 .edit-button {
 	margin-left: 0.5em;

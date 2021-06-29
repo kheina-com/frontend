@@ -13,7 +13,10 @@
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
-				<Title :isLoading='isLoading' size='1.5em' static='left' style='margin-bottom: 0.25em' v-if='(title || isLoading) && !comment'>{{isLoading ? 'this is an example title' : title}}</Title>
+				<h2>
+					<Loading span v-if='isLoading'>this is an example title</Loading>
+					<Markdown v-else :content='title' inline/>
+				</h2>
 				<Profile :isLoading='isLoading' v-bind='user'/>
 			</div>
 		</div>
@@ -347,6 +350,11 @@ export default {
 	flex-flow: column;
 	align-items: flex-start;
 }
+.post-header h2 {
+	font-size: 1.5em;
+	font-weight: normal;
+	margin: 0;
+}
 .nested .post-header {
 	--bg2color: var(--bg1color);
 }
@@ -363,7 +371,7 @@ a.profile:hover {
 	background: var(--bg1color);
 }
 .post .markdown {
-	margin: -10px -10px 15px;
+	margin: -10px 0 15px -10px;
 	padding: 10px;
 	overflow: hidden;
 }

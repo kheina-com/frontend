@@ -178,7 +178,7 @@ export const mdExtensions = [
 			return match ? match.index + match[1].length : null;
 		},
 		tokenizer(src) {
-			const rule = /^:([^\s:]+):/;
+			const rule = /^:([a-z-]+):/;
 			const match = rule.exec(src);
 			if (match)
 			{

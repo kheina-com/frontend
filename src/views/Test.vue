@@ -53,8 +53,6 @@ export default {
 	mounted() {
 		this.audio = new Audio('assets/sounds/notify.ogg');
 	},
-	computed: {
-	},
 }
 </script>
 
