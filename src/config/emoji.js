@@ -1,5 +1,5 @@
 export default {
-	'heart': '\u2764',
+	'heart': '♥️',
 	'grinning-face': '\ud83d\ude00',
 	'grinning-face-with-big-eyes': '\ud83d\ude03',
 	'grinning-face-with-smiling-eyes': '\ud83d\ude04',
