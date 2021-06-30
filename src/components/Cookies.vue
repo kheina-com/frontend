@@ -16,7 +16,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.displayWindow = getCookie('cookies') ? false : true;
+		this.displayWindow = !getCookie('cookies');
 	},
 	methods: {
 		goAway() {

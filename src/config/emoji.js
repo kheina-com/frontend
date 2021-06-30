@@ -1554,6 +1554,7 @@ export default {
 	'white-flag': '\ud83c\udff3',
 	'rainbow-flag': '\ud83c\udff3\ufe0f\u200d\ud83c\udf08',
 	'transgender-flag': '\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f',
+	'trans-flag': '\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f',
 	'pirate-flag': '\ud83c\udff4\u200d\u2620\ufe0f',
 	'ascension-island-flag': '\ud83c\udde6\ud83c\udde8',
 	'andorra-flag': '\ud83c\udde6\ud83c\udde9',

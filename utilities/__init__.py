@@ -1619,6 +1619,7 @@ emoji_map = {
 	'tram': '🚊',
 	'tram-car': '🚋',
 	'transgender-flag': '🏳️‍⚧️',
+	'trans-flag': '🏳️‍⚧️',
 	'transgender-symbol': '⚧',
 	'triangular-flag': '🚩',
 	'triangular-ruler': '📐',

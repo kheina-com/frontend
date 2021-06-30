@@ -39,8 +39,12 @@
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
 		</Loading>
-		<div class='buttons'>
+		<div class='buttons' v-if='!isLoading'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
+			<RepostButton :postId='postId'/>
+			<FavoriteButton :postId='postId'/>
+			<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+			<button><i class='material-icons-round'>more_horiz</i></button>
 			<button class='reply-button' @click='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-if='comment && !replying'>
 				<i class='material-icons'>reply</i>Reply
 			</button>
@@ -64,17 +68,20 @@
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
 import { uploadHost } from '@/config/constants';
-import Report from '@/components/Report.vue';
-import Button from '@/components/Button.vue';
-import Loading from '@/components/Loading.vue'
-import Title from '@/components/Title.vue';
-import Profile from '@/components/Profile.vue';
-import Markdown from '@/components/Markdown.vue';
-import Score from '@/components/Score.vue';
-import Timestamp from '@/components/Timestamp.vue';
-import Subtitle from '@/components/Subtitle.vue';
-import MarkdownEditor from '@/components/MarkdownEditor.vue';
-import Thumbnail from '@/components/Thumbnail.vue';
+import Report from '@/components/Report';
+import Button from '@/components/Button';
+import Loading from '@/components/Loading'
+import Title from '@/components/Title';
+import Profile from '@/components/Profile';
+import Markdown from '@/components/Markdown';
+import Score from '@/components/Score';
+import Timestamp from '@/components/Timestamp';
+import Subtitle from '@/components/Subtitle';
+import MarkdownEditor from '@/components/MarkdownEditor';
+import Thumbnail from '@/components/Thumbnail';
+import ShareLink from '@/components/ShareLink';
+import FavoriteButton from '@/components/FavoriteButton';
+import RepostButton from '@/components/RepostButton';
 
 export default {
 	name: 'Post',
@@ -90,6 +97,9 @@ export default {
 		MarkdownEditor,
 		Button,
 		Thumbnail,
+		ShareLink,
+		FavoriteButton,
+		RepostButton,
 	},
 	props: {
 		postId: {
@@ -467,6 +477,20 @@ ol > :last-child, ol > :last-child .post {
 	width: 100%;
 	display: flex;
 	justify-content: space-between;
+}
+.buttons button {
+	color: var(--subtle);
+	background: #0000;
+	display: block;
+	border-radius: var(--border-radius);
+	padding: 0.25em;
+}
+.buttons button:hover {
+	color: var(--icolor);
+	background: var(--bg1color);
+}
+.buttons button i {
+	display: block;
 }
 .reply-button {
 	display: flex;

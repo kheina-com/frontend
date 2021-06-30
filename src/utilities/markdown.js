@@ -139,6 +139,8 @@ const mdMakeRequest = (url) => {
 	return promise;
 };
 
+import emojiMap from '@/config/emoji';
+
 export const mdExtensions = [
 	{
 		name: 'handle',
@@ -192,7 +194,7 @@ export const mdExtensions = [
 			}
 		},
 		renderer(token) {
-			return `<img src="${token.href}" alt="${token.text}" title="${token.title}" class="emoji">`;
+			return `<img src="${token.href}" alt="${emojiMap[token.text] || token.text}" title="${token.title}" class="emoji">`;
 		},
 	},
 	{

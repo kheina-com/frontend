@@ -27,6 +27,7 @@
 					<div>
 						<span>Title</span>
 						<input class='interactable text' style='display: block; width: 100%' v-model='update.title'>
+						<Markdown class='title-render' :content='update.title' inline/>
 					</div>
 				</div>
 				<div class='field'>
@@ -754,6 +755,11 @@ li {
 }
 .markdown-editor .markdown {
 	grid-area: preview;
+}
+
+.form .field .title-render {
+	left: 0;
+	margin: 15px 0 0;
 }
 
 @media only screen and (max-width: 1000px) {

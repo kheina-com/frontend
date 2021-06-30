@@ -3,6 +3,9 @@ import { khatch } from '@/utilities';
 import { usersHost } from '@/config/constants';
 
 
+let toastCounter = 0;
+
+
 export default createStore({
 	state: {
 		auth: null,
@@ -37,11 +40,11 @@ export default createStore({
 			state.user = user;
 		},
 		createToast(state, options) {
-			const id = Math.round(Math.random() * 1000000);
+			const id = toastCounter++;
 			state.toasts[id] = {
 				id,
-				title: options?.title || '',
-				description: options?.description || '',
+				title: options?.title,
+				description: options?.description,
 				dump: options?.dump,
 				icon: options?.icon || 'warning',
 			};

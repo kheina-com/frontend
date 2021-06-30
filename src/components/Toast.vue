@@ -6,7 +6,7 @@
 				<i class='material-icons-round icon'>{{toast.icon}}</i>
 				<div>
 					<p class='title'>{{toast.title}}</p>
-					<p>
+					<p class='description' v-show='toast.description'>
 						{{toast.description}}
 					</p>
 				</div>
@@ -41,6 +41,7 @@ export default {
 	display: flex;
 	align-items: center;
 	flex-direction: column;
+	z-index: 1;
 }
 
 .toast {
@@ -57,6 +58,11 @@ export default {
 }
 .toast-body {
 	display: flex;
+}
+.description {
+	margin: 5px -5px 0;
+	padding: 5px 5px 0;
+	border-top: var(--border-size) solid var(--bordercolor);
 }
 
 .toast .icon {
@@ -75,14 +81,7 @@ export default {
 }
 
 .title {
-	margin: 0 0 5px;
-	padding: 0 0 5px;
 	font-weight: bold;
-	border-bottom: var(--border-size) solid var(--bordercolor);
-}
-
-p {
-
 }
 
 .close {
@@ -91,7 +90,17 @@ p {
 	right: 0;
 	padding: 10px;
 }
+.mobile .close {
+	padding: 0;
+}
 .close:hover {
 	color: var(--error);
+}
+
+.close i {
+	display: block;
+}
+.mobile .close i {
+	font-size: 2em;
 }
 </style>

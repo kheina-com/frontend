@@ -6,7 +6,6 @@
 		</div>
 		<i class='material-icons-round'>share</i>
 	</button>
-	<input ref='text' :value='content'>
 </template>
 
 <script>
@@ -15,10 +14,8 @@ import { ref } from 'vue';
 export default {
 	name: 'CopyText',
 	setup() {
-		const text = ref(null);
 		const popup = ref(null);
 		return {
-			text,
 			popup,
 		};
 	},
@@ -27,8 +24,12 @@ export default {
 	},
 	methods: {
 		copy() {
-			this.$refs.text.select();
+			const element = document.createElement('textarea');
+			element.value = this.content;
+			document.body.appendChild(element);
+			element.select();
 			document.execCommand('copy');
+			document.body.removeChild(element);
 
 			this.$refs.popup.style.display = 'block';
 			setTimeout(() => this.$refs.popup.style.display = null, 5000);
@@ -53,14 +54,6 @@ button:hover {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
-input {
-	position: absolute;
-	opacity: 0;
-	pointer-events: none;
-	left: -100vh;
-	width: 0;
-	height: 0;
-}
 .popup {
 	display: none;
 	position: absolute;
@@ -78,14 +71,14 @@ input {
 	border-right: var(--border-size) solid var(--bordercolor);
 	width: 1.2em;
 	height: 1.2em;
-	border-radius: var(--border-radius);
+	border-bottom-right-radius: var(--border-radius);
 	position: absolute;
-	bottom: -0.6em;
+	bottom: -0.65em;
 	background: var(--bg2color);
 	left: 50%;
 	transform: translateX(-50%) rotate(45deg);
 }
-p {
+.popup p {
 	position: relative;
 	white-space: nowrap;
 }

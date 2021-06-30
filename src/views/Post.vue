@@ -52,9 +52,9 @@
 					</Loading>
 					<div class='post-buttons' v-show='!isLoading'>
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
-						<button><i class='material-icons-round'>repeat</i></button>
-						<button><i class='material-icons-round'>favorite</i></button>
-						<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+						<RepostButton :postId='postId'/>
+						<FavoriteButton :postId='postId'/>
+						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 						<button><i class='material-icons-round'>more_horiz</i></button>
 					</div>
 					<ThemeMenu />
@@ -126,9 +126,9 @@
 						</Loading>
 						<div class='post-buttons' v-show='!isLoading'>
 							<Report :data='{ post: postId }' v-if='!isLoading'/>
-							<button><i class='material-icons-round'>repeat</i></button>
-							<button><i class='material-icons-round'>favorite</i></button>
-							<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+							<RepostButton :postId='postId'/>
+							<FavoriteButton :postId='postId'/>
+							<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 							<button><i class='material-icons-round'>more_horiz</i></button>
 						</div>
 						<ThemeMenu />
@@ -174,6 +174,8 @@ import Post from '@/components/Post';
 import Thumbnail from '@/components/Thumbnail';
 import DropDown from '@/components/DropDown';
 import ShareLink from '@/components/ShareLink';
+import FavoriteButton from '@/components/FavoriteButton';
+import RepostButton from '@/components/RepostButton';
 
 export default {
 	name: 'Post',
@@ -202,6 +204,8 @@ export default {
 		Thumbnail,
 		DropDown,
 		ShareLink,
+		FavoriteButton,
+		RepostButton,
 	},
 	data() {
 		return {
