@@ -332,6 +332,9 @@ export default {
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 }
+.post.nested {
+	background: var(--bg2color);
+}
 .post.link {
 	cursor: pointer;
 }
@@ -339,7 +342,6 @@ export default {
 	border-color: var(--icolor);
 }
 .post.link {
-	background: var(--bg2color);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
 .post.link:hover {
