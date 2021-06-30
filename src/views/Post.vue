@@ -14,9 +14,8 @@
 								<div class='parent-thumbnail'>
 									<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
 								</div>
-								<p>
-									{{parent.title || parent.postId}}
-								</p>
+								<p v-if='parent.title'><Markdown :content='parent.title' inline/></p>
+								<p v-else>{{parent.postId}}</p>
 							</router-link>
 						</Loading>
 					</div>
@@ -56,9 +55,9 @@
 						<FavoriteButton :postId='postId'/>
 						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 						<DropDown :options='[
-							{ name: "Report User", action: () => { } },
-							{ name: "Block User", action: () => { } },
-							{ name: "Block Post", action: () => { } },
+							{ name: `Follow @${post?.user?.handle}`, action: () => { } },
+							{ name: `Block @${post?.user?.handle}`, action: () => { } },
+							{ name: `Report @${post?.user?.handle}`, action: () => { } },
 						]'>
 							<i class='more-button material-icons-round'>more_horiz</i>
 						</DropDown>
@@ -149,9 +148,9 @@
 							<FavoriteButton :postId='postId'/>
 							<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 							<DropDown :options='[
-								{ name: "Report User", action: () => { } },
-								{ name: "Block User", action: () => { } },
-								{ name: "Block Post", action: () => { } },
+								{ name: `Follow @${post?.user?.handle}`, action: () => { } },
+								{ name: `Block @${post?.user?.handle}`, action: () => { } },
+								{ name: `Report @${post?.user?.handle}`, action: () => { } },
 							]'>
 								<i class='more-button material-icons-round'>more_horiz</i>
 							</DropDown>

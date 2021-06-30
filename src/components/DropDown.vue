@@ -68,6 +68,7 @@ export default {
 	position: relative;
 }
 .dropdown-menu {
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	position: absolute;
 	display: none;
 	margin: 0;
@@ -82,6 +83,9 @@ export default {
 	width: 100%;
 	text-align: left;
 	white-space: nowrap;
+}
+.mobile .dropdown-menu button {
+	padding: 0.5em 1em;
 }
 .dropdown-menu button:hover {
 	background: var(--bg2color);

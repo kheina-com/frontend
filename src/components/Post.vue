@@ -4,9 +4,9 @@
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
 			<DropDown :options='[
-				{ name: "Report User", action: () => { } },
-				{ name: "Block User", action: () => { } },
-				{ name: "Block Post", action: () => { } },
+				{ name: `Follow @${user?.handle}`, action: () => { } },
+				{ name: `Block @${user?.handle}`, action: () => { } },
+				{ name: `Report @${user?.handle}`, action: () => { } },
 			]'>
 				<i class='more-button material-icons-round'>more_horiz</i>
 			</DropDown>
@@ -251,7 +251,7 @@ export default {
 					response.json()
 						.then(r => {
 							console.log(r);
-							this.comments.unshift({
+							this.comments?.unshift({
 								post_id: r.post_id,
 								user: this.$store.state.user,
 								blocked: false,
@@ -502,6 +502,9 @@ ol > :last-child, ol > :last-child .post {
 	display: flex;
 	align-items: center;
 	color: var(--subtle);
+}
+.reply-button i {
+	font-size: 1.5em;
 }
 .reply-button:hover {
 	color: var(--icolor);
