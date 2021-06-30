@@ -533,6 +533,9 @@ ol > :last-child, ol > :last-child .post {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
+.nested .more-button:hover {
+	background: var(--bg1color);
+}
 .more-button {
 	display: block;
 	font-size: 1.5em;
