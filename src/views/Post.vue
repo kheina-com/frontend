@@ -55,14 +55,33 @@
 						<RepostButton :postId='postId'/>
 						<FavoriteButton :postId='postId'/>
 						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-						<button><i class='material-icons-round'>more_horiz</i></button>
+						<DropDown :options='[
+							{ name: "Report User", action: () => { } },
+							{ name: "Block User", action: () => { } },
+							{ name: "Block Post", action: () => { } },
+						]'>
+							<i class='more-button material-icons-round'>more_horiz</i>
+						</DropDown>
 					</div>
 					<ThemeMenu />
 				</main>
 				<ol class='comments'>
 					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 					<div class='comment-field'>
-						<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <DropDown class='dropdown'><i class='material-icons-round'>sort</i>sort by</DropDown></p>
+						<p class='comment-label'>
+							{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}}
+							<DropDown class='sort-dropdown' v-model:value='commentSort' :options='[
+								{ name: "Top", value: "top" },
+								{ name: "Hot", value: "hot" },
+								{ name: "Best", value: "best" },
+								{ name: "Controversial", value: "controversial" },
+							]'>
+								<span class='sort-by'>
+									<i class='material-icons-round'>sort</i>
+									sort by
+								</span>
+							</DropDown>
+						</p>
 						<div class='buttons' v-if='writeComment'>
 							<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
@@ -70,7 +89,7 @@
 						<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 					</div>
 					<li v-for='comment in comments'>
-						<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
+						<Comment :postId='comment?.post_id' v-bind='comment' comment/>
 					</li>
 				</ol>
 			</div>
@@ -129,7 +148,13 @@
 							<RepostButton :postId='postId'/>
 							<FavoriteButton :postId='postId'/>
 							<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-							<button><i class='material-icons-round'>more_horiz</i></button>
+							<DropDown :options='[
+								{ name: "Report User", action: () => { } },
+								{ name: "Block User", action: () => { } },
+								{ name: "Block Post", action: () => { } },
+							]'>
+								<i class='more-button material-icons-round'>more_horiz</i>
+							</DropDown>
 						</div>
 						<ThemeMenu />
 					</main>
@@ -138,7 +163,20 @@
 			<ol class='comments'>
 				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 				<div class='comment-field'>
-					<p class='comment-label'>{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}} <DropDown><i class='material-icons-round'>sort</i>sort by</DropDown></p>
+					<p class='comment-label'>
+						{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}}
+						<DropDown class='sort-dropdown' v-model:value='commentSort' :options='[
+							{ name: "Top", value: "top" },
+							{ name: "Hot", value: "hot" },
+							{ name: "Best", value: "best" },
+							{ name: "Controversial", value: "controversial" },
+						]'>
+							<span class='sort-by'>
+								<i class='material-icons-round'>sort</i>
+								sort by
+							</span>
+						</DropDown>
+					</p>
 					<div class='buttons' v-if='writeComment'>
 						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
@@ -146,7 +184,7 @@
 					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>comment</i>Comment</Button>
 				</div>
 				<li v-for='comment in comments'>
-					<Comment :postId='comment?.post_id' v-bind='comment' :link='false' comment/>
+					<Comment :postId='comment?.post_id' v-bind='comment' comment/>
 				</li>
 			</ol>
 		</div>
@@ -155,7 +193,7 @@
 
 <script>
 import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, environment, postsHost, tagsHost, uploadHost } from '@/config/constants';
+import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, tagsHost, uploadHost } from '@/config/constants';
 import Report from '@/components/Report';
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
@@ -220,6 +258,7 @@ export default {
 			comments: null,
 			newComment: null,
 			parent: null,
+			commentSort: 'best',
 		};
 	},
 	async created() {
@@ -270,41 +309,14 @@ export default {
 				});
 			})
 			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
 				console.error(error);
+				this.$store.commit("createToast", {
+					title: apiErrorMessageToast,
+					description: error,
+				});
 			});
 
-		khatch(`${postsHost}/v1/fetch_comments`, {
-				method: 'POST',
-				body: {
-					post_id: this.postId,
-					sort: 'best',
-				},
-			})
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
-						this.fetchNestedComments(r)
-							.then(() => this.comments = r);
-					}
-					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
-					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
-					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
-				});
-			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
+		this.fetchComments();
 
 		window.addEventListener('resize', this.onResize);
 	},
@@ -343,6 +355,47 @@ export default {
 		{ return this.$store.state.user && this.post?.user?.handle === this.$store.state.user?.handle; }
 	},
 	methods: {
+		fetchComments() {
+			this.comments = null;
+			khatch(`${postsHost}/v1/fetch_comments`, {
+					method: 'POST',
+					body: {
+						post_id: this.postId,
+						sort: this.commentSort,
+					},
+				})
+				.then(response => {
+					response.json().then(r => {
+						if (response.status < 300)
+						{
+							this.fetchNestedComments(r)
+								.then(() => this.comments = r);
+						}
+						else if (response.status < 500)
+						{
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: r.error,
+							});
+						}
+						else
+						{
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: apiErrorDescriptionToast,
+								dump: r,
+							});
+						}
+					});
+				})
+				.catch(error => {
+					console.error(error);
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: error,
+					});
+				});
+		},
 		fetchNestedComments(comments) {
 			let i = 0;
 			return new Promise(resolve => {
@@ -353,7 +406,7 @@ export default {
 							method: 'POST',
 							body: {
 								post_id: comment.post_id,
-								sort: 'best',
+								sort: this.commentSort,
 							},
 						})
 						.then(response => {
@@ -368,14 +421,20 @@ export default {
 											{ resolve(); }
 										});
 								}
-								else if (response.status === 401)
-								{ this.errorMessage = r.error; }
-								else if (response.status === 404)
-								{ this.errorMessage = r.error; }
+								else if (response.status < 500)
+								{
+									this.$store.commit("createToast", {
+										title: apiErrorMessageToast,
+										description: r.error,
+									});
+								}
 								else
 								{
-									this.errorMessage = apiErrorMessage;
-									this.errorDump = r;
+									this.$store.commit("createToast", {
+										title: apiErrorMessageToast,
+										description: apiErrorDescriptionToast,
+										dump: r,
+									});
 								}
 							});
 						})
@@ -391,21 +450,29 @@ export default {
 							r.postId = postId;
 							this.parent = r;
 						}
-						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
-						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
+						else if (response.status < 500)
+						{
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: r.error,
+							});
+						}
 						else
 						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: apiErrorDescriptionToast,
+								dump: r,
+							});
 						}
 					});
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
 					console.error(error);
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: error,
+					});
 				});
 		},
 		postComment() {
@@ -447,9 +514,11 @@ export default {
 						});
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
 					console.error(error);
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: error,
+					});
 				});
 		},
 		countNestedComments(post) {
@@ -508,6 +577,11 @@ export default {
 			this.post.description = this.post.description?.trim();
 			this.post.updated = Date.now();
 			this.editing = false;
+		},
+	},
+	watch: {
+		commentSort() {
+			this.fetchComments();
 		},
 	},
 }
@@ -607,10 +681,8 @@ textarea {
 	resize: vertical;
 }
 .update-button {
-	position: absolute;
-	right: 25px;
-	bottom: 25px;
 	display: flex;
+	justify-content: flex-end;
 }
 .update-button button, .update-button a {
 	margin-right: 25px;
@@ -654,7 +726,7 @@ ol p {
 	justify-content: flex-end;
 	margin-bottom: 25px;
 }
-.comment-label, .comment-label button, .dropdown button {
+.comment-label, .comment-label button {
 	display: flex;
 	align-items: center;
 }
@@ -714,13 +786,39 @@ ol p {
 	margin: -0.1em -0.25em -0.25em;
 	border-radius: var(--border-radius);
 }
-.post-buttons button:hover {
+.more-button {
+	border-radius: var(--border-radius);
+	padding: calc(0.5em / 3);
+	color: var(--subtle);
+	background: #00000000;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.post-buttons button:hover, .more-button:hover {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
-.post-buttons button i {
+.post-buttons button i, .more-button {
 	display: block;
 	font-size: 1.5em;
+}
+
+.sort-dropdown {
+	margin-left: 1em;
+}
+.sort-by {
+	display: flex;
+	align-items: center;
+	color: var(--subtle);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.sort-by:hover {
+	color: var(--icolor);
 }
 
 /* theme overrides */

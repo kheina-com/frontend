@@ -3,7 +3,13 @@
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
-			<router-link :to='`/p/${postId}`' v-if='!link' class='direct-link'><i class="material-icons">open_in_new</i></router-link>
+			<DropDown :options='[
+				{ name: "Report User", action: () => { } },
+				{ name: "Block User", action: () => { } },
+				{ name: "Block Post", action: () => { } },
+			]'>
+				<i class='more-button material-icons-round'>more_horiz</i>
+			</DropDown>
 			<div v-if='labels && !isLoading'>
 				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
 				<Subtitle static='right' v-if='parent'>comment</Subtitle>
@@ -13,7 +19,7 @@
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
-				<h2>
+				<h2 v-if='isLoading || title'>
 					<Loading span v-if='isLoading'>this is an example title</Loading>
 					<Markdown v-else :content='title' inline/>
 				</h2>
@@ -44,9 +50,8 @@
 			<RepostButton :postId='postId'/>
 			<FavoriteButton :postId='postId'/>
 			<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-			<button><i class='material-icons-round'>more_horiz</i></button>
-			<button class='reply-button' @click='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-if='comment && !replying'>
-				<i class='material-icons'>reply</i>Reply
+			<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
+				<i class='material-icons'>reply</i>
 			</button>
 		</div>
 	</div>
@@ -82,6 +87,7 @@ import Thumbnail from '@/components/Thumbnail';
 import ShareLink from '@/components/ShareLink';
 import FavoriteButton from '@/components/FavoriteButton';
 import RepostButton from '@/components/RepostButton';
+import DropDown from '@/components/DropDown';
 
 export default {
 	name: 'Post',
@@ -100,6 +106,7 @@ export default {
 		ShareLink,
 		FavoriteButton,
 		RepostButton,
+		DropDown,
 	},
 	props: {
 		postId: {
@@ -331,11 +338,11 @@ export default {
 .post.link:hover {
 	border-color: var(--icolor);
 }
-.post.nested {
+.post.link {
 	background: var(--bg2color);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
-.post.nested.link:hover {
+.post.link:hover {
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 .post {
@@ -434,12 +441,6 @@ textarea {
 .description.loading {
 	margin-bottom: 25px;
 }
-.report:hover {
-	background: var(--bg2color);
-}
-.nested .report:hover {
-	background: var(--bg1color);
-}
 
 ol {
 	list-style: none;
@@ -477,16 +478,19 @@ ol > :last-child, ol > :last-child .post {
 	width: 100%;
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 }
 .buttons button {
 	color: var(--subtle);
 	background: #0000;
-	display: block;
 	border-radius: var(--border-radius);
 	padding: 0.25em;
 }
 .buttons button:hover {
 	color: var(--icolor);
+	background: var(--bg2color);
+}
+.nested .buttons button:hover {
 	background: var(--bg1color);
 }
 .buttons button i {
@@ -511,5 +515,24 @@ ol > :last-child, ol > :last-child .post {
 }
 .bottom-margin {
 	margin-bottom: 25px;
+}
+
+.more-button {
+	border-radius: var(--border-radius);
+	padding: calc(0.5em / 3);
+	color: var(--subtle);
+	background: #00000000;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.more-button:hover {
+	color: var(--icolor);
+	background: var(--bg2color);
+}
+.more-button {
+	display: block;
+	font-size: 1.5em;
 }
 </style>
