@@ -131,6 +131,7 @@ export default {
 .markdown pre, .markdown code {
 	background: var(--bg2color);
 	border-radius: var(--border-radius);
+	padding: 0.1em 0.25em;
 }
 .markdown pre {
 	padding: 0.5em;

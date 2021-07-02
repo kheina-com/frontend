@@ -21,7 +21,7 @@
 			<div class='post-header'>
 				<h2 v-if='isLoading || title'>
 					<Loading span v-if='isLoading'>this is an example title</Loading>
-					<Markdown v-else :content='title' inline/>
+					<Markdown v-else :content='title' inline class='title'/>
 				</h2>
 				<Profile :isLoading='isLoading' v-bind='user'/>
 			</div>

@@ -456,7 +456,8 @@ html.midnight
 	--icolor: #2676D5;
 	--bg0color: #000000;
 	--bg1color: #151416;
-	--bg2color: #1b1a1c;
+	--bg2color: #151416;
+	/* --bg2color: #1b1a1c; */
 	--bg3color: #000000;
 }
 

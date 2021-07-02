@@ -1,5 +1,5 @@
 <template>
-	<main >
+	<main>
 		<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 			<button class='interactable edit-button' @click='editToggle' v-if='editable'>
 				<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
@@ -54,6 +54,19 @@
 			</div>
 			<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
 			<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
+			<DropDown class='sort-dropdown' v-model:value='sort' :options='[
+				{ name: "Newest", value: "new" },
+				{ name: "Oldest", value: "old" },
+				{ name: "Top", value: "top" },
+				{ name: "Hot", value: "hot" },
+				{ name: "Best", value: "best" },
+				{ name: "Controversial", value: "controversial" },
+			]'>
+				<span class='sort-by'>
+					<i class='material-icons-round'>sort</i>
+					sort by
+				</span>
+			</DropDown>
 			<ol class='results'>
 				<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
 				<li v-for='post in posts || 3' v-else>
@@ -77,6 +90,7 @@ import Profile from '@/components/Profile.vue';
 import Button from '@/components/Button.vue';
 import Markdown from '@/components/Markdown.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import DropDown from '@/components/DropDown';
 
 
 export default {
@@ -93,6 +107,7 @@ export default {
 		Button,
 		Markdown,
 		MarkdownEditor,
+		DropDown,
 	},
 	data() {
 		return {
@@ -111,37 +126,14 @@ export default {
 			editing: null,
 			updateBody: { },
 			pendingUpdate: false,
+			sort: null,
 		}
 	},
 	mounted() {
-		const route = useRoute();
-		khatch(`${postsHost}/v1/fetch_posts`, {
-				method: 'POST',
-				body: {
-					sort: route.query.sort ? route.query.sort : 'hot',
-					tags: [this.tag],
-				},
-			})
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{ this.posts = r; }
-					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
-					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
-					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
-				});
-			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
+		this.page = parseInt(this.$route.query.page || 1);
+		this.count = parseInt(this.$route.query.count || 64);
+		this.sort = this.$route.query.sort ? this.$route.query.sort : 'hot';
+		this.fetchPosts();
 
 		khatch(`${tagsHost}/v1/tag/${this.tag}`)
 			.then(response => {
@@ -182,6 +174,39 @@ export default {
 		},
 	},
 	methods: {
+		fetchPosts() {
+			this.posts = null;
+
+			khatch(`${postsHost}/v1/fetch_posts`, {
+					method: 'POST',
+					body: {
+						sort: this.sort,
+						tags: [this.tag],
+						page: this.page,
+						count: this.count,
+					},
+				})
+				.then(response => {
+					response.json().then(r => {
+						if (response.status < 300)
+						{ this.posts = r; }
+						else if (response.status === 401)
+						{ this.errorMessage = r.error; }
+						else if (response.status === 404)
+						{ this.errorMessage = r.error; }
+						else
+						{
+							this.errorMessage = apiErrorMessage;
+							this.errorDump = r;
+						}
+					});
+				})
+				.catch(error => {
+					this.errorMessage = apiErrorMessage;
+					this.error = error;
+					console.error(error);
+				});
+		},
 		editToggle() {
 			this.editing = !this.editing;
 			this.updateBody.name = this.tag;
@@ -236,6 +261,11 @@ export default {
 					this.error = error;
 					console.error(error);
 				});
+		},
+	},
+	watch: {
+		sort() {
+			this.fetchPosts();
 		},
 	},
 }
@@ -304,5 +334,29 @@ ol li {
 }
 ol > :last-child {
 	margin-bottom: 0;
+}
+
+.sort-dropdown {
+	left: 50px;
+}
+.sort-by {
+	display: flex;
+	align-items: center;
+	color: var(--subtle);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.sort-by:hover {
+	color: var(--icolor);
+}
+
+/* theme overrides */
+.midnight main {
+	/* --bg2color: var(--bg1color); */
+	--bg1color: var(--bg0color);
+	background: #0000;
+	padding: 0 25px;
 }
 </style>

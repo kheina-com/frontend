@@ -251,8 +251,8 @@ export default {
 	methods: {
 		getMediaThumbnailUrl,
 		runSearchQuery() {
-			const query = this.$refs.search.value;
-			this.$router.push(query ? (query.includes(' ') ? '/q/' : '/t/') + encodeURIComponent(this.$refs.search.value) : '/');
+			const query = this.$refs.search.value.trim();
+			this.$router.push(query ? (query.includes(' ') ? '/q/' : '/t/') + encodeURIComponent(query) : '/');
 		},
 		signOut() {
 			deleteCookie('kh-auth');

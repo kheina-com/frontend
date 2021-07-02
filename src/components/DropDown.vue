@@ -2,7 +2,7 @@
 	<div class='dropdown'>
 		<button @click.prevent.stop='toggleDropdown' ref='dropdownButton'><slot/></button>
 		<div class='dropdown-menu' ref='dropdownMenu'>
-			<button @click.prevent.stop='option.action ? runAction(option.action) : setValue(option.value)' v-for='option in options'>
+			<button @click.prevent.stop='option.action ? runAction(option) : setValue(option)' :class='option?.value === value ? "selected" : null' v-for='option in options'>
 				{{option?.name || option.value}}
 			</button>
 		</div>
@@ -40,9 +40,9 @@ export default {
 				const buttonRect = this.$refs.dropdownButton.getBoundingClientRect();
 				
 				if (this.$refs.dropdownMenu.clientHeight > window.innerHeight - buttonRect.bottom)
-				{ this.$refs.dropdownMenu.style.bottom = '100%'; }
+				{ this.$refs.dropdownMenu.style.bottom = '120%'; }
 				else
-				{ this.$refs.dropdownMenu.style.top = '100%'; }
+				{ this.$refs.dropdownMenu.style.top = '120%'; }
 
 				if (this.$refs.dropdownMenu.clientWidth > window.innerWidth - buttonRect.right)
 				{ this.$refs.dropdownMenu.style.right = 0; }
@@ -51,12 +51,12 @@ export default {
 			{ this.$refs.dropdownMenu.style.display = 'none'; }
 		},
 		setValue(option) {
-			this.$emit(`update:value`, option);
-			this.$emit(`change`, option);
+			this.$emit(`update:value`, option.value);
+			this.$emit(`change`, option.value);
 			this.toggleDropdown();
 		},
-		runAction(action) {
-			action();
+		runAction(option) {
+			option.action();
 			this.toggleDropdown();
 		},
 	},
@@ -89,5 +89,11 @@ export default {
 }
 .dropdown-menu button:hover {
 	background: var(--bg2color);
+}
+button.selected {
+	font-weight: bold;
+	color: var(--subtle);
+	pointer-events: none;
+	cursor: default;
 }
 </style>

@@ -1,4 +1,17 @@
 <template>
+	<DropDown class='sort-dropdown' v-model:value='sort' :options='[
+		{ name: "Newest", value: "new" },
+		{ name: "Oldest", value: "old" },
+		{ name: "Top", value: "top" },
+		{ name: "Hot", value: "hot" },
+		{ name: "Best", value: "best" },
+		{ name: "Controversial", value: "controversial" },
+	]'>
+		<span class='sort-by'>
+			<i class='material-icons-round'>sort</i>
+			sort by
+		</span>
+	</DropDown>
 	<main v-if='!isError'>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
@@ -34,15 +47,16 @@
 <script>
 import { khatch, tagSplit, isMobile } from '@/utilities';
 import { apiErrorMessage, postsHost } from '@/config/constants';
-import Loading from '@/components/Loading.vue';
-import Title from '@/components/Title.vue';
-import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
-import ThemeMenu from '@/components/ThemeMenu.vue';
-import Media from '@/components/Media.vue';
-import Sidebar from '@/components/Sidebar.vue';
-import Timestamp from '@/components/Timestamp.vue';
-import Post from '@/components/Post.vue';
+import Loading from '@/components/Loading';
+import Title from '@/components/Title';
+import Subtitle from '@/components/Subtitle';
+import Error from '@/components/Error';
+import ThemeMenu from '@/components/ThemeMenu';
+import Media from '@/components/Media';
+import Sidebar from '@/components/Sidebar';
+import Timestamp from '@/components/Timestamp';
+import Post from '@/components/Post';
+import DropDown from '@/components/DropDown';
 
 
 export default {
@@ -60,11 +74,13 @@ export default {
 			count: null,
 			errorDump: null,
 			errorMessage: null,
+			sort: null,
 		}
 	},
 	mounted() {
 		this.page = parseInt(this.$route.query.page || 1);
 		this.count = parseInt(this.$route.query.count || 64);
+		this.sort = this.$route.query.sort ? this.$route.query.sort : 'hot';
 		this.fetchPosts();
 	},
 	components: {
@@ -77,6 +93,7 @@ export default {
 		Error,
 		Media,
 		Post,
+		DropDown,
 	},
 	computed: {
 		isMobile,
@@ -104,10 +121,12 @@ export default {
 	},
 	methods: {
 		fetchPosts() {
+			this.posts = null;
+
 			khatch(`${postsHost}/v1/fetch_posts`, {
 					method: 'POST',
 					body: {
-						sort: this.$route.query.sort ? this.$route.query.sort : 'hot',
+						sort: this.sort,
 						tags: this.query ? tagSplit(this.query) : [],
 						page: this.page,
 						count: this.count,
@@ -148,6 +167,11 @@ export default {
 			return url + '?' + query.join('&');
 		},
 	},
+	watch: {
+		sort() {
+			this.fetchPosts();
+		},
+	},
 }
 </script>
 
@@ -176,5 +200,29 @@ ol > :last-child {
 }
 .page-links a, .page-links b {
 	padding: 0.25em 0.5em;
+}
+
+.sort-dropdown {
+	left: 50px;
+}
+.sort-by {
+	display: flex;
+	align-items: center;
+	color: var(--subtle);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.sort-by:hover {
+	color: var(--icolor);
+}
+
+/* theme overrides */
+.midnight main {
+	/* --bg2color: var(--bg1color); */
+	--bg1color: var(--bg0color);
+	background: #0000;
+	padding: 0 25px;
 }
 </style>

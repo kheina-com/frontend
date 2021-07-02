@@ -6,7 +6,7 @@
 			<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
 				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
-				<main class='main'>
+				<main>
 					<div v-if='parent !== null' class='parent'>
 						<p>Parent post</p>
 						<Loading :isLoading='!parent.postId'>
@@ -591,9 +591,6 @@ export default {
 	display: grid;
 	grid-template-columns: [sidebar-start] max(20vw, 300px) [sidebar-end main-start] auto [main-end];
 	grid-template-rows: [sidebar-start main-start] auto [sidebar-end main-end];
-}
-.main {
-	grid-area: main;
 }
 main {
 	background: var(--bg1color);
