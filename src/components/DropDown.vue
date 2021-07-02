@@ -66,6 +66,7 @@ export default {
 <style scoped>
 .dropdown {
 	position: relative;
+	display: inline-block;
 }
 .dropdown-menu {
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
