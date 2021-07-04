@@ -54,14 +54,14 @@
 			</div>
 			<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
 			<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
-			<DropDown class='sort-dropdown' v-model:value='sort' :options='[
-				{ name: "Newest", value: "new" },
-				{ name: "Oldest", value: "old" },
-				{ name: "Top", value: "top" },
-				{ name: "Hot", value: "hot" },
-				{ name: "Best", value: "best" },
-				{ name: "Controversial", value: "controversial" },
-			]'>
+			<DropDown class='sort-dropdown' v-model:value='sort' :options="[
+				{ name: 'Newest', value: 'new' },
+				{ name: 'Oldest', value: 'old' },
+				{ name: 'Top', value: 'top' },
+				{ name: 'Hot', value: 'hot' },
+				{ name: 'Best', value: 'best' },
+				{ name: 'Controversial', value: 'controversial' },
+			]">
 				<span class='sort-by'>
 					<i class='material-icons-round'>sort</i>
 					sort by
@@ -339,6 +339,9 @@ ol > :last-child {
 .sort-dropdown {
 	left: 50px;
 }
+.sort-dropdown button {
+	display: inline-block;
+}
 .sort-by {
 	display: flex;
 	align-items: center;
@@ -347,6 +350,9 @@ ol > :last-child {
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
+}
+.sort-by i {
+	margin-right: 0.25em;
 }
 .sort-by:hover {
 	color: var(--icolor);

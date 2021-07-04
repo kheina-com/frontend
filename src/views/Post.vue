@@ -2,23 +2,24 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
-		<div class='container' v-if='!isMobile'>
+	<div v-if='parent !== null' class='parent'>
+		<p class='parent-title'>Parent post</p>
+		<Loading :isLoading='!parent.postId'>
+			<router-link :to='`/p/${parent.postId}`' class='inner'>
+				<div class='parent-thumbnail'>
+					<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
+				</div>
+				<p>
+					{{parent.title || parent.postId}}
+				</p>
+			</router-link>
+		</Loading>
+	</div>
+	<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
 				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
 				<main>
-					<div v-if='parent !== null' class='parent'>
-						<p>Parent post</p>
-						<Loading :isLoading='!parent.postId'>
-							<router-link :to='`/p/${parent.postId}`' class='inner'>
-								<div class='parent-thumbnail'>
-									<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
-								</div>
-								<p v-if='parent.title'><Markdown :content='parent.title' inline/></p>
-								<p v-else>{{parent.postId}}</p>
-							</router-link>
-						</Loading>
-					</div>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
 						<div class='post-title'>
@@ -54,27 +55,27 @@
 						<RepostButton :postId='postId'/>
 						<FavoriteButton :postId='postId'/>
 						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-						<DropDown :options='[
-							{ name: `Follow @${post?.user?.handle}`, action: () => { } },
+						<DropDown :options="[
+							{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
 							{ name: `Block @${post?.user?.handle}`, action: () => { } },
 							{ name: `Report @${post?.user?.handle}`, action: () => { } },
-						]'>
+						]">
 							<i class='more-button material-icons-round'>more_horiz</i>
 						</DropDown>
 					</div>
 					<ThemeMenu />
 				</main>
-				<ol class='comments'>
+				<ol class='replies'>
 					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
-					<div class='comment-field'>
-						<p class='comment-label'>
-							{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}}
-							<DropDown class='sort-dropdown' v-model:value='commentSort' :options='[
-								{ name: "Top", value: "top" },
-								{ name: "Hot", value: "hot" },
-								{ name: "Best", value: "best" },
-								{ name: "Controversial", value: "controversial" },
-							]'>
+					<div class='reply-field'>
+						<p class='reply-label'>
+							{{replies ? countComments : 'Loading'}} {{countComments != 1 ? 'Replies' : 'Reply'}}
+							<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
+								{ name: 'Top', value: 'top' },
+								{ name: 'Hot', value: 'hot' },
+								{ name: 'Best', value: 'best' },
+								{ name: 'Controversial', value: 'controversial' },
+							]">
 								<span class='sort-by'>
 									<i class='material-icons-round'>sort</i>
 									sort by
@@ -85,10 +86,10 @@
 							<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 						</div>
-						<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>comment</i>Comment</Button>
+						<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i>Reply</Button>
 					</div>
-					<li v-for='comment in comments'>
-						<Comment :postId='comment?.post_id' v-bind='comment' comment/>
+					<li v-for='reply in replies'>
+						<Reply :postId='reply?.post_id' v-bind='reply' reply/>
 					</li>
 				</ol>
 			</div>
@@ -99,19 +100,6 @@
 				<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
 				<div class='main'>
 					<main>
-						<div v-if='parent !== null' class='parent'>
-							<p>Parent post</p>
-							<Loading :isLoading='!parent.postId'>
-								<router-link :to='`/p/${parent.postId}`' class='inner'>
-									<div class='parent-thumbnail'>
-										<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
-									</div>
-									<p>
-										{{parent.title || parent.postId}}
-									</p>
-								</router-link>
-							</Loading>
-						</div>
 						<div class='post-header'>
 							<Score :score='post?.score' :postId='postId' />
 							<div class='post-title'>
@@ -147,11 +135,11 @@
 							<RepostButton :postId='postId'/>
 							<FavoriteButton :postId='postId'/>
 							<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-							<DropDown :options='[
-								{ name: `Follow @${post?.user?.handle}`, action: () => { } },
+							<DropDown :options="[
+								{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
 								{ name: `Block @${post?.user?.handle}`, action: () => { } },
 								{ name: `Report @${post?.user?.handle}`, action: () => { } },
-							]'>
+							]">
 								<i class='more-button material-icons-round'>more_horiz</i>
 							</DropDown>
 						</div>
@@ -159,17 +147,17 @@
 					</main>
 				</div>
 			</div>
-			<ol class='comments'>
+			<ol class='replies'>
 				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
-				<div class='comment-field'>
-					<p class='comment-label'>
-						{{comments ? countComments : 'Loading'}} Comment{{countComments != 1 ? 's' : ''}}
-						<DropDown class='sort-dropdown' v-model:value='commentSort' :options='[
-							{ name: "Top", value: "top" },
-							{ name: "Hot", value: "hot" },
-							{ name: "Best", value: "best" },
-							{ name: "Controversial", value: "controversial" },
-						]'>
+				<div class='reply-field'>
+					<p class='reply-label'>
+						{{replies ? countComments : 'Loading'}} Reply{{countComments != 1 ? 's' : ''}}
+						<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
+							{ name: 'Top', value: 'top' },
+							{ name: 'Hot', value: 'hot' },
+							{ name: 'Best', value: 'best' },
+							{ name: 'Controversial', value: 'controversial' },
+						]">
 							<span class='sort-by'>
 								<i class='material-icons-round'>sort</i>
 								sort by
@@ -180,10 +168,10 @@
 						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
 						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 					</div>
-					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>comment</i>Comment</Button>
+					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i>Reply</Button>
 				</div>
-				<li v-for='comment in comments'>
-					<Comment :postId='comment?.post_id' v-bind='comment' comment/>
+				<li v-for='reply in replies'>
+					<Reply :postId='reply?.post_id' v-bind='reply' reply/>
 				</li>
 			</ol>
 		</div>
@@ -192,7 +180,7 @@
 
 <script>
 import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, tagsHost, uploadHost } from '@/config/constants';
+import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report';
 import Button from '@/components/Button';
 import Loading from '@/components/Loading';
@@ -224,7 +212,7 @@ export default {
 	},
 	components: {
 		Report,
-		Comment: Post,
+		Reply: Post,
 		Timestamp,
 		ThemeMenu,
 		Loading,
@@ -254,7 +242,7 @@ export default {
 			errorMessage: null,
 			sidebarStyle: null,
 			writeComment: null,
-			comments: null,
+			replies: null,
 			newComment: null,
 			parent: null,
 			commentSort: 'best',
@@ -340,12 +328,12 @@ export default {
 		{ return this.post?.privacy && this.post.privacy.toLowerCase() !== 'public'; },
 		countComments()
 		{
-			if (!this.comments)
+			if (!this.replies)
 			{ return null; }
 
-			let count = this.comments.length;
-			this.comments.forEach(comment => {
-				count += this.countNestedComments(comment);
+			let count = this.replies.length;
+			this.replies.forEach(reply => {
+				count += this.countNestedComments(reply);
 			});
 
 			return count;
@@ -354,8 +342,42 @@ export default {
 		{ return this.$store.state.user && this.post?.user?.handle === this.$store.state.user?.handle; }
 	},
 	methods: {
+		followUser() {
+			khatch(`${usersHost}/v1/${this.post?.user.following ? 'unfollow_user' : 'follow_user'}`, {
+				method: 'POST',
+				body: {
+					handle: this.post.user.handle,
+				},
+			})
+			.then(response => {
+				if (response.status < 300)
+				{
+					this.post.user.following = !this.post.user.following;
+					this.$store.commit("createToast", {
+						icon: this.post.user.following ? 'person_add_alt' : 'person_remove',
+						title: `Successfully ${this.post.user.following ? 'Followed' : 'Unfollowed'} @${this.post.user.handle}`,
+						time: 5,
+					});
+				}
+				else if (response.status < 500)
+				{
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: r.error,
+					});
+				}
+				else
+				{
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: apiErrorDescriptionToast,
+						dump: r,
+					});
+				}
+			})
+		},
 		fetchComments() {
-			this.comments = null;
+			this.replies = null;
 			khatch(`${postsHost}/v1/fetch_comments`, {
 					method: 'POST',
 					body: {
@@ -368,7 +390,7 @@ export default {
 						if (response.status < 300)
 						{
 							this.fetchNestedComments(r)
-								.then(() => this.comments = r);
+								.then(() => this.replies = r);
 						}
 						else if (response.status < 500)
 						{
@@ -395,16 +417,16 @@ export default {
 					});
 				});
 		},
-		fetchNestedComments(comments) {
+		fetchNestedComments(replies) {
 			let i = 0;
 			return new Promise(resolve => {
-				if (comments.length === 0)
+				if (replies.length === 0)
 				{ resolve(); }
-				comments.forEach(comment => {
+				replies.forEach(reply => {
 					khatch(`${postsHost}/v1/fetch_comments`, {
 							method: 'POST',
 							body: {
-								post_id: comment.post_id,
+								post_id: reply.post_id,
 								sort: this.commentSort,
 							},
 						})
@@ -415,8 +437,8 @@ export default {
 									this.fetchNestedComments(r)
 										.then(() => {
 											i++;
-											comment.comments = r;
-											if (i >= comments.length)
+											reply.replies = r;
+											if (i >= replies.length)
 											{ resolve(); }
 										});
 								}
@@ -491,7 +513,7 @@ export default {
 					response.json()
 						.then(r => {
 							console.log(r);
-							this.comments.unshift({
+							this.replies.unshift({
 								post_id: r.post_id,
 								user: this.$store.state.user,
 								blocked: false,
@@ -505,7 +527,7 @@ export default {
 								updated,
 								title: null,
 								tags: [],
-								comments: [],
+								replies: [],
 								media: false,
 							});
 							this.newComment = null;
@@ -521,11 +543,11 @@ export default {
 				});
 		},
 		countNestedComments(post) {
-			if (post.comments)
+			if (post.replies)
 			{
-				let count = post.comments.length;
-				post.comments.forEach(comment => {
-					count += this.countNestedComments(comment);
+				let count = post.replies.length;
+				post.replies.forEach(reply => {
+					count += this.countNestedComments(reply);
 				});
 				return count;
 			}
@@ -709,28 +731,28 @@ ol > :last-child, ol > :last-child .post {
 ol p {
 	margin: 0 0 0.25em 25px;
 }
-.mobile .comments {
+.mobile .replies {
 	padding: 0 25px;
 }
-.comment-field {
+.reply-field {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-end;
 }
-.comment-field .buttons {
+.reply-field .buttons {
 	display: flex;
 	justify-content: flex-end;
 	margin-bottom: 25px;
 }
-.comment-label, .comment-label button {
+.reply-label, .reply-label button {
 	display: flex;
 	align-items: center;
 }
-.comment-label button {
+.reply-label button {
 	margin-left: 25px;
 	color: var(--subtle);
 }
-.comment-label button:hover {
+.reply-label button:hover {
 	color: var(--icolor);
 }
 .report:hover {
@@ -740,6 +762,13 @@ ol p {
 
 .parent {
 	margin-bottom: 25px;
+	padding: 0.25em 25px;
+	background: var(--bg1color);
+	text-align: center;
+}
+.parent div {
+	display: inline-block;
+	text-align: center;
 }
 .parent .inner {
 	display: flex;
@@ -751,14 +780,19 @@ ol p {
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 	padding: 0.25em;
-	margin: -0.25em;
+	margin-top: 0.25em;
 }
 .parent .inner:hover {
 	background: var(--bg2color);
 }
+.parent .parent-title {
+	font-size: 1.2em;
+	border-bottom: var(--border-size) solid var(--bordercolor);
+	padding-bottom: 0.1em;
+}
 .parent .inner p {
 	font-size: 1.2em;
-	margin-left: 0.5em;
+	padding: 0 0.5em;
 }
 .parent-thumbnail {
 	border-radius: var(--border-radius);
@@ -802,7 +836,7 @@ ol p {
 }
 
 .sort-dropdown {
-	margin-left: 1em;
+	margin-left: 2em;
 }
 .sort-by {
 	display: flex;
@@ -812,6 +846,9 @@ ol p {
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
+}
+.sort-by i {
+	margin-right: 0.25em;
 }
 .sort-by:hover {
 	color: var(--icolor);
@@ -823,5 +860,8 @@ html.e621 main {
 }
 html.wikipedia main {
 	border-left: var(--border-size) solid #A7D7F9;
+}
+html.midnight .post-buttons button:hover, html.midnight .post-buttons .dropdown i:hover {
+	background: #000000;
 }
 </style>

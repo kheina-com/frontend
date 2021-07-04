@@ -67,6 +67,12 @@
 						Notifications
 					</router-link>
 				</li>
+				<li v-if='isLoggedIn'>
+					<router-link to='/timeline'>
+						<i class='material-icons'>timeline</i>
+						Timeline
+					</router-link>
+				</li>
 				<li v-if='isMod'>
 					<router-link to='/mod'>
 						<i class='material-icons'>shield</i>Moderate
@@ -148,6 +154,9 @@
 				<div class='counter' v-show='true'>
 					<span>1</span>
 				</div>
+			</router-link>
+			<router-link to='/timeline' class='icon timeline' title='Timeline' v-if='isLoggedIn'>
+				<i class='material-icons'>timeline</i>
 			</router-link>
 		</div>
 	</div>
@@ -526,7 +535,7 @@ ol > :last-child {
 }
 .create {
 	position: absolute;
-    margin: 0 0 0 7.5rem;
+    margin: 0 0 0 10rem;
 	padding: 0;
     height: 2.5rem;
 	left: 0;
@@ -540,7 +549,7 @@ ol > :last-child {
 }
 .create .icon {
 	position: fixed;
-	left: 5rem;
+	left: 7.5rem;
 }
 .create.logged-out .icon {
 	left: 2.5rem;
@@ -581,6 +590,11 @@ ol > :last-child {
 	padding: 0.25em 0.5em;
 	border-radius: 1em;
 	color: var(--notification-text);
+}
+.timeline {
+	position: absolute;
+	top: 0;
+	left: 5rem;
 }
 .create p {
 	-webkit-transition: ease var(--fadetime);

@@ -48,15 +48,15 @@
 						<div class='border'/>
 					</button>
 				</div>
-				<Button @click='following = !following' :red='following' v-show='!(isSelf || isMobile)'>
-					<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
-					{{following ? 'Unfollow' : 'Follow'}}
+				<Button @click='follow' :red='user?.following' v-show='!(isSelf || isMobile)'>
+					<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
+					{{user?.following ? 'Unfollow' : 'Follow'}}
 				</Button>
 			</div>
 		</div>
-			<Button @click='following = !following' :red='following' v-show='!isSelf && isMobile' style='margin-bottom: 25px'>
-				<i class='material-icons'>{{following ? 'person_off' : 'person_add_alt'}}</i>
-				{{following ? 'Unfollow' : 'Follow'}}
+			<Button @click='follow' :red='user?.following' v-show='!isSelf && isMobile' style='margin-bottom: 25px'>
+				<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
+				{{user?.following ? 'Unfollow' : 'Follow'}}
 			</Button>
 			<div class='user-info'>
 				<p class='user-field' v-if='!isEditing'>
@@ -76,10 +76,10 @@
 					<h2 v-else>
 						<Markdown :content='user?.name' inline v-if='user'/>
 						<Loading span v-else>username</Loading>
-						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user.handle}'s account is private`">lock</i>
-						<i class='kheina-icons' v-if='user?.verified === "admin"' :title="`@${user.handle} is an admin`">sword</i>
-						<i class='material-icons' v-else-if='user?.verified === "mod"' :title="`@${user.handle} is a moderator`">verified_user</i>
-						<i class='material-icons-round' v-else-if='user?.verified === "artist"' :title="`@${user.handle} is a verified artist`">verified</i>
+						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user?.handle}'s account is private`">lock</i>
+						<i class='kheina-icons' v-if='user?.verified === "admin"' :title="`@${user?.handle} is an admin`">sword</i>
+						<i class='material-icons' v-else-if='user?.verified === "mod"' :title="`@${user?.handle} is a moderator`">verified_user</i>
+						<i class='material-icons-round' v-else-if='user?.verified === "artist"' :title="`@${user?.handle} is a verified artist`">verified</i>
 					</h2>
 					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
 				</div>
@@ -241,7 +241,6 @@ export default {
 			userTags: null,
 			tabElement: null,
 			tab: 'posts',
-			following: false,
 			update: null,
 		};
 	},
@@ -257,8 +256,8 @@ export default {
 					if (response.status < 300)
 					{
 						this.user = r;
-						setTitle(this.user?.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) - kheina.com` : `@${this.user.handle} - kheina.com`);
-						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user.handle));
+						setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) - kheina.com` : `@${this.user?.handle} - kheina.com`);
+						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user?.handle));
 					}
 					else if (response.status < 500)
 					{ this.errorMessage = r.error; }
@@ -295,8 +294,36 @@ export default {
 			this.tab = event.target.className;
 			event.target.lastChild.style.borderBottomWidth = '5px';
 			this.tabElement = event.target;
+			this.$router.replace(this.$route.path + '?tab=' + this.tab);
 
 			this.fetchData();
+		},
+		follow() {
+			khatch(`${usersHost}/v1/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
+				method: 'POST',
+				body: {
+					handle: this.user?.handle,
+				},
+			})
+			.then(response => {
+				if (response.status < 300)
+				{ this.user.following = !this.user?.following; }
+				else if (response.status < 500)
+				{
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: r.error,
+					});
+				}
+				else
+				{
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: apiErrorDescriptionToast,
+						dump: r,
+					});
+				}
+			})
 		},
 		fetchData() {
 			switch (this.tab) {

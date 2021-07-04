@@ -2,9 +2,11 @@
 	<div class='dropdown'>
 		<button @click.prevent.stop='toggleDropdown' ref='dropdownButton'><slot/></button>
 		<div class='dropdown-menu' ref='dropdownMenu'>
-			<button @click.prevent.stop='option.action ? runAction(option) : setValue(option)' :class='option?.value === value ? "selected" : null' v-for='option in options'>
-				{{option?.name || option.value}}
-			</button>
+			<div>
+				<button @click.prevent.stop='option.action ? runAction(option) : setValue(option)' :class='option?.value === value ? "selected" : null' v-for='option in options'>
+					{{option?.name || option.value}}
+				</button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -15,7 +17,10 @@ import { ref } from 'vue';
 export default {
 	name: 'DropDown',
 	props: {
-		value: String,
+		value: {
+			type: String,
+			default: null,
+		},
 		options: Object[String, Function],
 	},
 	setup() {
@@ -36,19 +41,25 @@ export default {
 			this.dropdownOpen = !this.dropdownOpen;
 			if (this.dropdownOpen)
 			{
-				this.$refs.dropdownMenu.style.display = 'block';
+				this.$refs.dropdownMenu.style.display = 'block'; 
 				const buttonRect = this.$refs.dropdownButton.getBoundingClientRect();
-				
+
 				if (this.$refs.dropdownMenu.clientHeight > window.innerHeight - buttonRect.bottom)
-				{ this.$refs.dropdownMenu.style.bottom = '120%'; }
+				{ this.$refs.dropdownMenu.style.bottom = '100%'; }
 				else
-				{ this.$refs.dropdownMenu.style.top = '120%'; }
+				{ this.$refs.dropdownMenu.style.top = '100%'; }
 
 				if (this.$refs.dropdownMenu.clientWidth > window.innerWidth - buttonRect.right)
 				{ this.$refs.dropdownMenu.style.right = 0; }
 			}
 			else
-			{ this.$refs.dropdownMenu.style.display = 'none'; }
+			{
+				this.$refs.dropdownMenu.style.top =
+					this.$refs.dropdownMenu.style.bottom =
+					this.$refs.dropdownMenu.style.right = null;
+
+				this.$refs.dropdownMenu.style.display = 'none';
+			}
 		},
 		setValue(option) {
 			this.$emit(`update:value`, option.value);
@@ -68,14 +79,20 @@ export default {
 	position: relative;
 	display: inline-block;
 }
-.dropdown-menu {
+button {
+	display: block;
+}
+.dropdown-menu div {
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	position: absolute;
-	display: none;
 	margin: 0;
 	background: var(--bg1color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
+}
+.dropdown-menu {
+	position: absolute;
+	display: none;
+	padding: 0.5em 0;
 	z-index: 1;
 }
 .dropdown-menu button {

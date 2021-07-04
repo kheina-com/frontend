@@ -1,20 +1,7 @@
 <template>
-	<DropDown class='sort-dropdown' v-model:value='sort' :options="[
-		{ name: 'Hot', value: 'hot' },
-		{ name: 'Top', value: 'top' },
-		{ name: 'Best', value: 'best' },
-		{ name: 'Newest', value: 'new' },
-		{ name: 'Oldest', value: 'old' },
-		{ name: 'Controversial', value: 'controversial' },
-	]">
-		<span class='sort-by'>
-			<i class='material-icons-round'>sort</i>
-			sort by
-		</span>
-	</DropDown>
 	<main v-if='!isError'>
 		<ol class='results'>
-			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
+			<p v-if='posts?.length === 0' style='text-align: center'>Your timeline is empty!</p>
 			<li v-for='post in posts || 3' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
@@ -46,7 +33,7 @@
 
 <script>
 import { khatch, tagSplit, isMobile } from '@/utilities';
-import { apiErrorMessage, postsHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
 import Subtitle from '@/components/Subtitle';
@@ -61,12 +48,6 @@ import DropDown from '@/components/DropDown';
 
 export default {
 	name: 'Search',
-	props: {
-		query: {
-			type: String,
-			default: null,
-		},
-	},
 	data() {
 		return {
 			posts: null,
@@ -74,13 +55,11 @@ export default {
 			count: null,
 			errorDump: null,
 			errorMessage: null,
-			sort: null,
 		}
 	},
 	mounted() {
 		this.page = parseInt(this.$route.query.page || 1);
 		this.count = parseInt(this.$route.query.count || 64);
-		this.sort = this.$route.query.sort ? this.$route.query.sort : 'hot';
 		this.fetchPosts();
 	},
 	components: {
@@ -123,11 +102,9 @@ export default {
 		fetchPosts() {
 			this.posts = null;
 
-			khatch(`${postsHost}/v1/fetch_posts`, {
+			khatch(`${postsHost}/v1/timeline_posts`, {
 					method: 'POST',
 					body: {
-						sort: this.sort,
-						tags: this.query ? tagSplit(this.query) : [],
 						page: this.page,
 						count: this.count,
 					},
@@ -136,14 +113,20 @@ export default {
 					response.json().then(r => {
 						if (response.status < 300)
 						{ this.posts = r; }
-						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
-						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
+						else if (response.status < 500)
+						{
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: r.error,
+							});
+						}
 						else
 						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
+							this.$store.commit("createToast", {
+								title: apiErrorMessageToast,
+								description: apiErrorDescriptionToast,
+								dump: r,
+							});
 						}
 					});
 				})

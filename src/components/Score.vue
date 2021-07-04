@@ -17,10 +17,6 @@ export default {
 	props: {
 		postId: String,
 		score: Object,
-		userVote: {
-			type: Boolean,
-			default: null,
-		},
 	},
 	components: {
 		Loading,
@@ -32,6 +28,9 @@ export default {
 			scoreElement,
 		};
 	},
+	mounted() {
+		this.setElementVote(this.score?.user_vote);
+	},
 	computed: {
 		isLoading() {
 			return this.score === undefined;
@@ -39,9 +38,22 @@ export default {
 	},
 	methods: {
 		abbreviate,
+		setElementVote(vote) {
+			const voteElement = this.$refs.scoreElement.querySelector('.vote');
+			if (voteElement)
+			{ voteElement.classList.remove('vote'); }
+
+			if (vote === 1)
+			{ this.$refs.scoreElement.firstChild.classList.add('vote') }
+			else if (vote === -1)
+			{ this.$refs.scoreElement.lastChild.classList.add('vote') }
+		},
 		vote(vote) {
 			if (this.score === undefined || this.score === null)
 			{ return; }
+
+			if (this.score?.user_vote === vote)
+			{ vote = 0; }
 
 			khatch(`${postsHost}/v1/vote`, {
 					method: 'POST',
@@ -52,7 +64,8 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						console.log(r);
+						this.setElementVote(vote);
+						this.score.user_vote = vote;
 						if (response.status < 300)
 						{
 							this.score.up = r.up;
@@ -95,5 +108,13 @@ button {
 }
 button:hover {
 	background: var(--bg2color);
+}
+.vote {
+	color: var(--icolor);
+}
+
+/* theme overrides */
+html.midnight button:hover {
+	background: #000000;
 }
 </style>

@@ -6,14 +6,14 @@
 			<router-link :to='`/p/${postId}`' v-if='!link' class='direct-link'><i class="material-icons">open_in_new</i></router-link>
 			<div v-if='labels && !isLoading'>
 				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
-				<Subtitle static='right' v-if='parent'>comment</Subtitle>
+				<Subtitle static='right' v-if='parent'>reply</Subtitle>
 			</div>
 			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 		</div>
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
-				<Title :isLoading='isLoading' size='1.5em' static='left' style='margin-bottom: 0.25em' v-if='(title || isLoading) && !comment'>{{isLoading ? 'this is an example title' : title}}</Title>
+				<Title :isLoading='isLoading' size='1.5em' static='left' style='margin-bottom: 0.25em' v-if='(title || isLoading) && !reply'>{{isLoading ? 'this is an example title' : title}}</Title>
 				<Profile :isLoading='isLoading' v-bind='user'/>
 			</div>
 		</div>
@@ -38,12 +38,12 @@
 		</Loading>
 		<div class='buttons'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
-			<button class='reply-button' @click='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-if='comment && !replying'>
+			<button class='reply-button' @click='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-if='reply && !replying'>
 				<i class='material-icons'>reply</i>Reply
 			</button>
 		</div>
 	</div>
-	<ol v-if='replying || (comments && comments.length != 0)'>
+	<ol v-if='replying || (replies && replies.length != 0)'>
 		<li v-if='replying'>
 			<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
 			<div class='reply-buttons'>
@@ -51,8 +51,8 @@
 				<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 			</div>
 		</li>
-		<li v-for='comment in comments'>
-			<Post :postId='comment.post_id' v-bind='comment' :link='false' comment @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
+		<li v-for='reply in replies'>
+			<Post :postId='reply.post_id' v-bind='reply' :link='false' reply @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
 		</li>
 	</ol>
 </template>
@@ -113,7 +113,7 @@ export default {
 			type: String,
 			default: null,
 		},
-		comment: {
+		reply: {
 			type: Boolean,
 			default: false,
 		},
@@ -125,7 +125,7 @@ export default {
 			type: Object,
 			default: { },
 		},
-		comments: {
+		replies: {
 			type: Array[Object],
 			default: null,
 		},
@@ -191,7 +191,7 @@ export default {
 	},
 	mounted() {
 		let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
-		if (parentElement.classList.contains('comment'))
+		if (parentElement.classList.contains('reply'))
 		{ this.parentElement = parentElement; }
 		this.onLoad();
 	},
@@ -206,7 +206,7 @@ export default {
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
-		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : '') + (this.comment ? ' comment' : ''); },
+		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : '') + (this.reply ? ' reply' : ''); },
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
@@ -231,7 +231,7 @@ export default {
 					response.json()
 						.then(r => {
 							console.log(r);
-							this.comments.unshift({
+							this.replies.unshift({
 								post_id: r.post_id,
 								user: this.$store.state.user,
 								blocked: false,
@@ -246,7 +246,7 @@ export default {
 								title: null,
 								media_type: null,
 								tags: [],
-								comments: [],
+								replies: [],
 							});
 							this.replyMessage = null;
 							this.replying = null;

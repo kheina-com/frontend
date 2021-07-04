@@ -3,16 +3,16 @@
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
-			<DropDown :options='[
-				{ name: `Follow @${user?.handle}`, action: () => { } },
-				{ name: `Block @${user?.handle}`, action: () => { } },
-				{ name: `Report @${user?.handle}`, action: () => { } },
-			]'>
+			<DropDown :options="[
+				{ name: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
+				{ name: `Block @${user?.handle}`, action: missingFeature },
+				{ name: `Report @${user?.handle}`, action: missingFeature },
+			]">
 				<i class='more-button material-icons-round'>more_horiz</i>
 			</DropDown>
 			<div v-if='labels && !isLoading'>
 				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
-				<Subtitle static='right' v-if='parent'>comment</Subtitle>
+				<Subtitle static='right' v-if='parent'>reply</Subtitle>
 			</div>
 			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 		</div>
@@ -55,7 +55,7 @@
 			</button>
 		</div>
 	</div>
-	<ol v-if='replying || (comments && comments.length != 0)'>
+	<ol v-if='replying || (replies && replies.length != 0)'>
 		<li v-if='replying'>
 			<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
 			<div class='reply-buttons'>
@@ -63,8 +63,8 @@
 				<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i>Cancel</Button>
 			</div>
 		</li>
-		<li v-for='comment in comments'>
-			<Post :postId='comment.post_id' v-bind='comment' :link='false' comment @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
+		<li v-for='reply in replies'>
+			<Post :postId='reply.post_id' v-bind='reply' :link='false' reply @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
 		</li>
 	</ol>
 </template>
@@ -72,7 +72,7 @@
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
-import { uploadHost } from '@/config/constants';
+import { uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report';
 import Button from '@/components/Button';
 import Loading from '@/components/Loading'
@@ -133,7 +133,7 @@ export default {
 			type: String,
 			default: null,
 		},
-		comment: {
+		reply: {
 			type: Boolean,
 			default: false,
 		},
@@ -145,7 +145,7 @@ export default {
 			type: Object,
 			default: { },
 		},
-		comments: {
+		replies: {
 			type: Array[Object],
 			default: null,
 		},
@@ -211,7 +211,7 @@ export default {
 	},
 	mounted() {
 		let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
-		if (parentElement.classList.contains('comment'))
+		if (parentElement.classList.contains('reply'))
 		{ this.parentElement = parentElement; }
 		this.onLoad();
 	},
@@ -226,7 +226,7 @@ export default {
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
-		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : '') + (this.comment ? ' comment' : ''); },
+		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : '') + (this.reply ? ' reply' : ''); },
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
@@ -234,6 +234,48 @@ export default {
 	},
 	methods: {
 		getMediaThumbnailUrl,
+		followUser() {
+			khatch(`${usersHost}/v1/${this.user.following ? 'unfollow_user' : 'follow_user'}`, {
+				method: 'POST',
+				body: {
+					handle: this.user.handle,
+				},
+			})
+			.then(response => {
+				if (response.status < 300)
+				{
+					this.user.following = !this.user.following;
+					this.$store.commit("createToast", {
+						icon: this.user.following ? 'person_add_alt' : 'person_remove',
+						title: `Successfully ${this.user.following ? 'Followed' : 'Unfollowed'} @${this.user.handle}`,
+						time: 5,
+					});
+				}
+				else if (response.status < 500)
+				{
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: r.error,
+					});
+				}
+				else
+				{
+					this.$store.commit("createToast", {
+						title: apiErrorMessageToast,
+						description: apiErrorDescriptionToast,
+						dump: r,
+					});
+				}
+			})
+		},
+		missingFeature() {
+			this.$store.commit("createToast", {
+				icon: 'sentiment_dissatisfied',
+				title: 'This function does not exist yet',
+				description: 'Sorry!',
+			});
+			
+		},
 		postComment() {
 			let created = new Date();
 			let updated = created;
@@ -251,7 +293,7 @@ export default {
 					response.json()
 						.then(r => {
 							console.log(r);
-							this.comments?.unshift({
+							this.replies?.unshift({
 								post_id: r.post_id,
 								user: this.$store.state.user,
 								blocked: false,
@@ -266,7 +308,7 @@ export default {
 								title: null,
 								media_type: null,
 								tags: [],
-								comments: [],
+								replies: [],
 							});
 							this.replyMessage = null;
 							this.replying = null;
@@ -410,7 +452,8 @@ a.profile:hover {
 	display: flex;
 	position: absolute;
 	right: 25px;
-	align-items: center;
+	align-items: flex-end;
+	flex-direction: column;
 }
 .edit-button {
 	margin-left: 0.5em;
@@ -542,5 +585,10 @@ ol > :last-child, ol > :last-child .post {
 .more-button {
 	display: block;
 	font-size: 1.5em;
+}
+
+/* theme overrides */
+html.midnight .buttons button:hover, html.midnight .dropdown i:hover {
+	background: #000000;
 }
 </style>

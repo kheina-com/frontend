@@ -1,5 +1,4 @@
 import { createWebHistory, createRouter } from 'vue-router';
-import Home from '../views/Home.vue';
 import Post from '../views/Post.vue';
 import ImageSearch from '../views/ImageSearch.vue';
 import Search from '../views/Search.vue';
@@ -15,6 +14,7 @@ import Tag from '../views/Tag.vue';
 import Tags from '../views/Tags.vue';
 import Users from '../views/Users.vue';
 import SearchHelp from '../views/SearchHelp.vue';
+import Timeline from '../views/Timeline.vue';
 
 import Test from '../views/Test.vue';
 
@@ -69,30 +69,33 @@ const routes = [
 				},
 			],
 		},
-		children: [
-			{
-				path: 'test',
-				name: 'test',
-				component: Login,
-				meta: {
-					title: 'Sign in to kheina.com',
-					metaTags: [
-						{
-							property: 'og:title',
-							content: 'Manage your kheina.com account.',
-						},
-						{
-							property: 'og:image',
-							content: '/assets/icon.png',
-						},
-						{
-							name: 'theme-color',
-							content: '#1E1F25',
-						},
-					],
+	},
+	{
+		path: '/timeline',
+		name: 'timeline',
+		component: Timeline,
+		meta: {
+			title: 'Timeline | kheina.com',
+			metaTags: [
+				{
+					name: 'description',
+					property: 'og:description',
+					content: 'See the latest posts from everyone you\'re following | kheina.com',
 				},
-			},
-		],
+				{
+					property: 'og:title',
+					content: 'Timeline | kheina.com',
+				},
+				{
+					property: 'og:image',
+					content: '/assets/icon.png',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
 	},
 	{
 		path: '/account',
@@ -239,7 +242,7 @@ const routes = [
 		props: true,
 		component: Tag,
 		meta: {
-			title: (to) => `${to.params.tag}, tag - kheina.com`,
+			title: (to) => `${to.params.tag}, tag | kheina.com`,
 			metaTags: [
 				(to) => {
 					return {

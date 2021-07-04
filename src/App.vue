@@ -1,7 +1,7 @@
 <template>
 	<Banner :onResize='onResize' />
 	<div ref='content' id='content'>
-		<router-view :key='$route.fullPath' :resizeTrigger='resizeTrigger' />
+		<router-view :key='$route.path' :resizeTrigger='resizeTrigger' />
 		<Footer/>
 	</div>
 	<Toast/>
