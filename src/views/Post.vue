@@ -151,7 +151,7 @@
 				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 				<div class='reply-field'>
 					<p class='reply-label'>
-						{{replies ? countComments : 'Loading'}} Reply{{countComments != 1 ? 's' : ''}}
+						{{replies ? countComments : 'Loading'}} {{countComments != 1 ? 'Replies' : 'Reply'}}
 						<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
 							{ name: 'Top', value: 'top' },
 							{ name: 'Hot', value: 'hot' },

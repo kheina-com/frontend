@@ -60,6 +60,9 @@ import Post from '@/components/Post';
 import DropDown from '@/components/DropDown';
 
 
+const routes = new Set(['home', 'search']);
+
+
 export default {
 	name: 'Search',
 	props: {
@@ -190,6 +193,8 @@ export default {
 	},
 	watch: {
 		sort() {
+			if (!routes.has(this.$route.name))
+			{ return; }
 			this.$router.push(this.pageLink(this.page));
 		},
 	},

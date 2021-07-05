@@ -164,11 +164,6 @@ export default {
 			this.$router.push(this.pageLink(page));
 		},
 	},
-	watch: {
-		sort() {
-			this.$router.push(this.pageLink(this.page));
-		},
-	},
 }
 </script>
 

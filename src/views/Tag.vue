@@ -328,6 +328,8 @@ export default {
 	},
 	watch: {
 		sort() {
+			if (this.$route.name !== 'tag')
+			{ return; }
 			this.$router.push(this.pageLink(this.page));
 		},
 	},
