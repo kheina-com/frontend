@@ -10,7 +10,7 @@ Router.beforeEach((to, from, next) => {
 	// This goes through the matched routes from last to first, combining routes metadata.
 	// eg. if we have /some/deep/nested/route, route's metadata will be prioritized, with nested, deep, some, being used for fallback
 
-	window.scrollTo(0, 0);
+	// window.scrollTo(0, 0);
 
 	let meta = { };
 	to.matched.slice().forEach(route => {
@@ -23,7 +23,7 @@ Router.beforeEach((to, from, next) => {
 	{ return next(); }
 
 	// If a route with a title was found, set the document (page) title to that value.
-	if (meta.title)
+	if (meta.title && from.path !== to.path)
 	{
 		if (typeof meta.title === 'function')
 		{ document.title = meta.title(to, from); }

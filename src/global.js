@@ -12,6 +12,7 @@ export default createStore({
 		user: null,
 		theme: null,
 		contentOffset: null,
+		scroll: null,
 		toasts: {},
 	},
 	mutations: {

@@ -245,7 +245,7 @@ export default {
 				if (response.status < 300)
 				{
 					this.user.following = !this.user.following;
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						icon: this.user.following ? 'person_add_alt' : 'person_remove',
 						title: `Successfully ${this.user.following ? 'Followed' : 'Unfollowed'} @${this.user.handle}`,
 						time: 5,
@@ -253,14 +253,14 @@ export default {
 				}
 				else if (response.status < 500)
 				{
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: r.error,
 					});
 				}
 				else
 				{
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: apiErrorDescriptionToast,
 						dump: r,
@@ -269,7 +269,7 @@ export default {
 			})
 		},
 		missingFeature() {
-			this.$store.commit("createToast", {
+			this.$store.commit('createToast', {
 				icon: 'sentiment_dissatisfied',
 				title: 'This function does not exist yet',
 				description: 'Sorry!',

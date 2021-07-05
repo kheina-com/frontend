@@ -14,10 +14,10 @@ export default {
 	},
 	methods: {
 		fav() {
-			this.$store.commit("createToast", {
+			this.$store.commit('createToast', {
 				title: 'This function does not exist yet',
 				description: 'Sorry!',
-				icon: 'favorite',
+				icon: 'favorite_border',
 			});
 		},
 	},

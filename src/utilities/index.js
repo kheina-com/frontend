@@ -1,3 +1,7 @@
+import { apiErrorDescriptionToast, apiErrorMessageToast } from '@/config/constants';
+import store from '@/global';
+
+
 export default 0;
 
 import { environment } from '@/config/constants'
@@ -82,17 +86,22 @@ export function sortTagGroups(tags)
 	return sorted;
 }
 
-export async function khatch(url, options={ }, attempts=3)
+export async function khatch(url, options={ })
 {
+	const attempts = options?.attempts || 3;
+	const handleError = options?.handleError || options?.errorMessage;
+	const errorMessage = options?.errorMessage || apiErrorMessageToast;
+
 	if (url.match(/https:\/\/(?:\w+\.)?kheina.com|http:\/\/localhost/))
 	{
-		let headers = { };
+		const headers = { };
 		if (options.hasOwnProperty('headers'))
 		{ headers = options.headers; }
-		let auth = getCookie('kh-auth');
+		const auth = store.state.auth?.token;
+
 		if (auth)
 		{
-			headers.Authorization = auth;
+			headers.authorization = auth;
 			options.credentials = 'include';
 		}
 		options.headers = headers;
@@ -102,7 +111,7 @@ export async function khatch(url, options={ }, attempts=3)
 	{
 		if (!options.hasOwnProperty('headers'))
 		{ options.headers = { }; }
-		options.headers['Content-Type'] = 'application/json';
+		options.headers['content-type'] = 'application/json';
 		options.body = JSON.stringify(options.body);
 	}
 
@@ -111,10 +120,17 @@ export async function khatch(url, options={ }, attempts=3)
 
 	let attempt = 1;
 	let response;
+	let error = null;
 
 	while (attempt <= attempts)
 	{
-		response = await fetch(url, options);
+		try {
+			response = await fetch(url, options);
+		}
+		catch (e) {
+			error = e;
+			continue;
+		}
 
 		// we only want to retry when we think it might succeed
 		if (response.status <= 500)
@@ -122,6 +138,45 @@ export async function khatch(url, options={ }, attempts=3)
 
 		await new Promise(r => setTimeout(r, attempt ** 2 * 1000));
 	}
+
+	if (response.status === 401)
+	{ store.commit('setAuth', null); }
+
+	if (handleError)
+	{
+		if (error)
+		{
+			console.error(error);
+			store.commit('createToast', {
+				title: apiErrorMessageToast,
+				description: error,
+			});
+			return {
+				status: 1000,
+				error: `Browser Or Network Error: ${error}`,
+			};
+		}
+		else if (response.status < 400)
+		{ return response; }
+		else if (response.status < 500)
+		{
+			store.commit('createToast', {
+				title: errorMessage,
+				description: (await response.json()).error,
+			});
+		}
+		else
+		{
+			store.commit('createToast', {
+				title: errorMessage,
+				description: apiErrorDescriptionToast,
+				dump: await response.json(),
+			});
+		}
+	}
+
+	if (error)
+	{ throw error; }
 
 	return response;
 }
@@ -138,10 +193,22 @@ export function abbreviate(value) {
 
 export function authCookie()
 {
-	let auth = getCookie('kh-auth');
-	if (!auth)
+	const token = getCookie('kh-auth');
+
+	if (!token)
 	{ return null; }
-	return JSON.parse(atob(auth.split('.')[1]).match(/{.+}/)[0]);
+
+	const components = token.split('.');
+	const payload = atob(components[1]).split('.');
+
+
+	const auth = {
+		token,
+		version: atob(components[0]),
+		...JSON.parse(atob(components[1]).match(/{.+}/)[0]),
+	};
+
+	return auth;
 }
 
 const mdRegex = new RegExp([

@@ -1,4 +1,5 @@
 <template>
+	<!-- eslint-disable vue/require-v-for-key -->
 	<main v-if='!isError'>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>Your timeline is empty!</p>
@@ -7,21 +8,21 @@
 			</li>
 		</ol>
 		<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
-			<router-link :to='pageLink(page - 1)' v-if='page > 1'>
+			<button @click='setPage(page - 1)' v-if='page > 1'>
 				◄
-			</router-link>
-			<router-link :to='pageLink(page)' v-for='page in pagesBeforeCurrent'>
-				{{page}}
-			</router-link>
+			</button>
+			<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
+				{{toPage}}
+			</button>
 			<b>
 				{{page}}
 			</b>
-			<router-link :to='pageLink(page)' v-for='page in pagesAfterCurrent'>
-				{{page}}
-			</router-link>
-			<router-link :to='pageLink(page + 1)' v-if='posts?.length >= count'>
+			<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
+				{{toPage}}
+			</button>
+			<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
 				►
-			</router-link>
+			</button>
 		</div>
 		<ThemeMenu />
 	</main>
@@ -32,7 +33,7 @@
 </template>
 
 <script>
-import { khatch, tagSplit, isMobile } from '@/utilities';
+import { khatch, isMobile } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading';
 import Title from '@/components/Title';
@@ -50,17 +51,21 @@ export default {
 	name: 'Search',
 	data() {
 		return {
-			posts: null,
+			// undefined for on pageload stuff
+			posts: undefined,
 			page: null,
 			count: null,
 			errorDump: null,
 			errorMessage: null,
 		}
 	},
-	mounted() {
-		this.page = parseInt(this.$route.query.page || 1);
-		this.count = parseInt(this.$route.query.count || 64);
+	created() {
 		this.fetchPosts();
+
+		this.$watch(
+			() => this.$route.query,
+			this.fetchPosts,
+		);
 	},
 	components: {
 		Timestamp,
@@ -100,6 +105,9 @@ export default {
 	},
 	methods: {
 		fetchPosts() {
+			this.page = parseInt(this.$route.query?.page) || 1;
+			this.count = parseInt(this.$route.query?.count) || 64;
+
 			this.posts = null;
 
 			khatch(`${postsHost}/v1/timeline_posts`, {
@@ -112,17 +120,21 @@ export default {
 				.then(response => {
 					response.json().then(r => {
 						if (response.status < 300)
-						{ this.posts = r; }
+						{
+							if (this.$store.state.scroll)
+							{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+							this.posts = r;
+						}
 						else if (response.status < 500)
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: r.error,
 							});
 						}
 						else
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: apiErrorDescriptionToast,
 								dump: r,
@@ -137,22 +149,24 @@ export default {
 				});
 		},
 		pageLink(page) {
-			let url = this.query ? `/q/${this.query}` : '/';
-
 			let query = [];
 
 			if (page !== 1)
 			{ query.push(`page=${page}`); }
 
-			if (this.$route.query.count && this.count !== 64)
+			if (this.count !== 64)
 			{ query.push(`count=${this.count}`); }
 
-			return url + '?' + query.join('&');
+			return '/timeline?' + query.join('&');
+		},
+		setPage(page) {
+			this.page = page;
+			this.$router.push(this.pageLink(page));
 		},
 	},
 	watch: {
 		sort() {
-			this.fetchPosts();
+			this.$router.push(this.pageLink(this.page));
 		},
 	},
 }
@@ -181,8 +195,11 @@ ol > :last-child {
 	text-align: center;
 	margin-top: 25px;
 }
-.page-links a, .page-links b {
+.page-links button, .page-links b {
 	padding: 0.25em 0.5em;
+}
+.page-links b {
+	color: var(--subtle);
 }
 
 .sort-dropdown {

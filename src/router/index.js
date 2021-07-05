@@ -1,3 +1,5 @@
+import store from '@/global';
+
 import { createWebHistory, createRouter } from 'vue-router';
 import Post from '../views/Post.vue';
 import ImageSearch from '../views/ImageSearch.vue';
@@ -451,6 +453,11 @@ const routes = [
 const Router = createRouter({
 	history: createWebHistory(),
 	routes,
+	scrollBehavior(to, from, savedPosition) {
+		if (savedPosition)
+		{ store.state.scroll = savedPosition.top; }
+		return { top: 0 };
+	},
 });
 
 export default Router;

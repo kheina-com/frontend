@@ -249,36 +249,6 @@ export default {
 		};
 	},
 	async created() {
-		khatch(`${postsHost}/v1/post/${this.postId}`)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
-						this.post = r;
-						if (r.parent)
-						{
-							this.parent = false;
-							this.fetchParent(r.parent);
-						}
-						setTitle(`${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`);
-					}
-					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
-					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
-					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
-				});
-			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
-
 		khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`)
 			.then(response => {
 				response.json().then(r => {
@@ -297,13 +267,45 @@ export default {
 			})
 			.catch(error => {
 				console.error(error);
-				this.$store.commit("createToast", {
+				this.$store.commit('createToast', {
 					title: apiErrorMessageToast,
 					description: error,
 				});
 			});
 
 		this.fetchComments();
+
+		khatch(`${postsHost}/v1/post/${this.postId}`)
+			.then(response => {
+				response.json().then(r => {
+					if (response.status < 300)
+					{
+						this.post = r;
+						if (r.parent)
+						{
+							this.parent = false;
+							this.fetchParent(r.parent);
+						}
+						if (this.$store.state.scroll)
+						{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+						setTitle(`${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`);
+					}
+					else if (response.status === 401)
+					{ this.errorMessage = r.error; }
+					else if (response.status === 404)
+					{ this.errorMessage = r.error; }
+					else
+					{
+						this.errorMessage = apiErrorMessage;
+						this.errorDump = r;
+					}
+				});
+			})
+			.catch(error => {
+				this.errorMessage = apiErrorMessage;
+				this.error = error;
+				console.error(error);
+			});
 
 		window.addEventListener('resize', this.onResize);
 	},
@@ -353,7 +355,7 @@ export default {
 				if (response.status < 300)
 				{
 					this.post.user.following = !this.post.user.following;
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						icon: this.post.user.following ? 'person_add_alt' : 'person_remove',
 						title: `Successfully ${this.post.user.following ? 'Followed' : 'Unfollowed'} @${this.post.user.handle}`,
 						time: 5,
@@ -361,14 +363,14 @@ export default {
 				}
 				else if (response.status < 500)
 				{
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: r.error,
 					});
 				}
 				else
 				{
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: apiErrorDescriptionToast,
 						dump: r,
@@ -394,14 +396,14 @@ export default {
 						}
 						else if (response.status < 500)
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: r.error,
 							});
 						}
 						else
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: apiErrorDescriptionToast,
 								dump: r,
@@ -411,7 +413,7 @@ export default {
 				})
 				.catch(error => {
 					console.error(error);
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: error,
 					});
@@ -444,14 +446,14 @@ export default {
 								}
 								else if (response.status < 500)
 								{
-									this.$store.commit("createToast", {
+									this.$store.commit('createToast', {
 										title: apiErrorMessageToast,
 										description: r.error,
 									});
 								}
 								else
 								{
-									this.$store.commit("createToast", {
+									this.$store.commit('createToast', {
 										title: apiErrorMessageToast,
 										description: apiErrorDescriptionToast,
 										dump: r,
@@ -473,14 +475,14 @@ export default {
 						}
 						else if (response.status < 500)
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: r.error,
 							});
 						}
 						else
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: apiErrorDescriptionToast,
 								dump: r,
@@ -490,7 +492,7 @@ export default {
 				})
 				.catch(error => {
 					console.error(error);
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: error,
 					});
@@ -536,7 +538,7 @@ export default {
 				})
 				.catch(error => {
 					console.error(error);
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: error,
 					});

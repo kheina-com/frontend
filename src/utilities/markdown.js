@@ -110,14 +110,14 @@ const mdMakeRequest = (url) => {
 					}
 					else if (response.status < 500)
 					{
-						store.commit("createToast", {
+						store.commit('createToast', {
 							title: apiErrorMessageToast,
 							description: r.error,
 						});
 					}
 					else
 					{
-						store.commit("createToast", {
+						store.commit('createToast', {
 							title: apiErrorMessageToast,
 							description: apiErrorDescriptionToast,
 							dump: r,
@@ -128,7 +128,7 @@ const mdMakeRequest = (url) => {
 			})
 				.catch(error => {
 					console.error(error);
-					store.commit("createToast", {
+					store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: error,
 					});

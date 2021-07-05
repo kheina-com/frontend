@@ -116,6 +116,23 @@
 						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 					</li>
 				</ol>
+				<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
+					<button @click='setPage(page - 1)' v-if='page > 1'>
+						◄
+					</button>
+					<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
+						{{toPage}}
+					</button>
+					<b>
+						{{page}}
+					</b>
+					<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
+						{{toPage}}
+					</button>
+					<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
+						►
+					</button>
+				</div>
 			</div>
 			<div v-show='tab === "sets"'>
 				<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
@@ -145,6 +162,23 @@
 						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 					</li>
 				</ol>
+				<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
+					<button @click='setPage(page - 1)' v-if='page > 1'>
+						◄
+					</button>
+					<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
+						{{toPage}}
+					</button>
+					<b>
+						{{page}}
+					</b>
+					<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
+						{{toPage}}
+					</button>
+					<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
+						►
+					</button>
+				</div>
 			</div>
 			<ThemeMenu/>
 		</main>
@@ -242,13 +276,18 @@ export default {
 			tabElement: null,
 			tab: 'posts',
 			update: null,
+			count: null,
+			page: null,
 		};
 	},
 	created() {
-		const tabs = new Set(['posts', 'tags', 'favs']);
+		const tabs = new Set(['posts', 'sets', 'tags', 'favs']);
 
 		if (tabs.has(this.$route.query?.tab))
 		{ this.tab = this.$route.query.tab; }
+
+		if (this.tab !== 'posts')
+		{ this.$store.state.scroll = null; }
 
 		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
 			.then(response => {
@@ -274,7 +313,12 @@ export default {
 				this.error = error;
 			});
 
-			this.fetchData();
+		this.fetchData();
+
+		this.$watch(
+			() => this.$route.query,
+			this.fetchData,
+		);
 	},
 	mounted() {
 		this.tabElement = document.querySelector(`button.${this.tab}`);
@@ -287,6 +331,25 @@ export default {
 		isSelf() {
 			return this.$store.state.user && this.$store.state.user?.handle === this.user?.handle;
 		},
+		pagesBeforeCurrent() {
+			if (this.posts === null)
+			{ return null; }
+
+			if (this.page - 2 > 0)
+			{ return [this.page - 2, this.page - 1]; }
+
+			if (this.page - 1 > 0)
+			{ return [this.page - 1]; }
+
+			return [];
+		},
+		pagesAfterCurrent() {
+			if (this.posts === null)
+			{ return null; }
+
+			if (this.posts.length >= this.count)
+			{ return [this.page + 1, this.page + 2]; }
+		},
 	},
 	methods: {
 		selectTab(event) {
@@ -294,9 +357,7 @@ export default {
 			this.tab = event.target.className;
 			event.target.lastChild.style.borderBottomWidth = '5px';
 			this.tabElement = event.target;
-			this.$router.replace(this.$route.path + '?tab=' + this.tab);
-
-			this.fetchData();
+			this.$router.push(this.pageLink(1));
 		},
 		follow() {
 			khatch(`${usersHost}/v1/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
@@ -310,14 +371,14 @@ export default {
 				{ this.user.following = !this.user?.following; }
 				else if (response.status < 500)
 				{
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: r.error,
 					});
 				}
 				else
 				{
-					this.$store.commit("createToast", {
+					this.$store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: apiErrorDescriptionToast,
 						dump: r,
@@ -328,28 +389,37 @@ export default {
 		fetchData() {
 			switch (this.tab) {
 				case 'posts' :
+					this.page = parseInt(this.$route.query?.page) || 1;
+					this.count = parseInt(this.$route.query?.count) || 64;
+
 					this.posts = null;
 
 					khatch(`${postsHost}/v1/fetch_user_posts`, {
 							method: 'POST',
 							body: {
 								handle: this.handle,
+								page: this.page,
+								count: this.count,
 							},
 						})
 						.then(response => {
 							response.json().then(r => {
 								if (response.status < 300)
-								{ this.posts = r; }
+								{
+									if (this.$store.state.scroll)
+									{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+									this.posts = r;
+								}
 								else if (response.status < 500)
 								{
-									this.$store.commit("createToast", {
+									this.$store.commit('createToast', {
 										title: apiErrorMessageToast,
 										description: r.error,
 									});
 								}
 								else
 								{
-									this.$store.commit("createToast", {
+									this.$store.commit('createToast', {
 										title: apiErrorMessageToast,
 										description: apiErrorDescriptionToast,
 										dump: r,
@@ -359,7 +429,7 @@ export default {
 						})
 					.catch(error => {
 						console.error(error);
-						this.$store.commit("createToast", {
+						this.$store.commit('createToast', {
 							title: apiErrorMessageToast,
 							description: error,
 						});
@@ -380,14 +450,14 @@ export default {
 									{ this.userTags = r; }
 									else if (response.status < 500)
 									{
-										this.$store.commit("createToast", {
+										this.$store.commit('createToast', {
 											title: apiErrorMessageToast,
 											description: r.error,
 										});
 									}
 									else
 									{
-										this.$store.commit("createToast", {
+										this.$store.commit('createToast', {
 											title: apiErrorMessageToast,
 											description: apiErrorDescriptionToast,
 											dump: r,
@@ -397,7 +467,7 @@ export default {
 							})
 						.catch(error => {
 							console.error(error);
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: error,
 							});
@@ -424,14 +494,14 @@ export default {
 								{ this.posts = r; }
 								else if (response.status < 500)
 								{
-									this.$store.commit("createToast", {
+									this.$store.commit('createToast', {
 										title: apiErrorMessageToast,
 										description: r.error,
 									});
 								}
 								else
 								{
-									this.$store.commit("createToast", {
+									this.$store.commit('createToast', {
 										title: apiErrorMessageToast,
 										description: apiErrorDescriptionToast,
 										dump: r,
@@ -441,7 +511,7 @@ export default {
 						})
 						.catch(error => {
 							console.error(error);
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: error,
 							});
@@ -484,14 +554,14 @@ export default {
 					.then(r => {
 						if (response.status < 500)
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: r.error,
 							});
 						}
 						else
 						{
-							this.$store.commit("createToast", {
+							this.$store.commit('createToast', {
 								title: apiErrorMessageToast,
 								description: apiErrorDescriptionToast,
 								dump: r,
@@ -501,7 +571,7 @@ export default {
 			})
 			.catch(error => {
 				console.error(error);
-				this.$store.commit("createToast", {
+				this.$store.commit('createToast', {
 					title: apiErrorMessageToast,
 					description: error,
 				});
@@ -521,6 +591,24 @@ export default {
 		},
 		showData() {
 			console.log(this.$refs.cropper.getResult());
+		},
+		pageLink(page) {
+			let query = [];
+
+			if (this.tab)
+			{ query.push(`tab=${this.tab}`); }
+
+			if (page !== 1)
+			{ query.push(`page=${page}`); }
+
+			if (this.count !== 64)
+			{ query.push(`count=${this.count}`); }
+
+			return '/' + this.user.handle + '?' + query.join('&');
+		},
+		setPage(page) {
+			this.page = page;
+			this.$router.push(this.pageLink(page));
 		},
 	},
 }
@@ -642,6 +730,17 @@ ul, ol {
 	list-style: none;
 	margin: 0;
 	padding: 0;
+}
+
+.page-links {
+	text-align: center;
+	margin-top: 25px;
+}
+.page-links button, .page-links b {
+	padding: 0.25em 0.5em;
+}
+.page-links b {
+	color: var(--subtle);
 }
 
 .profile-buttons {

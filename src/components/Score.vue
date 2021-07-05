@@ -89,6 +89,7 @@ export default {
 		score(value) {
 			if (value === null)
 			{ this.$refs.scoreElement.classList.add('disabled'); }
+			this.setElementVote(value?.user_vote);
 		},
 	},
 }

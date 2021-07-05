@@ -243,161 +243,26 @@ export default {
 		};
 	},
 	created() {
-		// khatch(`${tagsHost}/v1/lookup_tags`, {
-		// 	method: 'POST',
-		// 	body: {
-		// 		tag: '',
-		// 	},
-		// })
-		// .then(response => {
-		// 	response.json().then(r => {
-		// 		if (response.status < 300)
-		// 		{
-		// 			let serverTags = { };
-		// 			for (const [group, tags] of Object.entries(r)) {
-		// 				Object.keys(tags).forEach(k => tags[k]['group'] = group);
-		// 				serverTags = Object.assign(serverTags, tags);
-		// 			}
-		// 			this.serverTags = serverTags;
-		// 		}
-		// 		else if (response.status === 401)
-		// 		{ this.errorMessage = r.error; }
-		// 		else if (response.status === 404)
-		// 		{ this.errorMessage = r.error; }
-		// 		else
-		// 		{
-		// 			this.errorMessage = apiErrorMessage;
-		// 			this.errorDump = r;
-		// 		}
-		// 	});
-		// })
-		// .catch(error => {
-		// 	this.errorMessage = apiErrorMessage;
-		// 	this.errorDump = error;
-		// 	console.error(error);
-		// });
-
 		if (this.$route.query?.post)
 		{
 			this.postId = this.$route.query.post;
-
-			khatch(`${postsHost}/v1/post/${this.postId}`)
-				.then(response => {
-					response.json().then(r => {
-						console.log(r);
-						if (response.status < 300)
-						{
-							this.description = this.update.description = r.description;
-							this.title = this.update.title = r.title;
-							this.privacy = this.update.privacy = r.privacy;
-							this.rating = this.update.rating = r.rating;
-							this.mime = r.media_type?.mime_type;
-							if (r.filename) {
-								this.uploadDone = true;
-								this.filename = r.filename;
-								this.mediaUrl = this.getMediaUrl(this.postId, this.filename);
-							}
-							// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
-							// { this.uploadUnavailable = true; }
-						}
-						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
-						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
-						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
-					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.errorDump = error;
-					console.error(error);
-				});
-
-			khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`)
-				.then(response => {
-					response.json().then(r => {
-						console.log(r);
-						if (response.status < 300)
-						{
-							this.savedTags = Object.values(r).flat();
-							this.tagsField = this.savedTags.join(' ');
-						}
-						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
-						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
-						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
-					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
-					console.error(error);
-				});
-
-			khatch(`${tagsHost}/v1/get_user_tags/${this.$store.state.user?.handle}`)
-				.then(response => {
-					response.json().then(r => {
-						if (response.status < 300)
-						{
-							this.tagSuggestions = [];
-							r.forEach(tag => {
-								this.tagSuggestions.push(tag.tag);
-							});
-						}
-						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
-						else if (response.status === 404)
-						{ this.tagSuggestions = []; }
-						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
-					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
-					console.error(error);
-				});
+			this.retrievePostData();
 		}
 		else
 		{
 			khatch(`${uploadHost}/v1/create_post`, {
 				method: 'POST',
+				errorMessage: 'Unable To Create New Post Draft!',
 				body: { },
-			})
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
+			}).then(response => {
+				if (response.status < 400)
+				{
+					response.json().then(r => {
 						this.postId = r.post_id;
 						this.$router.replace(this.$route.path + '?post=' + this.postId);
-					}
-					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
-					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
-					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
-				});
-			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
+						this.retrievePostData();
+					});
+				}
 			});
 		}
 	},
@@ -419,6 +284,56 @@ export default {
 	},
 	methods: {
 		getMediaUrl,
+		retrievePostData() {
+			khatch(`${postsHost}/v1/post/${this.postId}`, {
+				errorMessage: 'Unable To Retrieve Post Data!',
+			}).then(response => {
+				if (response.status < 400)
+				{
+					response.json().then(r => {
+						console.log(r);
+						this.description = this.update.description = r.description;
+						this.title = this.update.title = r.title;
+						this.privacy = this.update.privacy = r.privacy;
+						this.rating = this.update.rating = r.rating;
+						this.mime = r.media_type?.mime_type;
+						if (r.filename) {
+							this.uploadDone = true;
+							this.filename = r.filename;
+							this.mediaUrl = this.getMediaUrl(this.postId, this.filename);
+						}
+						// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+						// { this.uploadUnavailable = true; }
+					});
+				}
+			});
+
+			khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
+				errorMessage: 'Unable To Retrieve Post Tags!',
+			}).then(response => {
+					if (response.status < 400)
+					{
+						response.json().then(r => {
+							this.savedTags = Object.values(r).flat();
+							this.tagsField = this.savedTags.join(' ');
+						});
+					}
+				});
+
+			khatch(`${tagsHost}/v1/get_user_tags/${this.$store.state.user?.handle}`, {
+				errorMessage: 'Unable To Retrieve Your Recommended Tags!',
+			}).then(response => {
+				if (response.status < 400)
+				{
+					response.json().then(r => {
+						this.tagSuggestions = [];
+						r.forEach(tag => {
+							this.tagSuggestions.push(tag.tag);
+						});
+					});
+				}
+			});
+		},
 		addTag(tag) {
 			this.$refs.tagDiv.textContent += ' ' + tag;
 		},
@@ -505,24 +420,14 @@ export default {
 			if (sendUpdate)
 			{
 				khatch(`${uploadHost}/v1/update_post`, {
-						method: 'POST',
-						body: {
-							post_id: this.postId,
-							title: this.title ? this.title.trim() : null,
-							description: this.description ? this.description.trim() : null,
-							rating: this.rating,
-						},
-					})
-					.then(response => {
-						response.json().then(r => {
-							console.log(r);
-						});
-					})
-					.catch(error => {
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = error;
-						console.error(error);
-					});
+					method: 'POST',
+					body: {
+						post_id: this.postId,
+						title: this.title ? this.title.trim() : null,
+						description: this.description ? this.description.trim() : null,
+						rating: this.rating,
+					},
+				});
 			}
 
 			let activeTags = tagSplit(this.$refs.tagDiv.textContent);
@@ -598,23 +503,16 @@ export default {
 			this.privacy = this.update.privacy;
 
 			khatch(`${uploadHost}/v1/update_privacy`, {
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						privacy: this.privacy,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						console.log(r);
-						this.$router.push(`/p/${this.postId}`);
-					});
-				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.errorDump = error;
-					console.error(error);
-				});
+				method: 'POST',
+				body: {
+					post_id: this.postId,
+					privacy: this.privacy,
+				},
+			})
+			.then(response => {
+				if (response.status < 400)
+				{ this.$router.push(`/p/${this.postId}`); }
+			});
 		},
 	},
 }
