@@ -242,7 +242,7 @@ export default {
 			rating: null,
 		};
 	},
-	created() {
+	mounted() {
 		if (this.$route.query?.post)
 		{
 			this.postId = this.$route.query.post;
