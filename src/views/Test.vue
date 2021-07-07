@@ -32,6 +32,7 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Button from '@/components/Button.vue';
+import notify from '$/sounds/notify.ogg';
 
 
 export default {
@@ -51,7 +52,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.audio = new Audio('assets/sounds/notify.ogg');
+		this.audio = new Audio(notify);
 	},
 }
 </script>

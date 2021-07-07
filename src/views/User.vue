@@ -2,58 +2,63 @@
 	<!-- eslint-disable vue/valid-v-for -->
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div v-if='!errorMessage'>
-		<div ref='header' class='header' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
+		<div ref='banner' class='banner' v-if='user?.banner' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
+			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
+				<i class='material-icons-round'>add_a_photo</i>
+			</a>
+		</div>
+		<div class='banner-missing' v-else>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 		</div>
 		<main ref='main'>
-		<div ref='profile' class='user'>
-			<Loading :isLoading='isIconLoading' class='profile-image'>
-				<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
-					<div class='add-image-button'>
-						<i class='material-icons-round'>add_a_photo</i>
+			<div ref='profile' class='user'>
+				<Loading :isLoading='isIconLoading' class='profile-image'>
+					<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
+						<div class='add-image-button'>
+							<i class='material-icons-round'>add_a_photo</i>
+						</div>
+						<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
+					</button>
+					<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+						<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
+					</router-link>
+				</Loading>
+				<div class='profile-buttons'>
+					<div class='tabs'>
+						<button @click='selectTab' class='posts'>
+							Posts
+							<div class='border'/>
+						</button>
+						<div class='separator'/>
+						<button @click='selectTab' class='sets'>
+							Sets
+							<div class='border'/>
+						</button>
+						<div class='separator'/>
+						<button @click='selectTab' class='tags'>
+							Tags
+							<div class='border'/>
+						</button>
+						<div class='separator'/>
+						<button @click='selectTab' class='favs'>
+							{{isMobile ? 'Favs' : 'Favorites'}}
+							<div class='border'/>
+						</button>
+						<div class='separator' v-if='isSelf'/>
+						<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
+							<i class='material-icons'>lock</i>
+							Uploads
+							<div class='border'/>
+						</button>
 					</div>
-					<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
-				</button>
-				<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
-					<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
-				</router-link>
-			</Loading>
-			<div class='profile-buttons'>
-				<div class='tabs'>
-					<button @click='selectTab' class='posts'>
-						Posts
-						<div class='border'/>
-					</button>
-					<div class='separator'/>
-					<button @click='selectTab' class='sets'>
-						Sets
-						<div class='border'/>
-					</button>
-					<div class='separator'/>
-					<button @click='selectTab' class='tags'>
-						Tags
-						<div class='border'/>
-					</button>
-					<div class='separator'/>
-					<button @click='selectTab' class='favs'>
-						{{isMobile ? 'Favs' : 'Favorites'}}
-						<div class='border'/>
-					</button>
-					<div class='separator' v-if='isSelf'/>
-					<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
-						<i class='material-icons'>lock</i>
-						Uploads
-						<div class='border'/>
-					</button>
+					<Button @click='follow' :red='user?.following' v-show='!(isSelf || isMobile)'>
+						<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
+						{{user?.following ? 'Unfollow' : 'Follow'}}
+					</Button>
 				</div>
-				<Button @click='follow' :red='user?.following' v-show='!(isSelf || isMobile)'>
-					<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
-					{{user?.following ? 'Unfollow' : 'Follow'}}
-				</Button>
 			</div>
-		</div>
 			<Button @click='follow' :red='user?.following' v-show='!isSelf && isMobile' style='margin-bottom: 25px'>
 				<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
 				{{user?.following ? 'Unfollow' : 'Follow'}}
@@ -213,7 +218,7 @@ import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
-import Submit from '@/components/Submit.vue'
+import Submit from '@/components/Submit.vue';
 import Thumbnail from '@/components/Thumbnail.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -229,7 +234,6 @@ export default {
 			type: String,
 			default: null,
 		},
-		resizeTrigger: Boolean,
 	},
 	components: {
 		Cropper,
@@ -251,13 +255,13 @@ export default {
 	},
 	setup() {
 		const main = ref(null);
-		const header = ref(null);
+		const banner = ref(null);
 		const profile = ref(null);
 		const cropper = ref(null);
 
 		return {
 			main,
-			header,
+			banner,
 			profile,
 			cropper,
 		};
@@ -674,14 +678,23 @@ main {
 	height: 8em;
 }
 
-
-.header {
+.banner, .banner-missing {
 	top: 0;
+	position: relative;
+}
+
+.banner {
 	height: 25vw;
 	width: 100%;
-	position: relative;
 	background-size: cover;
 	background-position: center;
+}
+
+.banner-missing {
+	height: calc(6.25em + 28px);
+}
+.mobile .banner-missing {
+	height: calc(4em + 28px);
 }
 
 .user {

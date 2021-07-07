@@ -30,9 +30,9 @@
 </template>
 
 <script>
-import Loading from '@/components/Loading.vue'
+import Loading from '@/components/Loading.vue';
 import Thumbnail from '@/components/Thumbnail.vue';
-import Markdown from '@/components/Markdown';
+import Markdown from '@/components/Markdown.vue';
 
 export default {
 	name: 'Post',

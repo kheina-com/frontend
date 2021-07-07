@@ -15,6 +15,7 @@ export default {
 		extensions: ['.js', '.vue', '.json', '.*'],
 		alias: {
 			'@': path.resolve(__dirname, './src'),
+			'$': path.resolve(__dirname, './assets'),
 		},
 	},
 }

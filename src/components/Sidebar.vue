@@ -17,8 +17,8 @@
 <script>
 import { getMediaThumbnailUrl, sortTagGroups } from '@/utilities'
 import { tagGroups } from '@/config/constants'
-import Loading from '@/components/Loading.vue'
-import TagGroup from '@/components/TagGroup.vue'
+import Loading from '@/components/Loading.vue';
+import TagGroup from '@/components/TagGroup.vue';
 
 export default {
 	name: 'Sidebar',

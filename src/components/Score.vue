@@ -10,7 +10,7 @@
 import { ref } from 'vue';
 import { abbreviate, khatch } from '@/utilities';
 import { apiErrorMessage, postsHost } from '@/config/constants';
-import Loading from '@/components/Loading.vue'
+import Loading from '@/components/Loading.vue';
 
 export default {
 	name: 'Post',

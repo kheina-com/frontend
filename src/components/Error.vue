@@ -20,9 +20,9 @@
 </template>
 
 <script>
-import Subtitle from '@/components/Subtitle.vue'
-import Title from '@/components/Title.vue'
-import CopyText from '@/components/CopyText.vue'
+import Subtitle from '@/components/Subtitle.vue';
+import Title from '@/components/Title.vue';
+import CopyText from '@/components/CopyText.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
 export default {

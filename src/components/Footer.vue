@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import ThemeButton from '@/components/ThemeButton.vue'
-import ProgressBar from '@/components/ProgressBar.vue'
+import ThemeButton from '@/components/ThemeButton.vue';
+import ProgressBar from '@/components/ProgressBar.vue';
 
 export default {
 	name: 'Footer',

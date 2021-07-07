@@ -14,8 +14,8 @@
 <script>
 import { isMobile } from '@/utilities';
 import { mdGuide } from '@/config/constants';
-import MarkdownEditor from '@/components/MarkdownEditor';
-import Markdown from '@/components/Markdown';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import Markdown from '@/components/Markdown.vue';
 
 export default {
 	name: 'MarkdownGuide',

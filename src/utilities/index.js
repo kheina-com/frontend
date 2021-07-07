@@ -91,10 +91,11 @@ export async function khatch(url, options={ })
 	const attempts = options?.attempts || 3;
 	const handleError = options?.handleError || options?.errorMessage;
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
+	const errorHandlers = options?.errorHandlers || { };
 
 	if (url.match(/https:\/\/(?:\w+\.)?kheina.com|http:\/\/localhost/))
 	{
-		const headers = { };
+		let headers = { };
 		if (options.hasOwnProperty('headers'))
 		{ headers = options.headers; }
 		const auth = store.state.auth?.token;
@@ -139,6 +140,9 @@ export async function khatch(url, options={ })
 		await new Promise(r => setTimeout(r, attempt ** 2 * 1000));
 	}
 
+	if (response.status < 400)
+	{ return response; }
+
 	if (response.status === 401)
 	{ store.commit('setAuth', null); }
 
@@ -151,11 +155,9 @@ export async function khatch(url, options={ })
 				title: apiErrorMessageToast,
 				description: error,
 			});
-			return {
-				status: 1000,
-				error: `Browser Or Network Error: ${error}`,
-			};
 		}
+		else if (errorHandlers.hasOwnProperty(response.status))
+		{ errorHandlers[response.status](response); }
 		else if (response.status < 400)
 		{ return response; }
 		else if (response.status < 500)
@@ -173,6 +175,8 @@ export async function khatch(url, options={ })
 				dump: await response.json(),
 			});
 		}
+
+		throw Error('Request Failed (handled).');
 	}
 
 	if (error)
@@ -191,6 +195,26 @@ export function abbreviate(value) {
 	return `${value}`;
 }
 
+export function int_from_bytes(bytestring)
+{
+	let i = 0;
+	let r = 0;
+	bytestring.split('').reverse().map(x => x.charCodeAt(0)).forEach(x => {
+		r += x * 2 ** (i++ * 8);
+	});
+	return r;
+}
+
+export function hex_from_bytes(bytestring)
+{
+	let i = 0;
+	let r = '';
+	bytestring.split('').map(x => x.charCodeAt(0)).forEach(x => {
+		r += x.toString(16).padStart(2, 0);
+	});
+	return r;
+}
+
 export function authCookie()
 {
 	const token = getCookie('kh-auth');
@@ -198,13 +222,23 @@ export function authCookie()
 	if (!token)
 	{ return null; }
 
-	const components = token.split('.');
-	const payload = atob(components[1]).split('.');
+	const components = token.replace('-', '+').replace('_', '/').split('.');
 
+	const tokenVersion = atob(components[0]);
+
+	if (tokenVersion !== '1')
+	{ throw TypeError(`Cannot decode auth token with version: ${tokenVersion}`); }
+
+	const payload = atob(components[1]).split('.').map(x => x.replace('-', '+').replace('_', '/'));
 
 	const auth = {
 		token,
-		version: atob(components[0]),
+		version: tokenVersion,
+		algorithm: payload[0],
+		keyId: int_from_bytes(atob(payload[1])),
+		expires: new Date(int_from_bytes(atob(payload[2])) * 1000),
+		userId: int_from_bytes(atob(payload[3])),
+		guid: hex_from_bytes(atob(payload[4])),
 		...JSON.parse(atob(components[1]).match(/{.+}/)[0]),
 	};
 

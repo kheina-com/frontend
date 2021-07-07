@@ -63,7 +63,7 @@ import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
 import { uploadHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
-import Loading from '@/components/Loading.vue'
+import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';

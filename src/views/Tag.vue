@@ -97,7 +97,6 @@
 </template>
 
 <script>
-import { useRoute } from 'vue-router';
 import { khatch, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -108,7 +107,7 @@ import Profile from '@/components/Profile.vue';
 import Button from '@/components/Button.vue';
 import Markdown from '@/components/Markdown.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
-import DropDown from '@/components/DropDown';
+import DropDown from '@/components/DropDown.vue';
 
 
 export default {
@@ -216,7 +215,7 @@ export default {
 	methods: {
 		fetchPosts() {
 			this.page = parseInt(this.$route.query?.page) || 1;
-			this.count = parseInt(this.$route.query?.count) || 32;
+			this.count = parseInt(this.$route.query?.count) || 64;
 			this.sort = this.$route.query?.sort || 'hot';
 
 			this.posts = null;

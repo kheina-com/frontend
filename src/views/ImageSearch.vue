@@ -42,18 +42,18 @@
 
 <script>
 import { setCookie, commafy } from '@/utilities';
-import RadioButtons from '@/components/RadioButtons.vue'
-import Submit from '@/components/Submit.vue'
-import UrlField from '@/components/UrlField.vue'
-import FileField from '@/components/FileField.vue'
-import Loading from '@/components/Loading.vue'
-import ProgressBar from '@/components/ProgressBar.vue'
-import SearchResults from '@/components/SearchResults.vue'
-import LastUpdated from '@/components/LastUpdated.vue'
-import Subtitle from '@/components/Subtitle.vue'
-import Title from '@/components/Title.vue'
-import Error from '@/components/Error.vue'
-import ThemeMenu from '@/components/ThemeMenu.vue'
+import RadioButtons from '@/components/RadioButtons.vue';
+import Submit from '@/components/Submit.vue';
+import UrlField from '@/components/UrlField.vue';
+import FileField from '@/components/FileField.vue';
+import Loading from '@/components/Loading.vue';
+import ProgressBar from '@/components/ProgressBar.vue';
+import SearchResults from '@/components/SearchResults.vue';
+import LastUpdated from '@/components/LastUpdated.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Title from '@/components/Title.vue';
+import Error from '@/components/Error.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
 
 export default {
 	name: 'ImageSearch',

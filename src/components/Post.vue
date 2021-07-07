@@ -73,21 +73,21 @@
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
 import { uploadHost, usersHost } from '@/config/constants';
-import Report from '@/components/Report';
-import Button from '@/components/Button';
-import Loading from '@/components/Loading'
-import Title from '@/components/Title';
-import Profile from '@/components/Profile';
-import Markdown from '@/components/Markdown';
-import Score from '@/components/Score';
-import Timestamp from '@/components/Timestamp';
-import Subtitle from '@/components/Subtitle';
-import MarkdownEditor from '@/components/MarkdownEditor';
-import Thumbnail from '@/components/Thumbnail';
-import ShareLink from '@/components/ShareLink';
-import FavoriteButton from '@/components/FavoriteButton';
-import RepostButton from '@/components/RepostButton';
-import DropDown from '@/components/DropDown';
+import Report from '@/components/Report.vue';
+import Button from '@/components/Button.vue';
+import Loading from '@/components/Loading.vue';
+import Title from '@/components/Title.vue';
+import Profile from '@/components/Profile.vue';
+import Markdown from '@/components/Markdown.vue';
+import Score from '@/components/Score.vue';
+import Timestamp from '@/components/Timestamp.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import Thumbnail from '@/components/Thumbnail.vue';
+import ShareLink from '@/components/ShareLink.vue';
+import FavoriteButton from '@/components/FavoriteButton.vue';
+import RepostButton from '@/components/RepostButton.vue';
+import DropDown from '@/components/DropDown.vue';
 
 export default {
 	name: 'Post',

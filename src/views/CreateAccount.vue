@@ -32,7 +32,7 @@ import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
-import Submit from '@/components/Submit.vue'
+import Submit from '@/components/Submit.vue';
 
 export default {
 	name: 'CreateAccount',

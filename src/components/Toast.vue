@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import CopyText from '@/components/CopyText.vue'
+import CopyText from '@/components/CopyText.vue';
 
 export default {
 	name: 'Toast',

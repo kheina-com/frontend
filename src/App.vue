@@ -1,7 +1,7 @@
 <template>
 	<Banner :onResize='onResize' />
 	<div ref='content' id='content'>
-		<router-view :key='$route.path' :resizeTrigger='resizeTrigger' />
+		<router-view :key='$route.path'/>
 		<Footer/>
 	</div>
 	<Toast/>
@@ -11,10 +11,10 @@
 <script>
 import { ref } from 'vue';
 import { authCookie, getCookie, isMobile } from '@/utilities';
-import Footer from '@/components/Footer.vue'
-import Cookies from '@/components/Cookies.vue'
-import Banner from '@/components/Banner.vue'
-import Toast from '@/components/Toast.vue'
+import Footer from '@/components/Footer.vue';
+import Cookies from '@/components/Cookies.vue';
+import Banner from '@/components/Banner.vue';
+import Toast from '@/components/Toast.vue';
 
 export default {
 	name: 'App',
@@ -28,11 +28,6 @@ export default {
 		const content = ref(null);
 		return {
 			content,
-		};
-	},
-	data() {
-		return {
-			resizeTrigger: null,
 		};
 	},
 	created() {
@@ -71,8 +66,6 @@ export default {
 			{ this.$refs.content.style.top = `${offset}px`; }
 			else
 			{ this.$refs.content.style.top = `${this.banner.clientHeight}px`; }
-
-			this.resizeTrigger = !this.resizeTrigger;
 		},
 		ResizeSensor(element, callback)
 		{ // https://stackoverflow.com/a/47965966

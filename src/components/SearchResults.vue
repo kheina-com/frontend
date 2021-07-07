@@ -14,10 +14,10 @@
 </template>
 
 <script>
-import TopResult from '@/components/TopResult.vue'
-import MoreResults from '@/components/MoreResults.vue'
-import Subtitle from '@/components/Subtitle.vue'
-import Title from '@/components/Title.vue'
+import TopResult from '@/components/TopResult.vue';
+import MoreResults from '@/components/MoreResults.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Title from '@/components/Title.vue';
 
 export default {
 	name: 'SearchResults',

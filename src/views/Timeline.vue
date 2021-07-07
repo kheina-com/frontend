@@ -35,16 +35,16 @@
 <script>
 import { khatch, isMobile } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost } from '@/config/constants';
-import Loading from '@/components/Loading';
-import Title from '@/components/Title';
-import Subtitle from '@/components/Subtitle';
-import Error from '@/components/Error';
-import ThemeMenu from '@/components/ThemeMenu';
-import Media from '@/components/Media';
-import Sidebar from '@/components/Sidebar';
-import Timestamp from '@/components/Timestamp';
-import Post from '@/components/Post';
-import DropDown from '@/components/DropDown';
+import Loading from '@/components/Loading.vue';
+import Title from '@/components/Title.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Error from '@/components/Error.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
+import Media from '@/components/Media.vue';
+import Sidebar from '@/components/Sidebar.vue';
+import Timestamp from '@/components/Timestamp.vue';
+import Post from '@/components/Post.vue';
+import DropDown from '@/components/DropDown.vue';
 
 
 export default {

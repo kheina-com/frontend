@@ -59,7 +59,7 @@ import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
-import Button from '@/components/Button.vue'
+import Button from '@/components/Button.vue';
 
 export default {
 	name: 'FinalizeAccount',

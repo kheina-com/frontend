@@ -181,26 +181,26 @@
 <script>
 import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
-import Report from '@/components/Report';
-import Button from '@/components/Button';
-import Loading from '@/components/Loading';
-import Title from '@/components/Title';
-import Subtitle from '@/components/Subtitle';
-import Error from '@/components/Error';
-import ThemeMenu from '@/components/ThemeMenu';
-import Media from '@/components/Media';
-import Sidebar from '@/components/Sidebar';
-import Timestamp from '@/components/Timestamp';
-import Markdown from '@/components/Markdown';
-import Profile from '@/components/Profile';
-import Score from '@/components/Score';
-import MarkdownEditor from '@/components/MarkdownEditor';
-import Post from '@/components/Post';
-import Thumbnail from '@/components/Thumbnail';
-import DropDown from '@/components/DropDown';
-import ShareLink from '@/components/ShareLink';
-import FavoriteButton from '@/components/FavoriteButton';
-import RepostButton from '@/components/RepostButton';
+import Report from '@/components/Report.vue';
+import Button from '@/components/Button.vue';
+import Loading from '@/components/Loading.vue';
+import Title from '@/components/Title.vue';
+import Subtitle from '@/components/Subtitle.vue';
+import Error from '@/components/Error.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
+import Media from '@/components/Media.vue';
+import Sidebar from '@/components/Sidebar.vue';
+import Timestamp from '@/components/Timestamp.vue';
+import Markdown from '@/components/Markdown.vue';
+import Profile from '@/components/Profile.vue';
+import Score from '@/components/Score.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import Post from '@/components/Post.vue';
+import Thumbnail from '@/components/Thumbnail.vue';
+import DropDown from '@/components/DropDown.vue';
+import ShareLink from '@/components/ShareLink.vue';
+import FavoriteButton from '@/components/FavoriteButton.vue';
+import RepostButton from '@/components/RepostButton.vue';
 
 export default {
 	name: 'Post',
