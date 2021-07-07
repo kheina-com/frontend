@@ -1,6 +1,7 @@
 import { getMediaThumbnailUrl, getMediaUrl, khatch } from '@/utilities';
-import { postsHost, apiErrorDescriptionToast, apiErrorMessageToast } from '@/config/constants';
+import { postsHost, apiErrorDescriptionToast, apiErrorMessageToast, environment } from '@/config/constants';
 import store from '@/global';
+import router from '@/router';
 
 
 const htmlReplace = {
@@ -40,6 +41,33 @@ const userLinks = {
 	tg: 'https://t.me',
 };
 
+const mdMaxId = parseInt('ffffffff', 16);
+
+const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, 0);
+
+const mdRequestCache = { };
+
+const mdRequestCacheLimit = 100;
+
+let tempUrl = null;
+
+switch (environment)
+{
+	case 'local':
+		tempUrl = /http:\/\/localhost(?:\:\d{1,4})?/;
+		break;
+
+	case 'dev':
+		tempUrl = /https?:\/\/dev\.kheina\.com/;
+		break;
+
+	case 'prod':
+		tempUrl = /https?:\/\/kheina\.com/;
+		break;
+}
+
+const url = new RegExp(`^${tempUrl.source}|^\/`);
+
 
 export function htmlEscape(html) {
 	return html.replaceAll(htmlRegex, match => {
@@ -75,13 +103,24 @@ export const mdTokenizer = {
 };
 
 
-const mdMaxId = parseInt('ffffffff', 16);
+export const mdRenderer = {
+	link(href, title, text) {
+		if (href.match(url))
+		{
+			const id = mdRefId();
 
-const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, 0);
+			setTimeout(() => {
+				const element = document.getElementById(id);
+				element.addEventListener('click', (e) => { e.preventDefault(); router.push(href); })
+			}, 0);
 
-const mdRequestCache = { };
+			return `<a href="${href}" id="${id}">${text || href}</a>`;
+		}
 
-const mdRequestCacheLimit = 100;
+		return `<a href="${href}">${text || href}</a>`;
+	},
+};
+
 
 const mdMakeRequest = (url) => {
 	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit)
@@ -125,15 +164,14 @@ const mdMakeRequest = (url) => {
 					}
 					resolve();
 				});
-			})
-				.catch(error => {
-					console.error(error);
-					store.commit('createToast', {
-						title: apiErrorMessageToast,
-						description: error,
-					});
-					resolve();
+			}).catch(error => {
+				console.error(error);
+				store.commit('createToast', {
+					title: apiErrorMessageToast,
+					description: error,
 				});
+				resolve();
+			});
 	});
 
 	return promise;
@@ -236,6 +274,9 @@ export const mdExtensions = [
 ${title ? '<p>' + title + '</p>' : ''}
 </a>
 					`.trim();
+
+					element.addEventListener('click', (e) => { e.preventDefault(); router.push('/p/' + token.text); })
+
 				});
 
 			return `<span id="${id}">${token.raw}</span>`;

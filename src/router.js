@@ -1,24 +1,23 @@
 import store from '@/global';
-
 import { createWebHistory, createRouter } from 'vue-router';
-import Post from '../views/Post.vue';
-import ImageSearch from '../views/ImageSearch.vue';
-import Search from '../views/Search.vue';
-import Login from '../views/Login.vue';
-import CreateAccount from '../views/CreateAccount.vue';
-import FinalizeAccount from '../views/FinalizeAccount.vue';
-import Upload from '../views/Upload.vue';
-import MarkdownGuide from '../views/MarkdownGuide.vue';
-import Report from '../views/Report.vue';
-import Account from '../views/Account.vue';
-import User from '../views/User.vue';
-import Tag from '../views/Tag.vue';
-import Tags from '../views/Tags.vue';
-import Users from '../views/Users.vue';
-import SearchHelp from '../views/SearchHelp.vue';
-import Timeline from '../views/Timeline.vue';
+import Post from './views/Post.vue';
+import ImageSearch from './views/ImageSearch.vue';
+import Search from './views/Search.vue';
+import Login from './views/Login.vue';
+import CreateAccount from './views/CreateAccount.vue';
+import FinalizeAccount from './views/FinalizeAccount.vue';
+import Upload from './views/Upload.vue';
+import MarkdownGuide from './views/MarkdownGuide.vue';
+import Report from './views/Report.vue';
+import Account from './views/Account.vue';
+import User from './views/User.vue';
+import Tag from './views/Tag.vue';
+import Tags from './views/Tags.vue';
+import Users from './views/Users.vue';
+import SearchHelp from './views/SearchHelp.vue';
+import Timeline from './views/Timeline.vue';
 
-import Test from '../views/Test.vue';
+import Test from './views/Test.vue';
 
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
@@ -450,7 +449,7 @@ const routes = [
 	},
 ];
 
-const Router = createRouter({
+export default createRouter({
 	history: createWebHistory(),
 	routes,
 	scrollBehavior(to, from, savedPosition) {
@@ -459,5 +458,3 @@ const Router = createRouter({
 		return { top: 0 };
 	},
 });
-
-export default Router;

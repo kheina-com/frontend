@@ -6,7 +6,7 @@
 <script> 
 import marked from 'marked';
 import DOMPurify from 'dompurify';
-import { mdEscape, mdExtensions, mdTokenizer } from '@/utilities/markdown';
+import { mdEscape, mdExtensions, mdTokenizer, mdRenderer } from '@/utilities/markdown';
 
 marked.setOptions({
 	// highlight: function(code, language) {
@@ -25,6 +25,7 @@ marked.setOptions({
 marked.use({
 	extensions: mdExtensions,
 	tokenizer: mdTokenizer,
+	renderer: mdRenderer,
 });
 
 

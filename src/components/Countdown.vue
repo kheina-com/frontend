@@ -44,7 +44,6 @@ export default {
 	},
 	methods: {
 		updateSelf() {
-			console.log('mow');
 			if (this.displayAbsolute)
 			{ return; }
 			this.$forceUpdate();
