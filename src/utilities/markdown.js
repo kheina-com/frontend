@@ -114,10 +114,10 @@ export const mdRenderer = {
 				element.addEventListener('click', (e) => { e.preventDefault(); router.push(href); })
 			}, 0);
 
-			return `<a href="${href}" id="${id}">${text || href}</a>`;
+			return `<a href="${htmlEscape(href)}" id="${id}">${htmlEscape(text || href)}</a>`;
 		}
 
-		return `<a href="${href}">${text || href}</a>`;
+		return `<a href="${htmlEscape(href)}">${htmlEscape(text || href)}</a>`;
 	},
 };
 
