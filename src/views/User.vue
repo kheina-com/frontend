@@ -127,7 +127,8 @@
 						Favs
 						<div class='border'/>
 					</button>
-					<div class='separator' v-if='isSelf'/>
+				</div>
+				<div class='tabs'>
 					<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
 						<i class='material-icons'>lock</i>
 						Uploads
@@ -785,10 +786,9 @@ ul, ol {
 
 .mobile-profile-buttons {
 	position: relative;
-	border-bottom: var(--border-size) solid var(--bordercolor);
 	margin: 0 -25px 25px;
 	display: flex;
-	justify-content: space-between;
+	flex-direction: column;
 	align-items: center;
 }
 
@@ -797,7 +797,9 @@ ul, ol {
 	display: flex;
 }
 .mobile .tabs {
-	margin: auto;
+	border-bottom: var(--border-size) solid var(--bordercolor);
+	width: 100%;
+	justify-content: center;
 }
 .tabs button {
 	padding: 20px 25px;
