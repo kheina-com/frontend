@@ -157,7 +157,10 @@ export async function khatch(url, options={ })
 			});
 		}
 		else if (errorHandlers.hasOwnProperty(response.status))
-		{ errorHandlers[response.status](response); }
+		{
+			if (errorHandlers[response.status])
+			{ errorHandlers[response.status](response); }
+		}
 		else if (response.status < 400)
 		{ return response; }
 		else if (response.status < 500)

@@ -41,7 +41,7 @@ const userLinks = {
 	tg: 'https://t.me',
 };
 
-const mdMaxId = parseInt('ffffffff', 16);
+const mdMaxId = 0xffffffff;
 
 const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, 0);
 

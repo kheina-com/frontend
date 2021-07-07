@@ -26,7 +26,7 @@
 					</router-link>
 				</Loading>
 				<div class='profile-buttons'>
-					<div class='tabs'>
+					<div class='tabs' v-if='!isMobile'>
 						<button @click='selectTab' class='posts'>
 							Posts
 							<div class='border'/>
@@ -43,7 +43,7 @@
 						</button>
 						<div class='separator'/>
 						<button @click='selectTab' class='favs'>
-							{{isMobile ? 'Favs' : 'Favorites'}}
+							Favorites
 							<div class='border'/>
 						</button>
 						<div class='separator' v-if='isSelf'/>
@@ -53,16 +53,12 @@
 							<div class='border'/>
 						</button>
 					</div>
-					<Button @click='follow' :red='user?.following' v-show='!(isSelf || isMobile)'>
+					<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button'>
 						<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
 						{{user?.following ? 'Unfollow' : 'Follow'}}
 					</Button>
 				</div>
 			</div>
-			<Button @click='follow' :red='user?.following' v-show='!isSelf && isMobile' style='margin-bottom: 25px'>
-				<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
-				{{user?.following ? 'Unfollow' : 'Follow'}}
-			</Button>
 			<div class='user-info'>
 				<p class='user-field' v-if='!isEditing'>
 					<i class='material-icons'>schedule</i>
@@ -109,6 +105,35 @@
 					<i class='material-icons'>edit</i>
 					Edit Profile
 				</Button>
+			</div>
+			<div class='mobile-profile-buttons' v-show='isMobile'>
+				<div class='tabs'>
+					<button @click='selectTab' class='posts'>
+						Posts
+						<div class='border'/>
+					</button>
+					<div class='separator'/>
+					<button @click='selectTab' class='sets'>
+						Sets
+						<div class='border'/>
+					</button>
+					<div class='separator'/>
+					<button @click='selectTab' class='tags'>
+						Tags
+						<div class='border'/>
+					</button>
+					<div class='separator'/>
+					<button @click='selectTab' class='favs'>
+						Favs
+						<div class='border'/>
+					</button>
+					<div class='separator' v-if='isSelf'/>
+					<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
+						<i class='material-icons'>lock</i>
+						Uploads
+						<div class='border'/>
+					</button>
+				</div>
 			</div>
 			<div v-show='tab === "posts"'>
 				<ol class='results'>
@@ -447,35 +472,17 @@ export default {
 				case 'tags' :
 					if (this.userTags === null)
 					{
-						khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`)
-							.then(response => {
-								response.json().then(r => {
-									if (response.status < 300)
-									{ this.userTags = r; }
-									else if (response.status < 500)
-									{
-										this.$store.commit('createToast', {
-											title: apiErrorMessageToast,
-											description: r.error,
-										});
-									}
-									else
-									{
-										this.$store.commit('createToast', {
-											title: apiErrorMessageToast,
-											description: apiErrorDescriptionToast,
-											dump: r,
-										});
-									}
-								});
-							})
-						.catch(error => {
-							console.error(error);
-							this.$store.commit('createToast', {
-								title: apiErrorMessageToast,
-								description: error,
+						khatch(
+							`${tagsHost}/v1/get_user_tags/${this.handle}`,
+							{
+								errorMessage: 'Failed to Retrieve User tags!',
+								errorHandlers: { 404: () => this.userTags = [] },
+							},
+						).then(response => {
+							response.json().then(r => {
+								this.userTags = r;
 							});
-						});
+						}).catch(() => { });
 					}
 					break;
 
@@ -714,7 +721,7 @@ main {
 }
 .mobile .user {
 	top: calc(-4em - 3px);
-	margin-bottom: calc(-4em + 22px);
+	margin-bottom: -3.875em;
 	width: auto;
 }
 
@@ -771,16 +778,37 @@ ul, ol {
 	width: calc(100% - 8em - 6px);
 }
 
+.mobile .follow-button {
+	left: 25px;
+	top: 25px;
+}
+
+.mobile-profile-buttons {
+	position: relative;
+	border-bottom: var(--border-size) solid var(--bordercolor);
+	margin: 0 -25px 25px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+
 .tabs {
 	display: flex;
+}
+.mobile .tabs {
+	margin: auto;
 }
 .tabs button {
 	padding: 20px 25px;
 	position: relative;
 }
+.mobile .tabs button {
+	padding: 1em 2.5em;
+}
 .tabs .separator {
 	background: var(--bordercolor);
-	width: 1px;
+	width: var(--border-size);
 }
 .tabs .border {
 	position: absolute;

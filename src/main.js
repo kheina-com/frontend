@@ -43,7 +43,7 @@ Router.beforeEach((to, from, next) => {
 });
 
 createApp(App)
+	.use(Router)
 	.use(Vuex)
 	.use(global)
-	.use(Router)
 	.mount('#app');
