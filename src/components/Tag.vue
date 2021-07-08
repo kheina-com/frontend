@@ -1,5 +1,5 @@
 <template>
-	<router-link :to='`/t/${tag}`' class='tag'>
+	<router-link :to='`/t/${tag}`' :class='divClass'>
 		<h2>{{tag}}</h2>
 		<Profile v-bind='owner' v-if='owner' :link='false'/>
 		<p :style='`color: var(--${tagColorMap[tagClass()]})`'>{{class}}</p>
@@ -24,6 +24,10 @@ export default {
 		inheritedTags: Array[String],
 		description: String,
 		owner: Object[String],
+		nested: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	components: {
 		Markdown,
@@ -33,6 +37,10 @@ export default {
 		return {
 			tagColorMap,
 		};
+	},
+	computed: {
+		divClass()
+		{ return 'tag' + (this.nested ? ' nested' : ''); },
 	},
 	methods: {
 		tagClass() {
@@ -45,10 +53,13 @@ export default {
 <style scoped>
 .tag {
 	padding: 25px;
-	background: var(--bg2color);
+	background: var(--bg1color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
 	display: block;
+}
+.tag.nested {
+	background: var(--bg2color);
 }
 .tag:hover {
 	border-color: var(--icolor);

@@ -13,6 +13,43 @@
 			</a>
 		</div>
 		<main ref='main'>
+			<div class='header-bar'>
+				<div class='inner'>
+					<div class='profile-buttons'>
+						<div class='tabs' v-if='!isMobile'>
+							<button @click='selectTab' class='posts'>
+								Posts
+								<div class='border'/>
+							</button>
+							<div class='separator'/>
+							<button @click='selectTab' class='sets'>
+								Sets
+								<div class='border'/>
+							</button>
+							<div class='separator'/>
+							<button @click='selectTab' class='tags'>
+								Tags
+								<div class='border'/>
+							</button>
+							<div class='separator'/>
+							<button @click='selectTab' class='favs'>
+								Favorites
+								<div class='border'/>
+							</button>
+							<div class='separator' v-if='isSelf'/>
+							<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
+								<i class='material-icons'>lock</i>
+								Uploads
+								<div class='border'/>
+							</button>
+						</div>
+						<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button' unnested>
+							<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
+							{{user?.following ? 'Unfollow' : 'Follow'}}
+						</Button>
+					</div>
+				</div>
+			</div>
 			<div ref='profile' class='user'>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
@@ -25,39 +62,6 @@
 						<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
 					</router-link>
 				</Loading>
-				<div class='profile-buttons'>
-					<div class='tabs' v-if='!isMobile'>
-						<button @click='selectTab' class='posts'>
-							Posts
-							<div class='border'/>
-						</button>
-						<div class='separator'/>
-						<button @click='selectTab' class='sets'>
-							Sets
-							<div class='border'/>
-						</button>
-						<div class='separator'/>
-						<button @click='selectTab' class='tags'>
-							Tags
-							<div class='border'/>
-						</button>
-						<div class='separator'/>
-						<button @click='selectTab' class='favs'>
-							Favorites
-							<div class='border'/>
-						</button>
-						<div class='separator' v-if='isSelf'/>
-						<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
-							<i class='material-icons'>lock</i>
-							Uploads
-							<div class='border'/>
-						</button>
-					</div>
-					<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button'>
-						<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
-						{{user?.following ? 'Unfollow' : 'Follow'}}
-					</Button>
-				</div>
 			</div>
 			<div class='user-info'>
 				<p class='user-field' v-if='!isEditing'>
@@ -136,79 +140,81 @@
 					</button>
 				</div>
 			</div>
-			<div v-show='tab === "posts"'>
-				<ol class='results'>
-					<p v-if='posts?.length === 0' style='text-align: center'>
-						<Markdown :content='user?.name' inline v-if='user?.name'/>
-						<span v-else>@{{handle}}</span>
-						hasn't made any posts yet.
-					</p>
-					<li v-for='post in posts || 3' v-else>
-						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
-					</li>
-				</ol>
-				<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
-					<button @click='setPage(page - 1)' v-if='page > 1'>
-						◄
-					</button>
-					<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
-						{{toPage}}
-					</button>
-					<b>
-						{{page}}
-					</b>
-					<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
-						{{toPage}}
-					</button>
-					<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
-						►
-					</button>
-				</div>
-			</div>
-			<div v-show='tab === "sets"'>
-				<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
-			</div>
-			<div v-show='tab === "tags"'>
-				<div class='results'>
-					<p v-if='!userTags' style='text-align: center'>loading tags...</p>
-					<p v-else-if='userTags?.length === 0' style='text-align: center'>
-						<Markdown :content='user?.name' inline v-if='user?.name'/>
-						<span v-else>@{{handle}}</span>
-						has no tags.
-					</p>
-					<ul class='tags' v-else>
-						<li v-for='tag in userTags'>
-							<Tag :inheritedTags='tag.inherited_tags' v-bind='tag'/>
+			<div class='active-tab'>
+				<div v-show='tab === "posts"'>
+					<ol class='results'>
+						<p v-if='posts?.length === 0' style='text-align: center'>
+							<Markdown :content='user?.name' inline v-if='user?.name'/>
+							<span v-else>@{{handle}}</span>
+							hasn't made any posts yet.
+						</p>
+						<li v-for='post in posts || 3' v-else>
+							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
-					</ul>
+					</ol>
+					<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
+						<button @click='setPage(page - 1)' v-if='page > 1'>
+							◄
+						</button>
+						<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
+							{{toPage}}
+						</button>
+						<b>
+							{{page}}
+						</b>
+						<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
+							{{toPage}}
+						</button>
+						<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
+							►
+						</button>
+					</div>
 				</div>
-			</div>
-			<div v-show='tab === "favs"'>
-				<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
-			</div>
-			<div v-show='tab === "uploads"'>
-				<ol class='results'>
-					<p v-if='posts?.length === 0' style='text-align: center'>you haven't made any posts yet.</p>
-					<li v-for='post in posts || 3' v-else>
-						<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
-					</li>
-				</ol>
-				<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
-					<button @click='setPage(page - 1)' v-if='page > 1'>
-						◄
-					</button>
-					<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
-						{{toPage}}
-					</button>
-					<b>
-						{{page}}
-					</b>
-					<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
-						{{toPage}}
-					</button>
-					<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
-						►
-					</button>
+				<div v-show='tab === "sets"'>
+					<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
+				</div>
+				<div v-show='tab === "tags"'>
+					<div class='results'>
+						<p v-if='!userTags' style='text-align: center'>loading tags...</p>
+						<p v-else-if='userTags?.length === 0' style='text-align: center'>
+							<Markdown :content='user?.name' inline v-if='user?.name'/>
+							<span v-else>@{{handle}}</span>
+							has no tags.
+						</p>
+						<ul class='tags' v-else>
+							<li v-for='tag in userTags'>
+								<Tag :inheritedTags='tag.inherited_tags' :nested='!isMobile' v-bind='tag'/>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div v-show='tab === "favs"'>
+					<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
+				</div>
+				<div v-show='tab === "uploads"'>
+					<ol class='results'>
+						<p v-if='posts?.length === 0' style='text-align: center'>you haven't made any posts yet.</p>
+						<li v-for='post in posts || 3' v-else>
+							<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+						</li>
+					</ol>
+					<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
+						<button @click='setPage(page - 1)' v-if='page > 1'>
+							◄
+						</button>
+						<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
+							{{toPage}}
+						</button>
+						<b>
+							{{page}}
+						</b>
+						<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
+							{{toPage}}
+						</button>
+						<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
+							►
+						</button>
+					</div>
 				</div>
 			</div>
 			<ThemeMenu/>
@@ -764,14 +770,29 @@ ul, ol {
 	color: var(--subtle);
 }
 
-.profile-buttons {
+.header-bar {
 	position: absolute;
-	top: calc(6.25em + 3px);
+	margin: 0 -25px;
+	width: 100%;
+	background: var(--bg2color);
+	border-bottom: var(--border-size) solid var(--bordercolor);
+}
+
+.header-bar .inner {
+	width: 70vw;
+	margin: auto;
+}
+.mobile .header-bar {
+	display: none;
+}
+
+.profile-buttons {
+	position: relative;
 	left: calc(12.5em + 6px);
-	width: calc(100% - 12.5em - 6px);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	width: calc(100% - 12.5em - 6px);
 }
 .mobile .profile-buttons {
 	top: calc(4em + 3px);
@@ -790,6 +811,13 @@ ul, ol {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	background: var(--bg2color);
+}
+
+.mobile .active-tab {
+	background: var(--bg2color);
+	margin: -25px;
+	padding: 25px;
 }
 
 

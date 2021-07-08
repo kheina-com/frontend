@@ -28,10 +28,16 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		unnested: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	computed: {
 		buttonClass() {
-			const buttonClass = 'interactable button';
+			let buttonClass = 'interactable button';
+			if (this.unnested)
+			{ buttonClass += ' unnested'; }
 			if (this.red)
 			{ return buttonClass + ' red'; }
 			else if (this.yellow)
@@ -54,6 +60,9 @@ export default {
 a, button {
 	display: flex;
 	align-items: center;
+}
+.button.unnested.interactable, .button.unnested {
+	background: var(--bg1color);
 }
 .green:hover {
 	color: var(--valid);
