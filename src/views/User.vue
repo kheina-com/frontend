@@ -43,7 +43,7 @@
 								<div class='border'/>
 							</button>
 						</div>
-						<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button' unnested>
+						<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button' :unnested='!isMobile'>
 							<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
 							{{user?.following ? 'Unfollow' : 'Follow'}}
 						</Button>
@@ -783,7 +783,8 @@ ul, ol {
 	margin: auto;
 }
 .mobile .header-bar {
-	display: none;
+	background: none;
+	border-bottom: none;
 }
 
 .profile-buttons {
@@ -795,9 +796,7 @@ ul, ol {
 	width: calc(100% - 12.5em - 6px);
 }
 .mobile .profile-buttons {
-	top: calc(4em + 3px);
 	left: calc(8em + 6px);
-	width: calc(100% - 8em - 6px);
 }
 
 .mobile .follow-button {
