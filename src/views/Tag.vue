@@ -132,7 +132,7 @@ export default {
 				artist: '--pink',
 				sponsor: '--green',
 				subject: '--violet',
-				species: '--red',
+				species: '--orange',
 				gender: '--blue',
 				misc: '--subtle',
 			},

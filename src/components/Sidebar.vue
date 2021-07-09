@@ -5,6 +5,9 @@
 			<li v-for='(value, name) in sortTagGroups(tags)'>
 				<TagGroup :group='name' :tags='value' />
 			</li>
+			<li>
+				<TagGroup group='rating' :tags='rating ? [rating] : null' />
+			</li>
 		</ol>
 		<ol v-else>
 			<li v-for='name in tagGroups'>
@@ -25,6 +28,10 @@ export default {
 	props: {
 		tags: {
 			type: Object,
+			default: null,
+		},
+		rating: {
+			type: String,
 			default: null,
 		},
 	},

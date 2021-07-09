@@ -4,7 +4,10 @@
 	<Loading :isLoading='tags === null'><h4>{{group.substr(0, 1).toUpperCase()}}{{group.substr(1).toLowerCase()}}</h4></Loading>
 	<ol>
 		<li v-if='tags !== null' v-for='tag in tags'>
-			<router-link :to='`/t/${tag}`' :style='`color: var(--${tagColorMap[group]})`'>
+			<router-link :to='`/q/${tag}`' :style='`color: var(--${tag})`' v-if='rating.has(tag)'>
+				{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
+			</router-link>
+			<router-link :to='`/t/${tag}`' :style='`color: var(--${tagColorMap[group]})`' v-else>
 				{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
 			</router-link>
 		</li>
@@ -44,6 +47,11 @@ export default {
 				gender: 1,
 				misc: 3,
 			},
+			rating: new Set([
+				'general',
+				'mature',
+				'explicit',
+			]),
 		};
 	},
 	components: {

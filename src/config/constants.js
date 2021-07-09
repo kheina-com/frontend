@@ -82,9 +82,10 @@ export const tagColorMap = {
 	artist: 'pink',
 	sponsor: 'green',
 	subject: 'violet',
-	species: 'red',
+	species: 'orange',
 	gender: 'blue',
 	misc: 'subtle',
+	rating: 'red',
 };
 
 export const mdGuide = `

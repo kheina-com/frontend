@@ -16,7 +16,7 @@
 		</Loading>
 	</div>
 	<div class='container' v-if='!isMobile'>
-			<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
+			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
 				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
 				<main>

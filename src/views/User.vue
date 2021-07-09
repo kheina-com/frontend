@@ -401,26 +401,11 @@ export default {
 				body: {
 					handle: this.user?.handle,
 				},
+				errorMessage: `Failed to ${this.user?.following ? 'unfollow' : 'follow'} user`,
 			})
-			.then(response => {
-				if (response.status < 300)
-				{ this.user.following = !this.user?.following; }
-				else if (response.status < 500)
-				{
-					this.$store.commit('createToast', {
-						title: apiErrorMessageToast,
-						description: r.error,
-					});
-				}
-				else
-				{
-					this.$store.commit('createToast', {
-						title: apiErrorMessageToast,
-						description: apiErrorDescriptionToast,
-						dump: r,
-					});
-				}
-			})
+			.then(() => {
+				this.user.following = !this.user?.following;
+			}).catch(() => { });
 		},
 		fetchData() {
 			switch (this.tab) {
