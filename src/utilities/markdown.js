@@ -105,19 +105,24 @@ export const mdTokenizer = {
 
 export const mdRenderer = {
 	link(href, title, text) {
+		const id = mdRefId();
+
 		if (href.match(url))
 		{
-			const id = mdRefId();
-
 			setTimeout(() => {
 				const element = document.getElementById(id);
-				element.addEventListener('click', (e) => { e.preventDefault(); router.push(href); })
+				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(href); })
 			}, 0);
-
-			return `<a href="${htmlEscape(href)}" id="${id}">${htmlEscape(text || href)}</a>`;
+		}
+		else
+		{
+			setTimeout(() => {
+				const element = document.getElementById(id);
+				element.addEventListener('click', e => e.stopPropagation())
+			}, 0);
 		}
 
-		return `<a href="${htmlEscape(href)}">${htmlEscape(text || href)}</a>`;
+		return `<a href="${htmlEscape(href)}" id="${id}">${htmlEscape(text || href)}</a>`;
 	},
 };
 
@@ -275,7 +280,7 @@ ${title ? '<p>' + title + '</p>' : ''}
 </a>
 					`.trim();
 
-					element.addEventListener('click', (e) => { e.preventDefault(); router.push('/p/' + token.text); })
+					element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push('/p/' + token.text); })
 
 				});
 
