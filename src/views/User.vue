@@ -100,12 +100,12 @@
 						<i class='material-icons'>done</i>
 						Update Profile
 					</Button>
-					<Button class='interactable' title='Edit profile' @click='toggleEdit'>
+					<Button class='interactable' title='Edit profile' @click='toggleEdit(false)'>
 						<i class='material-icons'>edit_off</i>
 						Cancel
 					</Button>
 				</div>
-				<Button class='interactable' title='Edit profile' @click='toggleEdit' v-else>
+				<Button class='interactable' title='Edit profile' @click='toggleEdit(true)' v-else>
 					<i class='material-icons'>edit</i>
 					Edit Profile
 				</Button>
@@ -360,7 +360,7 @@ export default {
 		this.tabElement = document.querySelector(`button.${this.tab}`);
 		this.tabElement.lastChild.style.borderBottomWidth = '5px';
 		if (this.$route.query?.edit)
-		{ this.isEditing = true; }
+		{ this.toggleEdit(true); }
 	},
 	computed: {
 		isMobile,
@@ -522,9 +522,9 @@ export default {
 					break;
 			}
 		},
-		toggleEdit() {
-			this.isEditing = !this.isEditing;
-			if (this.isEditing)
+		toggleEdit(editing) {
+			this.isEditing = editing;
+			if (editing)
 			{
 				this.update = {
 					name: this.user?.name,

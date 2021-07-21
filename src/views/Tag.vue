@@ -283,10 +283,11 @@ export default {
 					body,
 				})
 				.then(response => {
-					if (response.status < 300)
+					if (response.status < 400)
 					{
-						this.pendingUpdate = this.editing = false;
-						this.tagData = Object.assign(this.tagData, this.updateBody);
+						// this.tagData = Object.assign(this.tagData, this.updateBody);
+						this.pendingUpdate = false;
+						this.editing = false;
 					}
 					else 
 					{
