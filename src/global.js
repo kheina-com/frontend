@@ -20,19 +20,16 @@ export default createStore({
 			state.auth = auth;
 			if (auth)
 			{
-				khatch(`${usersHost}/v1/fetch_self`)
-				.then(response => {
+				khatch(
+					`${usersHost}/v1/fetch_self`,
+					{ errorMessage: 'An Error Occurred While Fetching Self' }
+				).then(response => {
 					response.json().then(r => {
-						if (response.status < 300)
-						{
-							r.created = new Date(r.created);
-							state.user = r;
-						}
+						r.created = new Date(r.created);
+						state.user = r;
 					});
 				})
-				.catch(error => {
-					console.error(error);
-				});
+				.catch(() => { });
 			}
 			else 
 			{ state.user = null; }

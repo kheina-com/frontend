@@ -466,7 +466,7 @@ html.e621
 	--bg2color: #213A5F;
 	--bg3color: hsla(0,0%,100%,.05);
 	--textcolor: #EEE;
-	--bordercolor: #0000;
+	--border-size: 0;
 	--linecolor: var(--blockquote);
 	--borderhover: #0000;
 	--blockquote: #b4c7d9;

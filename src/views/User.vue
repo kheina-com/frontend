@@ -331,7 +331,7 @@ export default {
 					if (response.status < 300)
 					{
 						this.user = r;
-						setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) - kheina.com` : `@${this.user?.handle} - kheina.com`);
+						setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) | kheina.com` : `@${this.user?.handle} | kheina.com`);
 						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user?.handle));
 					}
 					else if (response.status < 500)
@@ -891,6 +891,7 @@ ul.tags li {
 ul.tags > :last-child {
 	margin-bottom: 0;
 }
+
 /* ===== editing ===== */
 .add-image-button {
 	background: var(--screen-cover);
@@ -915,5 +916,11 @@ ul.tags > :last-child {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+/* THEME OVERRIDES */
+html.e621 .header-bar {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
 }
 </style>

@@ -89,20 +89,18 @@ export function sortTagGroups(tags)
 export async function khatch(url, options={ })
 {
 	const attempts = options?.attempts || 3;
-	const handleError = options?.handleError || options?.errorMessage;
+	const handleError = Boolean(options?.handleError || options?.errorMessage);
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
 	const errorHandlers = options?.errorHandlers || { };
 
 	if (url.match(/https:\/\/(?:\w+\.)?kheina.com|http:\/\/localhost/))
 	{
-		let headers = { };
-		if (options.hasOwnProperty('headers'))
-		{ headers = options.headers; }
+		const headers = options?.headers || { };
 		const auth = store.state.auth?.token;
 
 		if (auth)
 		{
-			headers.authorization = auth;
+			headers.authorization = 'bearer ' + auth;
 			options.credentials = 'include';
 		}
 		options.headers = headers;
@@ -222,7 +220,7 @@ export function authCookie()
 {
 	const token = getCookie('kh-auth');
 
-	if (!token)
+	if (!token || token.length <= 10)
 	{ return null; }
 
 	const components = token.replace('-', '+').replace('_', '/').split('.');

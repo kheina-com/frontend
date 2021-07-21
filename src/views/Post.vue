@@ -9,9 +9,7 @@
 				<div class='parent-thumbnail'>
 					<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
 				</div>
-				<p>
-					{{parent.title || parent.postId}}
-				</p>
+				<Markdown :content='parent.title || parent.postId' inline/>
 			</router-link>
 		</Loading>
 	</div>

@@ -156,7 +156,7 @@ export default {
 					if (response.status < 300)
 					{
 						this.tagData = r;
-						setTitle(`${r.tag}, ${r.class} tag - kheina.com`);
+						setTitle(`${r.tag}, ${r.class} tag | kheina.com`);
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }

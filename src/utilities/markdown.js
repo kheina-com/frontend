@@ -39,6 +39,8 @@ const userLinks = {
 	tw: 'https://www.twitch.tv',
 	yt: 'https://www.youtube.com/c',
 	tg: 'https://t.me',
+	p: 'https://www.patreon.com',
+	pi: 'https://www.picarto.tv',
 };
 
 const mdMaxId = 0xffffffff;
@@ -196,21 +198,32 @@ export const mdExtensions = [
 		tokenizer(src) {
 			const rule = /^(\w*)@(\w+)/;
 			const match = rule.exec(src);
-			if (match && userLinks.hasOwnProperty(match[1]))
+			if (match)
 			{
-				return {
-					type: 'link',
-					raw: match[0],
-					text: match[0],
-					href: `${userLinks[match[1]]}/${match[2]}`,
-					tokens: [
-						{
-							type: 'text',
-							raw: match[0],
-							text: match[0],
-						},
-					],
-				};
+				if (userLinks.hasOwnProperty(match[1]))
+				{
+					return {
+						type: 'link',
+						raw: match[0],
+						text: match[0],
+						href: `${userLinks[match[1]]}/${match[2]}`,
+						tokens: [
+							{
+								type: 'text',
+								raw: match[0],
+								text: match[0],
+							},
+						],
+					};
+				}
+				else
+				{
+					return {
+						type: 'text',
+						raw: match[0],
+						text: match[0],
+					};
+				}
 			}
 		},
 	},

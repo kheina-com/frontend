@@ -79,8 +79,7 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						console.log(r);
-						if (response.status < 300)
+						if (response.status < 400 && r.token_data.token.length > 10)
 						{
 							setCookie('kh-auth', r.token_data.token, r.token_data.expires - new Date().valueOf() / 1000);
 							this.$store.commit('setAuth', authCookie());
