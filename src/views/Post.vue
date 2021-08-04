@@ -2,18 +2,18 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
-	<div v-if='parent !== null' class='parent'>
-		<p class='parent-title'>Parent post</p>
-		<Loading :isLoading='!parent.postId'>
-			<router-link :to='`/p/${parent.postId}`' class='inner'>
-				<div class='parent-thumbnail'>
-					<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
-				</div>
-				<Markdown :content='parent.title || parent.postId' inline/>
-			</router-link>
-		</Loading>
-	</div>
-	<div class='container' v-if='!isMobile'>
+		<div v-if='parent !== null' class='parent'>
+			<p class='parent-title'>Parent post</p>
+			<Loading :isLoading='!parent.postId'>
+				<router-link :to='`/p/${parent.postId}`' class='inner'>
+					<div class='parent-thumbnail'>
+						<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
+					</div>
+					<Markdown :content='parent.title || parent.postId' inline/>
+				</router-link>
+			</Loading>
+		</div>
+		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
 				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
@@ -95,7 +95,7 @@
 		<div class='content' v-else>
 			<Media v-if='isLoading || post.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' loadingStyle='100vw; 100vw'/>
 			<div class='container'>
-				<Sidebar :tags='tags' class='sidebar' :style='sidebarStyle'/>
+				<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 				<div class='main'>
 					<main>
 						<div class='post-header'>

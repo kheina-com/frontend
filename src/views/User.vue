@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div v-if='!errorMessage'>
+	<div>
 		<div ref='banner' class='banner' v-if='user?.banner' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
@@ -12,7 +12,8 @@
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 		</div>
-		<main ref='main'>
+		<Error :dump='errorDump' :message='errorMessage' v-if='errorMessage'/>
+		<main ref='main' v-else>
 			<div class='header-bar'>
 				<div class='inner'>
 					<div class='profile-buttons'>
@@ -132,8 +133,8 @@
 						<div class='border'/>
 					</button>
 				</div>
-				<div class='tabs'>
-					<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
+				<div class='tabs' v-if='isSelf'>
+					<button @click='selectTab' class='uploads' title='this tab is only visible to you'>
 						<i class='material-icons'>lock</i>
 						Uploads
 						<div class='border'/>
@@ -233,7 +234,6 @@
 			</div>
 		</div>
 	</div>
-	<Error v-model:dump='errorDump' v-model:message='errorMessage' :style='`margin-top: 25vw`' v-else/>
 </template>
 
 <script>
@@ -809,6 +809,11 @@ ul, ol {
 	display: flex;
 }
 .mobile .tabs {
+	display: grid;
+	grid-template-columns: 1fr var(--border-size) 1fr var(--border-size) 1fr var(--border-size) 1fr;
+	grid-template-rows: auto;
+}
+.mobile .tabs {
 	border-bottom: var(--border-size) solid var(--bordercolor);
 	width: 100%;
 	justify-content: center;
@@ -818,7 +823,7 @@ ul, ol {
 	position: relative;
 }
 .mobile .tabs button {
-	padding: 1em 2.5em;
+	padding: 1em 0;
 }
 .tabs .separator {
 	background: var(--bordercolor);

@@ -113,6 +113,9 @@ button:hover {
 .vote {
 	color: var(--icolor);
 }
+.mobile button {
+	padding: 0.5em 1em;
+}
 
 /* theme overrides */
 html.midnight button:hover {

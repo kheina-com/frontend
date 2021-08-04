@@ -11,7 +11,6 @@
 			<CopyText :content='dump' />
 		</div>
 		<div style='display: flex; justify-content: center'>
-			<button class='interactable' @click='$emit(`update:message`, null); $emit(`update:dump`, null)'>Back</button>
 			<router-link :to='`/`' class='interactable'>Home</router-link>
 		</div>
 		<ThemeMenu />
@@ -45,10 +44,6 @@ export default {
 			return Boolean(this.message);
 		},
 	},
-	emits: [
-		'update:message',
-		'update:dump',
-	],
 }
 </script>
 

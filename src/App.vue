@@ -170,7 +170,7 @@ body.menu-open {
 
 html *
 { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }
-pre, code, .code, textarea
+code, .code, textarea
 {
 	font-size: 0.9em;
 	font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace;
@@ -466,10 +466,11 @@ html.e621
 	--bg2color: #213A5F;
 	--bg3color: hsla(0,0%,100%,.05);
 	--textcolor: #EEE;
+	--bordercolor: var(--subtle);
 	--border-size: 0;
-	--linecolor: var(--blockquote);
+	--linecolor: var(--subtle);
 	--borderhover: #0000;
-	--blockquote: #b4c7d9;
+	--blockquote: var(--subtle);
 	--subtle: #B4C7D9;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
@@ -480,9 +481,7 @@ html.e621
 	--cyan: #b4c7d9;
 	--blue: #d0d;
 	/* sienna */
-}
-html.e621
-{
+
 	background: url(/assets/themes/stripe.png) var(--bg0color);
 	background-repeat: repeat;
 	background-position: center top;

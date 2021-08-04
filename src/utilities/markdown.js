@@ -124,7 +124,7 @@ export const mdRenderer = {
 			}, 0);
 		}
 
-		return `<a href="${htmlEscape(href)}" id="${id}">${htmlEscape(text || href)}</a>`;
+		return `<a href="${htmlEscape(href)}" id="${id}" title="${title}">${htmlEscape(text || href)}</a>`;
 	},
 };
 
@@ -184,6 +184,29 @@ const mdMakeRequest = (url) => {
 	return promise;
 };
 
+const mdRules = {
+	whitespace: {
+		start: /^\n[ ]+|[ ]{2,}/,
+		rule: /^(\n)?([ ]+)/,
+	},
+	handle: {
+		start: /(^|\s*)\w*@\S/,
+		rule: /^(\w*)@(\w+)/,
+	},
+	emoji: {
+		start: /(^|\s*):/,
+		rule: /^:([a-z-]+):/,
+	},
+	gigamoji: {
+		start: /(\s*\n):/,
+		rule: /^\s*:([a-z-]+):$/,
+	},
+	post: {
+		start: /(^|\s*)\^/,
+		rule: /^\^([a-zA-Z0-9_-]{8})/,
+	},
+};
+
 import emojiMap from '@/config/emoji';
 
 export const mdExtensions = [
@@ -191,13 +214,12 @@ export const mdExtensions = [
 		name: 'handle',
 		level: 'inline',
 		start(src) {
-			const rule = /(^|\s*)\w*@\S/
-			const match = rule.exec(src);
+			const match = mdRules.handle.start.exec(src);
 			return match ? match.index + match[1].length : null;
 		},
 		tokenizer(src) {
-			const rule = /^(\w*)@(\w+)/;
-			const match = rule.exec(src);
+			const match = mdRules.handle.rule.exec(src);
+
 			if (match)
 			{
 				if (userLinks.hasOwnProperty(match[1]))
@@ -231,13 +253,12 @@ export const mdExtensions = [
 		name: 'emoji',
 		level: 'inline',
 		start(src) {
-			const rule = /(^|\s*):/;
-			const match = rule.exec(src);
+			const match = mdRules.emoji.start.exec(src);
 			return match ? match.index + match[1].length : null;
 		},
 		tokenizer(src) {
-			const rule = /^:([a-z-]+):/;
-			const match = rule.exec(src);
+			const match = mdRules.emoji.rule.exec(src);
+
 			if (match)
 			{
 				return {
@@ -252,18 +273,40 @@ export const mdExtensions = [
 		renderer(token) {
 			return `<img src="${token.href}" alt="${emojiMap[token.text] || token.text}" title="${token.title}" class="emoji">`;
 		},
+	},	{
+		name: 'gigamoji',
+		level: 'block',
+		start(src) {
+			const match = mdRules.gigamoji.start.exec(src);
+			return match ? match.index + match[1].length : null;
+		},
+		tokenizer(src) {
+			const match = mdRules.gigamoji.rule.exec(src);
+
+			if (match)
+			{
+				return {
+					type: 'gigamoji',
+					raw: match[0],
+					text: match[1],
+					title: match[0],
+					href: getMediaUrl('emoji', `${match[1]}.webp`),
+				};
+			}
+		},
+		renderer(token) {
+			return `<img src="${token.href}" alt="${emojiMap[token.text] || token.text}" title="${token.title}" class="gigamoji">`;
+		},
 	},
 	{
 		name: 'post',
 		level: 'inline',
 		start(src) {
-			const rule = /(^|\s*)\^/;
-			const match = rule.exec(src);
+			const match = mdRules.post.start.exec(src);
 			return match ? match.index + match[1].length : null;
 		},
 		tokenizer(src) {
-			const rule = /^\^([a-zA-Z0-9_-]{8})/;
-			const match = rule.exec(src);
+			const match = mdRules.post.rule.exec(src);
 
 			if (match)
 			{
@@ -294,7 +337,6 @@ ${title ? '<p>' + title + '</p>' : ''}
 					`.trim();
 
 					element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push('/p/' + token.text); })
-
 				});
 
 			return `<span id="${id}">${token.raw}</span>`;

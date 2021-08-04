@@ -50,9 +50,12 @@ button {
 	border-radius: var(--border-radius);
 	position: relative;
 }
-button:hover {
+button:hover i {
 	color: var(--icolor);
 	background: var(--bg2color);
+}
+.nested button:hover i {
+	background: var(--bg1color);
 }
 .popup {
 	display: none;

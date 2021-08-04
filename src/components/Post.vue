@@ -35,8 +35,8 @@
 			</div>
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' />
-		<div class='bottom-margin' v-if='media_type && !isLoading'>
-			<Thumbnail :post='postId' :size='1200'  v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad'/>
+		<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
+			<Thumbnail :post='postId' :size='1200' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
 			</button>
@@ -442,6 +442,9 @@ a.profile:hover {
 .score {
 	margin: -0.5em 0.5em 0 -0.5em;
 }
+.mobile .score {
+	margin: -25px 0 0 -25px;
+}
 .nested .score {
 	--bg2color: var(--bg1color);
 }
@@ -526,20 +529,30 @@ ol > :last-child, ol > :last-child .post {
 	align-items: center;
 }
 .buttons button {
+	padding: 0.25em;
+}
+.buttons button i {
 	color: var(--subtle);
 	background: #0000;
 	border-radius: var(--border-radius);
-	padding: 0.25em;
 }
-.buttons button:hover {
+.buttons button:hover i {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
-.nested .buttons button:hover {
+.nested .buttons button:hover i {
 	background: var(--bg1color);
 }
 .buttons button i {
 	display: block;
+}
+.mobile .buttons {
+	width: calc(100% + 50px);
+	margin: 0 -25px -25px;
+}
+.mobile .buttons button {
+	padding: 0.25em calc(0.25em + 25px) calc(0.25em + 25px);
+	margin: 0;
 }
 .reply-button {
 	display: flex;
@@ -559,6 +572,9 @@ ol > :last-child, ol > :last-child .post {
 }
 .show-mature {
 	padding: 25px;
+	background: var(--bg2color);
+}
+.nested .show-mature {
 	background: var(--bg1color);
 }
 .bottom-margin {
@@ -566,6 +582,8 @@ ol > :last-child, ol > :last-child .post {
 }
 
 .more-button {
+	display: block;
+	font-size: 1.5em;
 	border-radius: var(--border-radius);
 	padding: calc(0.5em / 3);
 	color: var(--subtle);
@@ -582,9 +600,18 @@ ol > :last-child, ol > :last-child .post {
 .nested .more-button:hover {
 	background: var(--bg1color);
 }
-.more-button {
-	display: block;
-	font-size: 1.5em;
+.mobile .more-button {
+	padding: 25px;
+	margin: -25px;
+}
+
+.mobile .thumbnail {
+	max-height: 150vw;
+	overflow: hidden;
+}
+.mobile .thumbnail img {
+	max-height: 100%;
+	width: 100%;
 }
 
 /* theme overrides */

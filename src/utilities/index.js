@@ -86,6 +86,11 @@ export function sortTagGroups(tags)
 	return sorted;
 }
 
+export function createToast(options)
+{
+	store.commit('createToast', options);
+}
+
 export async function khatch(url, options={ })
 {
 	const attempts = options?.attempts || 3;

@@ -115,6 +115,10 @@ export default {
 	vertical-align: bottom;
 	transform: translateY(calc(50% - 0.6em))
 }
+.markdown img.gigamoji {
+	max-width: 100%;
+	max-height: 5em;
+}
 .markdown hr {
 	height: 0;
 	color: #0000;
@@ -139,6 +143,9 @@ export default {
 	white-space: pre-wrap;
 	word-break: break-word;
 }
+.markdown p {
+	white-space: pre;
+}
 
 .markdown table {
 	border: var(--border-size) solid var(--bordercolor);
@@ -162,15 +169,15 @@ export default {
 	padding: 0.5em;
 }
 .markdown table code {
-	background: var(--bg3color);
+	background: var(--bg1color);
 }
 .markdown blockquote::before {
 	background-color: var(--blockquote);
-	width: 5px;
-	border-radius: 2.5px;
+	width: 0.25em;
+	border-radius: 0.125em;
 	content: 'quote';
 	display: block;
-	margin-left: -15px;
+	margin-left: -0.75em;
 	height: 100%;
 	color: var(--blockquote);
 	overflow: hidden;

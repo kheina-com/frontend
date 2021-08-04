@@ -322,13 +322,13 @@ export default {
 	height: 100%;
 	top: 0;
 	left: -25vw;
-	left: calc(min(-20vw, -18em) - 3px);
+	left: calc(min(-20vw, -18em) - 6px);
 }
 
 html.mobile .menu {
 	width: 75vw;
 	left: -75vw;
-	left: calc(-75vw - 3px);
+	left: calc(-75vw - 6px);
 }
 html.mobile .menu-open .menu, .menu-open .menu {
 	left: 0;

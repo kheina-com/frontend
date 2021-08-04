@@ -1,5 +1,8 @@
 <template>
-	<button @click.prevent.stop='navigate' class='report'><i class='kheina-icons'>report_content</i><span>Report Content</span></button>
+	<button @click.prevent.stop='navigate' class='report'>
+		<i class='kheina-icons'>report_content</i>
+		<span>Report Content</span>
+	</button>
 </template>
 
 <script>
@@ -27,8 +30,8 @@ button {
 	align-items: center;
 	color: var(--subtle);
 	border-radius: var(--border-radius);
-	padding: 0.25em 0.25em !important;
-	margin: -0.1em -0.25em -0.25em !important;
+	padding: 0.25em 0.25em;
+	margin: -0.1em -0.25em -0.25em;
 	position: relative;
 	z-index: 1;
 }

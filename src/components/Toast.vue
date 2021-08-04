@@ -3,7 +3,7 @@
 		<div v-for='toast in $store.state.toasts' class='toast'>
 			<div class='toast-body'>
 				<button @click='close(toast.id)' class='close'><i class='material-icons-round'>close</i></button>
-				<i class='material-icons-round icon'>{{toast.icon}}</i>
+				<i class='material-icons-round icon' :style='`color: var(--${toast.color})`'>{{toast.icon}}</i>
 				<div>
 					<p class='title'>{{toast.title}}</p>
 					<p class='description' v-show='toast.description'>

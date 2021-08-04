@@ -208,16 +208,29 @@ for example, twitter can be linked to like so: t@darmiu. there are many websites
 | fa@username | furaffinity |
 | u@username  |    reddit   |
 | tw@username |  twitch.tv  |
+| p@username  | patreon.com |
+| pi@username |  picarto.tv |
 
 ### Post Embedding
+posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character
 \`\`\`
-posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character: ^nNSsjrxI
+^nNSsjrxI
 \`\`\`
-posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character: ^nNSsjrxI
+^nNSsjrxI
 
 ### Emojis
+emojis can be accessed by surrounding the emoji's code with \`:\` characters
 \`\`\`
-emojis can be accessed by surrounding the emoji's code with \`:\` characters: :heart:
+inline emoji: :heart:
+gigamoji:
+:heart:
 \`\`\`
-emojis can be accessed by surrounding the emoji's code with \`:\` characters: :heart:
+inline emoji: :heart:
+
+### Gigamoji
+leaving an emoji by itself on a line turns it into a gigamoji
+\`\`\`
+:heart:
+\`\`\`
+:heart:
 `.trim();

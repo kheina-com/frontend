@@ -169,7 +169,7 @@
 
 <script>
 import { ref } from 'vue';
-import { khatch, tagSplit, getCookie, getMediaUrl, isMobile } from '@/utilities';
+import { createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile } from '@/utilities';
 import { apiErrorMessage, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
@@ -387,6 +387,8 @@ export default {
 			this.showData();
 
 			let sendUpdate = false;
+			let requiredSuccesses = 0;
+			let successes = 0;
 
 			if (this.title !== this.update.title)
 			{
@@ -408,15 +410,30 @@ export default {
 
 			if (sendUpdate)
 			{
+				requiredSuccesses++;
 				khatch(`${uploadHost}/v1/update_post`, {
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						title: this.title ? this.title.trim() : null,
-						description: this.description ? this.description.trim() : null,
-						rating: this.rating,
-					},
-				});
+						method: 'POST',
+						errorMessage: 'failed to update post!',
+						body: {
+							post_id: this.postId,
+							title: this.title ? this.title.trim() : null,
+							description: this.description ?? null,
+							rating: this.rating,
+						},
+					})
+					.then(() => {
+						successes++
+						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
+						{
+							createToast({
+								icon: 'done',
+								title: 'Post Updated!',
+								color: 'green',
+								time: 5,
+							});
+						}
+					})
+					.catch(() => { });
 			}
 
 			let activeTags = tagSplit(this.$refs.tagDiv.textContent);
@@ -429,23 +446,28 @@ export default {
 
 			if (removedTags.length > 0)
 			{
+				requiredSuccesses++;
 				khatch(`${tagsHost}/v1/remove_tags`, {
+						errorMessage: 'failed to remove tags!',
 						method: 'POST',
 						body: {
 							post_id: this.postId,
 							tags: removedTags,
 						},
 					})
-					.then(response => {
-						response.json().then(r => {
-							console.log(r);
-						});
+					.then(() => {
+						successes++
+						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
+						{
+							createToast({
+								icon: 'done',
+								title: 'Post Updated!',
+								color: 'green',
+								time: 5,
+							});
+						}
 					})
-					.catch(error => {
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = error;
-						console.error(error);
-					});
+					.catch(() => { });
 			}
 
 			let newTags = [];
@@ -456,7 +478,9 @@ export default {
 
 			if (newTags.length > 0)
 			{
+				requiredSuccesses++;
 				khatch(`${tagsHost}/v1/add_tags`, {
+						errorMessage: 'failed to add tags!',
 						method: 'POST',
 						body: {
 							post_id: this.postId,
@@ -468,12 +492,18 @@ export default {
 							console.log(r);
 							this.tagsField = Object.values(activeTags).flat().join(' ');
 						});
+						successes++
+						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
+						{
+							createToast({
+								icon: 'done',
+								title: 'Post Updated!',
+								color: 'green',
+								time: 5,
+							});
+						}
 					})
-					.catch(error => {
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = error;
-						console.error(error);
-					});
+					.catch(() => { });
 			}
 
 			console.log(JSON.parse(JSON.stringify({

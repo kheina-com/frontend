@@ -44,6 +44,7 @@ export default createStore({
 				title: options?.title,
 				description: options?.description,
 				dump: options?.dump,
+				color: options?.color || 'textcolor',
 				icon: options?.icon || 'warning',
 			};
 			setTimeout(() => delete state.toasts[id], (options?.time || 30) * 1000);
