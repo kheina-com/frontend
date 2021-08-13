@@ -222,8 +222,6 @@ posts (along with a rich preview) can be linked to by preceding the post id (the
 emojis can be accessed by surrounding the emoji's code with \`:\` characters
 \`\`\`
 inline emoji: :heart:
-gigamoji:
-:heart:
 \`\`\`
 inline emoji: :heart:
 

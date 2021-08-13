@@ -115,7 +115,10 @@ export default {
 	vertical-align: bottom;
 	transform: translateY(calc(50% - 0.6em))
 }
-.markdown img.gigamoji {
+.markdown .gigamoji {
+	margin: 0;
+}
+.markdown .gigamoji img {
 	max-width: 100%;
 	max-height: 5em;
 }
@@ -144,7 +147,7 @@ export default {
 	word-break: break-word;
 }
 .markdown p {
-	white-space: pre;
+	white-space: pre-wrap;
 }
 
 .markdown table {
@@ -205,6 +208,7 @@ export default {
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	overflow: hidden;
 	background: var(--bg2color);
+	white-space: initial;
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);

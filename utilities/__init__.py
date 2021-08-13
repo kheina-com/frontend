@@ -1691,7 +1691,7 @@ emoji_map = {
 	'wallis-futuna-flag': '🇼🇫',
 	'waning-crescent-moon': '🌘',
 	'waning-gibbous-moon': '🌖',
-	'warning': '⚠',
+	'warning': '⚠️',
 	'wastebasket': '🗑',
 	'watch': '⌚',
 	'water-buffalo': '🐃',
@@ -1878,4 +1878,4 @@ def concise(string: str) :
 		cut = False
 		description = match[0]
 
-	return description.strip() + ('...' if cut else '')
+	return '\n'.join(list(map(str.rstrip, description.split('\n')))) + ('...' if cut else '')
