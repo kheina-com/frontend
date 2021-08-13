@@ -617,6 +617,12 @@ export default {
 }
 </script>
 
+<style>
+.user-name h2 .markdown.inline p {
+	white-space: nowrap !important;
+}
+</style>
+
 <style scoped>
 main {
 	background: var(--bg1color);
@@ -626,7 +632,6 @@ main {
 }
 
 .user-name {
-	white-space: nowrap;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;

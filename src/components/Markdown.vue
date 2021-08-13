@@ -8,6 +8,15 @@ import marked from 'marked';
 import DOMPurify from 'dompurify';
 import { mdEscape, mdExtensions, mdTokenizer, mdRenderer } from '@/utilities/markdown';
 
+// marked.Lexer.lex = function (src, options) {
+// 	const lexer = new marked.Lexer(options);
+
+// 	const a = lexer.lex(src)
+// 	console.log(a);
+
+// 	return a;
+// };
+
 marked.setOptions({
 	// highlight: function(code, language) {
 	// 	const hljs = require('highlight.js');
