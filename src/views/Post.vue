@@ -631,7 +631,7 @@ main {
 	-moz-transition: none;
 	-o-transition: none;
 	transition: none;
-	max-width: calc(100vw - max(20vw, 300px) - 25px);
+	max-width: calc(100% - 25px);
 }
 html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	--bg2color: var(--bg1color);
@@ -812,13 +812,12 @@ ol p {
 .post-buttons button {
 	color: var(--subtle);
 	background: #00000000;
-	padding: 0.25em 0.25em;
 	margin: -0.1em -0.25em -0.25em;
 	border-radius: var(--border-radius);
 }
 .more-button {
 	border-radius: var(--border-radius);
-	padding: calc(0.5em / 3);
+	padding: 0.25em;
 	color: var(--subtle);
 	background: #00000000;
 	-webkit-transition: ease var(--fadetime);

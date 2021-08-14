@@ -319,6 +319,9 @@ export default {
 			if (this.count !== 64)
 			{ query.push(`count=${this.count}`); }
 
+			if (this.sort !== 'hot')
+			{ query.push(`sort=${this.sort}`); }
+
 			return '/t/' + this.tag + '?' + query.join('&');
 		},
 		setPage(page) {

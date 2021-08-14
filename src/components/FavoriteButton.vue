@@ -26,18 +26,25 @@ export default {
 
 <style scoped>
 i {
+	border-radius: var(--border-radius);
+	padding: 0.25em;
 	font-size: 1.5em;
 	display: block;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
 }
 button {
-	padding: 0.25em;
 	color: var(--subtle);
 	background: #0000;
-	border-radius: var(--border-radius);
 	position: relative;
 }
-button:hover {
+button:hover i {
 	color: var(--icolor);
 	background: var(--bg2color);
+}
+.nested button:hover i {
+	background: var(--bg1color);
 }
 </style>

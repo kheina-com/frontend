@@ -28,15 +28,15 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		unnested: {
+		nested: {
 			type: Boolean,
-			default: false,
+			default: true,
 		},
 	},
 	computed: {
 		buttonClass() {
 			let buttonClass = 'interactable button';
-			if (this.unnested)
+			if (!this.nested)
 			{ buttonClass += ' unnested'; }
 			if (this.red)
 			{ return buttonClass + ' red'; }

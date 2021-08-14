@@ -40,14 +40,18 @@ export default {
 
 <style scoped>
 i {
+	border-radius: var(--border-radius);
+	padding: 0.25em;
 	font-size: 1.5em;
 	display: block;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
 }
 button {
-	padding: 0.25em;
 	color: var(--subtle);
 	background: #0000;
-	border-radius: var(--border-radius);
 	position: relative;
 }
 button:hover i {
@@ -62,7 +66,7 @@ button:hover i {
 	position: absolute;
 	pointer-events: none;
 	color: var(--textcolor);
-	transform: translateX(calc(-50% + 0.75em));
+	transform: translateX(calc(-50% + 1.1em));
 	bottom: 150%;
 	background: var(--bg2color);
 	padding: 0.25em 0.5em;

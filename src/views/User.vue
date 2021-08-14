@@ -44,7 +44,7 @@
 								<div class='border'/>
 							</button>
 						</div>
-						<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button' :unnested='!isMobile'>
+						<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button' :nested='isMobile'>
 							<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
 							{{user?.following ? 'Unfollow' : 'Follow'}}
 						</Button>
@@ -814,11 +814,6 @@ ul, ol {
 	display: flex;
 }
 .mobile .tabs {
-	display: grid;
-	grid-template-columns: 1fr var(--border-size) 1fr var(--border-size) 1fr var(--border-size) 1fr;
-	grid-template-rows: auto;
-}
-.mobile .tabs {
 	border-bottom: var(--border-size) solid var(--bordercolor);
 	width: 100%;
 	justify-content: center;
@@ -826,6 +821,7 @@ ul, ol {
 .tabs button {
 	padding: 20px 25px;
 	position: relative;
+	flex: 1;
 }
 .mobile .tabs button {
 	padding: 1em 0;

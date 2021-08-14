@@ -528,13 +528,14 @@ ol > :last-child, ol > :last-child .post {
 	justify-content: space-between;
 	align-items: center;
 }
-.buttons button {
-	padding: 0.25em;
-}
 .buttons button i {
 	color: var(--subtle);
 	background: #0000;
 	border-radius: var(--border-radius);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
 }
 .buttons button:hover i {
 	color: var(--icolor);
@@ -551,7 +552,7 @@ ol > :last-child, ol > :last-child .post {
 	margin: 0 -25px -25px;
 }
 .mobile .buttons button {
-	padding: 0.25em calc(0.25em + 25px) calc(0.25em + 25px);
+	padding: 0 25px 25px;
 	margin: 0;
 }
 .reply-button {
@@ -560,6 +561,7 @@ ol > :last-child, ol > :last-child .post {
 	color: var(--subtle);
 }
 .reply-button i {
+	padding: 0.25em;
 	font-size: 1.5em;
 }
 .reply-button:hover {
