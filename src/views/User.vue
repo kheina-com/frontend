@@ -196,7 +196,7 @@
 					<ol class='results'>
 						<p v-if='posts?.length === 0' style='text-align: center'>you haven't made any posts yet.</p>
 						<li v-for='post in posts || 3' v-else>
-							<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
 					<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
