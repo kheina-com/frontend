@@ -150,6 +150,10 @@ export default {
 	border-radius: var(--border-radius);
 	padding: 0.1em 0.25em;
 }
+.markdown pre code {
+	padding: 0;
+}
+
 .markdown pre {
 	padding: 0.5em;
 	white-space: pre-wrap;
