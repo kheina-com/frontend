@@ -1,4 +1,5 @@
 import { apiErrorDescriptionToast, apiErrorMessageToast } from '@/config/constants';
+import { v4 as uuid4 } from 'uuid';
 import store from '@/global';
 
 
@@ -91,6 +92,13 @@ export function createToast(options)
 	store.commit('createToast', options);
 }
 
+export function guid()
+{
+	return btoa(String.fromCharCode.apply(null,
+		uuid4().replace(/\r|\n|-/g, '').replace(/([\da-fA-F]{2}) ?/g, '0x$1 ').replace(/ +$/, '').split(' '))
+	).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
 export async function khatch(url, options={ })
 {
 	const attempts = options?.attempts || 3;
@@ -110,6 +118,8 @@ export async function khatch(url, options={ })
 		}
 		options.headers = headers;
 	}
+
+	// options.headers.trace = options.headers?.trace || options?.trace || uuid4();
 
 	if (options.hasOwnProperty('body') && typeof(options.body) != 'string')
 	{

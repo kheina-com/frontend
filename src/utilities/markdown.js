@@ -32,6 +32,7 @@ const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => '\\' + 
 
 const userLinks = {
 	'': '', // default
+	kh: '',
 	t: 'https://twitter.com',
 	fa: 'https://www.furaffinity.net/user',
 	f: 'https://www.facebook.com',
@@ -229,6 +230,7 @@ export const mdExtensions = [
 						type: 'link',
 						raw: match[0],
 						text: match[0],
+						title: match[0],
 						href: `${userLinks[match[1]]}/${match[2]}`,
 						tokens: [
 							{

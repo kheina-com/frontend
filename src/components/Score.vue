@@ -1,8 +1,8 @@
 <template>
 	<div class='score' ref='scoreElement'>
-		<button @click.stop='vote(1)'>▲</button>
+		<button @click.stop='vote(1)' class='upvote'><b>▲</b></button>
 		<Loading :isLoading='isLoading'><p>{{score === null ? 'X' : score === undefined ? 10 : abbreviate(score.up - score.down)}}</p></Loading>
-		<button @click.stop='vote(-1)'>▼</button>
+		<button @click.stop='vote(-1)' class='downvote'><b>▼</b></button>
 	</div>
 </template>
 
@@ -103,18 +103,26 @@ export default {
 .score {
 	text-align: center;
 }
-button {
+button b {
+	display: block;
 	padding: 0.25em 0.5em;
 	border-radius: var(--border-radius);
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
 }
-button:hover {
+button:hover b {
 	background: var(--bg2color);
 }
 .vote {
 	color: var(--icolor);
 }
 .mobile button {
-	padding: 0.5em 1em;
+	padding: 0.25em 0.5em;
+}
+.mobile .loading {
+	margin: 0 0.25em;
 }
 
 /* theme overrides */

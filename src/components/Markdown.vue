@@ -116,7 +116,7 @@ export default {
 	max-width: 100%;
 	max-height: 10em;
 }
-.markdown img.emoji {
+.markdown img.emoji, .markdown.inline .gigamoji img {
 	max-width: 1.2em;
 	max-height: 1.2em;
 	position: relative;
