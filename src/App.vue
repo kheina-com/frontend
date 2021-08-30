@@ -10,7 +10,7 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, getCookie, isMobile } from '@/utilities';
+import { authCookie, getCookie, isDarkMode, isMobile, setMeta } from '@/utilities';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -47,6 +47,24 @@ export default {
 		{ this.$store.commit('setAuth', authCookie()); }
 		if (isMobile())
 		{ document.documentElement.classList.add('mobile'); }
+
+		let faviconPath;
+
+		if (isDarkMode())
+		{ faviconPath = '/assets/favicon/dark/'; }
+		else
+		{ faviconPath = '/assets/favicon/light/'; }
+
+		[32, 64, 128, 256].forEach(x => {
+			const link = document.createElement('link');
+
+			link.rel = 'icon';
+			link.type = 'image/png';
+			link.sizes = `${x}x${x}`;
+			link.href = faviconPath + `${x}.png`;
+
+			document.head.appendChild(link);
+		});
 	},
 	mounted() {
 		this.ResizeSensor(this.$refs.content, this.onResize);

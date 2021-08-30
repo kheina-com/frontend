@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import Router from '@/router';
 import App from '@/App.vue';
 import { routerMetaTag } from '@/config/constants';
-import { setMeta } from '@/utilities/index.js';
+import { setMeta } from '@/utilities';
 import Vuex from 'vuex';
 import global from './global';
 

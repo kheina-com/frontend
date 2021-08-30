@@ -192,7 +192,7 @@ const routes = [
 		props: true,
 		component: Post,
 		meta: {
-			title: (to) => to.params.postId,
+			title: 'Loading...',
 			metaTags: [
 				(to) => {
 					return {

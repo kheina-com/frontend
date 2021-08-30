@@ -42,6 +42,9 @@ const userLinks = {
 	tg: 'https://t.me',
 	p: 'https://www.patreon.com',
 	pi: 'https://www.picarto.tv',
+	kf: 'https://ko-fi.com',
+	gr: 'https://gumroad.com',
+	st: 'https://subscribestar.adult',
 };
 
 const mdMaxId = 0xffffffff;

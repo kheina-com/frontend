@@ -246,7 +246,7 @@ export default {
 			commentSort: 'best',
 		};
 	},
-	async created() {
+	created() {
 		khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`)
 			.then(response => {
 				response.json().then(r => {
@@ -261,6 +261,9 @@ export default {
 						this.errorMessage = apiErrorMessage;
 						this.errorDump = r;
 					}
+
+					if (this.post !== null)
+					{ this.setPageTitle(); }
 				});
 			})
 			.catch(error => {
@@ -286,7 +289,9 @@ export default {
 						}
 						if (this.$store.state.scroll)
 						{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
-						setTitle(`${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`);
+
+						if (this.tags !== null)
+						{ this.setPageTitle(); }
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
@@ -342,6 +347,23 @@ export default {
 		{ return this.$store.state.user && this.post?.user?.handle === this.$store.state.user?.handle; }
 	},
 	methods: {
+		setPageTitle() {
+			let title = `${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`;
+
+			if (this.tags.hasOwnProperty('subject'))
+			{
+				const subjects = this.tags.subject.map(x => x.endsWith('_(subject)') ? x.slice(0, -10) : x);
+
+				if (subjects.length > 2)
+				{ title += ' featuring ' + subjects.slice(0, -1).join(', ') + ', and ' + subjects.slice(-1)[0]; }
+				else if (subjects.length == 2)
+				{ title += ' featuring ' + subjects[0] + ' and ' + subjects[1]; }
+				else
+				{ title += ' featuring ' + subjects[0]; }
+			}
+
+			setTitle(title);
+		},
 		followUser() {
 			khatch(`${usersHost}/v1/${this.post?.user.following ? 'unfollow_user' : 'follow_user'}`, {
 				method: 'POST',

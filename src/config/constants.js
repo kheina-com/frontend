@@ -199,17 +199,21 @@ to link to a user, you can simply precede the user's handle with an \`@\` charac
 this is pretty common on other websites, however kheina.com also supports linking to external websites with this syntax.
 for example, twitter can be linked to like so: t@darmiu. there are many websites with similar syntax. the complete list is below.
 
-|   Example   |   Website   |
-|:-----------:|:-----------:|
-|  @username  |  kheina.com |
-| t@username  |   twitter   |
-| f@username  |   facebook  |
-| yt@channel  |   youtube   |
-| fa@username | furaffinity |
-| u@username  |    reddit   |
-| tw@username |  twitch.tv  |
-| p@username  | patreon.com |
-| pi@username |  picarto.tv |
+|   Example   |       Website       |               Formatted               |
+|:-----------:|:-------------------:|:-------------------------------------:|
+|  @username  |      kheina.com     | https://kheina.com/username           |
+| t@username  |     twitter.com     | https://twitter.com/username          |
+| f@username  |     facebook.com    | https://facebook.com/username         |
+| yt@channel  |     youtube.com     | https://youtube.com/c/username        |
+| fa@username |   furaffinity.net   | https://furaffinity.net/user/username |
+| u@username  |      reddit.com     | https://reddit.com/u/username         |
+| tw@username |      twitch.tv      | https://twitch.tv/username            |
+| p@username  |     patreon.com     | https://patreon.com/username          |
+| pi@username |      picarto.tv     | https://picarto.tv/username           |
+| kf@username |      ko-fi.com      | https://ko-fi.com/username            |
+| gr@username |     gumroad.com     | https://gumroad.com/username          |
+| st@username | subscribestar.adult | https://subscribestar.adult/username  |
+
 
 ### Post Embedding
 posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character
