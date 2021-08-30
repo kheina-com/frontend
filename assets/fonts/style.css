@@ -1,4 +1,10 @@
 @font-face {
+	font-family: 'DejaVu Sans';
+	src: url('/assets/fonts/DejaVuSans.ttf') format('truetype');
+	/* TODO: add other formats here */
+}
+
+@font-face {
 	font-family: 'kheina-icons';
 	src:
 		url('/assets/fonts/kheina-icons.woff2?kwe5pk') format('woff2'),
