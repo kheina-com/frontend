@@ -16,15 +16,6 @@ import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
 import Toast from '@/components/Toast.vue';
 
-// import darkIcon64 from '$/favicon/dark/64.png';
-// import darkIcon128 from '$/favicon/dark/128.png';
-// import darkIcon256 from '$/favicon/dark/256.png';
-
-// import lightIcon32 from '$/favicon/light/32.png';
-// import lightIcon64 from '$/favicon/light/64.png';
-// import lightIcon128 from '$/favicon/light/128.png';
-// import lightIcon256 from '$/favicon/light/256.png';
-
 
 export default {
 	name: 'App',
@@ -58,21 +49,22 @@ export default {
 		if (isMobile())
 		{ document.documentElement.classList.add('mobile'); }
 
-		const favicon = isDarkMode() ? 'dark' : 'light';
-		const favicons = {
-			dark: {
-				'32': (await import('$/favicon/dark/32.png?url')).default,
-				'64': (await import('$/favicon/dark/64.png?url')).default,
-				'128': (await import('$/favicon/dark/128.png?url')).default,
-				'256': (await import('$/favicon/dark/256.png?url')).default,
-			},
-			light: {
-				'32': (await import('$/favicon/light/32.png?url')).default,
-				'64': (await import('$/favicon/light/64.png?url')).default,
-				'128': (await import('$/favicon/light/128.png?url')).default,
-				'256': (await import('$/favicon/light/256.png?url')).default,
-			},
-		};
+		// sadly, these must be strings for vite to catch assets
+		const favicons = { };
+		if (isDarkMode())
+		{
+			favicons[32] = (await import('$/favicon/dark/32.png?url')).default;
+			favicons[64] = (await import('$/favicon/dark/64.png?url')).default;
+			favicons[128] = (await import('$/favicon/dark/128.png?url')).default;
+			favicons[256] = (await import('$/favicon/dark/256.png?url')).default;
+		}
+		else
+		{
+			favicons[32] = (await import('$/favicon/light/32.png?url')).default;
+			favicons[64] = (await import('$/favicon/light/64.png?url')).default;
+			favicons[128] = (await import('$/favicon/light/128.png?url')).default;
+			favicons[256] = (await import('$/favicon/light/256.png?url')).default;
+		}
 
 		[32, 64, 128, 256].forEach(x => {
 			const link = document.createElement('link');
@@ -80,7 +72,7 @@ export default {
 			link.rel = 'icon';
 			link.type = 'image/png';
 			link.sizes = `${x}x${x}`;
-			link.href = favicons[favicon][x.toString()];
+			link.href = favicons[x];
 
 			document.head.appendChild(link);
 		});
