@@ -2,7 +2,8 @@
 	<main>
 		<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 			<Countdown :endtime='date'/>
-			<Timestamp :datetime='datetime' live/>
+			<div><Timestamp :datetime='datetime' live/></div>
+			<div><Timestamp :datetime='epoch' live/></div>
 			<div>
 				<Button @click='audio.play()'>
 					play me
@@ -34,6 +35,7 @@ import Timestamp from '@/components/Timestamp.vue';
 import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
 import { guid } from '@/utilities';
+import epoch from '@/config/constants';
 
 
 export default {
@@ -47,6 +49,7 @@ export default {
 	},
 	data() {
 		return {
+			epoch: new Date(epoch).toString()	,
 			date: new Date(Date.now() + 500000000).toString(),
 			datetime: new Date(Date.now()).toString(),
 			audio: new Audio(notify),
@@ -64,6 +67,15 @@ main {
 	position: relative;
 	padding: 25px;
 	display: block;
+}
+main > div {
+	margin: 0.5em 0;
+}
+main > :first-child {
+	margin-top: 0;
+}
+main > :last-child {
+	margin-bottom: 0;
 }
 ol {
 	list-style-type: none;

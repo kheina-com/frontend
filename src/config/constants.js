@@ -1,4 +1,4 @@
-export default 0;
+export default 1576242000 * 1000;
 
 let env = null;
 

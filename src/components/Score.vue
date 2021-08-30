@@ -1,8 +1,8 @@
 <template>
 	<div class='score' ref='scoreElement'>
-		<button @click.stop='vote(1)' class='upvote'><b>▲</b></button>
+		<button @click.stop='vote(1)'><b>▲</b></button>
 		<Loading :isLoading='isLoading'><p>{{score === null ? 'X' : score === undefined ? 10 : abbreviate(score.up - score.down)}}</p></Loading>
-		<button @click.stop='vote(-1)' class='downvote'><b>▼</b></button>
+		<button @click.stop='vote(-1)'><b>▼</b></button>
 	</div>
 </template>
 
