@@ -26,7 +26,6 @@ marked.setOptions({
 	pedantic: false,
 	gfm: true,
 	breaks: true,
-	sanitize: false, // deprecated, do not use here
 	smartLists: true,
 	xhtml: false,
 });

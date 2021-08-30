@@ -22,19 +22,26 @@
 					toast
 				</Button>
 			</div>
+			<div>
+				<textarea v-model='content'/>
+				<div>
+					{{authCookie(content)}}
+				</div>
+			</div>
 		</Error>
 		<ThemeMenu />
 	</main>
 </template>
 
 <script>
+import { ref } from 'vue';
 import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
-import { guid } from '@/utilities';
+import { authCookie, guid } from '@/utilities';
 import epoch from '@/config/constants';
 
 
@@ -47,16 +54,26 @@ export default {
 		Timestamp,
 		Button,
 	},
+	setup() {
+		const idk = ref(null);
+		return {
+			idk,
+		};
+	},
 	data() {
 		return {
 			epoch: new Date(epoch).toString()	,
 			date: new Date(Date.now() + 500000000).toString(),
 			datetime: new Date(Date.now()).toString(),
 			audio: new Audio(notify),
+			content: null,
 		}
 	},
 	mounted() {
 		console.log(guid());
+	},
+	methods: {
+		authCookie,
 	},
 }
 </script>

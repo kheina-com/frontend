@@ -1,3 +1,6 @@
+import image from '$/favicon/dark/256.png?url';
+
+
 export default 1576242000 * 1000;
 
 let env = null;
@@ -148,7 +151,7 @@ However, this does not include the additional features below.
 |:---------------------------------:|:-----------------------------:|
 |      \`https://example.com\`      |      https://example.com      |
 | \`[a link](https://kheina.com)\`  | [a link](https://kheina.com)  |
-| \`![an image](https://cdn.kheina.com/file/kheina-content/emoji/heart.webp)\` | ![an image](https://cdn.kheina.com/file/kheina-content/emoji/heart.webp) |
+|     \`![an image](${image})\`     |     ![an image](${image})     |
 
 
 ## Code Examples

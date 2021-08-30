@@ -231,9 +231,9 @@ export function hex_from_bytes(bytestring)
 	return r;
 }
 
-export function authCookie()
+export function authCookie(cookie=null)
 {
-	const token = getCookie('kh-auth');
+	const token = cookie ?? getCookie('kh-auth');
 
 	if (!token || token.length <= 10)
 	{ return null; }

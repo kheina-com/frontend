@@ -198,7 +198,7 @@ const mdRules = {
 		rule: /^(\w*)@(\w+)/,
 	},
 	emoji: {
-		start: /(^|\s*):/,
+		start: /(^|\s*):([a-z0-9\-]+):/,
 		rule: /^:([a-z0-9\-]+):/,
 	},
 	gigamoji: {
