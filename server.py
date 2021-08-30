@@ -39,7 +39,7 @@ async def matchMetaTags(uri: str) :
 
 
 @app.get('{uri:path}')
-async def test(uri: str) :
+async def all_routes(uri: str) :
 	local_uri = 'dist/' + uri.strip('\./')
 
 	if path.isfile(local_uri) :

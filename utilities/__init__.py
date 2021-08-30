@@ -6,7 +6,7 @@ header_image = '<meta property="og:image" content="{0}"><meta property="twitter:
 header_description = '<meta name="description" property="og:description" content="{0}"><meta property="twitter:description" content="{0}">'
 header_defaults = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary_large_image">'
 
-default_image = header_image.format('https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png')
+default_image = header_image.format('https://cdn.kheina.com/file/kheina-content/favicon.png')
 
 api_timeout = 5
 
