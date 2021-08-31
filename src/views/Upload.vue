@@ -494,7 +494,7 @@ export default {
 				errorMessage: 'Unable To Retrieve Post Data!',
 			}).then(response => {
 				response.json().then(r => {
-					console.log(r);
+					console.log(1);
 					this.description = this.update.description = r.description;
 					this.title = this.update.title = r.title;
 					this.privacy = this.update.privacy = r.privacy;
@@ -514,6 +514,7 @@ export default {
 				errorMessage: 'Unable To Retrieve Post Tags!',
 			}).then(response => {
 				response.json().then(r => {
+					console.log(2);
 					this.savedTags = Object.values(r).flat();
 					this.tagsField = this.savedTags.join(' ');
 				});
@@ -524,6 +525,7 @@ export default {
 				errorHandlers: { 404: () => { } },
 			}).then(response => {
 				response.json().then(r => {
+					console.log(3);
 					this.tagSuggestions = [];
 					r.forEach(tag => {
 						this.tagSuggestions.push(tag.tag);
