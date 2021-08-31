@@ -253,7 +253,7 @@ export default {
 				body: { },
 			}).then(response => {
 				response.json().then(r => {
-					this.$router.push(this.$route.path + '?post=' + r.post_id);
+					// this.$router.push(this.$route.path + '?post=' + r.post_id);
 					this.postId = r.post_id;
 				});
 			});
@@ -276,7 +276,6 @@ export default {
 		},
 	},
 	methods: {
-		getMediaUrl,
 		addTag(tag) {
 			this.$refs.tagDiv.textContent += ' ' + tag;
 		},
@@ -309,7 +308,7 @@ export default {
 
 			this.isUploading = true;
 
-			this.mediaUrl = this.getMediaUrl(this.postId, encodeURIComponent(this.file.name));
+			this.mediaUrl = getMediaUrl(this.postId, encodeURIComponent(this.file.name));
 
 			let formdata = new FormData();
 			formdata.append('file', this.file);
@@ -494,16 +493,15 @@ export default {
 				errorMessage: 'Unable To Retrieve Post Data!',
 			}).then(response => {
 				response.json().then(r => {
-					console.log(1);
 					this.description = this.update.description = r.description;
 					this.title = this.update.title = r.title;
 					this.privacy = this.update.privacy = r.privacy;
 					this.rating = this.update.rating = r.rating;
 					this.mime = r.media_type?.mime_type;
 					if (r.filename) {
-						this.uploadDone = true;
+						this.uploadDone = true;	
 						this.filename = r.filename;
-						this.mediaUrl = this.getMediaUrl(this.postId, this.filename);
+						this.mediaUrl = getMediaUrl(this.postId, this.filename);
 					}
 					// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
 					// { this.uploadUnavailable = true; }
@@ -514,7 +512,6 @@ export default {
 				errorMessage: 'Unable To Retrieve Post Tags!',
 			}).then(response => {
 				response.json().then(r => {
-					console.log(2);
 					this.savedTags = Object.values(r).flat();
 					this.tagsField = this.savedTags.join(' ');
 				});
@@ -525,7 +522,6 @@ export default {
 				errorHandlers: { 404: () => { } },
 			}).then(response => {
 				response.json().then(r => {
-					console.log(3);
 					this.tagSuggestions = [];
 					r.forEach(tag => {
 						this.tagSuggestions.push(tag.tag);
