@@ -253,7 +253,7 @@ export default {
 				body: { },
 			}).then(response => {
 				response.json().then(r => {
-					// this.$router.push(this.$route.path + '?post=' + r.post_id);
+					history.replaceState(null, document.title, this.$route.path + '?post=' + r.post_id);
 					this.postId = r.post_id;
 				});
 			});
