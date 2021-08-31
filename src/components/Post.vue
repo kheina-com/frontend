@@ -610,10 +610,11 @@ ol > :last-child, ol > :last-child .post {
 .mobile .thumbnail {
 	max-height: 150vw;
 	overflow: hidden;
+	width: 100%;
 }
 .mobile .thumbnail img {
 	max-height: 100%;
-	width: 100%;
+	min-width: 100%;
 }
 
 /* theme overrides */

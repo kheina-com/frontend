@@ -98,7 +98,7 @@
 
 <script>
 import { khatch, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, postsHost, tagsHost } from '@/config/constants';
+import { apiErrorMessage, postsHost, tagsHost, usersHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
 import Error from '@/components/Error.vue';
@@ -285,7 +285,34 @@ export default {
 				.then(response => {
 					if (response.status < 400)
 					{
-						// this.tagData = Object.assign(this.tagData, this.updateBody);
+						if (body.name)
+						{
+							this.$router.push('/t/' + body.name);
+							return;
+						}
+						this.tagData.class = body?.tag_class ?? this.tagData?.class;
+						this.tagData.description = body?.description ?? this.tagData?.description;
+
+						if (body.hasOwnProperty('owner'))
+						{
+							if (!body.owner)
+							{ this.tagData.owner = null; }
+							else
+							{
+								khatch(`${usersHost}/v1/fetch_user/${body.owner}`, {
+									errorMessage: 'Failed to retrieve new tag owner.',
+								}).then(response => {
+									response.json().then(r => {
+										this.tagData.owner = {
+											handle: r.handle,
+											name: r.name,
+											icon: r.icon,
+										};
+									});
+								}).catch(() => { });
+							}
+						}
+
 						this.pendingUpdate = false;
 						this.editing = false;
 					}

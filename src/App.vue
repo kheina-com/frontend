@@ -294,26 +294,6 @@ textarea {
 { background: var(--bg0color); }
 form, p
 { margin: 0; }
-.mascot
-{
-	position: absolute;
-	height: 256px;
-	left: 0;
-	pointer-events: none;
-}
-.mascot img
-{
-	height: 100%;
-	top: -150px;
-	position: relative;
-}
-.mascot span
-{
-	position: relative;
-	color: var(--subtle);
-	left: 0.4em;
-	top: calc(-100% - 0.3em);
-}
 
 .interactable
 {

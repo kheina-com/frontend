@@ -50,5 +50,6 @@ export default {
 <style scoped>
 img {
 	object-fit: cover;
+	display: block;
 }
 </style>
