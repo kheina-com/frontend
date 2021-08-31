@@ -244,10 +244,7 @@ export default {
 	},
 	mounted() {
 		if (this.$route.query?.post)
-		{
-			this.postId = this.$route.query.post;
-			this.retrievePostData();
-		}
+		{ this.postId = this.$route.query.post; }
 		else
 		{
 			khatch(`${uploadHost}/v1/create_post`, {
@@ -256,9 +253,8 @@ export default {
 				body: { },
 			}).then(response => {
 				response.json().then(r => {
+					this.$router.push(this.$route.path + '?post=' + r.postId);
 					this.postId = r.post_id;
-					this.$router.replace(this.$route.path + '?post=' + this.postId);
-					this.retrievePostData();
 				});
 			});
 		}
@@ -272,8 +268,8 @@ export default {
 					.toLowerCase()
 					.split(/\s+/)
 					.filter(x => x)
-					.join("-")
-					.replaceAll(/[^a-z-]/gi, "") +
+					.join('-')
+					.replaceAll(/[^a-z-]/gi, '') +
 				'-' +
 				this.$store.state.user.handle +
 				':';
@@ -281,48 +277,6 @@ export default {
 	},
 	methods: {
 		getMediaUrl,
-		retrievePostData() {
-			khatch(`${postsHost}/v1/post/${this.postId}`, {
-				errorMessage: 'Unable To Retrieve Post Data!',
-			}).then(response => {
-				response.json().then(r => {
-					console.log(r);
-					this.description = this.update.description = r.description;
-					this.title = this.update.title = r.title;
-					this.privacy = this.update.privacy = r.privacy;
-					this.rating = this.update.rating = r.rating;
-					this.mime = r.media_type?.mime_type;
-					if (r.filename) {
-						this.uploadDone = true;
-						this.filename = r.filename;
-						this.mediaUrl = this.getMediaUrl(this.postId, this.filename);
-					}
-					// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
-					// { this.uploadUnavailable = true; }
-				});
-			});
-
-			khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
-				errorMessage: 'Unable To Retrieve Post Tags!',
-			}).then(response => {
-				response.json().then(r => {
-					this.savedTags = Object.values(r).flat();
-					this.tagsField = this.savedTags.join(' ');
-				});
-			}).catch(() => { });;
-
-			khatch(`${tagsHost}/v1/get_user_tags/${this.$store.state.user?.handle}`, {
-				errorMessage: 'Unable To Retrieve Your Recommended Tags!',
-				errorHandlers: { 404: () => { } },
-			}).then(response => {
-				response.json().then(r => {
-					this.tagSuggestions = [];
-					r.forEach(tag => {
-						this.tagSuggestions.push(tag.tag);
-					});
-				});
-			}).catch(() => { });
-		},
 		addTag(tag) {
 			this.$refs.tagDiv.textContent += ' ' + tag;
 		},
@@ -532,6 +486,50 @@ export default {
 				if (response.status < 400)
 				{ this.$router.push(`/p/${this.postId}`); }
 			});
+		},
+	},
+	watch: {
+		postId(){
+			khatch(`${postsHost}/v1/post/${this.postId}`, {
+				errorMessage: 'Unable To Retrieve Post Data!',
+			}).then(response => {
+				response.json().then(r => {
+					console.log(r);
+					this.description = this.update.description = r.description;
+					this.title = this.update.title = r.title;
+					this.privacy = this.update.privacy = r.privacy;
+					this.rating = this.update.rating = r.rating;
+					this.mime = r.media_type?.mime_type;
+					if (r.filename) {
+						this.uploadDone = true;
+						this.filename = r.filename;
+						this.mediaUrl = this.getMediaUrl(this.postId, this.filename);
+					}
+					// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+					// { this.uploadUnavailable = true; }
+				});
+			});
+
+			khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
+				errorMessage: 'Unable To Retrieve Post Tags!',
+			}).then(response => {
+				response.json().then(r => {
+					this.savedTags = Object.values(r).flat();
+					this.tagsField = this.savedTags.join(' ');
+				});
+			}).catch(() => { });;
+
+			khatch(`${tagsHost}/v1/get_user_tags/${this.$store.state.user?.handle}`, {
+				errorMessage: 'Unable To Retrieve Your Recommended Tags!',
+				errorHandlers: { 404: () => { } },
+			}).then(response => {
+				response.json().then(r => {
+					this.tagSuggestions = [];
+					r.forEach(tag => {
+						this.tagSuggestions.push(tag.tag);
+					});
+				});
+			}).catch(() => { });
 		},
 	},
 }
