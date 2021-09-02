@@ -221,16 +221,6 @@ export function int_from_bytes(bytestring)
 	return r;
 }
 
-export function hex_from_bytes(bytestring)
-{
-	let i = 0;
-	let r = '';
-	bytestring.split('').map(x => x.charCodeAt(0)).forEach(x => {
-		r += x.toString(16).padStart(2, 0);
-	});
-	return r;
-}
-
 export function authCookie(cookie=null)
 {
 	const token = cookie ?? getCookie('kh-auth');
@@ -254,7 +244,7 @@ export function authCookie(cookie=null)
 		keyId: int_from_bytes(atob(payload[1])),
 		expires: new Date(int_from_bytes(atob(payload[2])) * 1000),
 		userId: int_from_bytes(atob(payload[3])),
-		guid: hex_from_bytes(atob(payload[4])),
+		guid: payload[4],
 		...JSON.parse(atob(components[1]).match(/{.+}/)[0]),
 	};
 

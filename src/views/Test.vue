@@ -1,41 +1,34 @@
 <template>
 	<main>
-		<Error v-model:dump='errorDump' v-model:message='errorMessage'>
-			<Countdown :endtime='date'/>
-			<div><Timestamp :datetime='datetime' live/></div>
-			<div><Timestamp :datetime='epoch' live/></div>
-			<div>
-				<Button @click='audio.play()'>
-					play me
-				</Button>
-			</div>
-			<div>
-				<Button @click="$store.commit('createToast', {
-					title: 'An error occurred during an API call',
-					description: 'If you submit a bug report, please include the data below.',
-					dump: {
-						error: 'Internal Server Error',
-						refid: '87e1b61cceeb495b9583afefd785e4a6',
-						status: 500,
-					},
-				})">
-					toast
-				</Button>
-			</div>
-			<div>
-				<textarea v-model='content'/>
-				<div>
-					{{authCookie(content)}}
-				</div>
-			</div>
-		</Error>
-		<ThemeMenu />
+		<Countdown :endtime='date'/>
+		<div><Timestamp :datetime='datetime' live/></div>
+		<div><Timestamp :datetime='epoch' live/></div>
+		<div>
+			<Button @click='audio.play()'>
+				play me
+			</Button>
+		</div>
+		<div>
+			<Button @click="$store.commit('createToast', {
+				title: 'An error occurred during an API call',
+				description: 'If you submit a bug report, please include the data below.',
+				dump: {
+					error: 'Internal Server Error',
+					refid: '87e1b61cceeb495b9583afefd785e4a6',
+					status: 500,
+				},
+			})">
+				toast
+			</Button>
+		</div>
+		<div class='token'>
+			<textarea class='interactable text' v-model='content'/>
+			<Markdown :content='cookie'/>
+		</div>
 	</main>
 </template>
 
 <script>
-import { ref } from 'vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -43,22 +36,17 @@ import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
 import { authCookie, guid } from '@/utilities';
 import epoch from '@/config/constants';
+import Markdown from '@/components/Markdown.vue';
 
 
 export default {
 	name: 'Test',
 	components: {
 		ThemeMenu,
-		Error,
 		Countdown,
 		Timestamp,
 		Button,
-	},
-	setup() {
-		const idk = ref(null);
-		return {
-			idk,
-		};
+		Markdown,
 	},
 	data() {
 		return {
@@ -66,14 +54,27 @@ export default {
 			date: new Date(Date.now() + 500000000).toString(),
 			datetime: new Date(Date.now()).toString(),
 			audio: new Audio(notify),
-			content: null,
+			content: authCookie()?.token,
 		}
 	},
 	mounted() {
 		console.log(guid());
 	},
-	methods: {
-		authCookie,
+	computed: {
+		cookie() {
+			try
+			{
+				const c = authCookie(this.content);
+				if (c)
+				{ delete c.token; }
+				return '```json\n' + JSON.stringify(c, null, 4) + '\n```\nnote: signature is not checked';
+			}
+			catch (e)
+			{
+				console.error(e);
+				return 'could not decode token';
+			}
+		},
 	},
 }
 </script>
@@ -130,5 +131,21 @@ ol > :last-child {
 i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
+}
+
+.token {
+	display: grid;
+	grid-template-columns: [editor-start] 1fr [editor-end] 25px [preview-start] 1fr [preview-end];
+	margin: 0 auto;
+	min-width: 1000px;
+	position: relative;
+}
+.token textarea {
+	grid-area: editor;
+	resize: vertical;
+	line-height: 1.5;
+}
+.markdown {
+	grid-area: preview;
 }
 </style>
