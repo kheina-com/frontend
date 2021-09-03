@@ -39,7 +39,7 @@
 						<div class='update-button'>
 							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
 							<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-							<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+							<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
 						</div>
 					</div>
 					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
@@ -119,7 +119,7 @@
 							<div class='update-button'>
 								<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
 								<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-								<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+								<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
 							</div>
 						</div>
 						<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
@@ -619,6 +619,14 @@ export default {
 			this.post.title = this.post.title?.trim();
 			this.post.description = this.post.description?.trim();
 			this.post.updated = Date.now();
+			this.editing = false;
+		},
+		deletePost() {
+			this.$store.commit('createToast', {
+				title: 'This function does not exist yet',
+				description: 'Sorry!',
+				icon: 'close',
+			});
 			this.editing = false;
 		},
 	},

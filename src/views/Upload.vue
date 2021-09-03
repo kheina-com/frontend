@@ -515,16 +515,16 @@ export default {
 					this.savedTags = Object.values(r).flat();
 					this.tagsField = this.savedTags.join(' ');
 				});
-			}).catch(() => { });;
+			}).catch(() => { });
 
-			khatch(`${tagsHost}/v1/get_user_tags/${this.$store.state.user?.handle}`, {
+			khatch(`${tagsHost}/v1/frequently_used`, {
 				errorMessage: 'Unable To Retrieve Your Recommended Tags!',
 				errorHandlers: { 404: () => { } },
 			}).then(response => {
 				response.json().then(r => {
 					this.tagSuggestions = [];
 					r.forEach(tag => {
-						this.tagSuggestions.push(tag.tag);
+						this.tagSuggestions.push(tag);
 					});
 				});
 			}).catch(() => { });
