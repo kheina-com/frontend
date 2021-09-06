@@ -2,7 +2,7 @@
 	<router-link :to='`/t/${tag}`' :class='divClass'>
 		<h2>{{tag}}</h2>
 		<Profile v-bind='owner' v-if='owner' :link='false'/>
-		<p :style='`color: var(--${tagColorMap[tagClass()]})`'>{{class}}</p>
+		<p :style='`color: var(--${tagColorMap[group]})`'>{{group}}</p>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
 		<p>Inherited Tags: {{inheritedTags}}</p>
 		<Markdown :content='description'/>
@@ -19,7 +19,7 @@ export default {
 	name: 'Tag',
 	props: {
 		tag: String,
-		class: String,
+		group: String,
 		deprecated: Boolean,
 		inheritedTags: Array[String],
 		description: String,
@@ -41,11 +41,6 @@ export default {
 	computed: {
 		divClass()
 		{ return 'tag' + (this.nested ? ' nested' : ''); },
-	},
-	methods: {
-		tagClass() {
-			return this.class;
-		},
 	},
 }
 </script>

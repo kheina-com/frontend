@@ -881,6 +881,10 @@ ul, ol {
 	.user-info {
 		width: auto;
 	}
+	.header-bar .inner {
+		width: auto;
+		margin: 0 25px;
+	}
 }
 
 ol.results li {
