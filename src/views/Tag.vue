@@ -26,14 +26,14 @@
 				<div>
 					<h2>Tag</h2>
 					<Loading v-if='isLoading'>default</Loading>
-					<p :style='`color: var(${colorMap[tagData?.class]})`' v-else>
+					<p :style='`color: var(${colorMap[tagData?.group]})`' v-else>
 						{{tagData?.tag.replace(/_/g, ' ')}}
 					</p>
 				</div>
 				<div>
 					<h2>Class</h2>
 					<Loading v-if='isLoading'>default</Loading>
-					<i e-else>{{tagData?.class}}</i>
+					<i e-else>{{tagData?.group}}</i>
 				</div>
 				<div>
 					<h2>Inherited Tags</h2>
@@ -156,7 +156,7 @@ export default {
 					if (response.status < 300)
 					{
 						this.tagData = r;
-						setTitle(`${r.tag}, ${r.class} tag | kheina.com`);
+						setTitle(`${r.tag}, ${r.group} tag | kheina.com`);
 					}
 					else if (response.status === 401)
 					{ this.errorMessage = r.error; }
@@ -257,7 +257,7 @@ export default {
 		editToggle() {
 			this.editing = !this.editing;
 			this.updateBody.name = this.tag;
-			this.updateBody.tag_class = this.tagData.class;
+			this.updateBody.tag_class = this.tagData.group;
 			this.updateBody.description = this.tagData.description;
 			this.updateBody.owner = this.tagData.owner?.handle;
 		},
@@ -269,7 +269,7 @@ export default {
 			if (this.updateBody?.name && this.updateBody.name != this.tag)
 			{ body.name = this.updateBody.name; }
 
-			if (this.updateBody?.tag_class && this.updateBody.tag_class != this.tagData?.class)
+			if (this.updateBody?.tag_class && this.updateBody.tag_class != this.tagData?.group)
 			{ body.tag_class = this.updateBody.tag_class; }
 
 			if (this.updateBody?.owner && this.updateBody.owner != this.tagData?.owner?.handle)
@@ -290,7 +290,7 @@ export default {
 							this.$router.push('/t/' + body.name);
 							return;
 						}
-						this.tagData.class = body?.tag_class ?? this.tagData?.class;
+						this.tagData.group = body?.tag_class ?? this.tagData?.group;
 						this.tagData.description = body?.description ?? this.tagData?.description;
 
 						if (body.hasOwnProperty('owner'))
