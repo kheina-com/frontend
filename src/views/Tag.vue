@@ -464,6 +464,13 @@ ol > :last-child {
 	color: var(--icolor);
 }
 
+@media only screen and (max-width: 900px) {
+	.tag {
+		margin: 0 0 25px;
+		width: auto;
+	}
+}
+
 /* theme overrides */
 .midnight main {
 	/* --bg2color: var(--bg1color); */
