@@ -244,7 +244,7 @@ export function authCookie(cookie=null)
 		keyId: int_from_bytes(atob(payload[1])),
 		expires: new Date(int_from_bytes(atob(payload[2])) * 1000),
 		userId: int_from_bytes(atob(payload[3])),
-		guid: payload[4],
+		guid: payload[4].replace(/\+/g, '-').replace(/\//g, '_'),
 		...JSON.parse(atob(components[1]).match(/{.+}/)[0]),
 	};
 

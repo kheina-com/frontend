@@ -19,10 +19,12 @@
 		<div style='display: flex'>
 			<Score :score='score' :postId='postId' />
 			<div class='post-header'>
-				<h2 v-if='isLoading || title'>
-					<Loading span v-if='isLoading'>this is an example title</Loading>
-					<Markdown v-else :content='title' inline class='title'/>
-				</h2>
+				<router-link :to='`/p/${postId}`'>
+					<h2 v-if='isLoading || title'>
+						<Loading span v-if='isLoading'>this is an example title</Loading>
+						<Markdown v-else :content='title' inline class='title'/>
+					</h2>
+				</router-link>
 				<Profile :isLoading='isLoading' v-bind='user'/>
 			</div>
 		</div>

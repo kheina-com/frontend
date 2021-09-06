@@ -38,7 +38,7 @@ async def tagMetaTags(match) :
 		return None
 
 	return ''.join([
-		header_title.format(f'{data["tag"]}, {data["class"]} tag'),
+		header_title.format(f'{data["tag"]}, {data["group"]} tag'),
 		header_image.format(f'https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png'),
 		header_description.format(escape(concise(data['description']))) if data['description'] else '',
 		header_defaults,
