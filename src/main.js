@@ -8,14 +8,12 @@ import global from './global';
 
 Router.beforeEach((to, from, next) => {
 	// This goes through the matched routes from last to first, combining routes metadata.
-	// eg. if we have /some/deep/nested/route, route's metadata will be prioritized, with nested, deep, some, being used for fallback
-
-	// window.scrollTo(0, 0);
+	// eg. if we have /some/nested/route, route's metadata will be prioritized, with nested, some, and / being used for fallback
 
 	let meta = { };
 	to.matched.slice().forEach(route => {
 		if (route.meta)
-		{ meta = Object.assign(meta, route.meta) }
+		{ meta = Object.assign(meta, route.meta); }
 	});
 
 	// Skip rendering meta tags if there are none.
@@ -23,13 +21,8 @@ Router.beforeEach((to, from, next) => {
 	{ return next(); }
 
 	// If a route with a title was found, set the document (page) title to that value.
-	if (meta.title && from.path !== to.path)
-	{
-		if (typeof meta.title === 'function')
-		{ document.title = meta.title(to, from); }
-		else
-		{ document.title = meta.title; }
-	}
+	if (meta.title)
+	{ document.title = typeof meta.title === 'function' ? meta.title(to, from) : meta.title; }
 
 	// Remove any stale meta tags from the document using the key attribute we set below.
 	Array.from(document.querySelectorAll(`meta[${routerMetaTag}]`)).map(e => e.parentNode.removeChild(e));
