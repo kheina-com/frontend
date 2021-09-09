@@ -151,6 +151,7 @@ export async function khatch(url, options={ })
 		{ break; }
 
 		await new Promise(r => setTimeout(r, attempt ** 2 * 1000));
+		attempt++;
 	}
 
 	if (response.status < 400)

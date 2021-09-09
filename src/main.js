@@ -25,7 +25,7 @@ Router.beforeEach((to, from, next) => {
 	{ document.title = typeof meta.title === 'function' ? meta.title(to, from) : meta.title; }
 
 	// Remove any stale meta tags from the document using the key attribute we set below.
-	Array.from(document.querySelectorAll(`meta[${routerMetaTag}]`)).map(e => e.parentNode.removeChild(e));
+	Array.from(document.querySelectorAll(`meta[${routerMetaTag}]`)).forEach(e => e.parentNode.removeChild(e));
 
 	// Turn the meta tag definitions into actual elements in the head.
 	meta.metaTags
