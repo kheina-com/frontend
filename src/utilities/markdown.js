@@ -254,7 +254,6 @@ export const mdExtensions = [
 			}
 		},
 		renderer(token) {
-			console.log(token)
 			const id = mdRefId();
 
 			if (token.raw[0] === '@')
