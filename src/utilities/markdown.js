@@ -118,10 +118,7 @@ const mdMakeRequest = (url, silent=false) => {
 						return;
 					}
 					else if (silent)
-					{
-						resolve();
-						return;
-					}
+					{ }
 					else if (response.status < 500)
 					{
 						store.commit('createToast', {
@@ -137,6 +134,7 @@ const mdMakeRequest = (url, silent=false) => {
 							dump: r,
 						});
 					}
+					mdRequestCache[url] = null;
 					resolve();
 				});
 			}).catch(error => {
@@ -260,7 +258,6 @@ export const mdExtensions = [
 			{
 				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
-					
 					if (r)
 					{ element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); }) }
 					else
