@@ -101,7 +101,7 @@ export function guid()
 
 export async function khatch(url, options={ })
 {
-	const attempts = options?.attempts || 3;
+	const attempts = options?.attempts || 1;
 	const handleError = Boolean(options?.handleError || options?.errorMessage);
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
 	const errorHandlers = options?.errorHandlers || { };
@@ -143,7 +143,7 @@ export async function khatch(url, options={ })
 		}
 		catch (e) {
 			error = e;
-			continue;
+			break;
 		}
 
 		// we only want to retry when we think it might succeed

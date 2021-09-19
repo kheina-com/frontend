@@ -1,5 +1,5 @@
 import { getMediaThumbnailUrl, getMediaUrl, khatch } from '@/utilities';
-import { postsHost, apiErrorDescriptionToast, apiErrorMessageToast, environment } from '@/config/constants';
+import { postsHost, usersHost, apiErrorDescriptionToast, apiErrorMessageToast, environment } from '@/config/constants';
 import store from '@/global';
 import router from '@/router';
 
@@ -32,7 +32,6 @@ const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => '\\' + 
 
 const userLinks = {
 	'': '', // default
-	kh: '',
 	t: 'https://twitter.com',
 	fa: 'https://www.furaffinity.net/user',
 	f: 'https://www.facebook.com',
@@ -60,7 +59,7 @@ let tempUrl = null;
 switch (environment)
 {
 	case 'local':
-		tempUrl = /http:\/\/localhost(?:\:\d{1,4})?/;
+		tempUrl = /https?:\/\/localhost(?:\:\d{1,4})?/;
 		break;
 
 	case 'dev':
@@ -90,6 +89,67 @@ export function mdEscape(md) {
 		{ return match; }
 		return match.length > 1 ? match.substring(0, 1) + mdReplace[match.substring(1)] : mdReplace[match];
 	});
+};
+
+
+const mdMakeRequest = (url, silent=false) => {
+	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit)
+	{ delete mdRequestCache[Object.keys(mdRequestCache)[0]]; }
+
+	const promise = new Promise(resolve => {
+
+		if (mdRequestCache.hasOwnProperty(url))
+		{
+			resolve(mdRequestCache[url]);
+			return;
+		}
+	
+		khatch(url)
+			.then(response => {
+				response.json().then(r => {
+					if (response.status < 300)
+					{
+						// description exists in a lot of responses, and is almost always the biggest one
+						// delete it just in case it exists to avoid taking up too much storage
+						if (r.hasOwnProperty('description'))
+						{ delete r.description; }
+						mdRequestCache[url] = r;
+						resolve(r);
+						return;
+					}
+					else if (silent)
+					{
+						resolve();
+						return;
+					}
+					else if (response.status < 500)
+					{
+						store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: r.error,
+						});
+					}
+					else
+					{
+						store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: apiErrorDescriptionToast,
+							dump: r,
+						});
+					}
+					resolve();
+				});
+			}).catch(error => {
+				console.error(error);
+				store.commit('createToast', {
+					title: apiErrorMessageToast,
+					description: error,
+				});
+				resolve();
+			});
+	});
+
+	return promise;
 };
 
 
@@ -128,65 +188,10 @@ export const mdRenderer = {
 			}, 0);
 		}
 
-		return `<a href="${htmlEscape(href)}" id="${id}" title="${title}">${htmlEscape(text || href)}</a>`;
+		return `<a href="${htmlEscape(href)}" id="${id}" title="${title}">${text || href}</a>`;
 	},
 };
 
-
-const mdMakeRequest = (url) => {
-	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit)
-	{ delete mdRequestCache[Object.keys(mdRequestCache)[0]]; }
-
-	const promise = new Promise(resolve => {
-
-		if (mdRequestCache.hasOwnProperty(url))
-		{
-			resolve(mdRequestCache[url]);
-			return;
-		}
-	
-		khatch(url)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
-						// description exists in a lot of responses, and is almost always the biggest one
-						// delete it just in case it exists to avoid taking up too much storage
-						if (r.hasOwnProperty('description'))
-						{ delete r.description; }
-						mdRequestCache[url] = r;
-						resolve(r);
-						return;
-					}
-					else if (response.status < 500)
-					{
-						store.commit('createToast', {
-							title: apiErrorMessageToast,
-							description: r.error,
-						});
-					}
-					else
-					{
-						store.commit('createToast', {
-							title: apiErrorMessageToast,
-							description: apiErrorDescriptionToast,
-							dump: r,
-						});
-					}
-					resolve();
-				});
-			}).catch(error => {
-				console.error(error);
-				store.commit('createToast', {
-					title: apiErrorMessageToast,
-					description: error,
-				});
-				resolve();
-			});
-	});
-
-	return promise;
-};
 
 const mdRules = {
 	whitespace: {
@@ -230,18 +235,12 @@ export const mdExtensions = [
 				if (userLinks.hasOwnProperty(match[1]))
 				{
 					return {
-						type: 'link',
+						type: 'handle',
 						raw: match[0],
 						text: match[0],
 						title: match[0],
 						href: `${userLinks[match[1]]}/${match[2]}`,
-						tokens: [
-							{
-								type: 'text',
-								raw: match[0],
-								text: match[0],
-							},
-						],
+						username: match[2],
 					};
 				}
 				else
@@ -253,6 +252,31 @@ export const mdExtensions = [
 					};
 				}
 			}
+		},
+		renderer(token) {
+			console.log(token)
+			const id = mdRefId();
+
+			if (token.raw[0] === '@')
+			{
+				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
+					const element = document.getElementById(id);
+					
+					if (r)
+					{ element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); }) }
+					else
+					{ element.outerHTML = `<span id="${id}" title="${token.title}">${token.text || token.href}</span>`; }
+				});
+			}
+			else
+			{
+				setTimeout(() => {
+					const element = document.getElementById(id);
+					element.addEventListener('click', e => e.stopPropagation())
+				}, 0);
+			}
+	
+			return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}">${token.text || token.href}</a>`;
 		},
 	},
 	{
