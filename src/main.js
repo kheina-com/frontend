@@ -22,7 +22,7 @@ Router.beforeEach((to, from, next) => {
 
 	// If a route with a title was found, set the document (page) title to that value.
 	if (meta.title)
-	{ document.title = typeof meta.title === 'function' ? meta.title(to, from) : meta.title; }
+	{ document.title = (typeof meta.title === 'function' ? meta.title(to, from) : meta.title) || document.title; }
 
 	// Remove any stale meta tags from the document using the key attribute we set below.
 	Array.from(document.querySelectorAll(`meta[${routerMetaTag}]`)).forEach(e => e.parentNode.removeChild(e));

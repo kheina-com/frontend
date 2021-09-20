@@ -428,7 +428,7 @@ const routes = [
 		component: User,
 		meta: {
 			applyOffset: false,
-			title: (to) => `Retrieving user @${to.params.handle}...`,
+			title: (to, from) => to.path !== from.path ? `Retrieving user @${to.params.handle}...` : null,
 			metaTags: [
 				(to) => {
 					return {
