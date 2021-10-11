@@ -200,10 +200,9 @@ body.menu-open {
 html *
 { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }
 code, .code, textarea
-{
-	font-size: 0.9em;
-	font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace;
-}
+{ font-size: 0.9em; }
+code, code *, .code, .code *, textarea
+{ font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace; }
 html {
 	background: var(--bg0color);	
 }

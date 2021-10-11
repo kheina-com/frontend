@@ -1,16 +1,27 @@
-from kh_common.server import ServerApp
+from kh_common.server import Request, Response, ServerApp
 from fastapi.responses import FileResponse, HTMLResponse
 from kh_common.caching import ArgsCache, SimpleCache
 from headers.post import postMetaTags, post_regex
 from headers.user import userMetaTags, user_regex
 from headers.tag import tagMetaTags, tag_regex
+from kh_common.logging import getLogger
 from headers.home import homeMetaTags
 from asyncio import ensure_future
 from os import path
 
 
+pixel = Response(
+	b'GIF89a\x01\x00\x01\x00p\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;',
+	headers={
+		'cache-control': 'no-cache',
+		'content-length': '37',
+		'content-type': 'image/gif',
+	},
+)
+
 app = ServerApp(auth=False)
 
+logger = getLogger()
 
 uri_map = {
 	post_regex: postMetaTags,
@@ -36,6 +47,13 @@ async def matchMetaTags(uri: str) :
 			break
 
 	return metaTags or await homeMetaTags()
+
+
+@app.get('/t.gif')
+def pixel(req: Request) :
+	print(req)
+	logger.info(req)
+	return pixel
 
 
 @app.get('{uri:path}')
