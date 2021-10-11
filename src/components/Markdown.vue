@@ -296,9 +296,9 @@ import 'prismjs/components/prism-yaml';
 // };
 
 marked.setOptions({
-	highlight: function(code, lang) {
-		return prism.languages.hasOwnProperty(lang) ? prism.highlight(code, prism.languages[lang], lang) : code;
-	},
+	// highlight: function(code, lang) {
+	// 	return prism.languages.hasOwnProperty(lang) ? prism.highlight(code, prism.languages[lang], lang) : code;
+	// },
 	pedantic: false,
 	gfm: true,
 	breaks: true,
