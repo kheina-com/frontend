@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/valid-v-for -->
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div>
-		<div ref='banner' class='banner' v-if='user?.banner' :style='`background-image: url("https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png")`'>
+		<div ref='banner' class='banner' v-if='user?.banner'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
@@ -240,7 +240,7 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { demarkdown, khatch, setTitle, isMobile } from '@/utilities';
+import { demarkdown, getMediaUrl, khatch, setTitle, isMobile } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, usersHost, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -331,6 +331,14 @@ export default {
 					if (response.status < 300)
 					{
 						this.user = r;
+						if (this.user?.banner)
+						{
+							khatch(`${postsHost}/v1/post/${this.user.banner}`, { errorMessage: 'Failed to retrieve user banner' })
+								.then(r2 => {
+									r2.json().then(j => this.$refs.banner.style.backgroundImage = 'url("' + getMediaUrl(j.post_id, j.filename)) + '")';
+								})
+								.catch(e => { });
+						}
 						setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) | kheina.com` : `@${this.user?.handle} | kheina.com`);
 						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user?.handle));
 					}
