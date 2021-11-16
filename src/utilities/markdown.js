@@ -31,19 +31,19 @@ const mdEscapeCharacters = new Set(Object.values(mdReplace));
 const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => '\\' + x).join('|')})`, 'g');
 
 const userLinks = {
-	'': '', // default
-	t: 'https://twitter.com',
-	fa: 'https://www.furaffinity.net/user',
-	f: 'https://www.facebook.com',
-	u: 'https://www.reddit.com/u',
-	tw: 'https://www.twitch.tv',
-	yt: 'https://www.youtube.com/c',
-	tg: 'https://t.me',
-	p: 'https://www.patreon.com',
-	pi: 'https://www.picarto.tv',
-	kf: 'https://ko-fi.com',
-	gr: 'https://gumroad.com',
-	st: 'https://subscribestar.adult',
+	'': ['', null], // default
+	t: ['https://twitter.com', 'twitter'],
+	fa: ['https://www.furaffinity.net/user', 'furaffinity'],
+	f: ['https://www.facebook.com', 'facebook'],
+	u: ['https://www.reddit.com/u', 'reddit'],
+	tw: ['https://www.twitch.tv', 'twitch'],
+	yt: ['https://www.youtube.com/c', 'youtube'],
+	tg: ['https://t.me', 'telegram'],
+	p: ['https://www.patreon.com', 'patreon'],
+	pi: ['https://www.picarto.tv', 'picarto'],
+	kf: ['https://ko-fi.com', 'ko-fi'],
+	gr: ['https://gumroad.com', 'gumroad'],
+	st: ['https://subscribestar.adult', 'subscribestar'],
 };
 
 const mdMaxId = 0xffffffff;
@@ -232,12 +232,14 @@ export const mdExtensions = [
 			{
 				if (userLinks.hasOwnProperty(match[1]))
 				{
+					const link = userLinks[match[1]];
 					return {
 						type: 'handle',
 						raw: match[0],
-						text: match[0],
+						text: link[1] ? match[2] : match[0],
 						title: match[0],
-						href: `${userLinks[match[1]]}/${match[2]}`,
+						href: `${link[0]}/${match[2]}`,
+						icon: getMediaUrl('emoji', `${link[1]}.webp`),
 						username: match[2],
 					};
 				}
@@ -261,7 +263,7 @@ export const mdExtensions = [
 					if (r)
 					{ element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); }) }
 					else
-					{ element.outerHTML = `<span id="${id}" title="${token.title}">${token.text || token.href}</span>`; }
+					{ element.outerHTML = `<span id="${id}" title="${token.title}">${token.text}</span>`; }
 				});
 			}
 			else
@@ -270,9 +272,11 @@ export const mdExtensions = [
 					const element = document.getElementById(id);
 					element.addEventListener('click', e => e.stopPropagation())
 				}, 0);
+
+				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}"><img src="${token.icon}" class="emoji handle-icon">${token.text}</a>`;
 			}
-	
-			return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}">${token.text || token.href}</a>`;
+
+			return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}">${token.text}</a>`;
 		},
 	},
 	{

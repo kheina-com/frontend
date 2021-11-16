@@ -402,6 +402,10 @@ export default {
 	vertical-align: bottom;
 	transform: translateY(calc(50% - 0.6em))
 }
+.markdown img.handle-icon {
+	position: relative;
+	margin-right: 0.2em;
+}
 .markdown .gigamoji {
 	margin: 0;
 }

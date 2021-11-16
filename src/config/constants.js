@@ -208,6 +208,7 @@ for example, twitter can be linked to like so: t@darmiu. there are many websites
 | t@username  |     twitter.com     | https://twitter.com/username          |
 | f@username  |     facebook.com    | https://facebook.com/username         |
 | yt@channel  |     youtube.com     | https://youtube.com/c/channel         |
+| tg@username |     telegram.org    | https://t.me/username                 |
 | fa@username |   furaffinity.net   | https://furaffinity.net/user/username |
 | u@username  |      reddit.com     | https://reddit.com/u/username         |
 | tw@username |      twitch.tv      | https://twitch.tv/username            |

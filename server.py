@@ -58,6 +58,7 @@ def pixel(req: Request) :
 
 @app.get('{uri:path}')
 async def all_routes(uri: str) :
+	print(uri)
 	local_uri = 'dist/' + uri.strip('\./')
 
 	if path.isfile(local_uri) :
@@ -66,6 +67,7 @@ async def all_routes(uri: str) :
 	metaTags = ensure_future(matchMetaTags(uri))
 	html = vueIndex()
 	metaTags = await metaTags
+	print(metaTags)
 
 	html = html.replace('<head>', '<head>' + metaTags)
 
