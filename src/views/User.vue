@@ -247,9 +247,10 @@
 				<Loading :lazy='false'/>
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
+			<a @click.prevent.stop='disableUploads' class='search-close'><i class='material-icons'>close</i></a>
 			<ol class='results'>
 				<li v-for='post in uploadablePosts' @click='uploadPostId = post.post_id'>
-					<PostTile :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
+					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels/>
 				</li>
 			</ol>
 		</div>
@@ -653,7 +654,7 @@ export default {
 				this.$store.state.user.icon = this.uploadPostId;
 				this.disableUploads();
 			})
-			.catch(e => { });
+			.catch(e => this.disableUploads);
 		},
 		runSearchQuery() {
 			this.uploadLoading = true;
@@ -673,7 +674,7 @@ export default {
 					this.uploadLoading = null;
 				});
 			})
-			.catch(e => { });
+			.catch(e => this.disableUploads);
 		},
 		pageLink(page) {
 			let query = [];
@@ -1074,6 +1075,7 @@ ul.tags > :last-child {
 	height: calc(100vh - 102px);
 	width: calc(100vw - 102px);
 	overflow: auto;
+	position: relative;
 }
 .upload-window .results {
 	display: flex;
@@ -1085,6 +1087,20 @@ ul.tags > :last-child {
 	list-style: none;
 	margin: 0 12.5px 25px;
 }
+.search-close {
+	position: fixed;
+	top: 25px;
+	right: 25px;
+	margin: 25px;
+}
+.mobile .search-close {
+	margin: 0;
+}
+.mobile .search-close i {
+	font-size: 1.5em;
+	padding: 25px;
+}
+
 
 /* THEME OVERRIDES */
 html.e621 .header-bar {
