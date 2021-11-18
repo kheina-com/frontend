@@ -654,7 +654,7 @@ export default {
 				this.$store.state.user.icon = this.uploadPostId;
 				this.disableUploads();
 			})
-			.catch(e => this.disableUploads);
+			.catch(this.disableUploads);
 		},
 		runSearchQuery() {
 			this.uploadLoading = true;
@@ -674,7 +674,7 @@ export default {
 					this.uploadLoading = null;
 				});
 			})
-			.catch(e => this.disableUploads);
+			.catch(this.disableUploads);
 		},
 		pageLink(page) {
 			let query = [];
