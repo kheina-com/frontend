@@ -18,25 +18,14 @@
 				<i class='material-icons icon' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='isVerified'>verified</i>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
-						<UserIcon :handle='$store.state.user?.handle' :post='userIcon' v-model:isLoading='isIconLoading'/>
+						<UserIcon :handle='$store.state.user?.handle' :post='$store.state.user?.icon' v-model:isLoading='isIconLoading'/>
 					</router-link>
 				</Loading>
 			</div>
 			<div class='profile' v-else>
 				<router-link :to='`/account/login?path=${$route.fullPath}`' class='interactable login'>Login</router-link>
 			</div>
-			<form class='search-bar' v-on:submit.prevent='noop'>
-				<div class='search-input'>
-					<input ref='search' name='search' :value='searchValue' placeholder='Search' class='interactable text'>
-					<div class='cover'></div>
-					<button @click='runSearchQuery'><i class='material-icons-round'>search</i></button>
-				</div>
-				<div class='search-help'>
-					<router-link to='/search-help' class='icon'>
-						<i class='material-icons-round' title='Search help'>help_outline</i>
-					</router-link>
-				</div>
-			</form>
+			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 		</div>
 		<div class='screen-cover' ref='screenCover' @click='toggleMenu'></div>
 		<div class='menu' ref='menu'>
@@ -171,6 +160,7 @@ import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
 import UserIcon from '@/components/UserIcon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
+import SearchBar from '@/components/SearchBar.vue';
 
 
 export default {
@@ -181,6 +171,7 @@ export default {
 		Button,
 		UserIcon,
 		ThemeSelector,
+		SearchBar,
 	},
 	props: {
 		onResize: {
@@ -209,10 +200,16 @@ export default {
 			menuOpen: false,
 			isMessageLoading: true,
 			isIconLoading: true,
+			searchValue: null,
 			environment,
 		};
 	},
 	mounted() {
+		if (this.$route.path.match(/^\/[st]\//))
+		{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
+		else
+		{ this.searchValue = ''; }
+
 		khatch(`${configHost}/v1/banner`)
 			.then(response => {
 				response.json().then(r => {
@@ -242,25 +239,14 @@ export default {
 		isLoggedIn() {
 			return Boolean(this.$store.state.auth);
 		},
-		searchValue() {
-			if (this.$route.path.match(/^\/[st]\//))
-			{ return decodeURIComponent(this.$route.path.substring(3)); }
-			else if (this.$refs.search)
-			{ return this.$refs.search.value; }
-			else
-			{ return ''; }
-		},
 		showUploadButton() {
 			return this.$route.path !== '/create';
-		},
-		userIcon() {
-			return this.$store.state.user?.icon;
 		},
 	},
 	methods: {
 		getMediaThumbnailUrl,
 		runSearchQuery() {
-			const query = this.$refs.search.value.trim();
+			const query = this.searchValue.trim();
 			this.$router.push(query ? (query.includes(' ') ? '/q/' : '/t/') + encodeURIComponent(query) : '/');
 		},
 		signOut() {
@@ -449,49 +435,6 @@ textarea {
 	margin-right: 0.25em;
 }
 
-.search-bar {
-	display: flex;
-	align-items: center;
-}
-.search-bar input {
-	min-width: 350px;
-	width: 30vw;
-}
-i {
-	font-size: 1.2em;
-	display: block;
-}
-.search-bar button
-{
-	font-size: 1.2em;
-	position: absolute;
-	right: 0;
-	top: 0;
-	padding: 0.25em;
-	height: 100%;
-	border: none;
-	background: none;
-	color: var(--textcolor);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
-	cursor: pointer;
-}
-button:hover /*, button:active, button:focus */
-{ color: var(--icolor); }
-.search-input {
-	position: relative;
-}
-.search-help {
-	width: 0;
-	z-index: 1;
-}
-
-.mobile .search-bar {
-	font-size: 1.5em;
-}
-
 .menu-border {
 	border-top: var(--border-size) solid var(--bordercolor);
 	margin: 2.5rem 20px 0;
@@ -501,14 +444,6 @@ button:hover /*, button:active, button:focus */
 	margin-top: 4em;
 }
 
-.search-bar .cover {
-	position: absolute;
-	background: linear-gradient(to right, #0000 0, var(--bg2color) 50%);
-	padding-left: 1.5em;
-	height: 1em;
-	right: 0.5em;
-	top: 0.5em;
-}
 ol {
 	list-style: none;
 	margin: 0;

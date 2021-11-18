@@ -6,6 +6,9 @@
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
+			<router-link :to='`/p/${user.banner}`' class='banner-link' v-else>
+				<i class='material-icons-round' style='display: block'>open_in_new</i>
+			</router-link>
 		</div>
 		<div class='banner-missing' v-else>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
@@ -220,18 +223,35 @@
 			</div>
 			<ThemeMenu/>
 		</main>
-		<div class='image-uploader' v-if='isUploadBanner || isUploadIcon' @mousedown='disableUploads'>
-			<div style='background: var(--bg2color)' @mousedown.stop>
-				<Cropper
-					ref='cropper'
-					src='https://cdn.kheina.com/file/kheina-content/O3c-5mky/CuteDani-lowres.png'
-					:stencil-props='{
-						aspectRatio: isUploadBanner ? 4 : 1,
-					}'
-					:style='`height: 800px; width: 800px`'
-				/>
+	</div>
+	<div class='image-uploader' v-if='isUploadBanner || isUploadIcon' @mousedown='disableUploads'>
+		<div class='cropper' @mousedown.stop v-if='uploadPostId'>
+			<div class='image-uploader' v-if='uploadLoading'>
+				<Loading :lazy='false'/>
+			</div>
+			<Cropper
+				ref='cropper'
+				:src='cropperImage'
+				:stencil-props='{
+					aspectRatio: isUploadBanner ? 3 : 1,
+				}'
+			/>
+			<div class='button-list'>
+				<Button @click.prevent.stop='updateProfileImage'><i class='material-icons'>check</i>Set {{isUploadIcon ? 'Icon' : 'Banner'}}</Button>
+				<Button @click.prevent.stop='disableUploads'><i class='material-icons'>close</i>Cancel</Button>
 				<Button @click.prevent.stop='showData'><i class='material-icons'>science</i>test</Button>
 			</div>
+		</div>
+		<div class='upload-window' @mousedown.stop v-else>
+			<div class='image-uploader' v-if='uploadLoading'>
+				<Loading :lazy='false'/>
+			</div>
+			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
+			<ol class='results'>
+				<li v-for='post in uploadablePosts' @click='uploadPostId = post.post_id'>
+					<PostTile :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
+				</li>
+			</ol>
 		</div>
 	</div>
 </template>
@@ -240,8 +260,8 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { demarkdown, getMediaUrl, khatch, setTitle, isMobile } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, usersHost, tagsHost } from '@/config/constants';
+import { demarkdown, getMediaUrl, isMobile, khatch, setTitle, tagSplit } from '@/utilities';
+import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -255,8 +275,10 @@ import UserIcon from '@/components/UserIcon.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
+import PostTile from '@/components/PostTile.vue';
 import Tag from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
+import SearchBar from '@/components/SearchBar.vue';
 
 
 export default {
@@ -284,6 +306,8 @@ export default {
 		Button,
 		Tag,
 		MarkdownEditor,
+		SearchBar,
+		PostTile,
 	},
 	setup() {
 		const main = ref(null);
@@ -308,6 +332,11 @@ export default {
 			isEditing: false,
 			isUploadIcon: false,
 			isUploadBanner: false,
+			uploadPostId: null,
+			uploadablePosts: null,
+			searchValue: null,
+			cropperImage: null,
+			uploadLoading: null,
 			userTags: null,
 			tabElement: null,
 			tab: 'posts',
@@ -596,12 +625,55 @@ export default {
 		},
 		disableUploads() {
 			this.isUploadBanner = this.isUploadIcon = false;
+			this.uploadLoading = this.cropperImage = this.uploadablePosts = this.uploadPostId = null;
 		},
 		onImageCrop({ coordinates, canvas }) {
 			console.log(coordinates, canvas);
 		},
 		showData() {
-			console.log(this.$refs.cropper.getResult());
+			const results = this.$refs.cropper.getResult();
+			console.log({
+				post_id: this.uploadPostId,
+				coordinates: results.coordinates,
+				transformation: results.imageTransforms,
+			});
+		},
+		updateProfileImage() {
+			this.uploadLoading = true;
+			khatch(`${uploadHost}/v1/set_icon`, {
+				errorMessage: 'Failed to update user icon!',
+				method: 'POST',
+				body: {
+					post_id: this.uploadPostId,
+					coordinates: this.$refs.cropper.getResult().coordinates,
+				},
+			})
+			.then(r => {
+				this.user.icon = this.uploadPostId;
+				this.$store.state.user.icon = this.uploadPostId;
+				this.disableUploads();
+			})
+			.catch(e => { });
+		},
+		runSearchQuery() {
+			this.uploadLoading = true;
+			khatch(`${postsHost}/v1/fetch_posts`, {
+				errorMessage: 'Failed to fetch posts for profile.',
+				method: 'POST',
+				body: {
+					sort: 'new',
+					tags: tagSplit(this.searchValue),
+					page: this.page,
+					count: this.count,
+				},
+			})
+			.then(response => {
+				response.json().then(r => {
+					this.uploadablePosts = r;
+					this.uploadLoading = null;
+				});
+			})
+			.catch(e => { });
 		},
 		pageLink(page) {
 			let query = [];
@@ -620,6 +692,22 @@ export default {
 		setPage(page) {
 			this.page = page;
 			this.$router.push(this.pageLink(page));
+		},
+	},
+	watch: {
+		uploadPostId(value) {
+			if (!value)
+			{ return; }
+
+			khatch(`${postsHost}/v1/post/${value}`, {
+				errorMessage: 'Failed to fetch post for profile.',
+			})
+			.then(response => {
+				response.json().then(r => {
+					this.cropperImage = getMediaUrl(r.post_id, r.filename);
+				});
+			})
+			.catch(e => { });
 		},
 	},
 }
@@ -696,10 +784,33 @@ main {
 }
 
 .banner {
-	height: 25vw;
+	height: 33.33333vw;
+	height: calc(100vw / 3);
+	max-height: 75vh;
 	width: 100%;
 	background-size: cover;
 	background-position: center;
+}
+.banner-link {
+	position: absolute;
+	right: 1em;
+	bottom: 1em;
+	border-radius: 50%;
+	overflow: hidden;
+}
+.banner-link i {
+	background: var(--screen-cover);
+	padding: 0.5em;
+}
+.mobile .banner-link {
+	right: 0;
+	bottom: 0;
+	padding: 1em;
+	border-radius: initial;
+}
+.mobile .banner-link i {
+	border-radius: 50%;
+	font-size: 1.5em;
 }
 
 .banner-missing {
@@ -930,10 +1041,49 @@ ul.tags > :last-child {
 	position: fixed;
 	top: 0;
 	left: 0;
-	z-index: 1;
+	z-index: 1000;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+.upload-window, .cropper {
+	background: var(--bg1color);
+	padding: 25px;
+	border-radius: var(--border-radius);
+	border: var(--border-size) solid var(--bordercolor);
+}
+.image-uploader .button-list {
+	margin-top: 0.5em;
+	display: flex;
+	justify-content: center;
+}
+.image-uploader .button-list button {
+	margin-right: 25px;
+}
+.image-uploader .button-list > :last-child {
+	margin-right: 0;
+}
+.vue-advanced-cropper {
+	height: 80vmin;
+	width: 80vmin;
+	height: calc(80vmin - 1.7em);
+}
+.upload-window {
+	height: 80vmin;
+	width: 80vmin;
+	height: calc(100vh - 102px);
+	width: calc(100vw - 102px);
+	overflow: auto;
+}
+.upload-window .results {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+.upload-window ol.results li {
+	list-style: none;
+	margin: 0 12.5px 25px;
 }
 
 /* THEME OVERRIDES */
