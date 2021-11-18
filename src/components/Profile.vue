@@ -2,7 +2,7 @@
 	<a :href='`/${handle}`' class='profile' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
-				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
+				<UserIcon :handle='handle' :post='icon'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
@@ -16,7 +16,7 @@
 	<div class='profile' v-else>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
-				<Thumbnail :post='icon || "_V-EGBtH"' :size='400'/>
+				<UserIcon :handle='handle' :post='icon'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
@@ -31,14 +31,14 @@
 
 <script>
 import Loading from '@/components/Loading.vue';
-import Thumbnail from '@/components/Thumbnail.vue';
+import UserIcon from '@/components/UserIcon.vue';
 import Markdown from '@/components/Markdown.vue';
 
 export default {
 	name: 'Post',
 	components: {
 		Loading,
-		Thumbnail,
+		UserIcon,
 		Markdown,
 	},
 	props: {

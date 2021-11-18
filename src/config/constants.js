@@ -133,8 +133,8 @@ However, this does not include the additional features below.
 
 
 ## Text Examples
-|        Markdown        |      Rendered      |
-|:----------------------:|:------------------:|
+|       Markdown       |      Rendered      |
+|:--------------------:|:------------------:|
 |      \`**bold**\`      |      **bold**      |
 |      \`__bold__\`      |      __bold__      |
 |      \`*italics*\`     |      *italics*     |
@@ -147,8 +147,8 @@ However, this does not include the additional features below.
 
 
 ## Link Examples
-|             Markdown              |           Rendered            |
-|:---------------------------------:|:-----------------------------:|
+|            Markdown             |           Rendered            |
+|:-------------------------------:|:-----------------------------:|
 |      \`https://example.com\`      |      https://example.com      |
 | \`[a link](https://kheina.com)\`  | [a link](https://kheina.com)  |
 |     \`![an image](${image})\`     |     ![an image](${image})     |
@@ -202,22 +202,21 @@ to link to a user, you can simply precede the user's handle with an \`@\` charac
 this is pretty common on other websites, however kheina.com also supports linking to external websites with this syntax.
 for example, twitter can be linked to like so: t@darmiu. there are many websites with similar syntax. the complete list is below.
 
-|   Example   |       Website       |               Formatted               |
-|:-----------:|:-------------------:|:-------------------------------------:|
-|  @username  |      kheina.com     | https://kheina.com/username           |
-| t@username  |     twitter.com     | https://twitter.com/username          |
-| f@username  |     facebook.com    | https://facebook.com/username         |
-| yt@channel  |     youtube.com     | https://youtube.com/c/channel         |
-| tg@username |     telegram.org    | https://t.me/username                 |
-| fa@username |   furaffinity.net   | https://furaffinity.net/user/username |
-| u@username  |      reddit.com     | https://reddit.com/u/username         |
-| tw@username |      twitch.tv      | https://twitch.tv/username            |
-| p@username  |     patreon.com     | https://patreon.com/username          |
-| pi@username |      picarto.tv     | https://picarto.tv/username           |
-| kf@username |      ko-fi.com      | https://ko-fi.com/username            |
-| gr@username |     gumroad.com     | https://gumroad.com/username          |
-| st@username | subscribestar.adult | https://subscribestar.adult/username  |
-
+|    Example    |  Rendered   |       Website       |               Formatted               |
+|:-------------:|:-----------:|:-------------------:|:-------------------------------------:|
+|   \`@kheina\`   |   @kheina   |      kheina.com     | https://kheina.com/username           |
+| \`t@username\`  | t@username  |     twitter.com     | https://twitter.com/username          |
+| \`f@username\`  | f@username  |     facebook.com    | https://facebook.com/username         |
+| \`yt@channel\`  | yt@channel  |     youtube.com     | https://youtube.com/c/channel         |
+| \`tg@username\` | tg@username |     telegram.org    | https://t.me/username                 |
+| \`fa@username\` | fa@username |   furaffinity.net   | https://furaffinity.net/user/username |
+| \`u@username\`  | u@username  |      reddit.com     | https://reddit.com/u/username         |
+| \`tw@username\` | tw@username |      twitch.tv      | https://twitch.tv/username            |
+| \`p@username\`  | p@username  |     patreon.com     | https://patreon.com/username          |
+| \`pi@username\` | pi@username |      picarto.tv     | https://picarto.tv/username           |
+| \`kf@username\` | kf@username |      ko-fi.com      | https://ko-fi.com/username            |
+| \`gr@username\` | gr@username |     gumroad.com     | https://gumroad.com/username          |
+| \`st@username\` | st@username | subscribestar.adult | https://subscribestar.adult/username  |
 
 ### Post Embedding
 posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character

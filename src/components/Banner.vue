@@ -18,7 +18,7 @@
 				<i class='material-icons icon' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='isVerified'>verified</i>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
-						<Thumbnail :post='userIcon' v-model:isLoading='isIconLoading' :size='200'/>
+						<UserIcon :handle='$store.state.user?.handle' :post='userIcon' v-model:isLoading='isIconLoading'/>
 					</router-link>
 				</Loading>
 			</div>
@@ -169,7 +169,7 @@ import { configHost, environment } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
-import Thumbnail from '@/components/Thumbnail.vue';
+import UserIcon from '@/components/UserIcon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
 
 
@@ -179,7 +179,7 @@ export default {
 		Markdown,
 		Loading,
 		Button,
-		Thumbnail,
+		UserIcon,
 		ThemeSelector,
 	},
 	props: {

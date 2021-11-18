@@ -60,6 +60,11 @@ export function getMediaThumbnailUrl(postId, resolution=800, extension='webp')
 	return `https://cdn.kheina.com/file/kheina-content/${postId}/thumbnails/${resolution}.${extension}`;
 }
 
+export function getIconUrl(postId, handle, extension='webp')
+{
+	return `https://cdn.kheina.com/file/kheina-content/${postId}/${handle}.${extension}`;
+}
+
 export function round(num, precision)
 {
 	let multiplier = 10 ** precision;

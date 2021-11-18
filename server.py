@@ -51,14 +51,12 @@ async def matchMetaTags(uri: str) :
 
 @app.get('/t.gif')
 def pixel(req: Request) :
-	print(req)
 	logger.info(req)
 	return pixel
 
 
 @app.get('{uri:path}')
 async def all_routes(uri: str) :
-	print(uri)
 	local_uri = 'dist/' + uri.strip('\./')
 
 	if path.isfile(local_uri) :

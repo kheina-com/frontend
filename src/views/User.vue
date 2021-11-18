@@ -57,10 +57,10 @@
 						<div class='add-image-button'>
 							<i class='material-icons-round'>add_a_photo</i>
 						</div>
-						<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
+						<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 					</button>
 					<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
-						<Thumbnail :size='800' :post='user?.icon === null ? "_V-EGBtH" : user?.icon' v-model:isLoading='isIconLoading'/>
+						<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 					</router-link>
 				</Loading>
 			</div>
@@ -224,7 +224,7 @@
 			<div style='background: var(--bg2color)' @mousedown.stop>
 				<Cropper
 					ref='cropper'
-					src='https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png'
+					src='https://cdn.kheina.com/file/kheina-content/O3c-5mky/CuteDani-lowres.png'
 					:stencil-props='{
 						aspectRatio: isUploadBanner ? 4 : 1,
 					}'
@@ -251,7 +251,7 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Submit from '@/components/Submit.vue';
-import Thumbnail from '@/components/Thumbnail.vue';
+import UserIcon from '@/components/UserIcon.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
@@ -277,7 +277,7 @@ export default {
 		Title,
 		Error,
 		Media,
-		Thumbnail,
+		UserIcon,
 		Markdown,
 		Timestamp,
 		Post,
