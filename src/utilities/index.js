@@ -62,7 +62,12 @@ export function getMediaThumbnailUrl(postId, resolution=800, extension='webp')
 
 export function getIconUrl(postId, handle, extension='webp')
 {
-	return `https://cdn.kheina.com/file/kheina-content/${postId}/${handle}.${extension}`;
+	return `https://cdn.kheina.com/file/kheina-content/${postId}/icons/${handle}.${extension}`;
+}
+
+export function getBannerUrl(postId, handle, extension='webp')
+{
+	return `https://cdn.kheina.com/file/kheina-content/${postId}/banners/${handle}.${extension}`;
 }
 
 export function round(num, precision)

@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/valid-v-for -->
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div>
-		<div ref='banner' class='banner' v-if='user?.banner'>
+		<div class='banner' v-if='user?.banner' :style='`background-image: url("${banner}")`'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
@@ -261,7 +261,7 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { demarkdown, getMediaUrl, isMobile, khatch, setTitle, tagSplit } from '@/utilities';
+import { demarkdown, getBannerUrl, getMediaUrl, isMobile, khatch, setTitle, tagSplit } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -344,6 +344,7 @@ export default {
 			update: null,
 			count: null,
 			page: null,
+			bannerWebpFailed: null,
 		};
 	},
 	created() {
@@ -361,14 +362,6 @@ export default {
 					if (response.status < 300)
 					{
 						this.user = r;
-						if (this.user?.banner)
-						{
-							khatch(`${postsHost}/v1/post/${this.user.banner}`, { errorMessage: 'Failed to retrieve user banner' })
-								.then(r2 => {
-									r2.json().then(j => this.$refs.banner.style.backgroundImage = 'url("' + getMediaUrl(j.post_id, j.filename)) + '")';
-								})
-								.catch(e => { });
-						}
 						setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) | kheina.com` : `@${this.user?.handle} | kheina.com`);
 						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user?.handle));
 					}
@@ -404,6 +397,14 @@ export default {
 		isMobile,
 		isSelf() {
 			return this.$store.state.user && this.$store.state.user?.handle === this.user?.handle;
+		},
+		banner() {
+			if (!this.user?.banner)
+			{ return null; }
+
+			if (this.bannerWebpFailed)
+			{ return getBannerUrl(this.user.banner, this.user.handle, 'jpg'); }
+			return getBannerUrl(this.user.banner, this.user.handle);
 		},
 		pagesBeforeCurrent() {
 			if (this.posts === null)
@@ -641,8 +642,16 @@ export default {
 		},
 		updateProfileImage() {
 			this.uploadLoading = true;
-			khatch(`${uploadHost}/v1/set_icon`, {
-				errorMessage: 'Failed to update user icon!',
+			let endpoint = null;
+
+			if (this.isUploadIcon)
+			{ endpoint = 'set_icon'; }
+
+			if (this.isUploadBanner)
+			{ endpoint = 'set_banner'; }
+
+			khatch(`${uploadHost}/v1/${endpoint}`, {
+				errorMessage: 'Failed to update user image!',
 				method: 'POST',
 				body: {
 					post_id: this.uploadPostId,
@@ -650,8 +659,13 @@ export default {
 				},
 			})
 			.then(r => {
-				this.user.icon = this.uploadPostId;
-				this.$store.state.user.icon = this.uploadPostId;
+				if (this.isUploadIcon)
+				{
+					this.user.icon = this.uploadPostId;
+					this.$store.state.user.icon = this.uploadPostId;
+				}
+				else if (this.isUploadBanner)
+				{ this.user.banner = this.uploadPostId; }
 				this.disableUploads();
 			})
 			.catch(this.disableUploads);
