@@ -434,7 +434,10 @@ textarea {
 	font-size: 0.9em;
 	margin-right: 0.25em;
 }
-
+i {
+	font-size: 1.2em;
+	display: block;
+}
 .menu-border {
 	border-top: var(--border-size) solid var(--bordercolor);
 	margin: 2.5rem 20px 0;
