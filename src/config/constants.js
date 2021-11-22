@@ -94,7 +94,7 @@ export const tagColorMap = {
 export const mdGuide = `
 # Markdown Guide
 There are many fantastic guides available for markdown! kheina.com recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!
-In addition to all the base markdown features, kheina.com has many extra features to make linking to other parts of the website faster and easier.
+In addition to all the base markdown features, kheina.com has many [extra features](#additional-features) to make linking to other parts of the website faster and easier.
 
 If you want to deep dive into kheina.com's implementation of markdown, you can see github's full spec for [github flavored markdown](https://github.github.com/gfm/).
 However, this does not include the additional features below.
@@ -238,4 +238,16 @@ leaving an emoji by itself on a line turns it into a gigamoji
 :heart:
 \`\`\`
 :heart:
+
+## Text Alignment
+Text can be aligned by adding \`<\`, \`>\` characters onto either end of your text
+
+\`\`\`
+> centered text <
+> right-aligned text >
+< left-aligned text <
+\`\`\`
+> centered text <
+> right-aligned text >
+< left-aligned text <
 `.trim();

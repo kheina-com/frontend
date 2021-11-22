@@ -151,23 +151,8 @@ const mdMakeRequest = (url, silent=false) => {
 };
 
 
-export const mdTokenizer = {
-	html(src) {
-		const match = src.match(/^.*?\n?.*?<[\s\S]+?>/);
-		if (match)
-		{
-			return {
-				type: 'text',
-				raw: match[0],
-				text: htmlEscape(match[0]),
-			};
-		}
-		return false;
-	},
-};
-
-
 export const mdRenderer = {
+	html: htmlEscape,
 	link(href, title, text) {
 		const id = mdRefId();
 
@@ -204,14 +189,19 @@ const mdRules = {
 		start: /(^|\s*):([a-z0-9\-]+):/,
 		rule: /^:([a-z0-9\-]+):/,
 	},
+	post: {
+		start: /(^|\s*)\^/,
+		rule: /^\^([a-zA-Z0-9_-]{8})(?=[^a-zA-Z0-9_-]|$)/,
+	},
 	gigamoji: {
 		start: /(\s*\n):/,
 		rule: /^\s*((?::[a-z0-9\-]+:)+)(?:$|\n)/,
 		single: /^:([a-z0-9\-]+):/,
 	},
-	post: {
-		start: /(^|\s*)\^/,
-		rule: /^\^([a-zA-Z0-9_-]{8})(?=[^a-zA-Z0-9_-]|$)/,
+	alignment: {
+		start: /^(?:>|<)/,
+		rule: /^(>|<) ?([^\n]+) ?(>|<)((?:\n\1 ?(?:[^\n]+) ?\3)*)(?:$|\n)/,
+		single: /(?:>|<) ?([^\n]+) ?(?:>|<)/g,
 	},
 };
 
@@ -305,48 +295,6 @@ export const mdExtensions = [
 		},
 	},
 	{
-		name: 'gigamoji',
-		level: 'block',
-		start(src) {
-			const match = mdRules.gigamoji.start.exec(src);
-			return match ? match.index + match[1].length : null;
-		},
-		tokenizer(src) {
-			let match = mdRules.gigamoji.rule.exec(src);
-
-			if (!match)
-			{ return; }
-
-			const raw = match[0];
-			src = match[1];
-			const tokens = [];
-
-			while (src)
-			{
-				match = mdRules.gigamoji.single.exec(src);
-				src = src.substr(match[0].length);
-				tokens.push({
-					type: 'emoji',
-					raw: match[0],
-					text: match[1],
-					title: match[0],
-					href: getMediaUrl('emoji', `${match[1]}.webp`),
-				});
-			}
-			return {
-				type: 'gigamoji',
-				raw,
-				tokens,
-			};
-	},
-		renderer(token) {
-			let rendered = '<p class="gigamoji">';
-			for (const t of token.tokens)
-			{ rendered += `<img src="${t.href}" alt="${emojiMap[t.text] || t.text}" title="${t.title}">`; }
-			return rendered + '</p>';
-		},
-	},
-	{
 		name: 'post',
 		level: 'inline',
 		start(src) {
@@ -388,6 +336,82 @@ ${title ? '<p>' + title + '</p>' : ''}
 				});
 
 			return `<span id="${id}">${token.raw}</span>`;
+		},
+	},
+	{
+		name: 'gigamoji',
+		level: 'block',
+		start(src) {
+			const match = mdRules.gigamoji.start.exec(src);
+			return match ? match.index + match[1].length : null;
+		},
+		tokenizer(src) {
+			let match = mdRules.gigamoji.rule.exec(src);
+
+			if (!match)
+			{ return; }
+
+			const raw = match[0];
+			src = match[1];
+			const tokens = [];
+
+			while (src)
+			{
+				match = mdRules.gigamoji.single.exec(src);
+				src = src.substr(match[0].length);
+				tokens.push({
+					type: 'emoji',
+					raw: match[0],
+					text: match[1],
+					title: match[0],
+					href: getMediaUrl('emoji', `${match[1]}.webp`),
+				});
+			}
+			return {
+				type: 'gigamoji',
+				raw,
+				tokens,
+			};
+		},
+		renderer(token) {
+			let rendered = '<p class="gigamoji">';
+			for (const t of token.tokens)
+			{ rendered += `<img src="${t.href}" alt="${emojiMap[t.text] || t.text}" title="${t.title}">`; }
+			return rendered + '</p>';
+		},
+	},
+	{
+		name: 'alignment',
+		level: 'block',
+		start: (src) => mdRules.alignment.start.exec(src)?.index,
+		tokenizer(src) {
+			const match = mdRules.alignment.rule.exec(src);
+
+			if (!match)
+			{ return; }
+
+			let text = match[2].trim();
+
+			if (match[4])
+			{
+				for (const m of match[4].trim().matchAll(mdRules.alignment.single))
+				{ text += '\n' + m[1].trim(); }
+			}
+
+			const token = {
+				type: 'alignment',
+				align: match[1] !== match[3] ? 'center' : (match[1] === '>' ? 'right': 'left'),
+				raw: match[0],
+				text,
+				tokens: []
+			};
+
+			this.lexer.blockTokens(token.text, token.tokens);
+
+			return token;
+		},
+		renderer(token) {
+			return `<div align="${token.align}">` + this.parser.parse(token.tokens) + '</div>';
 		},
 	},
 ];

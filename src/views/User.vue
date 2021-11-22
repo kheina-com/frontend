@@ -249,7 +249,10 @@
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 			<a @click.prevent.stop='disableUploads' class='search-close'><i class='material-icons'>close</i></a>
 			<ol class='results'>
-				<li v-for='post in uploadablePosts' @click='uploadPostId = post.post_id'>
+				<div v-if='uploadablePosts'>
+					Select an existing post as your profile picture
+				</div>
+				<li v-for='post in uploadablePosts' @click='uploadPostId = post.post_id' v-else>
 					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels/>
 				</li>
 			</ol>
