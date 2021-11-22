@@ -217,6 +217,7 @@ for example, twitter can be linked to like so: t@darmiu. there are many websites
 | \`kf@username\` | kf@username |      ko-fi.com      | https://ko-fi.com/username            |
 | \`gr@username\` | gr@username |     gumroad.com     | https://gumroad.com/username          |
 | \`st@username\` | st@username | subscribestar.adult | https://subscribestar.adult/username  |
+| \`rf@username\` | rf@username |    refsheet.net     | https://ref.st/username               |
 
 ### Post Embedding
 posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character

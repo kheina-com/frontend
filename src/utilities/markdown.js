@@ -44,6 +44,7 @@ const userLinks = {
 	kf: ['https://ko-fi.com', 'ko-fi'],
 	gr: ['https://gumroad.com', 'gumroad'],
 	st: ['https://subscribestar.adult', 'subscribestar'],
+	rf: ['https://ref.st', 'refsheet'],
 };
 
 const mdMaxId = 0xffffffff;
