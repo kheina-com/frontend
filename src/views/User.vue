@@ -97,9 +97,6 @@
 			<Markdown :content='user?.description' class='description' v-else/>
 			<div class='edit-profile-button' v-if='isSelf'>
 				<div v-if='isEditing'>
-					<p>
-						Note: icon and banner are not able to be updated at this time
-					</p>
 					<Button class='interactable' title='Edit profile' @click='updateProfile'>
 						<i class='material-icons'>done</i>
 						Update Profile
@@ -248,11 +245,11 @@
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 			<a @click.prevent.stop='disableUploads' class='search-close'><i class='material-icons'>close</i></a>
-			<ol class='results'>
-				<div v-if='uploadablePosts'>
-					Select an existing post as your profile picture
-				</div>
-				<li v-for='post in uploadablePosts' @click='uploadPostId = post.post_id' v-else>
+			<div v-if='!uploadablePosts' style='margin-top: 25px; text-align: center'>
+				Select an existing post to set as your {{isUploadIcon ? 'profile picture' : 'banner image'}}.
+			</div>
+			<ol class='results' v-else>
+				<li v-for='post in uploadablePosts' @click='uploadPostId = post.post_id'>
 					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels/>
 				</li>
 			</ol>
@@ -624,13 +621,15 @@ export default {
 		},
 		toggleIconUpload() {
 			this.isUploadIcon = true;
+			document.body.style.overflow = 'hidden';
 		},
 		toggleBannerUpload() {
 			this.isUploadBanner = true;
+			document.body.style.overflow = 'hidden';
 		},
 		disableUploads() {
 			this.isUploadBanner = this.isUploadIcon = false;
-			this.uploadLoading = this.cropperImage = this.uploadablePosts = this.uploadPostId = null;
+			document.body.style.overflow = this.uploadLoading = this.cropperImage = this.uploadablePosts = this.uploadPostId = null;
 		},
 		onImageCrop({ coordinates, canvas }) {
 			console.log(coordinates, canvas);

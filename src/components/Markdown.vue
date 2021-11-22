@@ -144,10 +144,10 @@ export default {
 	margin: 12px -5px;
 }
 
-.markdown > :first-child {
+.markdown > :first-child, .markdown .alignment > :first-child {
 	margin-top: 0;
 }
-.markdown > :last-child {
+.markdown > :last-child, .markdown .alignment > :last-child {
 	margin-bottom: 0;
 }
 .markdown pre, .markdown code {

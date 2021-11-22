@@ -412,7 +412,7 @@ ${title ? '<p>' + title + '</p>' : ''}
 			return token;
 		},
 		renderer(token) {
-			return `<div align="${token.align}">` + this.parser.parse(token.tokens) + '</div>';
+			return `<div class="alignment" align="${token.align}">` + this.parser.parse(token.tokens) + '</div>';
 		},
 	},
 ];
