@@ -196,8 +196,8 @@ const mdRules = {
 	},
 	gigamoji: {
 		start: /(\s*\n):/,
-		rule: /^\s*((?::[a-z0-9\-]+:)+)(?:$|\n)/,
-		single: /^:([a-z0-9\-]+):/,
+		rule: /^(\s*)((?::[a-z0-9\-]+:\s*)+)(?:$|\n)/,
+		single: /^:([a-z0-9\-]+):(\s*)/,
 	},
 	alignment: {
 		start: /^(?:>|<)/,
@@ -353,8 +353,11 @@ ${title ? '<p>' + title + '</p>' : ''}
 			{ return; }
 
 			const raw = match[0];
-			src = match[1];
+			src = match[2];
 			const tokens = [];
+
+			if (match[1])
+			{ tokens.push({ type: 'text', raw: match[1], text: match[1] }); }
 
 			while (src)
 			{
@@ -367,6 +370,9 @@ ${title ? '<p>' + title + '</p>' : ''}
 					title: match[0],
 					href: getMediaUrl('emoji', `${match[1]}.webp`),
 				});
+			
+				if (match[2])
+				{ tokens.push({ type: 'text', raw: match[2], text: match[2] }); }
 			}
 			return {
 				type: 'gigamoji',

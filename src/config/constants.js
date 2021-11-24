@@ -204,7 +204,7 @@ for example, twitter can be linked to like so: t@darmiu. there are many websites
 
 |    Example    |  Rendered   |       Website       |               Formatted               |
 |:-------------:|:-----------:|:-------------------:|:-------------------------------------:|
-|   \`@kheina\`   |   @kheina   |      kheina.com     | https://kheina.com/username           |
+|   \`@kheina\`   |   @kheina   |      kheina.com     | https://kheina.com/kheina             |
 | \`t@username\`  | t@username  |     twitter.com     | https://twitter.com/username          |
 | \`f@username\`  | f@username  |     facebook.com    | https://facebook.com/username         |
 | \`yt@channel\`  | yt@channel  |     youtube.com     | https://youtube.com/c/channel         |
