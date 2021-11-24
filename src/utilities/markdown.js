@@ -370,7 +370,7 @@ ${title ? '<p>' + title + '</p>' : ''}
 					title: match[0],
 					href: getMediaUrl('emoji', `${match[1]}.webp`),
 				});
-			
+
 				if (match[2])
 				{ tokens.push({ type: 'text', raw: match[2], text: match[2] }); }
 			}
