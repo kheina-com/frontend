@@ -914,13 +914,6 @@ ul, ol {
 .mobile .header-bar .inner {
 	width: auto;
 }
-
-.profile-buttons {
-	position: relative;
-	display: flex;
-	justify-content: space-between;
-	width: calc(100% - 12.5em - 6px);
-}
 .badges {
 	position: absolute;
 	top: 100%;
@@ -942,6 +935,11 @@ ul, ol {
 	border-radius: var(--border-radius);
 }
 .profile-buttons {
+	position: relative;
+	display: flex;
+	justify-content: space-between;
+	width: calc(100% - 12.5em - 6px);
+	align-items: center;
 	left: calc(12.5em + 6px);
 }
 .mobile .profile-buttons {
