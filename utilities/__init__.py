@@ -12,12 +12,13 @@ default_image = header_image.format('https://cdn.kheina.com/file/kheina-content/
 api_timeout = 5
 
 concise_regex = re_compile(r'(.+(?:[\n\r]+.+){0,2})([\s\S]+)?')
-description_limit = 200
+description_limit = 250
 
 markdown_regex = re_compile('|'.join([
 	r'\[.+\]\((.+)\)',
 	r'#{1,6} ',
 	r'`+',
+	r'[><]\s?(.+?)\s?[><](?=\n|$)',
 ]))
 
 emoji_map = {
