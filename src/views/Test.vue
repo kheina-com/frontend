@@ -23,7 +23,10 @@
 		</div>
 		<div class='token'>
 			<textarea class='interactable text' v-model='content'/>
-			<Markdown :content='cookie'/>
+			<div>
+				<Markdown :content='cookie'/>
+				<p>note: signature is not checked</p>
+			</div>
 		</div>
 	</main>
 </template>
@@ -34,7 +37,7 @@ import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
-import { authCookie, guid } from '@/utilities';
+import { authCookie } from '@/utilities';
 import epoch from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 
@@ -57,9 +60,6 @@ export default {
 			content: authCookie()?.token,
 		}
 	},
-	mounted() {
-		console.log(guid());
-	},
 	computed: {
 		cookie() {
 			try
@@ -67,7 +67,7 @@ export default {
 				const c = authCookie(this.content);
 				if (c)
 				{ delete c.token; }
-				return '```json\n' + JSON.stringify(c, null, 4) + '\n```\nnote: signature is not checked';
+				return '```json\n' + JSON.stringify(c, null, 4) + '\n```';
 			}
 			catch (e)
 			{
@@ -145,7 +145,7 @@ i {
 	resize: vertical;
 	line-height: 1.5;
 }
-.markdown {
+.token div {
 	grid-area: preview;
 }
 </style>

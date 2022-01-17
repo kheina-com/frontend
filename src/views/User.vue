@@ -19,6 +19,17 @@
 		<main ref='main' v-else>
 			<div class='header-bar'>
 				<div class='inner'>
+					<Loading :isLoading='isIconLoading' class='profile-image'>
+						<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
+							<div class='add-image-button'>
+								<i class='material-icons-round'>add_a_photo</i>
+							</div>
+							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+						</button>
+						<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+						</router-link>
+					</Loading>
 					<div class='profile-buttons'>
 						<div class='tabs' v-if='!isMobile'>
 							<button @click='selectTab' class='posts'>
@@ -51,21 +62,20 @@
 							<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
 							{{user?.following ? 'Unfollow' : 'Follow'}}
 						</Button>
+						<div class='badges'>
+							<p class='verified' v-if='user?.verified'>
+								<i class='kheina-icons' v-if='user.verified === "admin"' :title="`@${user?.handle} is an admin`">sword</i>
+								<i class='material-icons' v-else-if='user.verified === "mod"' :title="`@${user?.handle} is a moderator`">verified_user</i>
+								<i class='material-icons-round' v-else-if='user.verified === "artist"' :title="`@${user?.handle} is a verified artist`">verified</i>
+								{{user.verified}}
+							</p>
+							<p v-for='badge in user?.badges'>
+								<img class='emoji' :src='getEmojiUrl(badge.emoji)'>
+								{{badge.label}}
+							</p>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div ref='profile' class='user'>
-				<Loading :isLoading='isIconLoading' class='profile-image'>
-					<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
-						<div class='add-image-button'>
-							<i class='material-icons-round'>add_a_photo</i>
-						</div>
-						<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-					</button>
-					<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
-						<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-					</router-link>
-				</Loading>
 			</div>
 			<div class='user-info'>
 				<p class='user-field' v-if='!isEditing'>
@@ -86,9 +96,6 @@
 						<Markdown :content='user?.name' inline v-if='user'/>
 						<Loading span v-else>username</Loading>
 						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user?.handle}'s account is private`">lock</i>
-						<i class='kheina-icons' v-if='user?.verified === "admin"' :title="`@${user?.handle} is an admin`">sword</i>
-						<i class='material-icons' v-else-if='user?.verified === "mod"' :title="`@${user?.handle} is a moderator`">verified_user</i>
-						<i class='material-icons-round' v-else-if='user?.verified === "artist"' :title="`@${user?.handle} is a verified artist`">verified</i>
 					</h2>
 					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
 				</div>
@@ -261,7 +268,7 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { demarkdown, getBannerUrl, getMediaUrl, isMobile, khatch, setTitle, tagSplit } from '@/utilities';
+import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, isMobile, khatch, setTitle, tagSplit } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -427,6 +434,7 @@ export default {
 		},
 	},
 	methods: {
+		getEmojiUrl,
 		selectTab(event) {
 			this.tabElement.lastChild.style.borderBottomWidth = '0';
 			this.tab = event.target.className;
@@ -777,10 +785,18 @@ main {
 }
 
 .profile-image {
+	display: inline-block;
+	position: absolute;
 	border-radius: 5px;
 	border: solid 3px var(--bordercolor);
 	background: var(--bg2color);
 	overflow: hidden;
+	top: calc(-6.25em - 3px);
+}
+.mobile .profile-image {
+	top: calc(-4em - 3px);
+	/* margin-bottom: -3.875em;
+	width: auto; */
 }
 .thumbnail {
 	display: flex;
@@ -837,27 +853,6 @@ main {
 	height: calc(4em + 28px);
 }
 
-.user {
-	width: 70vw;
-	margin: 0 auto -6em;
-	top: calc(-6.25em - 3px);
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-end;
-	padding: 0;
-	z-index: 1;
-	position: relative;
-	pointer-events: none;
-}
-.user * {
-	pointer-events: all;
-}
-.mobile .user {
-	top: calc(-4em - 3px);
-	margin-bottom: -3.875em;
-	width: auto;
-}
-
 .edit-profile-button div {
 	text-align: center;
 }
@@ -897,29 +892,57 @@ ul, ol {
 }
 
 .header-bar {
-	position: absolute;
-	margin: 0 -25px;
+	position: relative;
+	padding: 0 25px;
 	width: 100%;
 	background: var(--bg2color);
 	border-bottom: var(--border-size) solid var(--bordercolor);
+	left: -25px;
+	right: -25px;
+	margin-bottom: 3em;
+}
+.mobile .header-bar {
+	background: none;
+	border-bottom: none;
+	margin-bottom: 4.25em;
 }
 
 .header-bar .inner {
 	width: 70vw;
 	margin: auto;
 }
-.mobile .header-bar {
-	background: none;
-	border-bottom: none;
+.mobile .header-bar .inner {
+	width: auto;
 }
 
 .profile-buttons {
 	position: relative;
-	left: calc(12.5em + 6px);
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
 	width: calc(100% - 12.5em - 6px);
+}
+.badges {
+	position: absolute;
+	top: 100%;
+	display: flex;
+}
+.badges p {
+	margin: 0.5em 0 0 0.5em;
+	padding: 0.25em 0.5em;
+	background: var(--bg2color);
+	border-radius: var(--border-radius);
+	display: flex;
+	align-items: center;
+}
+.badges p i, .badges p img {
+	margin-right: 0.35em;
+}
+.badges p img {
+	max-height: 1em;
+	border-radius: var(--border-radius);
+}
+.profile-buttons {
+	left: calc(12.5em + 6px);
 }
 .mobile .profile-buttons {
 	left: calc(8em + 6px);

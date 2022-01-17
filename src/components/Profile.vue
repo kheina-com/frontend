@@ -1,5 +1,5 @@
 <template>
-	<a :href='`/${handle}`' class='profile' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
+	<a :href='`/${handle}`' class='profile' :title='`@${handle} is ${verifiedDescription}`' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
 				<UserIcon :handle='handle' :post='icon'/>
@@ -7,13 +7,16 @@
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
 					<Markdown :content='name' inline/>
-					<i :class='iconClass' v-if='verified' :title='`@${handle} is ${verifiedDescription}`'>{{iconName}}</i>
 				</Loading>
-				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
+				<Loading :isLoading='isLoading' span class='handle'>
+					<p>
+						<i :class='iconClass' v-if='verified'>{{iconName}}</i>@{{handle}}
+					</p>
+				</Loading>
 			</div>
 		</div>
 	</a>
-	<div class='profile' v-else>
+	<div class='profile' :title='`@${handle} is ${verifiedDescription}`' v-else>
 		<div class='inner'>
 			<Loading :isLoading='isLoading' class='image'>
 				<UserIcon :handle='handle' :post='icon'/>
@@ -21,9 +24,12 @@
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
 					<Markdown :content='name' inline/>
-					<i :class='iconClass' v-if='verified' :title='`@${handle} is ${verifiedDescription}`'>{{iconName}}</i>
 				</Loading>
-				<Loading :isLoading='isLoading' span class='handle'><p>@{{handle}}</p></Loading>
+				<Loading :isLoading='isLoading' span class='handle'>
+					<p>
+						<i :class='iconClass' v-if='verified'>{{iconName}}</i>@{{handle}}
+					</p>
+				</Loading>
 			</div>
 		</div>
 	</div>
@@ -137,15 +143,18 @@ export default {
 	display: flex;
 	align-items: center;
 }
-.profile .handle {
+.profile .handle p {
 	color: var(--subtle);
+	display: flex;
+	align-items: center;
 }
 i {
 	display: inline-block;
 	font-size: 1em;
-	margin-left: 0.25em;
+	margin-right: 0.25em;
+	color: var(--textcolor);
 }
 i.kheina-icons {
-	margin-left: 0.35em;
+	margin-right: 0.35em;
 }
 </style>

@@ -1,4 +1,4 @@
-from utilities import api_timeout, concise, header_defaults, header_description, header_image, header_title
+from utilities import api_timeout, concise, header_card_large, header_description, header_image, header_title
 from aiohttp import ClientTimeout, request as request_async
 from kh_common.config.constants import tags_host
 from kh_common.logging import getLogger
@@ -41,5 +41,5 @@ async def tagMetaTags(match) :
 		header_title.format(f'{data["tag"]}, {data["group"]} tag'),
 		header_image.format(f'https://cdn.kheina.com/file/kheina-content/xXPJm2s2/powerfulsnep.png'),
 		header_description.format(escape(concise(data['description']))) if data['description'] else '',
-		header_defaults,
+		header_card_large,
 	])

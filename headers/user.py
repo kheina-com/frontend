@@ -1,51 +1,40 @@
-from utilities import api_timeout, concise, default_image, demarkdown, header_defaults, header_description, header_image, header_title
-from aiohttp import ClientTimeout, request as request_async
+from utilities import concise, default_image, demarkdown, header_card_summary, header_description, header_image, header_title
 from kh_common.config.constants import users_host
 from kh_common.logging import getLogger
+from aiohttp import ClientResponseError
+from kh_common.models.user import User
+from kh_common.gateway import Gateway
 from re import compile as re_compile
 from html import escape
 
 
-user_regex = re_compile(r'^\/([^\/]+)$')
+UsersService = Gateway(users_host + '/v1/fetch_user/{handle}', User)
+user_regex = re_compile(r'^\/([^\/]+)\/?$')
 logger = getLogger()
 
 
-async def fetchUserData(handle) :
-	try :
-		async with request_async(
-			'GET',
-			f'{users_host}/v1/fetch_user/{handle}',
-			timeout=ClientTimeout(api_timeout),
-		) as response :
-			if response.ok :
-				return await response.json()
-
-			else :
-				logger.error({
-					'message': 'error while fetching user data from frontend server.',
-					'content': await response.read(),
-					'status': response.status,
-				})
-
-	except Exception :
-		logger.exception('error while fetching user data from frontend server.')
-
-
 async def userMetaTags(match) :
-	data = await fetchUserData(match[1])
+	user = None
 
-	if not data :
-		return None
+	try :
+		user = await UsersService(handle=match[1])
 
-	if data['name'] :
-		title = f'{escape(demarkdown(data["name"]))} (@{data["handle"]}) - kheina.com'
+	except ClientResponseError as e :
+		if e.status == 404 :
+			return None
+
+		else :
+			raise
+
+	if user.name :
+		title = f'{escape(demarkdown(user.name))} (@{user.handle}) | kheina.com'
 
 	else :
-		title = f'@{data["handle"]} - kheina.com'
+		title = f'@{user.handle} | kheina.com'
 
 	return ''.join([
 		header_title.format(escape(title)),
-		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{data["icon"]}/thumbnails/1200.jpg') if data['icon'] else default_image,
-		header_description.format(escape(concise(data['description']))) if data['description'] and data['description'].strip() else '',
-		header_defaults,
+		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{user.icon}/icons/{user.handle.lower()}.jpg') if user.icon else default_image,
+		header_description.format(escape(concise(user.description))) if user.description and user.description.strip() else '',
+		header_card_summary,
 	])

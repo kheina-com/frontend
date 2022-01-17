@@ -30,7 +30,8 @@ marked.use({
 // 	const lexer = new marked.Lexer(options);
 
 // 	const a = lexer.lex(src)
-// 	console.log(a);
+// 	if (src.includes('strawberry'))
+// 	{ console.log(a); }
 
 // 	return a;
 // };
@@ -60,7 +61,7 @@ export default {
 			{
 				if (this.concise)
 				{
-					const match = this.content.match(/(.+(?:[\n\r]+.+){0,2})([\s\S]+)?/);
+					const match = this.content.match(/((?:.+[\n\r]){0,5})([\s\S]+)?/);
 
 					let end = '';
 					if (match[1].length > 500)
@@ -81,7 +82,13 @@ export default {
 	},
 	computed: {
 		renderedMd() {
-			return this.content ? marked(this.mdString()) + (this.cut ? `	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>` : '') : '';
+			return this.content ? (
+				this.inline ? (
+					marked.parse(this.mdString())
+				) : (
+					marked.parse(this.mdString()) + (this.cut ? "	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>" : '')
+				)
+			) : '';
 		},
 	},
 }
@@ -107,7 +114,7 @@ export default {
 .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
 	margin: 25px 0 15px;
 }
-.markdown p, .markdown ul, .markdown ol, .markdown blockquote {
+.markdown p, .markdown ul, .markdown ol, .markdown blockquote, .markdown .alignment {
 	margin: 15px 0;
 }
 .markdown li, .markdown li ul, .markdown li ol {
@@ -131,10 +138,12 @@ export default {
 }
 .markdown .gigamoji {
 	margin: 0;
+	display: flex;
+	align-items: center;
 }
 .markdown .gigamoji img {
-	max-width: 100%;
-	max-height: 5em;
+	width: min(100%, 5em);
+	height: min(100%, 5em);
 }
 .markdown hr {
 	height: 0;
@@ -149,6 +158,18 @@ export default {
 }
 .markdown > :last-child, .markdown .alignment > :last-child {
 	margin-bottom: 0;
+}
+.markdown .alignment.center, .markdown .alignment.center * {
+	text-align: center;
+	justify-content: center;
+}
+.markdown .alignment.left, .markdown .alignment.left * {
+	text-align: left;
+	justify-content: flex-start;
+}
+.markdown .alignment.right, .markdown .alignment.right * {
+	text-align: right;
+	justify-content: flex-end;
 }
 .markdown pre, .markdown code {
 	background: var(--bg2color);
@@ -212,7 +233,8 @@ export default {
 	margin-left: 17.5px;
 }
 .markdown i.material-icons-round {
-	margin-top: -15px;
+	margin-top: -0.6em;
+	margin-left: -0.15em;
 }
 .markdown > h1:last-child, .markdown > h2:last-child {
 	border: none;

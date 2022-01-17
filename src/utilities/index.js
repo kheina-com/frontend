@@ -48,11 +48,16 @@ export function commafy(x)
 	let parts = x.toString().split(".");
 	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	return parts.join(".");
-};
+}
 
 export function getMediaUrl(postId, filename)
 {
 	return `https://cdn.kheina.com/file/kheina-content/${postId}/${filename}`;
+}
+
+export function getEmojiUrl(emojiName)
+{
+	return `https://cdn.kheina.com/file/kheina-content/emoji/${emojiName}.webp`;
 }
 
 export function getMediaThumbnailUrl(postId, resolution=800, extension='webp')
