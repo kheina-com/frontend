@@ -933,6 +933,10 @@ ul, ol {
 .badges p img {
 	max-height: 1em;
 	border-radius: var(--border-radius);
+	font-size: 1.1em;
+}
+.badges p i {
+	font-size: 1.25em;
 }
 .profile-buttons {
 	position: relative;
