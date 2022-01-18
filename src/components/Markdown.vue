@@ -142,8 +142,8 @@ export default {
 	align-items: center;
 }
 .markdown .gigamoji img {
-	width: min(100%, 5em);
-	height: min(100%, 5em);
+	max-width: 5em;
+	max-height: 5em;
 }
 .markdown hr {
 	height: 0;

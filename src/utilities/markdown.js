@@ -250,7 +250,7 @@ const mdRules = {
 	},
 	gigamoji: {
 		start: /(\s*\n):/,
-		rule: /^\n?(\s*)((?::[a-z0-9\-]+:\s*)+)(?:$|\n)/,
+		rule: /^\n?([^\S\n]*)((?::[a-z0-9\-]+:[^\S\n]*)+)(?:$|\n)/,
 		single: /^(:([a-z0-9\-]+):)(\s*)/,
 	},
 	alignment: {
