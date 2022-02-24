@@ -187,6 +187,10 @@ export default {
 			type: String, 
 			default: null,
 		},
+		size: {
+			type: Object,
+			default: { width: 0, height: 0 },
+		},
 	},
 	emits: [
 		'loaded',

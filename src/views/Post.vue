@@ -323,10 +323,6 @@ export default {
 					if (response.status < 300)
 					{
 						this.post = r;
-						if (this.post.media_type)
-						{
-							console.log('butts', this.$refs.media);
-						}
 						if (r.parent)
 						{
 							this.parent = false;
