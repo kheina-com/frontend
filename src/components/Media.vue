@@ -1,12 +1,5 @@
 <template>
-	<a :href='src' class='media' v-if='link'>
-		<Loading :isLoading='isLoading && lazy'>
-			<p v-if='isError'>Could not load media.</p>
-			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
-			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
-		</Loading>
-	</a>
-	<Loading class='media' :isLoading='isLoading && lazy' v-else>
+	<Loading class='media' :style='parentStyle' :isLoading='isLoading && lazy'>
 		<p v-if='isError'>Could not load media.</p>
 		<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
 		<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
@@ -22,19 +15,11 @@ export default {
 		Loading,
 	},
 	props: {
-		link: {
-			type: Boolean,
-			default: true,
-		},
 		mime: {
 			type: String,
 			default: null,
 		},
 		src: {
-			type: String,
-			default: null,
-		},
-		poster: {
 			type: String,
 			default: null,
 		},
@@ -54,9 +39,13 @@ export default {
 			type: String,
 			default: null,
 		},
-		loadingStyle: {
-			type: String,
-			default: 'width: 30vw; height: 30vh;',
+		width: {
+			type: Number,
+			default: 0,
+		},
+		height: {
+			type: Number,
+			default: 0,
 		},
 		lazy: {
 			type: Boolean,
@@ -74,12 +63,15 @@ export default {
 		{ return this.mime && this.mime.startsWith('image'); },
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
+		parentStyle() {
+			return `aspect-ratio: ${this.width}/${this.height};`;
+		},
 		linkStyle()
 		{
 			if (this.isLoading && this.lazy)
-			{ return this.loadingStyle; }
+			{ return `width: ${this.width}px; padding-top: ${this.height / this.width * 100}%;`; }
 			else if (this.isError)
-			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + this.loadingStyle; }
+			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width}px; height: ${this.height};`; }
 			return this.style;
 		},
 	},
@@ -106,6 +98,9 @@ export default {
 </script>
 
 <style scoped>
+.media.loading {
+	overflow: hidden;
+}
 .media img, .media video {
 	max-width: 100%;
 	max-height: 100%;

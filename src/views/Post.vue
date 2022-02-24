@@ -16,14 +16,9 @@
 		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
-				<!-- <Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' /> -->
-				<div class='media' :style='`left: calc(max(10vw, 50% - ${post?.size?.width / 2}px) - 10vw);`'>
-					<Loading ref='media' :isLoading='mediaIsLoading' v-show='post?.media_type'>
-						<p v-if='mediaIsError'>Could not load media.</p>
-						<video :src='mediaUrl' :title='post?.title' :controls='controls' @load='mediaOnLoad' @error='mediaOnError' v-else-if='mediaIsVideo'>Your browser does not support this type of video.</video>
-						<img  :alt='post?.title' @load='mediaOnLoad' @error='mediaOnError' :style='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' v-else>
-					</Loading>
-					<div class='set-controls' v-for='set in post?.sets || [{ title: "set page", id: "f3-Y" }]'>
+				<div class='media-container' :style='`left: calc(max(10vw, 50% - ${post?.size?.width / 2}px) - 10vw);`' v-show='post'>
+					<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :width='post?.size?.width' :height='post?.size?.height' />
+					<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "f3-Y" }]'>
 						<p>
 							<a><i class='material-icons'>first_page</i></a>
 							<a><i class='material-icons'>navigate_before</i></a>
@@ -117,19 +112,21 @@
 			</div>
 		</div>
 		<div class='content' v-else>
-			<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' />
-			<div class='set-controls'>
-				<a><i class='material-icons'>first_page</i></a>
-				<a><i class='material-icons'>navigate_before</i></a>
-				<a>1</a>
-				<a>2</a>
-				<a>3</a>
-				<a>set page</a>
-				<a>5</a>
-				<a>6</a>
-				<a>7</a>
-				<a><i class='material-icons'>navigate_next</i></a>
-				<a><i class='material-icons'>last_page</i></a>
+			<div class='media-container' v-show='post'>
+				<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :width='post?.size?.width' :height='post?.size?.height' />
+				<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "f3-Y" }]'>
+					<a><i class='material-icons'>first_page</i></a>
+					<a><i class='material-icons'>navigate_before</i></a>
+					<a>1</a>
+					<a>2</a>
+					<a>3</a>
+					<a :href='`/s/${set.id}`'>{{set.title}}</a>
+					<a>5</a>
+					<a>6</a>
+					<a>7</a>
+					<a><i class='material-icons'>navigate_next</i></a>
+					<a><i class='material-icons'>last_page</i></a>
+				</div>
 			</div>
 			<div class='container'>
 				<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
@@ -277,7 +274,6 @@ export default {
 	data() {
 		return {
 			environment,
-			mediaIsLoading: true,
 			editing: false,
 			post: null,
 			tags: null,
@@ -385,16 +381,6 @@ export default {
 		{ return this.$store.state.user && this.post?.user?.handle === this.$store.state.user?.handle; }
 	},
 	methods: {
-		mediaOnLoad() {
-			this.mediaIsLoading = false;
-			this.$refs.media.style.aspectRatio = null;
-		},
-		mediaOnError() {
-			if (!post?.media_type.mime_type || !this.mediaUrl)
-			{ return; }
-			this.mediaIsError = true;
-			this.mediaOnLoad();
-		},
 		setPageTitle() {
 			let title = `${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`;
 
@@ -682,7 +668,7 @@ main {
 	position: relative;
 	padding: 25px;
 }
-.media {
+.media-container {
 	grid-area: media;
 	margin: 0 auto 25px 0;
 	position: relative;
@@ -692,18 +678,20 @@ main {
 	transition: none;
 	max-width: calc(100% - 25px);
 }
+.mobile .media-container {
+	margin: 0 auto 25px;
+	max-width: 100%;
+}
 .media img, .media video {
 	max-width: 100%;
-	display: block;
+	display: table-cell;
 }
 .mobile .media {
 	max-width: 100%;
 	margin: 0 auto 25px;
 }
-.media .loading {
-	max-width: 100%;
-	height: 0;
-	overflow: hidden;
+.media .loading p {
+	display: table-cell;
 }
 .set-controls {
 	margin: 25px 25px 0	;
