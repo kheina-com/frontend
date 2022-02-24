@@ -1,3 +1,5 @@
+/* font formats google recommends: eot, woff2, woff, ttf */
+
 @font-face {
 	font-family: 'DejaVu Sans';
 	src: url('/assets/fonts/DejaVuSans.ttf') format('truetype');
@@ -7,23 +9,58 @@
 @font-face {
 	font-family: 'kheina-icons';
 	src:
+		/* add woff, eot here too */
 		url('/assets/fonts/kheina-icons.woff2?kwe5pk') format('woff2'),
 		url('/assets/fonts/kheina-icons.ttf?kwe5pk') format('truetype'),
 		url('/assets/fonts/kheina-icons.svg?kwe5pk') format('svg');
 	font-weight: normal;
 	font-style: normal;
-	/* font-display: block; */
 }
 
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	src:
+		/* add woff, eot here too */
+		url('/assets/fonts/material-icons.woff2?flUhRq') format('woff2'),
+		url('/assets/fonts/material-icons.ttf?flUhRq') format('truetype');
+}
+
+@font-face {
+	font-family: 'Material Icons Round';
+	font-style: normal;
+	font-weight: 400;
+	src:
+		/* add woff, ttf, eot here too */
+		url('/assets/fonts/material-icons-round.woff2?LDItao') format('woff2'),
+		url('/assets/fonts/material-icons-round.otf?LDItao') format('opentype');
+}
+
+/* use !important to prevent issues with browser extensions that change fonts */
+.material-icons {
+	font-family: 'Material Icons' !important;
+}
+.material-icons-round {
+	font-family: 'Material Icons Round' !important;
+}
 .kheina-icons {
-	/* use !important to prevent issues with browser extensions that change fonts */
+	/* https://icomoon.io/app/#/projects */
 	font-family: 'kheina-icons' !important;
+}
+
+.kheina-icons, .material-icons, .material-icons-round {
 	speak: never;
 	font-style: normal;
 	font-weight: normal;
 	font-variant: normal;
 	text-transform: none;
 	line-height: 1;
+	font-size: 1.5em;
+	direction: ltr;
+	word-wrap: normal;
+	white-space: nowrap;
+	display: inline-block;
 
 	/* Enable Ligatures ================ */
 	letter-spacing: 0;

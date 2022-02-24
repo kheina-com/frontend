@@ -16,7 +16,31 @@
 		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
-				<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' />
+				<!-- <Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' /> -->
+				<div class='media' :style='`left: calc(max(10vw, 50% - ${post?.size?.width / 2}px) - 10vw);`'>
+					<Loading ref='media' :isLoading='mediaIsLoading' v-show='post?.media_type'>
+						<p v-if='mediaIsError'>Could not load media.</p>
+						<video :src='mediaUrl' :title='post?.title' :controls='controls' @load='mediaOnLoad' @error='mediaOnError' v-else-if='mediaIsVideo'>Your browser does not support this type of video.</video>
+						<img  :alt='post?.title' @load='mediaOnLoad' @error='mediaOnError' :style='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' v-else>
+					</Loading>
+					<div class='set-controls' v-for='set in post?.sets || [{ title: "set page", id: "f3-Y" }]'>
+						<p>
+							<a><i class='material-icons'>first_page</i></a>
+							<a><i class='material-icons'>navigate_before</i></a>
+							<a>1</a>
+							<a>2</a>
+							<a>3</a>
+						</p>
+						<a :href='`/s/${set.id}`'>{{set.title}}</a>
+						<p>
+							<a>5</a>
+							<a>6</a>
+							<a>7</a>
+							<a><i class='material-icons'>navigate_next</i></a>
+							<a><i class='material-icons'>last_page</i></a>
+						</p>
+					</div>
+				</div>
 				<main>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
@@ -94,6 +118,19 @@
 		</div>
 		<div class='content' v-else>
 			<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' />
+			<div class='set-controls'>
+				<a><i class='material-icons'>first_page</i></a>
+				<a><i class='material-icons'>navigate_before</i></a>
+				<a>1</a>
+				<a>2</a>
+				<a>3</a>
+				<a>set page</a>
+				<a>5</a>
+				<a>6</a>
+				<a>7</a>
+				<a><i class='material-icons'>navigate_next</i></a>
+				<a><i class='material-icons'>last_page</i></a>
+			</div>
 			<div class='container'>
 				<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 				<div class='main'>
@@ -177,6 +214,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
@@ -230,9 +268,16 @@ export default {
 		FavoriteButton,
 		RepostButton,
 	},
+	setup() {
+		const media = ref(null);
+		return {
+			media,
+		};
+	},
 	data() {
 		return {
 			environment,
+			mediaIsLoading: true,
 			editing: false,
 			post: null,
 			tags: null,
@@ -282,12 +327,10 @@ export default {
 					if (response.status < 300)
 					{
 						this.post = r;
-						setTimeout(() => {
-							if (this.isMobile)
-							{ this.mediaElement.style = `aspect-ratio: ${this.post.size?.width}/${this.post.size?.height};`; }
-							else if (this.post)
-							{ this.mediaElement.style = `left: calc(max(10vw, 50% - ${this.post.size?.width / 2}px) - 10vw); aspect-ratio: ${this.post.size?.width}/${this.post.size?.height};`; }
-						}, 0);
+						if (this.post.media_type)
+						{
+							console.log('butts', this.$refs.media);
+						}
 						if (r.parent)
 						{
 							this.parent = false;
@@ -315,11 +358,6 @@ export default {
 				this.error = error;
 				console.error(error);
 			});
-
-		// window.addEventListener('resize', this.onResize);
-	},
-	unmounted() {
-		// window.removeEventListener('resize', this.onResize);
 	},
 	computed: {
 		isMobile,
@@ -329,12 +367,6 @@ export default {
 		{ return this.post !== null ? this.post.created !== this.post.updated : false; },
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
-		mediaElement() {
-			let media = document.getElementsByClassName('media');
-			if (media.length > 0)
-			{ return media[0]; }
-			return null;
-		},
 		showPrivacy()
 		{ return this.post?.privacy && this.post.privacy.toLowerCase() !== 'public'; },
 		countComments()
@@ -353,6 +385,16 @@ export default {
 		{ return this.$store.state.user && this.post?.user?.handle === this.$store.state.user?.handle; }
 	},
 	methods: {
+		mediaOnLoad() {
+			this.mediaIsLoading = false;
+			this.$refs.media.style.aspectRatio = null;
+		},
+		mediaOnError() {
+			if (!post?.media_type.mime_type || !this.mediaUrl)
+			{ return; }
+			this.mediaIsError = true;
+			this.mediaOnLoad();
+		},
 		setPageTitle() {
 			let title = `${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`;
 
@@ -581,15 +623,6 @@ export default {
 			}
 			return 0;
 		},
-		// onResize() {
-		// 	if (!this.mediaElement)
-		// 	{ return; }
-
-		// 	// if (this.isMobile)
-		// 	// { this.mediaElement.style = 'margin: 0 auto 25px; max-width: 100%'; }
-		// 	// else if (this.post)
-		// 	// { this.mediaElement.style = `left: calc(max(10vw, 50% - ${this.post.size?.width / 2}px) - 10vw); aspect-ratio: ${this.post.size?.width}/${this.post.size?.height};`; }
-		// },
 		editToggle() {
 			this.editing = !this.editing;
 		},
@@ -657,14 +690,46 @@ main {
 	-moz-transition: none;
 	-o-transition: none;
 	transition: none;
-	position: relative;
 	max-width: calc(100% - 25px);
-	overflow: hidden;
+}
+.media img, .media video {
+	max-width: 100%;
+	display: block;
 }
 .mobile .media {
 	max-width: 100%;
 	margin: 0 auto 25px;
 }
+.media .loading {
+	max-width: 100%;
+	height: 0;
+	overflow: hidden;
+}
+.set-controls {
+	margin: 25px 25px 0	;
+	display: flex;
+	justify-content: space-between;
+}
+.mobile .set-controls {
+	margin: 0 25px 25px;
+}
+.set-controls p {
+	display: flex;
+	align-items: center;
+}
+.set-controls p a {
+	margin: 0 12.5px;
+}
+.set-controls p a i {
+	display: block;
+}
+.set-controls p > :last-child {
+	margin-right: 0;
+}
+.set-controls p > :first-child {
+	margin-left: 0;
+}
+
 html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	--bg2color: var(--bg1color);
 }

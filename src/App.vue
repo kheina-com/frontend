@@ -211,6 +211,7 @@ body {
 	display: block;
 	background-size: cover;
 	background-position: center;
+	overflow-x: hidden;
 }
 body, html {
 	text-rendering: optimizelegibility;
