@@ -16,7 +16,7 @@
 		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
-				<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' />
+				<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' />
 				<main>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
@@ -93,7 +93,7 @@
 			</div>
 		</div>
 		<div class='content' v-else>
-			<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' :loadingStyle='`width: ${post?.size?.width ?? 0}; height: ${post?.size?.height ?? 0}`' />
+			<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' />
 			<div class='container'>
 				<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 				<div class='main'>
@@ -282,6 +282,12 @@ export default {
 					if (response.status < 300)
 					{
 						this.post = r;
+						setTimeout(() => {
+							if (this.isMobile)
+							{ this.mediaElement.style = `aspect-ratio: ${this.post.size?.width}/${this.post.size?.height};`; }
+							else if (this.post)
+							{ this.mediaElement.style = `left: calc(max(10vw, 50% - ${this.post.size?.width / 2}px) - 10vw); aspect-ratio: ${this.post.size?.width}/${this.post.size?.height};`; }
+						}, 0);
 						if (r.parent)
 						{
 							this.parent = false;
@@ -310,10 +316,10 @@ export default {
 				console.error(error);
 			});
 
-		window.addEventListener('resize', this.onResize);
+		// window.addEventListener('resize', this.onResize);
 	},
 	unmounted() {
-		window.removeEventListener('resize', this.onResize);
+		// window.removeEventListener('resize', this.onResize);
 	},
 	computed: {
 		isMobile,
@@ -575,15 +581,15 @@ export default {
 			}
 			return 0;
 		},
-		onResize() {
-			if (!this.mediaElement)
-			{ return; }
+		// onResize() {
+		// 	if (!this.mediaElement)
+		// 	{ return; }
 
-			if (this.isMobile)
-			{ this.mediaElement.style = 'margin: 0 auto 25px; max-width: 100%'; }
-			else if (this.post)
-			{ this.mediaElement.style = `left: calc(max(10vw, 50% - ${this.post.size?.width / 2}px) - 10vw); max-width: calc(100% - 25px)`; }
-		},
+		// 	// if (this.isMobile)
+		// 	// { this.mediaElement.style = 'margin: 0 auto 25px; max-width: 100%'; }
+		// 	// else if (this.post)
+		// 	// { this.mediaElement.style = `left: calc(max(10vw, 50% - ${this.post.size?.width / 2}px) - 10vw); aspect-ratio: ${this.post.size?.width}/${this.post.size?.height};`; }
+		// },
 		editToggle() {
 			this.editing = !this.editing;
 		},
@@ -652,6 +658,12 @@ main {
 	-o-transition: none;
 	transition: none;
 	position: relative;
+	max-width: calc(100% - 25px);
+	overflow: hidden;
+}
+.mobile .media {
+	max-width: 100%;
+	margin: 0 auto 25px;
 }
 html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	--bg2color: var(--bg1color);
