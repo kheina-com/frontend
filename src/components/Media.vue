@@ -1,15 +1,15 @@
 <template>
 	<a :href='src' class='media' v-if='link'>
-		<Loading :isLoading='isLoading && lazy' :style='linkStyle'>
+		<Loading :isLoading='isLoading && lazy'>
 			<p v-if='isError'>Could not load media.</p>
-			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo'>Your browser does not support this type of video.</video>
-			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
+			<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
+			<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
 		</Loading>
 	</a>
-	<Loading class='media' :isLoading='isLoading && lazy' :style='linkStyle' v-else>
+	<Loading class='media' :isLoading='isLoading && lazy' v-else>
 		<p v-if='isError'>Could not load media.</p>
-		<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='style' v-else-if='isVideo'>Your browser does not support this type of video.</video>
-		<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='style' v-else>
+		<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
+		<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
 	</Loading>
 </template>
 
@@ -75,7 +75,13 @@ export default {
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
 		linkStyle()
-		{ return this.isLoading && this.lazy ? this.loadingStyle : (this.isError ? 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + this.loadingStyle : null); },
+		{
+			if (this.isLoading && this.lazy)
+			{ return this.loadingStyle; }
+			else if (this.isError)
+			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + this.loadingStyle; }
+			return this.style;
+		},
 	},
 	mounted() {
 		this.load();

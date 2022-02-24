@@ -16,7 +16,7 @@
 		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
-				<Media v-if='isLoading || post.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :load='onResize' />
+				<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' :loadingStyle='`width: ${post?.size?.width ?? 0}px; padding-top: ${(post?.size?.height ?? 0) / (post?.size?.width ?? 0) * 100}%;`' />
 				<main>
 					<div class='post-header'>
 						<Score :score='post?.score' :postId='postId' />
@@ -93,7 +93,7 @@
 			</div>
 		</div>
 		<div class='content' v-else>
-			<Media v-if='isLoading || post.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' loadingStyle='100vw; 100vw'/>
+			<Media v-if='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :load='onResize' :loadingStyle='`width: ${post?.size?.width ?? 0}; height: ${post?.size?.height ?? 0}`' />
 			<div class='container'>
 				<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 				<div class='main'>
@@ -580,19 +580,9 @@ export default {
 			{ return; }
 
 			if (this.isMobile)
-			{
-				this.mediaElement.style = 'margin: 0 auto 25px; max-width: 100%';
-				return;
-			}
-
-			let rect = this.mediaElement.getBoundingClientRect();
-			let right = window.innerWidth - rect.right;
-			let margin = Math.max(window.innerWidth * 0.2, 300) - 0.1;
-
-			if (rect.left < margin)
-			{ this.mediaElement.style = 'margin: 0 auto 25px 0'; }
-			else if (rect.left < right - 0.1)
-			{ this.mediaElement.style = 'margin: 0 auto 25px; right: 10vw'; }
+			{ this.mediaElement.style = 'margin: 0 auto 25px; max-width: 100%'; }
+			else if (this.post)
+			{ this.mediaElement.style = `left: calc(max(10vw, 50% - ${this.post.size?.width / 2}px) - 10vw); max-width: calc(100% - 25px)`; }
 		},
 		editToggle() {
 			this.editing = !this.editing;
@@ -661,7 +651,7 @@ main {
 	-moz-transition: none;
 	-o-transition: none;
 	transition: none;
-	max-width: calc(100% - 25px);
+	position: relative;
 }
 html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	--bg2color: var(--bg1color);

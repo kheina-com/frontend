@@ -96,12 +96,16 @@ export default {
 		},
 		verifiedDescription() {
 			switch (this.verified) {
+				case 'verified' :
+					return `@${this.handle} is a verified artist`;
+				case 'artist' :
+					return `@${this.handle} is a verified artist`;
 				case 'mod' :
-					return 'a moderator';
+					return `@${this.handle} is a moderator`;
 				case 'admin' :
-					return 'an admin';
+					return `@${this.handle} is an admin`;
 				default :
-					return 'a verified artist';
+					return `@${this.handle}`;
 			}
 		},
 	},

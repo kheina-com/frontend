@@ -2,14 +2,15 @@
 	<!-- eslint-disable vue/valid-v-for -->
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div>
-		<div class='banner' v-if='user?.banner' :style='`background-image: url("${banner}")`'>
+		<Loading :isLoading='isBannerLoading' class='banner' v-if='user?.banner'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 			<router-link :to='`/p/${user.banner}`' class='banner-link' v-else>
 				<i class='material-icons-round' style='display: block'>open_in_new</i>
 			</router-link>
-		</div>
+			<img :src='banner' @load='isBannerLoading = false'>
+		</Loading>
 		<div class='banner-missing' v-else>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
@@ -72,6 +73,13 @@
 							<p v-for='badge in user?.badges'>
 								<img class='emoji' :src='getEmojiUrl(badge.emoji)'>
 								{{badge.label}}
+								<button v-if='isEditing' @click='removeBadge(badge)'>
+									<i class='material-icons'>close</i>
+								</button>
+							</p>
+							<p v-if='isEditing'>
+								<i class='material-icons'>add</i>
+								Add Badge
 							</p>
 						</div>
 					</div>
@@ -333,6 +341,7 @@ export default {
 	data() {
 		return {
 			isIconLoading: true,
+			isBannerLoading: true,
 			errorMessage: null,
 			errorDump: null,
 			user: null,
@@ -435,6 +444,18 @@ export default {
 	},
 	methods: {
 		getEmojiUrl,
+		removeBadge(badge) {
+			khatch(`${usersHost}/v1/remove_badge`, {
+				method: 'POST',
+				errorMessage: 'Failed to remove badge.',
+				body: badge,
+			})
+			.then(() => {
+				const index = this.user.badges.indexOf(badge);
+				this.user.badges.splice(index, 1);
+			})
+			.catch(() => { });
+		},
 		selectTab(event) {
 			this.tabElement.lastChild.style.borderBottomWidth = '0';
 			this.tab = event.target.className;
@@ -824,6 +845,12 @@ main {
 	background-size: cover;
 	background-position: center;
 }
+.banner img {
+	object-fit: cover;
+	min-width: 100%;
+	min-height: 100%;
+	width: 100%;
+}
 .banner-link {
 	position: absolute;
 	right: 1em;
@@ -937,6 +964,16 @@ ul, ol {
 }
 .badges p i {
 	font-size: 1.25em;
+}
+.badges button {
+	margin: 0 0 0 0.35em;
+}
+.badges button i {
+	margin: 0;
+	display: block;
+}
+.badges button:hover {
+	color: var(--error);
 }
 .profile-buttons {
 	position: relative;
@@ -1147,5 +1184,9 @@ ul.tags > :last-child {
 html.e621 .header-bar {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
+}
+
+html.wikipedia .badges p {
+	border: solid 1px var(--bordercolor);
 }
 </style>
