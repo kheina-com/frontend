@@ -20,23 +20,7 @@
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
 		</ol>
-		<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
-			<button @click='setPage(page - 1)' v-if='page > 1'>
-				◄
-			</button>
-			<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
-				{{toPage}}
-			</button>
-			<b>
-				{{page}}
-			</b>
-			<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
-				{{toPage}}
-			</button>
-			<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
-				►
-			</button>
-		</div>
+		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
 		<ThemeMenu/>
 	</main>
 	<main v-else>
@@ -58,6 +42,7 @@ import Sidebar from '@/components/Sidebar.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 import DropDown from '@/components/DropDown.vue';
+import ResultsNavigation from '@/components/ResultsNavigation.vue';
 
 
 const routes = new Set(['home', 'search']);
@@ -103,6 +88,7 @@ export default {
 		Media,
 		Post,
 		DropDown,
+		ResultsNavigation,
 	},
 	computed: {
 		isMobile,
@@ -221,14 +207,7 @@ ol > :last-child {
 }
 
 .page-links {
-	text-align: center;
 	margin-top: 25px;
-}
-.page-links button, .page-links b {
-	padding: 0.25em 0.5em;
-}
-.page-links b {
-	color: var(--subtle);
 }
 
 .sort-dropdown {

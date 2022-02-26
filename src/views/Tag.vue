@@ -74,23 +74,7 @@
 					<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 				</li>
 			</ol>
-			<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
-				<button @click='setPage(page - 1)' v-if='page > 1'>
-					◄
-				</button>
-				<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
-					{{toPage}}
-				</button>
-				<b>
-					{{page}}
-				</b>
-				<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
-					{{toPage}}
-				</button>
-				<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
-					►
-				</button>
-			</div>
+			<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
 		</Error>
 		<ThemeMenu/>
 	</main>
@@ -108,6 +92,7 @@ import Button from '@/components/Button.vue';
 import Markdown from '@/components/Markdown.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import DropDown from '@/components/DropDown.vue';
+import ResultsNavigation from '@/components/ResultsNavigation.vue';
 
 
 export default {
@@ -125,6 +110,7 @@ export default {
 		Markdown,
 		MarkdownEditor,
 		DropDown,
+		ResultsNavigation,
 	},
 	data() {
 		return {
@@ -145,6 +131,7 @@ export default {
 			pendingUpdate: false,
 			sort: null,
 			page: null,
+			count: null,
 		}
 	},
 	created() {
@@ -191,25 +178,6 @@ export default {
 		},
 		isAdmin() {
 			return Boolean(this.$store.state.auth?.scope?.includes('admin'));
-		},
-		pagesBeforeCurrent() {
-			if (this.posts === null)
-			{ return null; }
-
-			if (this.page - 2 > 0)
-			{ return [this.page - 2, this.page - 1]; }
-
-			if (this.page - 1 > 0)
-			{ return [this.page - 1]; }
-
-			return [];
-		},
-		pagesAfterCurrent() {
-			if (this.posts === null)
-			{ return null; }
-
-			if (this.posts.length >= this.count)
-			{ return [this.page + 1, this.page + 2]; }
 		},
 	},
 	methods: {
@@ -266,16 +234,16 @@ export default {
 
 			let body = { tag: this.tag };
 
-			if (this.updateBody?.name && this.updateBody.name != this.tag)
+			if (this.updateBody?.name && this.updateBody.name !== this.tag)
 			{ body.name = this.updateBody.name; }
 
-			if (this.updateBody?.tag_class && this.updateBody.tag_class != this.tagData?.group)
+			if (this.updateBody?.tag_class && this.updateBody.tag_class !== this.tagData?.group)
 			{ body.tag_class = this.updateBody.tag_class; }
 
-			if (this.updateBody?.owner && this.updateBody.owner != this.tagData?.owner?.handle)
+			if (this.updateBody?.owner && this.updateBody.owner !== this.tagData?.owner?.handle)
 			{ body.owner = this.updateBody.owner; }
 
-			if (this.updateBody?.description && this.updateBody.description != this.tagData?.description)
+			if (this.updateBody?.description && this.updateBody.description !== this.tagData?.description)
 			{ body.description = this.updateBody.description; }
 
 			khatch(`${tagsHost}/v1/update_tag`, {
@@ -432,14 +400,7 @@ ol > :last-child {
 }
 
 .page-links {
-	text-align: center;
 	margin-top: 25px;
-}
-.page-links button, .page-links b {
-	padding: 0.25em 0.5em;
-}
-.page-links b {
-	color: var(--subtle);
 }
 
 .sort-dropdown {

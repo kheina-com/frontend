@@ -129,7 +129,7 @@ export default {
 				let newWidth = size.width;
 				let newHeight = size.height;
 
-				if(newWidth != currentWidth || newHeight != currentHeight)
+				if(newWidth !== currentWidth || newHeight !== currentHeight)
 				{
 					currentWidth = newWidth;
 					currentHeight = newHeight;
@@ -248,7 +248,7 @@ a:link, a:visited
 { color: var(--textcolor); }
 a:hover
 {
-	color: var(--icolor);
+	color: var(--icolor) !important;
 	opacity: 1 !important;
 }
 button

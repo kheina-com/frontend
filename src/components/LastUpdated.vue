@@ -23,7 +23,7 @@ export default {
 		},
 		absoluteTime() {
 			let updateDate = new Date(this.lastUpdate * 1000);
-			if (updateDate.getDate() != new Date().getDate())
+			if (updateDate.getDate() !== new Date().getDate())
 			{ return updateDate.toLocaleString(); }
 			else
 			{ return updateDate.toLocaleTimeString(); }

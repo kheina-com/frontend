@@ -6,6 +6,7 @@
 		"build": "vite build"
 	},
 	"dependencies": {
+		"click-outside-vue3": "^4.0.1",
 		"dompurify": "^2.2.7",
 		"marked": "^4.0.4",
 		"prismjs": "^1.25.0",

@@ -1,6 +1,7 @@
 <template>
+	<!-- eslint-disable vue/require-v-for-key -->
 	<div class='dropdown'>
-		<button @click.prevent.stop='toggleDropdown' ref='dropdownButton'><slot/></button>
+		<button @click.prevent.stop='() => toggleDropdown()' ref='dropdownButton' v-click-outside='() => toggleDropdown(false)'><slot/></button>
 		<div class='dropdown-menu' ref='dropdownMenu'>
 			<div>
 				<button @click.prevent.stop='option.action ? runAction(option) : setValue(option)' :class='option?.value === value ? "selected" : null' v-for='option in options'>
@@ -37,8 +38,11 @@ export default {
 		};
 	},
 	methods: {
-		toggleDropdown() {
-			this.dropdownOpen = !this.dropdownOpen;
+		toggleDropdown(state = null) {
+			if (this.dropdownOpen === state)
+			{ return; }
+
+			this.dropdownOpen = state ?? !this.dropdownOpen;
 			if (this.dropdownOpen)
 			{
 				this.$refs.dropdownMenu.style.display = 'block'; 

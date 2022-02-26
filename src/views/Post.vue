@@ -86,7 +86,7 @@
 					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 					<div class='reply-field'>
 						<p class='reply-label'>
-							{{replies ? countComments : 'Loading'}} {{countComments != 1 ? 'Replies' : 'Reply'}}
+							{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
 							<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
 								{ name: 'Top', value: 'top' },
 								{ name: 'Hot', value: 'hot' },
@@ -183,7 +183,7 @@
 				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 				<div class='reply-field'>
 					<p class='reply-label'>
-						{{replies ? countComments : 'Loading'}} {{countComments != 1 ? 'Replies' : 'Reply'}}
+						{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
 						<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
 							{ name: 'Top', value: 'top' },
 							{ name: 'Hot', value: 'hot' },
@@ -383,7 +383,7 @@ export default {
 
 				if (subjects.length > 2)
 				{ title += ' featuring ' + subjects.slice(0, -1).join(', ') + ', and ' + subjects.slice(-1)[0]; }
-				else if (subjects.length == 2)
+				else if (subjects.length === 2)
 				{ title += ' featuring ' + subjects[0] + ' and ' + subjects[1]; }
 				else
 				{ title += ' featuring ' + subjects[0]; }

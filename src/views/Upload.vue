@@ -3,7 +3,7 @@
 	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
 		<main>
 			<Title static='center'>New Post</Title>
-			<Subtitle static='center'>Your post {{privacy == 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
+			<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
 			<div class='form'>
 				<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadUnavailable'>
 					<div class='field'>
@@ -503,7 +503,7 @@ export default {
 						this.filename = r.filename;
 						this.mediaUrl = getMediaUrl(this.postId, this.filename);
 					}
-					// if (this.privacy != 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+					// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
 					// { this.uploadUnavailable = true; }
 				});
 			});

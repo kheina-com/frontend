@@ -57,7 +57,7 @@
 			</button>
 		</div>
 	</div>
-	<ol v-if='replying || (replies && replies.length != 0)'>
+	<ol v-if='replying || (replies && replies.length !== 0)'>
 		<li v-if='replying'>
 			<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
 			<div class='reply-buttons'>

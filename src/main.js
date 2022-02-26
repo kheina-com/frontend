@@ -5,10 +5,14 @@ import { routerMetaTag } from '@/config/constants';
 import { setMeta } from '@/utilities';
 import Vuex from 'vuex';
 import global from './global';
+import vClickOutside from 'click-outside-vue3';
+
 
 Router.beforeEach((to, from, next) => {
 	// This goes through the matched routes from last to first, combining routes metadata.
 	// eg. if we have /some/nested/route, route's metadata will be prioritized, with nested, some, and / being used for fallback
+
+	console.log(to, from, next)
 
 	let meta = { };
 	to.matched.slice().forEach(route => {
@@ -35,8 +39,10 @@ Router.beforeEach((to, from, next) => {
 	next();
 });
 
+
 createApp(App)
 	.use(Router)
 	.use(Vuex)
 	.use(global)
+	.use(vClickOutside)
 	.mount('#app');

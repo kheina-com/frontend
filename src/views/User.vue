@@ -168,23 +168,7 @@
 							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
-					<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
-						<button @click='setPage(page - 1)' v-if='page > 1'>
-							◄
-						</button>
-						<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
-							{{toPage}}
-						</button>
-						<b>
-							{{page}}
-						</b>
-						<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
-							{{toPage}}
-						</button>
-						<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
-							►
-						</button>
-					</div>
+					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
 				</div>
 				<div v-show='tab === "sets"'>
 					<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
@@ -214,23 +198,7 @@
 							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
-					<div class='page-links' v-if='page !== 1 || posts?.length >= count'>
-						<button @click='setPage(page - 1)' v-if='page > 1'>
-							◄
-						</button>
-						<button @click='setPage(toPage)' v-for='toPage in pagesBeforeCurrent'>
-							{{toPage}}
-						</button>
-						<b>
-							{{page}}
-						</b>
-						<button @click='setPage(toPage)' v-for='toPage in pagesAfterCurrent'>
-							{{toPage}}
-						</button>
-						<button @click='setPage(page + 1)' v-if='posts?.length >= count'>
-							►
-						</button>
-					</div>
+					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
 				</div>
 			</div>
 			<ThemeMenu/>
@@ -295,6 +263,7 @@ import PostTile from '@/components/PostTile.vue';
 import Tag from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import SearchBar from '@/components/SearchBar.vue';
+import ResultsNavigation from '@/components/ResultsNavigation.vue';
 
 
 export default {
@@ -324,6 +293,7 @@ export default {
 		MarkdownEditor,
 		SearchBar,
 		PostTile,
+		ResultsNavigation,
 	},
 	setup() {
 		const main = ref(null);
@@ -881,6 +851,7 @@ main {
 	bottom: 1em;
 	border-radius: 50%;
 	overflow: hidden;
+	color: var(--notification-text);
 }
 .banner-link i {
 	background: var(--screen-cover);
@@ -932,14 +903,7 @@ ul, ol {
 }
 
 .page-links {
-	text-align: center;
 	margin-top: 25px;
-}
-.page-links button, .page-links b {
-	padding: 0.25em 0.5em;
-}
-.page-links b {
-	color: var(--subtle);
 }
 
 .header-bar {
@@ -1196,7 +1160,7 @@ ul.tags > :last-child {
 	margin: 25px;
 }
 .search-close:hover {
-	color: var(--error);
+	color: var(--error) !important;
 }
 .mobile .search-close {
 	margin: 0;
@@ -1211,6 +1175,7 @@ ul.tags > :last-child {
 html.e621 .header-bar {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
+	margin-top: 0.82em;
 }
 
 html.wikipedia .badges p {
