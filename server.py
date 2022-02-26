@@ -46,7 +46,7 @@ async def matchMetaTags(uri: str) :
 			metaTags = await handler(match)
 			break
 
-	return metaTags or await homeMetaTags()
+	return metaTags
 
 
 @app.get('/t.gif')
@@ -64,8 +64,7 @@ async def all_routes(uri: str) :
 
 	metaTags = ensure_future(matchMetaTags(uri))
 	html = vueIndex()
-	metaTags = await metaTags
-	print(metaTags)
+	metaTags = (await metaTags) or homeMetaTags()
 
 	html = html.replace('<head>', '<head>' + metaTags)
 

@@ -71,7 +71,7 @@
 						/>
 					</div>
 					<div class='selection-info'>
-						<p v-if='update.privacy === "public"'>Anyone can see, and appears in searches</p>
+						<p v-if='update.privacy === "public"'>Anyone can view, and appears in searches</p>
 						<p v-if='update.privacy === "unlisted"'>Hidden from searches, but anyone with a link can view</p>
 						<!-- <p v-if='update.privacy === "private"'>Only people you explicitly invite can view</p> -->
 						<p v-if='update.privacy === "private"'>Only you can view</p>
