@@ -17,7 +17,7 @@
 			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
 				<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
-					<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
+					<Media v-show='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
 					<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
 						<p>
 							<a><i class='material-icons'>first_page</i></a>
@@ -113,7 +113,7 @@
 		</div>
 		<div class='content' v-else>
 			<div class='media-container' v-show='post'>
-				<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
+				<Media v-show='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
 				<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
 					<a><i class='material-icons'>first_page</i></a>
 					<a><i class='material-icons'>navigate_before</i></a>

@@ -267,6 +267,7 @@ export default {
 }
 .markdown .post img {
 	display: block;
+	margin: 0 auto;
 }
 .markdown a.post:link, .markdown a.post:visited {
 	text-decoration: none;
