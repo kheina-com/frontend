@@ -1,6 +1,6 @@
 <template>
 	<footer class='footer'>
-		<!-- <ThemeButton /> -->
+		<!-- <ThemeButton/> -->
 		<div class='anchor'>
 			<a href='https://www.patreon.com/kheina' target='_blank' class='left'><img src='/assets/patreon-logo.svg'> support the project</a>
 			<a href='https://gitlab.com/kheina.com' target='_blank' class='right'>view source code <img src='/assets/gitlab-logo.svg'></a>

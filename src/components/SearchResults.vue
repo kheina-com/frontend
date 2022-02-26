@@ -3,14 +3,14 @@
 		<Title>Results</Title>
 		<Subtitle>searched {{commafy(stats.images)}} images from {{commafy(stats.artists)}} artists in {{prettyTime(elapsedtime)}}</Subtitle>
 		<div class='top'>
-			<TopResult v-bind='topResult' :maxRating='maxRating()' />
+			<TopResult v-bind='topResult' :maxRating='maxRating()'/>
 			<span class='divider'>
 				Less relevant results
 				<i class="material-icons">expand_more</i>
 			</span>
 		</div>
 	</main>
-	<MoreResults :results='results' :maxRating='maxRating()' />
+	<MoreResults :results='results' :maxRating='maxRating()'/>
 </template>
 
 <script>

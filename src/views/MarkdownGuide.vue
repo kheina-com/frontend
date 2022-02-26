@@ -1,7 +1,7 @@
 <template>
 	<main id='feature' v-if='isMobile'>
 		<p class='title'>click the <i class='material-icons'>visibility</i> to edit!</p>
-		<MarkdownEditor class='mobile-guide' height='60vh' resize='vertical' initRendered :value='content' />
+		<MarkdownEditor class='mobile-guide' height='60vh' resize='vertical' initRendered :value='content'/>
 	</main>
 	<main id='feature' v-else>
 		<div class='guide'>

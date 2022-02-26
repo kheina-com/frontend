@@ -17,7 +17,7 @@
 			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 		</div>
 		<div style='display: flex'>
-			<Score :score='score' :postId='postId' />
+			<Score :score='score' :postId='postId'/>
 			<div class='post-header'>
 				<router-link :to='`/p/${postId}`'>
 					<h2 v-if='isLoading || title'>
@@ -36,7 +36,7 @@
 				<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
 			</div>
 		</div>
-		<Markdown v-else-if='description' :content='description' :concise='concise' />
+		<Markdown v-else-if='description' :content='description' :concise='concise'/>
 		<router-link :to='`/p/${postId}`' class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
 			<Thumbnail :post='postId' :size='1200' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
@@ -45,7 +45,7 @@
 		</router-link>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
-			<Subtitle static='left' v-else>posted <Timestamp :datetime='created' /></Subtitle>
+			<Subtitle static='left' v-else>posted <Timestamp :datetime='created'/></Subtitle>
 		</Loading>
 		<div class='buttons' v-if='!isLoading'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>

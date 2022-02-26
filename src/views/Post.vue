@@ -7,7 +7,7 @@
 			<Loading :isLoading='!parent.postId'>
 				<router-link :to='`/p/${parent.postId}`' class='inner'>
 					<div class='parent-thumbnail'>
-						<Thumbnail :isLoading='!parent.postId' :post='parent?.postId' />
+						<Thumbnail :isLoading='!parent.postId' :post='parent?.postId'/>
 					</div>
 					<Markdown :content='parent.title || parent.postId' inline/>
 				</router-link>
@@ -16,9 +16,9 @@
 		<div class='container' v-if='!isMobile'>
 			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
 			<div class='content'>
-				<div class='media-container' :style='`left: calc(max(10vw, 50% - ${post?.size?.width / 2}px) - 10vw);`' v-show='post'>
-					<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :width='post?.size?.width' :height='post?.size?.height' />
-					<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "f3-Y" }]'>
+				<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
+					<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
+					<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
 						<p>
 							<a><i class='material-icons'>first_page</i></a>
 							<a><i class='material-icons'>navigate_before</i></a>
@@ -38,7 +38,7 @@
 				</div>
 				<main>
 					<div class='post-header'>
-						<Score :score='post?.score' :postId='postId' />
+						<Score :score='post?.score' :postId='postId'/>
 						<div class='post-title'>
 							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
 							<h2 v-else>
@@ -61,7 +61,7 @@
 							<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
 						</div>
 					</div>
-					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
+					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
 					<Loading :isLoading='isLoading'>
 						<Subtitle static='left' v-if='post?.privacy === "unpublished"'>unpublished</Subtitle>
 						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
@@ -80,7 +80,7 @@
 							<i class='more-button material-icons-round'>more_horiz</i>
 						</DropDown>
 					</div>
-					<ThemeMenu />
+					<ThemeMenu/>
 				</main>
 				<ol class='replies'>
 					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
@@ -113,8 +113,8 @@
 		</div>
 		<div class='content' v-else>
 			<div class='media-container' v-show='post'>
-				<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' :width='post?.size?.width' :height='post?.size?.height' />
-				<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "f3-Y" }]'>
+				<Media v-show='post?.media_type' :mime='post?.media_type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
+				<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
 					<a><i class='material-icons'>first_page</i></a>
 					<a><i class='material-icons'>navigate_before</i></a>
 					<a>1</a>
@@ -133,7 +133,7 @@
 				<div class='main'>
 					<main>
 						<div class='post-header'>
-							<Score :score='post?.score' :postId='postId' />
+							<Score :score='post?.score' :postId='postId'/>
 							<div class='post-title'>
 								<input v-if='editing' class='interactable text title-field' v-model='post.title'>
 								<h2 v-else>
@@ -156,7 +156,7 @@
 								<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
 							</div>
 						</div>
-						<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px' />
+						<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
 						<Loading :isLoading='isLoading'>
 							<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
 							<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
@@ -175,7 +175,7 @@
 								<i class='more-button material-icons-round'>more_horiz</i>
 							</DropDown>
 						</div>
-						<ThemeMenu />
+						<ThemeMenu/>
 					</main>
 				</div>
 			</div>
@@ -211,7 +211,6 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
@@ -265,12 +264,6 @@ export default {
 		FavoriteButton,
 		RepostButton,
 	},
-	setup() {
-		const media = ref(null);
-		return {
-			media,
-		};
-	},
 	data() {
 		return {
 			environment,
@@ -284,6 +277,8 @@ export default {
 			replies: null,
 			newComment: null,
 			parent: null,
+			width: null,
+			height: null,
 			commentSort: 'best',
 		};
 	},
@@ -323,6 +318,8 @@ export default {
 					if (response.status < 300)
 					{
 						this.post = r;
+						this.width = r.size?.width;
+						this.height = r.size?.height;
 						if (r.parent)
 						{
 							this.parent = false;

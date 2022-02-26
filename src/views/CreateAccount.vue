@@ -16,7 +16,7 @@
 			</div>
 		</div>
 		</Loading>
-		<ThemeMenu />
+		<ThemeMenu/>
 	</main>
 	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-else/>
 </template>

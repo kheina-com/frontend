@@ -12,9 +12,9 @@
 			</Subtitle>
 			<form action='' method='post' enctype='multipart/form-data' class='centerx'>
 				<p>Search via file</p>
-				<FileField id='file' name='file' />
+				<FileField id='file' name='file'/>
 				<p>...or by url</p>
-				<UrlField id='url' name='url' />
+				<UrlField id='url' name='url'/>
 				<p>Maximum rating</p>
 				<RadioButtons
 					name='maxrating'
@@ -31,11 +31,11 @@
 				maximum file size: 8192 KB<br>
 				supported file types are: .jpg, .png, and .gif<br>
 				maximum image size: 56,250,000 pixels (7500x7500)<br>
-				image database updates every ~15 minutes (last updated <LastUpdated :stats='stats' />)
+				image database updates every ~15 minutes (last updated <LastUpdated :stats='stats'/>)
 			</p>
 		</Loading>
-		<SearchResults v-else-if='isStageResults' v-bind='results' />
-		<Error v-else v-bind='results' />
+		<SearchResults v-else-if='isStageResults' v-bind='results'/>
+		<Error v-else v-bind='results'/>
 	</main>
 </template>
 

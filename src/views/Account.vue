@@ -1,7 +1,7 @@
 <template>
 	<main v-if='!isError'>
 		<p style='text-align: center'>hey u logged in, nice</p>
-		<ThemeMenu />
+		<ThemeMenu/>
 	</main>
 	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-else/>
 </template>

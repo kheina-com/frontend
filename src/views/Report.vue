@@ -16,7 +16,7 @@
 			<textarea class='interactable text'></textarea>
 			<Button>Submit</Button>
 		</div>
-		<ThemeMenu />
+		<ThemeMenu/>
 	</main>
 </template>
 

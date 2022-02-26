@@ -15,9 +15,9 @@
 				{{result.sources.map(item => item.artist).join(', ')}}
 			</p>
 			<div class='links'>
-				<img :src='getWebsiteImageFromId(result.sources[0].websiteid)' :alt='getWebsiteNameFromId(result.sources[0].websiteid)' v-if='result.sources.length === 1' />
+				<img :src='getWebsiteImageFromId(result.sources[0].websiteid)' :alt='getWebsiteNameFromId(result.sources[0].websiteid)' v-if='result.sources.length === 1'/>
 				<a v-for='source in result.sources' :href='source.source' v-else>
-					<img :src='getWebsiteImageFromId(source.websiteid)' :alt='getWebsiteNameFromId(source.websiteid)'  />
+					<img :src='getWebsiteImageFromId(source.websiteid)' :alt='getWebsiteNameFromId(source.websiteid)' />
 				</a>
 			</div>
 		</DivLink>

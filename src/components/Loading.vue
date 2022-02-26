@@ -3,14 +3,14 @@
 		<slot name='default'/>
 		<div class='loadingicon' v-show='isLoading'>
 			<img src='/assets/loading.webp' alt='Loading...'/>
-			<slot name='onLoad' />
+			<slot name='onLoad'/>
 		</div>
 	</div>
 	<span ref='content' v-else-if='span'>
-		<slot name='default' />
+		<slot name='default'/>
 	</span>
 	<div ref='content' v-else>
-		<slot name='default' />
+		<slot name='default'/>
 	</div>
 </template>
 

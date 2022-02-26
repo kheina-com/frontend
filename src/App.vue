@@ -1,5 +1,5 @@
 <template>
-	<Banner :onResize='onResize' />
+	<Banner :onResize='onResize'/>
 	<div ref='content' id='content'>
 		<router-view :key='$route.path'/>
 		<Footer/>

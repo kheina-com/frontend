@@ -3,15 +3,15 @@
 		<h3>Tags</h3>
 		<ol v-if='tags'>
 			<li v-for='(value, name) in sortTagGroups(tags)'>
-				<TagGroup :group='name' :tags='value' />
+				<TagGroup :group='name' :tags='value'/>
 			</li>
 			<li>
-				<TagGroup group='rating' :tags='rating ? [rating] : null' />
+				<TagGroup group='rating' :tags='rating ? [rating] : null'/>
 			</li>
 		</ol>
 		<ol v-else>
 			<li v-for='name in tagGroups'>
-				<TagGroup :group='name' />
+				<TagGroup :group='name'/>
 			</li>
 		</ol>
 	</div>

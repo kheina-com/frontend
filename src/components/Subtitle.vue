@@ -1,5 +1,5 @@
 <template>
-	<p :class='titleClass' :style='titleStyle'><slot name='default' /></p>
+	<p :class='titleClass' :style='titleStyle'><slot name='default'/></p>
 </template>
 
 <script>

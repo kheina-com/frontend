@@ -38,7 +38,7 @@ export default {
 		emitValue(index) {
 			this.$emit(`update:value`, index);
 			this.$emit(`change`, index);
-		}
+		},
 	},
 }
 </script>

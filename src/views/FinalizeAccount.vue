@@ -43,7 +43,7 @@
 		<p style='text-align: center' v-else>
 			Please check your email for a link to finish creating your account.
 		</p>
-		<ThemeMenu />
+		<ThemeMenu/>
 	</main>
 	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-else/>
 </template>

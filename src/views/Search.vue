@@ -37,11 +37,11 @@
 				►
 			</button>
 		</div>
-		<ThemeMenu />
+		<ThemeMenu/>
 	</main>
 	<main v-else>
-		<Error v-model:dump='errorDump' v-model:message='errorMessage' />
-		<ThemeMenu />
+		<Error v-model:dump='errorDump' v-model:message='errorMessage'/>
+		<ThemeMenu/>
 	</main>
 </template>
 

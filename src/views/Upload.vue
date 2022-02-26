@@ -10,7 +10,7 @@
 						<div>
 							<span>File</span>
 							<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
-								<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh' />
+								<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh'/>
 							</FileField>
 							<div class='field actions' v-if='file !== null'>
 								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
@@ -21,7 +21,7 @@
 						<ProgressBar :fill='uploadProgress'/>
 					</template>
 				</Loading>
-				<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else />
+				<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else/>
 
 				<div class='field'>
 					<div>
@@ -37,7 +37,7 @@
 						<MarkdownEditor v-model:value='update.description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
 						<div class='markdown-editor' v-else>
 							<textarea v-model='update.description' class='interactable text'/>
-							<Markdown :content='update.description || "**Your description is empty.**"' />
+							<Markdown :content='update.description || "**Your description is empty.**"'/>
 						</div>
 					</div>
 				</div>
@@ -162,7 +162,7 @@
 					<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
 				</div>
 			</div>
-			<ThemeMenu />
+			<ThemeMenu/>
 		</main>
 	</Error>
 </template>

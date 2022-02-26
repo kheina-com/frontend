@@ -1,5 +1,5 @@
 <template>
-	<Loading :span='span' :isLoading='isLoading'><p class='title' :style='titleStyle'><slot name='default' /><span class='super'><slot name='super' /></span></p></Loading>
+	<Loading :span='span' :isLoading='isLoading'><p class='title' :style='titleStyle'><slot name='default'/><span class='super'><slot name='super'/></span></p></Loading>
 </template>
 
 <script>

@@ -1,6 +1,6 @@
 <template>
 	<div v-show='content'>
-		<input ref='text' type='text' class='code' :value='copyValue' readonly />
+		<input ref='text' type='text' class='code' :value='copyValue' readonly/>
 		<a role='button' @click='copy'><i class='material-icons'>content_copy</i></a>
 	</div>
 </template>

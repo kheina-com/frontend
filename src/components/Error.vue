@@ -8,12 +8,12 @@
 		</div>
 		<div v-if='dump'>
 			<p class='message'>If you submit a bug report, please include the data below.</p>
-			<CopyText :content='dump' />
+			<CopyText :content='dump'/>
 		</div>
 		<div style='display: flex; justify-content: center'>
 			<router-link :to='`/`' class='interactable'>Home</router-link>
 		</div>
-		<ThemeMenu />
+		<ThemeMenu/>
 	</main>
 	<slot v-else/>
 </template>

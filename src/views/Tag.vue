@@ -92,7 +92,7 @@
 				</button>
 			</div>
 		</Error>
-		<ThemeMenu />
+		<ThemeMenu/>
 	</main>
 </template>
 

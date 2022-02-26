@@ -1,12 +1,13 @@
 <template>
 	<Loading class='media' :style='parentStyle' :isLoading='isLoading && lazy'>
 		<p v-if='isError'>Could not load media.</p>
-		<video :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
-		<img :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
+		<video ref='media' :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
+		<img ref='media' :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
 	</Loading>
 </template>
 
 <script>
+import { ref } from 'vue';
 import Loading from '@/components/Loading.vue';
 
 export default {
@@ -52,6 +53,12 @@ export default {
 			default: true,
 		},
 	},
+	setup() {
+		const media = ref(null);
+		return {
+			media,
+		};
+	},
 	data() {
 		return {
 			isLoading: true,
@@ -81,6 +88,8 @@ export default {
 	methods: {
 		onLoad() {
 			this.isLoading = false;
+			this.$emit(`update:width`, this.$refs.media.naturalWidth);
+			this.$emit(`update:height`, this.$refs.media.naturalHeight);
 			// don't ask me why the timeout is necessary, I don't know.
 			setTimeout(this.load, 0);
 		},
