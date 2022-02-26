@@ -250,7 +250,7 @@
 			/>
 			<div class='button-list'>
 				<Button @click.prevent.stop='updateProfileImage'><i class='material-icons'>check</i>Set {{isUploadIcon ? 'Icon' : 'Banner'}}</Button>
-				<Button @click.prevent.stop='disableUploads'><i class='material-icons'>close</i>Cancel</Button>
+				<Button @click.prevent.stop='disableUploads' red><i class='material-icons'>close</i>Cancel</Button>
 				<Button @click.prevent.stop='showData'><i class='material-icons'>science</i>test</Button>
 			</div>
 		</div>
@@ -264,8 +264,8 @@
 				Select an existing post to set as your {{isUploadIcon ? 'profile picture' : 'banner image'}}.
 			</div>
 			<ol class='results' v-else>
-				<li v-for='post in uploadablePosts' @click='uploadPostId = post.post_id'>
-					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels/>
+				<li v-for='post in uploadablePosts'>
+					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels @click='uploadPostId = post.post_id'/>
 				</li>
 			</ol>
 		</div>
@@ -650,10 +650,12 @@ export default {
 		},
 		toggleIconUpload() {
 			this.isUploadIcon = true;
+			this.runSearchQuery();
 			document.body.style.overflow = 'hidden';
 		},
 		toggleBannerUpload() {
 			this.isUploadBanner = true;
+			this.runSearchQuery();
 			document.body.style.overflow = 'hidden';
 		},
 		disableUploads() {
@@ -703,23 +705,45 @@ export default {
 		},
 		runSearchQuery() {
 			this.uploadLoading = true;
-			khatch(`${postsHost}/v1/fetch_posts`, {
-				errorMessage: 'Failed to fetch posts for profile.',
-				method: 'POST',
-				body: {
-					sort: 'new',
-					tags: tagSplit(this.searchValue),
-					page: this.page,
-					count: this.count,
-				},
-			})
-			.then(response => {
-				response.json().then(r => {
-					this.uploadablePosts = r;
-					this.uploadLoading = null;
-				});
-			})
-			.catch(this.disableUploads);
+			if (this.searchValue)
+			{
+				khatch(`${postsHost}/v1/fetch_posts`, {
+					errorMessage: 'Failed to fetch posts for profile.',
+					method: 'POST',
+					body: {
+						sort: 'new',
+						tags: tagSplit(this.searchValue),
+						page: this.page,
+						count: this.count,
+					},
+				})
+				.then(response => {
+					response.json().then(r => {
+						this.uploadablePosts = r;
+						this.uploadLoading = null;
+					});
+				})
+				.catch(this.disableUploads);
+			}
+			else
+			{
+				khatch(`${postsHost}/v1/fetch_user_posts`, {
+					errorMessage: 'Failed to fetch posts for profile.',
+					method: 'POST',
+					body: {
+						handle: this.handle,
+						page: this.page,
+						count: this.count,
+					},
+				})
+				.then(response => {
+					response.json().then(r => {
+						this.uploadablePosts = r;
+						this.uploadLoading = null;
+					});
+				})
+				.catch(this.disableUploads);
+			}
 		},
 		pageLink(page) {
 			let query = [];
@@ -1170,6 +1194,9 @@ ul.tags > :last-child {
 	top: 25px;
 	right: 25px;
 	margin: 25px;
+}
+.search-close:hover {
+	color: var(--error);
 }
 .mobile .search-close {
 	margin: 0;

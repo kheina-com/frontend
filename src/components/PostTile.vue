@@ -96,7 +96,7 @@ export default {
 	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
-	padding: 25px;
+	padding: 25px 25px 15px;
 	align-items: flex-start;
 	position: relative;
 	border: var(--border-size) solid var(--bordercolor);
@@ -134,6 +134,7 @@ export default {
 	max-width: 10em;
 	max-height: 10em;
 	border-radius: var(--border-radius);
+	margin: 0 auto;
 }
 .post .title {
 	max-width: 10em;

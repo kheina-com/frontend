@@ -248,7 +248,7 @@ a:link, a:visited
 { color: var(--textcolor); }
 a:hover
 {
-	color: var(--icolor) !important;
+	color: var(--icolor);
 	opacity: 1 !important;
 }
 button
