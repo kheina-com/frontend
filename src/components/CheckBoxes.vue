@@ -133,7 +133,7 @@ label div.checkmark div
 input:checked + label div.checkmark div
 {
 	border-color: var(--icolor);
-	border-width: 0 3px 3px 0;
+	border-width: 0 0.1875em 0.1875em 0;
 	-webkit-transform: rotate(45deg);
 	-ms-transform: rotate(45deg);
 	transform: rotate(45deg);
