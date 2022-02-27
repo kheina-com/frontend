@@ -1186,4 +1186,22 @@ html.desktop.winter main {
 html.desktop.spring main {
 	background-position-y: bottom, bottom, calc(1em + 40px), calc(1em + 40px);
 }
+
+html.mobile.autumn .active-tab {
+	background-image: url(/assets/themes/autumn.png);
+	background-repeat: repeat-x;
+	background-position: center bottom;
+}
+
+html.mobile.spring .active-tab {
+	background-image: url(/assets/themes/spring/1.png), url(/assets/themes/spring/2.png);
+	background-repeat: repeat-x, no-repeat, no-repeat, repeat-x;
+	background-position: center bottom, right bottom;
+}
+
+html.mobile.winter .active-tab {
+	background-image: url(/assets/themes/winter/1.png);
+	background-repeat: repeat-x;
+	background-position: center bottom;
+}
 </style>
