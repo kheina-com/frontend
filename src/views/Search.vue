@@ -13,7 +13,7 @@
 			sort by
 		</span>
 	</DropDown>
-	<main v-if='!isError'>
+	<main>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
 			<li v-for='post in posts || 3' v-else>
@@ -21,10 +21,6 @@
 			</li>
 		</ol>
 		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
-		<ThemeMenu/>
-	</main>
-	<main v-else>
-		<Error v-model:dump='errorDump' v-model:message='errorMessage'/>
 		<ThemeMenu/>
 	</main>
 </template>
@@ -35,7 +31,6 @@ import { apiErrorMessage, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
@@ -62,8 +57,6 @@ export default {
 			posts: undefined,
 			page: null,
 			count: null,
-			errorDump: null,
-			errorMessage: null,
 			sort: null,
 		}
 	},
@@ -84,7 +77,6 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Error,
 		Media,
 		Post,
 		DropDown,
@@ -92,8 +84,6 @@ export default {
 	},
 	computed: {
 		isMobile,
-		isError()
-		{ return this.errorMessage !== null; },
 		pagesBeforeCurrent() {
 			if (this.posts === null)
 			{ return null; }
@@ -139,20 +129,18 @@ export default {
 							{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
 							this.posts = r;
 						}
+						else if (response.status === 400)
+						{ this.$store.commit('error', r.error); }
 						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
+						{ this.$store.commit('error', r.error); }
 						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
+						{ this.$store.commit('error', r.error); }
 						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
+						{ this.$store.commit('error', apiErrorMessage, r); }
 					});
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
+					this.$store.commit('error', apiErrorMessage, error);
 					console.error(error);
 				});
 		},

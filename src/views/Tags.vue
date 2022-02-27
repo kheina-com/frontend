@@ -1,5 +1,5 @@
 <template>
-	<main v-if='!isError'>
+	<main>
 		<ol class='results'>
 			<p v-if='tags?.length === 0' style='text-align: center'>No tags found!</p>
 			<li v-for='tag in tags' v-else>
@@ -8,16 +8,11 @@
 		</ol>
 		<ThemeMenu/>
 	</main>
-	<main v-else>
-		<Error v-model:dump='errorDump' v-model:message='errorMessage'/>
-		<ThemeMenu/>
-	</main>
 </template>
 
 <script>
 import { khatch } from '@/utilities';
 import { apiErrorMessage, tagsHost } from '@/config/constants';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Tag from '@/components/Tag.vue';
 
@@ -26,7 +21,6 @@ export default {
 	name: 'Tags',
 	components: {
 		ThemeMenu,
-		Error,
 		Tag,
 	},
 	data() {
@@ -59,27 +53,21 @@ export default {
 							}
 						}
 					}
+					else if (response.status === 400)
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
+					{ this.$store.commit('error', apiErrorMessage, r); }
 					console.log(this.tags);
 				});
 			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
-	},
-	computed: {
-		isError()
-		{ return this.errorMessage !== null; },
+				.catch(error => {
+					this.$store.commit('error', apiErrorMessage, error);
+					console.error(error);
+				});
 	},
 }
 </script>

@@ -28,7 +28,6 @@
 <script>
 import { khatch } from '@/utilities';
 import { apiErrorMessage, usersHost } from '@/config/constants';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -39,7 +38,6 @@ export default {
 	name: 'Tags',
 	components: {
 		ThemeMenu,
-		Error,
 		Profile,
 		Markdown,
 		Timestamp,
@@ -47,8 +45,6 @@ export default {
 	data() {
 		return {
 			users: null,
-			errorDump: null,
-			errorMessage: null,
 		}
 	},
 	mounted() {
@@ -57,28 +53,20 @@ export default {
 				response.json().then(r => {
 					console.log(r);
 					console.log(Object.values(r));
-					if (response.status < 300)
-					{ this.users = r; }
+					if (response.status === 400)
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
+					{ this.$store.commit('error', apiErrorMessage, r); }
 				});
 			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
-	},
-	computed: {
-		isError()
-		{ return this.errorMessage !== null; },
+				.catch(error => {
+					this.$store.commit('error', apiErrorMessage, error);
+					console.error(error);
+				});
 	},
 }
 </script>

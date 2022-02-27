@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<main v-if='!isError'>
+	<main>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>Your timeline is empty!</p>
 			<li v-for='post in posts || 3' v-else>
@@ -8,10 +8,6 @@
 			</li>
 		</ol>
 		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
-		<ThemeMenu/>
-	</main>
-	<main v-else>
-		<Error v-model:dump='errorDump' v-model:message='errorMessage'/>
 		<ThemeMenu/>
 	</main>
 </template>
@@ -22,7 +18,6 @@ import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsH
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
@@ -59,7 +54,6 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Error,
 		Media,
 		Post,
 		DropDown,
@@ -67,8 +61,6 @@ export default {
 	},
 	computed: {
 		isMobile,
-		isError()
-		{ return this.errorMessage !== null; },
 		pagesBeforeCurrent() {
 			if (this.posts === null)
 			{ return null; }
@@ -97,6 +89,7 @@ export default {
 			this.posts = null;
 
 			khatch(`${postsHost}/v1/timeline_posts`, {
+					handleError: true,
 					method: 'POST',
 					body: {
 						page: this.page,
@@ -105,34 +98,12 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						if (response.status < 300)
-						{
-							if (this.$store.state.scroll)
-							{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
-							this.posts = r;
-						}
-						else if (response.status < 500)
-						{
-							this.$store.commit('createToast', {
-								title: apiErrorMessageToast,
-								description: r.error,
-							});
-						}
-						else
-						{
-							this.$store.commit('createToast', {
-								title: apiErrorMessageToast,
-								description: apiErrorDescriptionToast,
-								dump: r,
-							});
-						}
+						if (this.$store.state.scroll)
+						{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+						this.posts = r;
 					});
 				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
-					console.error(error);
-				});
+				.catch(() => { });
 		},
 		pageLink(page) {
 			let query = [];

@@ -216,7 +216,6 @@ import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
@@ -249,7 +248,6 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Error,
 		Media,
 		Markdown,
 		Profile,
@@ -268,8 +266,6 @@ export default {
 			editing: false,
 			post: null,
 			tags: null,
-			errorDump: null,
-			errorMessage: null,
 			sidebarStyle: null,
 			writeComment: null,
 			replies: null,
@@ -286,26 +282,22 @@ export default {
 				response.json().then(r => {
 					if (response.status < 300)
 					{ this.tags = r; }
+					else if (response.status === 400)
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
+					{ this.$store.commit('error', apiErrorMessage, r); }
 
 					if (this.post !== null)
 					{ this.setPageTitle(); }
 				});
 			})
 			.catch(error => {
+				this.$store.commit('error', apiErrorMessage, error);
 				console.error(error);
-				this.$store.commit('createToast', {
-					title: apiErrorMessageToast,
-					description: error,
-				});
 			});
 
 		this.fetchComments();
@@ -329,20 +321,18 @@ export default {
 						if (this.tags !== null)
 						{ this.setPageTitle(); }
 					}
+					else if (response.status === 400)
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
+					{ this.$store.commit('error', apiErrorMessage, r); }
 				});
 			})
 			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
+				this.$store.commit('error', apiErrorMessage, error);
 				console.error(error);
 			});
 	},
@@ -618,8 +608,7 @@ export default {
 					});
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
+					this.$store.commit('error', apiErrorMessage, error);
 					console.error(error);
 				});
 			this.post.title = this.post.title?.trim();

@@ -173,7 +173,6 @@ import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
@@ -191,7 +190,6 @@ export default {
 		Loading,
 		Subtitle,
 		Title,
-		Error,
 		Media,
 		ProgressBar,
 		FileField,
@@ -214,7 +212,6 @@ export default {
 		return {
 			environment,
 			tagGroups,
-			errorDump: null,
 			serverTags: null,
 			savedTags: [],
 			tagSuggestions: null,
@@ -321,7 +318,7 @@ export default {
 				console.log(JSON.parse(event.target.responseText));
 			}, false);
 			ajax.addEventListener('error', (event) => {
-				this.$store.commit('error', apiErrorMessage, error);
+				this.$store.commit('error', apiErrorMessage, event.target.responseText ?? event);
 				console.error(error);
 			}, false);
 

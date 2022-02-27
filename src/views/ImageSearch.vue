@@ -52,7 +52,6 @@ import SearchResults from '@/components/SearchResults.vue';
 import LastUpdated from '@/components/LastUpdated.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import Title from '@/components/Title.vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
 export default {
@@ -87,7 +86,6 @@ export default {
 		LastUpdated,
 		Subtitle,
 		Title,
-		Error,
 	},
 	computed: {
 		isStageUpload()
@@ -162,15 +160,11 @@ export default {
 		},
 		errorHandler(event) {
 			this.searchStage = -1;
-			this.results = {
-				error: 'An error has occurred in your browser during an API call.',
-				dump: {
-					a: 'asdgjahsdglakjsdhgalksjdghalskdgjhasdgas',
-					b: 'asdgjahsdglakjsdhgalksjdghalskdgjhasdgas',
-					c: 'asdgjahsdglakjsdhgalksjdghalskdgjhasdgas',
-					d: 'asdgjahsdglakjsdhgalksjdghalskdgjhasdgas',
-				},
-			};
+			this.$store.commit(
+				'error',
+				'An error has occurred in your browser during an API call.',
+				event.target.responseText ?? event,
+			);
 		},
 	},
 }

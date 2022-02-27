@@ -1,81 +1,79 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<main>
-		<Error v-model:dump='errorDump' v-model:message='errorMessage'>
-			<button class='interactable edit-button' @click='editToggle' v-if='editable'>
-				<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
-			</button>
-			<Loading v-if='editing' :lazy='false' :isLoading='pendingUpdate'>
-				<div class='tag'>
-					<div>
-						<h2>Tag</h2>
-						<input class='interactable text' v-model='updateBody.name'>
-					</div>
-					<div>
-						<h2>Class</h2>
-						<input class='interactable text' v-model='updateBody.tag_class'>
-					</div>
-					<div>
-						<h2>Owner</h2>
-						<input class='interactable text' v-model='updateBody.owner'>
-					</div>
-				</div>
-				<MarkdownEditor class='markdown-editor' v-model:value='updateBody.description'/>
-			</Loading>
-			<div class='tag' v-else>
+		<button class='interactable edit-button' @click='editToggle' v-if='editable'>
+			<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
+		</button>
+		<Loading v-if='editing' :lazy='false' :isLoading='pendingUpdate'>
+			<div class='tag'>
 				<div>
 					<h2>Tag</h2>
-					<Loading v-if='isLoading'>default</Loading>
-					<p :style='`color: var(${colorMap[tagData?.group]})`' v-else>
-						{{tagData?.tag.replace(/_/g, ' ')}}
-					</p>
+					<input class='interactable text' v-model='updateBody.name'>
 				</div>
 				<div>
 					<h2>Class</h2>
-					<Loading v-if='isLoading'>default</Loading>
-					<i e-else>{{tagData?.group}}</i>
-				</div>
-				<div>
-					<h2>Inherited Tags</h2>
-					<Loading v-if='isLoading'>default</Loading>
-					<ul v-else-if='tagData.inherited_tags.length'>
-						<li v-for='tag in tagData?.inherited_tags'>
-							<router-link :to='`/t/${tag}`'>
-								{{tag.replace(/_/g, ' ')}}
-							</router-link>
-						</li>
-					</ul>
-					<b v-else>None</b>
+					<input class='interactable text' v-model='updateBody.tag_class'>
 				</div>
 				<div>
 					<h2>Owner</h2>
-					<Profile :isLoading='isLoading' v-if='tagData?.owner' v-bind='tagData.owner'/>
-					<b v-else>None</b>
+					<input class='interactable text' v-model='updateBody.owner'>
 				</div>
 			</div>
-			<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
-			<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
-			<DropDown class='sort-dropdown' v-model:value='sort' :options="[
-				{ name: 'Newest', value: 'new' },
-				{ name: 'Oldest', value: 'old' },
-				{ name: 'Top', value: 'top' },
-				{ name: 'Hot', value: 'hot' },
-				{ name: 'Best', value: 'best' },
-				{ name: 'Controversial', value: 'controversial' },
-			]">
-				<span class='sort-by'>
-					<i class='material-icons-round'>sort</i>
-					sort by
-				</span>
-			</DropDown>
-			<ol class='results'>
-				<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
-				<li v-for='post in posts || 3' v-else>
-					<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
-				</li>
-			</ol>
-			<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
-		</Error>
+			<MarkdownEditor class='markdown-editor' v-model:value='updateBody.description'/>
+		</Loading>
+		<div class='tag' v-else>
+			<div>
+				<h2>Tag</h2>
+				<Loading v-if='isLoading'>default</Loading>
+				<p :style='`color: var(${colorMap[tagData?.group]})`' v-else>
+					{{tagData?.tag.replace(/_/g, ' ')}}
+				</p>
+			</div>
+			<div>
+				<h2>Class</h2>
+				<Loading v-if='isLoading'>default</Loading>
+				<i e-else>{{tagData?.group}}</i>
+			</div>
+			<div>
+				<h2>Inherited Tags</h2>
+				<Loading v-if='isLoading'>default</Loading>
+				<ul v-else-if='tagData.inherited_tags.length'>
+					<li v-for='tag in tagData?.inherited_tags'>
+						<router-link :to='`/t/${tag}`'>
+							{{tag.replace(/_/g, ' ')}}
+						</router-link>
+					</li>
+				</ul>
+				<b v-else>None</b>
+			</div>
+			<div>
+				<h2>Owner</h2>
+				<Profile :isLoading='isLoading' v-if='tagData?.owner' v-bind='tagData.owner'/>
+				<b v-else>None</b>
+			</div>
+		</div>
+		<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
+		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
+		<DropDown class='sort-dropdown' v-model:value='sort' :options="[
+			{ name: 'Newest', value: 'new' },
+			{ name: 'Oldest', value: 'old' },
+			{ name: 'Top', value: 'top' },
+			{ name: 'Hot', value: 'hot' },
+			{ name: 'Best', value: 'best' },
+			{ name: 'Controversial', value: 'controversial' },
+		]">
+			<span class='sort-by'>
+				<i class='material-icons-round'>sort</i>
+				sort by
+			</span>
+		</DropDown>
+		<ol class='results'>
+			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
+			<li v-for='post in posts || 3' v-else>
+				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+			</li>
+		</ol>
+		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
 		<ThemeMenu/>
 	</main>
 </template>
@@ -85,7 +83,6 @@ import { khatch, isMobile, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost, usersHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
-import Error from '@/components/Error.vue';
 import Post from '@/components/Post.vue';
 import Profile from '@/components/Profile.vue';
 import Button from '@/components/Button.vue';
@@ -124,8 +121,6 @@ export default {
 			},
 			tagData: null,
 			posts: null,
-			errorDump: null,
-			errorMessage: null,
 			editing: null,
 			updateBody: { },
 			pendingUpdate: false,
@@ -145,22 +140,21 @@ export default {
 						this.tagData = r;
 						setTitle(`${r.tag}, ${r.group} tag | kheina.com`);
 					}
+					else if (response.status === 400)
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 401)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else if (response.status === 404)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
+					{ this.$store.commit('error', apiErrorMessage, r); }
+
 				});
 			})
-			.catch(error => {
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
-				console.error(error);
-			});
+				.catch(error => {
+					this.$store.commit('error', apiErrorMessage, error);
+					console.error(error);
+				});
 
 		this.$watch(
 			() => this.$route.query,
@@ -171,8 +165,6 @@ export default {
 		isMobile,
 		isLoading()
 		{ return this.tagData === null; },
-		isError()
-		{ return this.errorMessage !== null; },
 		editable() {
 			return (this.$store.state.user && this.tagData?.owner?.handle === this.$store.state.user?.handle) || Boolean(this.$store.state.auth?.scope?.includes('admin'));
 		},
@@ -205,20 +197,19 @@ export default {
 							{ setTimeout(() => { console.log(this.$store.state.scroll); window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
 							this.posts = r;
 						}
+						else if (response.status === 400)
+						{ this.$store.commit('error', r.error); }
 						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
+						{ this.$store.commit('error', r.error); }
 						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
+						{ this.$store.commit('error', r.error); }
 						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
+						{ this.$store.commit('error', apiErrorMessage, r); }
+
 					});
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
+					this.$store.commit('error', apiErrorMessage, error);
 					console.error(error);
 				});
 		},
@@ -287,21 +278,19 @@ export default {
 					else 
 					{
 						response.json().then(r => {
-							if (response.status === 401)
-							{ this.errorMessage = r.error; }
+							if (response.status === 400)
+							{ this.$store.commit('error', r.error); }
+							else if (response.status === 401)
+							{ this.$store.commit('error', r.error); }
 							else if (response.status === 404)
-							{ this.errorMessage = r.error; }
+							{ this.$store.commit('error', r.error); }
 							else
-							{
-								this.errorMessage = apiErrorMessage;
-								this.errorDump = r;
-							}
+							{ this.$store.commit('error', apiErrorMessage, r); }
 						});
 					}
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
+					this.$store.commit('error', apiErrorMessage, error);
 					console.error(error);
 				});
 		},
