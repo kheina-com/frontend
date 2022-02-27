@@ -12,8 +12,6 @@ Router.beforeEach((to, from, next) => {
 	// This goes through the matched routes from last to first, combining routes metadata.
 	// eg. if we have /some/nested/route, route's metadata will be prioritized, with nested, some, and / being used for fallback
 
-	console.log(to, from, next)
-
 	let meta = { };
 	to.matched.slice().forEach(route => {
 		if (route.meta)
@@ -38,6 +36,8 @@ Router.beforeEach((to, from, next) => {
 
 	next();
 });
+
+Router.afterEach(() => global.commit('error'));
 
 
 createApp(App)

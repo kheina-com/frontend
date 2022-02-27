@@ -56,6 +56,7 @@ export default {
 			{ vote = 0; }
 
 			khatch(`${postsHost}/v1/vote`, {
+					handleError: true,
 					method: 'POST',
 					body: {
 						post_id: this.postId,
@@ -66,23 +67,11 @@ export default {
 					response.json().then(r => {
 						this.setElementVote(vote);
 						this.score.user_vote = vote;
-						if (response.status < 300)
-						{
-							this.score.up = r.up;
-							this.score.down = r.down;
-						}
-						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
+						this.score.up = r.up;
+						this.score.down = r.down;
 					});
 				})
-				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
-					console.error(error);
-				});
+				.catch(() => { });
 		},
 	},
 	watch: {

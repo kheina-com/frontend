@@ -1,184 +1,86 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
-		<div v-if='parent !== null' class='parent'>
-			<p class='parent-title'>Parent post</p>
-			<Loading :isLoading='!parent.postId'>
-				<router-link :to='`/p/${parent.postId}`' class='inner'>
-					<div class='parent-thumbnail'>
-						<Thumbnail :isLoading='!parent.postId' :post='parent?.postId'/>
-					</div>
-					<Markdown :content='parent.title || parent.postId' inline/>
-				</router-link>
-			</Loading>
-		</div>
-		<div class='container' v-if='!isMobile'>
-			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
-			<div class='content'>
-				<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
-					<Media v-show='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
-					<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
-						<p>
-							<a><i class='material-icons'>first_page</i></a>
-							<a><i class='material-icons'>navigate_before</i></a>
-							<a>1</a>
-							<a>2</a>
-							<a>3</a>
-						</p>
-						<a :href='`/s/${set.id}`'>{{set.title}}</a>
-						<p>
-							<a>5</a>
-							<a>6</a>
-							<a>7</a>
-							<a><i class='material-icons'>navigate_next</i></a>
-							<a><i class='material-icons'>last_page</i></a>
-						</p>
-					</div>
+	<div v-if='parent !== null' class='parent'>
+		<p class='parent-title'>Parent post</p>
+		<Loading :isLoading='!parent.postId'>
+			<router-link :to='`/p/${parent.postId}`' class='inner'>
+				<div class='parent-thumbnail'>
+					<Thumbnail :isLoading='!parent.postId' :post='parent?.postId'/>
 				</div>
-				<main>
-					<div class='post-header'>
-						<Score :score='post?.score' :postId='postId'/>
-						<div class='post-title'>
-							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
-							<h2 v-else>
-								<Loading span v-if='isLoading'>this is an example title</Loading>
-								<Markdown v-else :content='post?.title' inline/>
-							</h2>
-							<div class='privacy'>
-								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
-							</div>
-							<Profile :isLoading='isLoading' v-bind='post?.user'/>
-						</div>
-					</div>
-					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-					<div v-else-if='editing' style='width: 100%'>
-						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
-						<div class='update-button'>
-							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
-							<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-							<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
-						</div>
-					</div>
-					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
-					<Loading :isLoading='isLoading'>
-						<Subtitle static='left' v-if='post?.privacy === "unpublished"'>unpublished</Subtitle>
-						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
-						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' live/></Subtitle>
-					</Loading>
-					<div class='post-buttons' v-show='!isLoading'>
-						<Report :data='{ post: postId }' v-if='!isLoading'/>
-						<RepostButton :postId='postId'/>
-						<FavoriteButton :postId='postId'/>
-						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-						<DropDown :options="[
-							{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
-							{ name: `Block @${post?.user?.handle}`, action: () => { } },
-							{ name: `Report @${post?.user?.handle}`, action: () => { } },
-						]">
-							<i class='more-button material-icons-round'>more_horiz</i>
-						</DropDown>
-					</div>
-					<ThemeMenu/>
-				</main>
-				<ol class='replies'>
-					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
-					<div class='reply-field'>
-						<p class='reply-label'>
-							{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
-							<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
-								{ name: 'Top', value: 'top' },
-								{ name: 'Hot', value: 'hot' },
-								{ name: 'Best', value: 'best' },
-								{ name: 'Controversial', value: 'controversial' },
-							]">
-								<span class='sort-by'>
-									<i class='material-icons-round'>sort</i>
-									sort by
-								</span>
-							</DropDown>
-						</p>
-						<div class='buttons' v-if='writeComment'>
-							<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
-							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
-						</div>
-						<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i>Reply</Button>
-					</div>
-					<li v-for='reply in replies'>
-						<Reply :postId='reply?.post_id' v-bind='reply' reply/>
-					</li>
-				</ol>
-			</div>
-		</div>
-		<div class='content' v-else>
-			<div class='media-container' v-show='post'>
+				<Markdown :content='parent.title || parent.postId' inline/>
+			</router-link>
+		</Loading>
+	</div>
+	<div class='container' v-if='!isMobile'>
+		<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
+		<div class='content'>
+			<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
 				<Media v-show='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
 				<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
-					<a><i class='material-icons'>first_page</i></a>
-					<a><i class='material-icons'>navigate_before</i></a>
-					<a>1</a>
-					<a>2</a>
-					<a>3</a>
+					<p>
+						<a><i class='material-icons'>first_page</i></a>
+						<a><i class='material-icons'>navigate_before</i></a>
+						<a>1</a>
+						<a>2</a>
+						<a>3</a>
+					</p>
 					<a :href='`/s/${set.id}`'>{{set.title}}</a>
-					<a>5</a>
-					<a>6</a>
-					<a>7</a>
-					<a><i class='material-icons'>navigate_next</i></a>
-					<a><i class='material-icons'>last_page</i></a>
+					<p>
+						<a>5</a>
+						<a>6</a>
+						<a>7</a>
+						<a><i class='material-icons'>navigate_next</i></a>
+						<a><i class='material-icons'>last_page</i></a>
+					</p>
 				</div>
 			</div>
-			<div class='container'>
-				<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
-				<div class='main'>
-					<main>
-						<div class='post-header'>
-							<Score :score='post?.score' :postId='postId'/>
-							<div class='post-title'>
-								<input v-if='editing' class='interactable text title-field' v-model='post.title'>
-								<h2 v-else>
-									<Loading span v-if='isLoading'>this is an example title</Loading>
-									<Markdown v-else :content='post?.title' inline/>
-								</h2>
-								<div class='privacy'>
-									<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-									<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
-								</div>
-								<Profile :isLoading='isLoading' v-bind='post?.user'/>
-							</div>
+			<main>
+				<div class='post-header'>
+					<Score :score='post?.score' :postId='postId'/>
+					<div class='post-title'>
+						<input v-if='editing' class='interactable text title-field' v-model='post.title'>
+						<h2 v-else>
+							<Loading span v-if='isLoading'>this is an example title</Loading>
+							<Markdown v-else :content='post?.title' inline/>
+						</h2>
+						<div class='privacy'>
+							<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
+							<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 						</div>
-						<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-						<div v-else-if='editing' style='width: 100%'>
-							<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
-							<div class='update-button'>
-								<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
-								<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-								<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
-							</div>
-						</div>
-						<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
-						<Loading :isLoading='isLoading'>
-							<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
-							<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
-							<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
-						</Loading>
-						<div class='post-buttons' v-show='!isLoading'>
-							<Report :data='{ post: postId }' v-if='!isLoading'/>
-							<RepostButton :postId='postId'/>
-							<FavoriteButton :postId='postId'/>
-							<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-							<DropDown :options="[
-								{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
-								{ name: `Block @${post?.user?.handle}`, action: () => { } },
-								{ name: `Report @${post?.user?.handle}`, action: () => { } },
-							]">
-								<i class='more-button material-icons-round'>more_horiz</i>
-							</DropDown>
-						</div>
-						<ThemeMenu/>
-					</main>
+						<Profile :isLoading='isLoading' v-bind='post?.user'/>
+					</div>
 				</div>
-			</div>
+				<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
+				<div v-else-if='editing' style='width: 100%'>
+					<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
+					<div class='update-button'>
+						<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
+						<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
+						<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
+					</div>
+				</div>
+				<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
+				<Loading :isLoading='isLoading'>
+					<Subtitle static='left' v-if='post?.privacy === "unpublished"'>unpublished</Subtitle>
+					<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
+					<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' live/></Subtitle>
+				</Loading>
+				<div class='post-buttons' v-show='!isLoading'>
+					<Report :data='{ post: postId }' v-if='!isLoading'/>
+					<RepostButton :postId='postId'/>
+					<FavoriteButton :postId='postId'/>
+					<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+					<DropDown :options="[
+						{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
+						{ name: `Block @${post?.user?.handle}`, action: () => { } },
+						{ name: `Report @${post?.user?.handle}`, action: () => { } },
+					]">
+						<i class='more-button material-icons-round'>more_horiz</i>
+					</DropDown>
+				</div>
+				<ThemeMenu/>
+			</main>
 			<ol class='replies'>
 				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
 				<div class='reply-field'>
@@ -207,7 +109,103 @@
 				</li>
 			</ol>
 		</div>
-	</Error>
+	</div>
+	<div class='content' v-else>
+		<div class='media-container' v-show='post'>
+			<Media v-show='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
+			<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
+				<a><i class='material-icons'>first_page</i></a>
+				<a><i class='material-icons'>navigate_before</i></a>
+				<a>1</a>
+				<a>2</a>
+				<a>3</a>
+				<a :href='`/s/${set.id}`'>{{set.title}}</a>
+				<a>5</a>
+				<a>6</a>
+				<a>7</a>
+				<a><i class='material-icons'>navigate_next</i></a>
+				<a><i class='material-icons'>last_page</i></a>
+			</div>
+		</div>
+		<div class='container'>
+			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
+			<div class='main'>
+				<main>
+					<div class='post-header'>
+						<Score :score='post?.score' :postId='postId'/>
+						<div class='post-title'>
+							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
+							<h2 v-else>
+								<Loading span v-if='isLoading'>this is an example title</Loading>
+								<Markdown v-else :content='post?.title' inline/>
+							</h2>
+							<div class='privacy'>
+								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
+								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+							</div>
+							<Profile :isLoading='isLoading' v-bind='post?.user'/>
+						</div>
+					</div>
+					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
+					<div v-else-if='editing' style='width: 100%'>
+						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
+						<div class='update-button'>
+							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
+							<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
+							<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
+						</div>
+					</div>
+					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
+					<Loading :isLoading='isLoading'>
+						<Subtitle static='left' v-if='post?.privacy === `unpublished`'>unpublished</Subtitle>
+						<Subtitle static='left' v-else-if='isUpdated'>posted <Timestamp :datetime='post?.created' :live='true'/> (edited <Timestamp :datetime='post?.updated' :live='true'/>)</Subtitle>
+						<Subtitle static='left' v-else>posted <Timestamp :datetime='post?.created' :live='true'/></Subtitle>
+					</Loading>
+					<div class='post-buttons' v-show='!isLoading'>
+						<Report :data='{ post: postId }' v-if='!isLoading'/>
+						<RepostButton :postId='postId'/>
+						<FavoriteButton :postId='postId'/>
+						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+						<DropDown :options="[
+							{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
+							{ name: `Block @${post?.user?.handle}`, action: () => { } },
+							{ name: `Report @${post?.user?.handle}`, action: () => { } },
+						]">
+							<i class='more-button material-icons-round'>more_horiz</i>
+						</DropDown>
+					</div>
+					<ThemeMenu/>
+				</main>
+			</div>
+		</div>
+		<ol class='replies'>
+			<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
+			<div class='reply-field'>
+				<p class='reply-label'>
+					{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
+					<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
+						{ name: 'Top', value: 'top' },
+						{ name: 'Hot', value: 'hot' },
+						{ name: 'Best', value: 'best' },
+						{ name: 'Controversial', value: 'controversial' },
+					]">
+						<span class='sort-by'>
+							<i class='material-icons-round'>sort</i>
+							sort by
+						</span>
+					</DropDown>
+				</p>
+				<div class='buttons' v-if='writeComment'>
+					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
+					<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+				</div>
+				<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i>Reply</Button>
+			</div>
+			<li v-for='reply in replies'>
+				<Reply :postId='reply?.post_id' v-bind='reply' reply/>
+			</li>
+		</ol>
+	</div>
 </template>
 
 <script>

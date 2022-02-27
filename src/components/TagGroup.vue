@@ -37,8 +37,6 @@ export default {
 		return {
 			tagColorMap,
 			post: null,
-			errorDump: null,
-			errorMessage: null,
 			loadingMap: {
 				artist: 1,
 				sponsor: 1,
@@ -60,8 +58,6 @@ export default {
 	computed: {
 		isLoading()
 		{ return this.post === null; },
-		isError()
-		{ return this.errorDump !== null || this.errorMessage !== null; },
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
 	},

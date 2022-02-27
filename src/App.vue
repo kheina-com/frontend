@@ -1,7 +1,9 @@
 <template>
+	<input ref='animatedAccents' type='checkbox' name='animated-accents' value='animated-accents' id='animated-accents' @click='setAnimated' v-show='false'>
 	<Banner :onResize='onResize'/>
 	<div ref='content' id='content'>
-		<router-view :key='$route.path'/>
+		<router-view :key='$route.path' v-if='$store.state?.error === null'/>
+		<Error v-bind='$store.state.error' v-else/>
 		<Footer/>
 	</div>
 	<Toast/>
@@ -10,11 +12,12 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, getCookie, isDarkMode, isMobile, setMeta } from '@/utilities';
+import { authCookie, getCookie, isDarkMode, isMobile, setCookie, setMeta } from '@/utilities';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
 import Toast from '@/components/Toast.vue';
+import Error from '@/components/Error.vue';
 
 
 export default {
@@ -24,11 +27,19 @@ export default {
 		Cookies,
 		Banner,
 		Toast,
+		Error,
 	},
 	setup() {
 		const content = ref(null);
+		const animatedAccents = ref(null);
 		return {
 			content,
+			animatedAccents,
+		};
+	},
+	data() {
+		return {
+			
 		};
 	},
 	async created() {
@@ -40,8 +51,8 @@ export default {
 		this.$store.state.theme = {
 			theme,
 			accent,
-			bg1color: getComputedStyle(document.body).getPropertyValue('--bg1color'),
 		};
+		this.$store.commit('animatedAccents', "false" !== getCookie('animated-accents'));
 
 		const auth = authCookie();
 		if (auth)
@@ -80,6 +91,7 @@ export default {
 	mounted() {
 		this.ResizeSensor(this.$refs.content, this.onResize);
 		this.onResize();
+		this.$refs.animatedAccents.checked = this.$store.state.animatedAccents;
 	},
 	computed: {
 		banner() {
@@ -87,11 +99,15 @@ export default {
 		},
 	},
 	methods: {
+		setAnimated(e) {
+			this.$store.commit("animatedAccents", e.target.checked);
+			setCookie('animated-accents', e.target.checked);
+		},
 		onResize() {
 			let offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
 			this.$store.contentOffset = offset - this.banner.clientHeight;
 
-			if (this.$route?.meta.applyOffset !== undefined ? this.$route.meta.applyOffset : true)
+			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true))
 			{ this.$refs.content.style.top = `${offset}px`; }
 			else
 			{ this.$refs.content.style.top = `${this.banner.clientHeight}px`; }
@@ -551,8 +567,7 @@ html.e621 .top .source h2
 html.e621 .more .source .left
 { margin-bottom: 8px; }
 
-html.terminal
-{
+html.terminal {
 	--icolor: #008000;
 	--bg0color: #000000;
 	--bg1color: #000000;
@@ -565,8 +580,7 @@ html.terminal
 	filter: sepia(100%) saturate(550%) hue-rotate(90deg);
 }
 
-html.solarized-dark
-{
+html.solarized-dark {
 	--icolor: #b58900;
 	--bg0color: #002b36;
 	--bg1color: #073642;
@@ -597,8 +611,7 @@ html.solarized-dark
 	--explicit: var(--red);
 }
 
-html.solarized-light
-{
+html.solarized-light {
 	--icolor: #cb4b16;
 	--bg0color: #fdf6e3;
 	--bg1color: #eee8d5;
@@ -622,8 +635,7 @@ html.solarized-light
 	--violet: #6c71c4;
 }
 
-html.furaffinity
-{
+html.furaffinity {
 	--icolor: #AFAFAF;
 	--bg0color: #2E3B41;
 	--bg1color: #2E3B41;
@@ -634,14 +646,12 @@ html.furaffinity
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 }
-html.furaffinity main
-{
+html.furaffinity main {
 	border-top: var(--border-size) solid var(--bordercolor);
 	border-bottom: var(--border-size) solid var(--bordercolor);
 }
 
-html.discord
-{
+html.discord {
 	--icolor: #7289DA;
 	--bg0color: #202225;
 	--bg1color: #2F3136;
@@ -654,8 +664,7 @@ html.discord
 	--activeshadowcolor: #202225;
 }
 
-html.xfire
-{
+html.xfire {
 	--icolor: #3D73D7;
 	--bg0color: #000000;
 	--bg1color: #12283F;
@@ -670,86 +679,101 @@ html.xfire
 html.xfire div.loadingicon img
 { filter: sepia(100%) saturate(2000%) hue-rotate(201deg) brightness(83%) }
 
-html.xfire main
-{
+html.xfire main {
 	background-image: linear-gradient(#8BA0E3 0, #2D6191 2px, #2D6191 4px, #00022C 5px, #0000 5px), linear-gradient(#0000 calc(100% - 5px), #8BA0E3 calc(100% - 5px), #2D6191 calc(100% - 3px), #2D6191 calc(100% - 1px), #00022C 100%), linear-gradient(#0000 0, #12283F 12.5em), url(https://cdn.kheina.com/file/kheinacom/bc83a6cc07e0c47c9b7d226ef47f556b4aeddfcf.png), linear-gradient(#030316 0, #030316 100%);
 	background-position: left top, left top, left top, left top, left bottom;
 }
 
-@keyframes gay
-{
-	00%
+@keyframes gay {
+	0%, 100%
 	{ color: red }
-	20%
+	16.666%
 	{ color: yellow }
-	40%
+	33.333%
 	{ color: green }
-	60%
+	50%
 	{ color: cyan }
-	80%
+	66.666%
 	{ color: blue }
-	100%
+	83.333%
 	{ color: purple }
 }
 html.gay *
-{ animation: gay 1s infinite; }
+{ animation: gay 1s linear infinite; }
 
 /* accent */
 
 /*body main.none
 { / * having "nothing" here allows us to apply accent to themes without having them be overridden by none * / }*/
-/*
-html.winter main
-{
-	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
-	background-repeat: repeat-x;
-	background-position: center bottom, center top;
-	padding-bottom: 25px;
-}
 
-html.spring main
-{
-	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
-	background-repeat: repeat-x;
-	background-position: center bottom, center top;
-	padding-bottom: 25px;
-}
-
-html.summer main
-{
-	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
-	background-repeat: repeat-x;
-	background-position: center bottom, center top;
-	padding-bottom: 25px;
-}
-
-html.autumn main
-{
-	background-image: url(/assets/themes/snow_bottom.png), url(/assets/themes/snow_top.png);
-	background-repeat: repeat-x;
-	background-position: center bottom, center top;
-	padding-bottom: 25px;
-}
-
-html.hex main
-{
-	background-image: url(/assets/themes/hex.png);
+html.aurora main, html.hex main, html.space main, html.stars main {
 	background-repeat: repeat-x;
 	background-position: center top;
 }
 
-html.fox main
-{
+html.aurora main {
+	background-image: url(/assets/themes/aurora.png);
+}
+
+html.autumn main {
+	background-image: url(/assets/themes/autumn.png);
+	background-repeat: repeat-x;
+	background-position: center bottom;
+}
+
+html.hex main {
+	background-image: url(/assets/themes/hex.png);
+}
+
+html.summer main {
+	background-image: url(/assets/themes/summer.png);
+}
+
+html.space main {
+	background-image: url(/assets/themes/space.png);
+}
+
+html.spring main {
+	background-image: url(/assets/themes/spring/1.png), url(/assets/themes/spring/2.png), url(/assets/themes/spring/3.png), url(/assets/themes/spring/4.png);
+	background-repeat: repeat-x, no-repeat, no-repeat, repeat-x;
+	background-position: center bottom, right bottom, top right, center top;
+	padding-bottom: 25px;
+}
+
+html.stars main {
+	background-image: url(/assets/themes/stars.png);
+}
+
+html.winter main {
+	background-image: url(/assets/themes/winter/1.png), url(/assets/themes/winter/2.png);
+	background-repeat: repeat-x;
+	background-position: center bottom, center top;
+	padding-bottom: 25px;
+}
+
+/*
+html.fox main {
 	background-image: url(/assets/themes/fox.png);
 	background-repeat: no-repeat;
 	background-position: left bottom;
 }
 
-html.snep main
-{
+html.snep main {
 	background-image: url(/assets/themes/snep.png);
 	background-repeat: no-repeat;
 	background-position: left bottom;
 }
 */
+
+/* animations */
+
+@keyframes scroll-bg-x {
+	00%
+	{ background-position-x: 0 }
+	100%
+	{ background-position-x: 481px }
+}
+
+html.aurora.animated main, html.space.animated main, html.stars.animated main, html.winter.animated main
+{ animation: scroll-bg-x 20s linear infinite; }
 </style>

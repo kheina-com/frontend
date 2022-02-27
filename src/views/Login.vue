@@ -1,5 +1,5 @@
 <template>
-	<main v-if='!isError'>
+	<main>
 		<Loading :lazy='false' :isLoading='isLoading'>
 		<Title static='center'>Login<template v-slot:super><router-link to='/account/create'>Create</router-link></template></Title>
 		<form action='' method='post' enctype='multipart/form-data' class='centerx'>
@@ -18,7 +18,6 @@
 		</Loading>
 		<ThemeMenu/>
 	</main>
-	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-else/>
 </template>
 
 <script>
@@ -48,8 +47,6 @@ export default {
 	data() {
 		return {
 			isLoading: false,
-			errorMessage: null,
-			errorDump: null,
 		};
 	},
 	components: {
@@ -59,12 +56,7 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Error,
 		Media,
-	},
-	computed: {
-		isError()
-		{ return this.errorMessage !== null; },
 	},
 	methods: {
 		sendLogin() {
@@ -85,20 +77,18 @@ export default {
 							this.$store.commit('setAuth', authCookie());
 							this.$router.push(this.$route.query?.path ? this.$route.query.path : '/');
 						}
+						else if (response.status === 400)
+						{ this.$store.commit('error', r.error); }
 						else if (response.status === 401)
-						{ this.errorMessage = r.error; }
+						{ this.$store.commit('error', r.error); }
 						else if (response.status === 404)
-						{ this.errorMessage = r.error; }
+						{ this.$store.commit('error', r.error); }
 						else
-						{
-							this.errorMessage = apiErrorMessage;
-							this.errorDump = r;
-						}
+						{ this.$store.commit('error', apiErrorMessage, r); }
 					});
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
+					this.$store.commit('error', apiErrorMessage, error);
 					console.error(error);
 				});
 		},

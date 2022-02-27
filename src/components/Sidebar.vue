@@ -39,8 +39,6 @@ export default {
 		return {
 			tagGroups,
 			post: null,
-			errorDump: null,
-			errorMessage: null,
 		}
 	},
 	components: {
@@ -50,8 +48,6 @@ export default {
 	computed: {
 		isLoading()
 		{ return this.post === null; },
-		isError()
-		{ return this.errorDump !== null || this.errorMessage !== null; },
 		mediaUrl()
 		{ return this.post !== null ? getMediaThumbnailUrl(this.postId, this.post.filename) : ''; },
 	},

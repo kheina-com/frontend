@@ -1,6 +1,5 @@
 <template>
-	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-if='errorMessage'/>
-	<main v-else>
+	<main>
 		<div style='display: flex; flex-direction: column; align-items: center'>
 			things you will eventually be able to do here:
 			<ul style='display: inline-block; margin-bottom: 0'>
@@ -31,20 +30,12 @@
 </template>
 
 <script>
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
 export default {
 	name: 'Login',
-	data() {
-		return {
-			errorMessage: null,
-			errorDump: null,
-		};
-	},
 	components: {
 		ThemeMenu,
-		Error,
 	},
 	computed: {
 	},

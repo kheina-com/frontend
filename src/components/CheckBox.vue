@@ -1,59 +1,75 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div>
-		<span v-for='i in data'>
-			<input
-				type='checkbox'
-				:name='name'
-				:value='getName(i)'
-				:id='i'
-				@click='emitValue'
-				:checked='i === value'
-			>
-			<label :for='i' >
-				<div class='checkmark'>
-					<div/>
-				</div>
-				{{getName(i)}}
-			</label>
-		</span>
+		<input
+			type='checkbox'
+			:name='name'
+			:value='checked'
+			:id='id'
+			@click='emitValue'
+			:checked='checked'
+			v-if='!skipInput'
+		>
+		<label ref='label' :for='id' >
+			<div class='checkmark'>
+				<div/>
+			</div>
+			<slot/>
+		</label>
 	</div>
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
-	name: 'CheckBoxes',
+	name: 'CheckBox',
 	props: {
 		name: String,
-		value: Array[String],
-		data: Array[String],
+		checked: Boolean,
+		id: String,
+		skipInput: {
+			type: Boolean,
+			default: null,
+		},
+		border: {
+			type: Boolean,
+			default: true,
+		},
 	},
-	data() {
+	setup() {
+		const label = ref(null);
+
 		return {
-			checked: [],
+			label,
 		};
 	},
-	// emits: {
-	// 	'update:value': null,
-	// 	change: null,
-	// },
 	created() {
-		this.$emit(`update:value`, this.checked);
-		this.$emit(`change`, this.checked);
+		this.$emit(`update:checked`, this.checked);
+	},
+	mounted() {
+		if (this.checked)
+		{ this.$refs.label.classList.add('checked'); }
+		else
+		{ this.$refs.label.classList.remove('checked'); }
+		if (this.border)
+		{ this.$refs.label.classList.add('border'); }
 	},
 	methods: {
 		getName(index) {
 			return index.split(/[\-\_]/).join(' ');
 		},
 		emitValue(event) {
-			if (event.target.checked)
-			{ this.checked.push(event.target.id); }
-			else
-			{ delete this.checked[this.checked.indexOf(event.target.id)]; }
-
-			this.$emit(`update:value`, this.checked);
-			this.$emit(`change`, this.checked);
+			this.$emit(`update:checked`, event.target.checked);
 		}
+	},
+	watch: {
+		checked(value) {
+			if (value)
+			{ this.$refs.label.classList.add('checked'); }
+			else
+			{ this.$refs.label.classList.remove('checked'); }
+		},
 	},
 }
 </script>
@@ -71,16 +87,10 @@ input
 label
 {
 	cursor: pointer;
-	padding: 0.5em 1em;
 	margin: 0;
-	border: var(--border-size) solid var(--bordercolor);
-	background: var(--bg2color);
-	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	border-radius: var(--border-radius);
+	display: inline-flex;
 	white-space: nowrap;
-	display: flex;
 	align-items: center;
-	text-transform: capitalize;
 }
 span {
 	margin: 0 25px 0 0;
@@ -97,7 +107,16 @@ label:hover, label:active, label:focus
 	border-color: var(--borderhover);
 	color: var(--icolor);
 }
-label:hover
+
+label.border {
+	display: flex;
+	padding: 0.5em 1em;
+	border: var(--border-size) solid var(--bordercolor);
+	background: var(--bg2color);
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	border-radius: var(--border-radius);
+}
+label.border:hover
 { box-shadow: 0 0 10px 3px var(--activeshadowcolor); }
 label div.checkmark
 {
@@ -130,7 +149,7 @@ label div.checkmark div
 	height: 0.55em;
 }
 
-input:checked + label div.checkmark div
+input:checked + label div.checkmark div, label.checked div.checkmark div
 {
 	border-color: var(--icolor);
 	border-width: 0 3px 3px 0;

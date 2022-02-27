@@ -1,170 +1,168 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<Error v-model:dump='errorDump' v-model:message='errorMessage'>
-		<main>
-			<Title static='center'>New Post</Title>
-			<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
-			<div class='form'>
-				<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadUnavailable'>
-					<div class='field'>
-						<div>
-							<span>File</span>
-							<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
-								<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh'/>
-							</FileField>
-							<div class='field actions' v-if='file !== null'>
-								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
-							</div>
+	<main>
+		<Title static='center'>New Post</Title>
+		<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
+		<div class='form'>
+			<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadUnavailable'>
+				<div class='field'>
+					<div>
+						<span>File</span>
+						<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
+							<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh'/>
+						</FileField>
+						<div class='field actions' v-if='file !== null'>
+							<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
 						</div>
 					</div>
-					<template v-slot:onLoad>
-						<ProgressBar :fill='uploadProgress'/>
-					</template>
-				</Loading>
-				<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else/>
+				</div>
+				<template v-slot:onLoad>
+					<ProgressBar :fill='uploadProgress'/>
+				</template>
+			</Loading>
+			<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else/>
 
-				<div class='field'>
-					<div>
-						<span>Title</span>
-						<input class='interactable text' style='display: block; width: 100%' v-model='update.title'>
-						<Markdown class='title-render' :content='update.title' inline/>
-					</div>
-				</div>
-				<div class='field'>
-					<div>
-						<span>Description</span>
-						<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
-						<MarkdownEditor v-model:value='update.description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
-						<div class='markdown-editor' v-else>
-							<textarea v-model='update.description' class='interactable text'/>
-							<Markdown :content='update.description || "**Your description is empty.**"'/>
-						</div>
-					</div>
-				</div>
-				<div class='field'>
-					<div>
-						<span>Tags</span>
-						<div ref='tagDiv' class='tag-field interactable text' contenteditable='true'>
-							{{tagsField}}
-						</div>
-						<ol>
-							<p v-if='tagSuggestions === null'></p>
-							<li v-for='tag in tagSuggestions'>
-								<Button class='interactable' @click='addTag(tag)'>
-									{{tag}}
-								</Button>
-							</li>
-						</ol>
-					</div>
-				</div>
-				<div class='field popup-info'>
-					<div>
-						<span>Privacy</span>
-						<RadioButtons
-							name='privacy'
-							v-model:value='update.privacy'
-							:data="[
-								{ content: 'public' },
-								{ content: 'unlisted' },
-								{ content: 'private' },
-							]"
-						/>
-					</div>
-					<div class='selection-info'>
-						<p v-if='update.privacy === "public"'>Anyone can view, and appears in searches</p>
-						<p v-if='update.privacy === "unlisted"'>Hidden from searches, but anyone with a link can view</p>
-						<!-- <p v-if='update.privacy === "private"'>Only people you explicitly invite can view</p> -->
-						<p v-if='update.privacy === "private"'>Only you can view</p>
-					</div>
-				</div>
-				<div class='field popup-info'>
-					<div>
-						<span>Rating</span>
-						<RadioButtons
-							name='rating'
-							v-model:value='update.rating'
-							:data="[
-								{ content: 'general' },
-								{ content: 'mature' },
-								{ content: 'explicit' },
-							]"
-						/>
-					</div>
-					<div class='selection-info'>
-						<p v-if='update.rating === "general"'>Appropriate for all audiences</p>
-						<p v-if='update.rating === "mature"'>Tasteful nudity, nudity where genitals are not the primary focus</p>
-						<p v-if='update.rating === "explicit"'>Sex, porn, or nudity where genitals are the primary focus</p>
-					</div>
-				</div>
-				<div class='field popup-info' v-show='false'>
-					<div>
-						<span>Flags</span>
-						<CheckBoxes
-							name='flags'
-							v-model:value='update.flags'
-							:data="[
-								'auction',
-								'emoji',
-								'user-icon',
-							]"
-						/>
-					</div>
-					<ul class='selection-info'>
-						<li v-if='update.flags && update.flags.includes("auction")'>Include bidding functions on your post</li>
-						<li v-if='update.flags && update.flags.includes("emoji")'>Create an emoji from your post, to be used across the site</li>
-						<li v-if='update.flags && update.flags.includes("user-icon")'>Make this post your current icon</li>
-					</ul>
-				</div>
-				<div class='field' v-if='update.flags && update.flags.includes("auction")'>
-					<p class='underline'>Auction Info</p>
-					<div class='multi-field'>
-						<div>
-							<span>Duration</span>
-							<input class='interactable text' placeholder='hours' v-model='update.title'>
-						</div>
-						<div>
-							<span>Minimum Bid Increment</span>
-							<input class='interactable text' placeholder='Leave Empty for $1' v-model='update.title'>
-						</div>
-						<div>
-							<span>Starting Bid</span>
-							<input class='interactable text' placeholder='Leave empty for $0' v-model='update.title'>
-						</div>
-						<div>
-							<span>Auto Buy</span>
-							<input class='interactable text' placeholder='Leave empty to omit' v-model='update.title'>
-						</div>
-					</div>
-					<div class='field'>
-						<span>Snipe Protection</span>
-						<div>
-						If a bid is made within <input class='interactable text' placeholder='Leave empty for 60' v-model='update.title'> minutes of the auction ending,
-						extend the auction by <input class='interactable text' placeholder='Leave empty for 60' v-model='update.title'> minutes.
-						</div>
-					</div>
-					<b style='text-align: center; display: block'>Note: kheina.com will not charge your clients for you. You must invoice your clients yourself or use a third party payment processor.</b>
-				</div>
-				<div class='field popup-info' v-if='update.flags && update.flags.includes("emoji")'>
-					<div>
-						<span>Emoji Name</span>
-						<div>
-							<input class='interactable text' :placeholder='emojiPlaceholder' v-model='update.emoji_name'>
-						</div>
-					</div>
-					<div class='selection-info'>
-						Your handle will be appended to the end of the emoji name for uniqueness.
-						Don't worry, it can still be used across the site, without any restrictions
-					</div>
-				</div>
-				<div class='actions'>
-					<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
-					<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
-					<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
+			<div class='field'>
+				<div>
+					<span>Title</span>
+					<input class='interactable text' style='display: block; width: 100%' v-model='update.title'>
+					<Markdown class='title-render' :content='update.title' inline/>
 				</div>
 			</div>
-			<ThemeMenu/>
-		</main>
-	</Error>
+			<div class='field'>
+				<div>
+					<span>Description</span>
+					<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
+					<MarkdownEditor v-model:value='update.description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
+					<div class='markdown-editor' v-else>
+						<textarea v-model='update.description' class='interactable text'/>
+						<Markdown :content='update.description || "**Your description is empty.**"'/>
+					</div>
+				</div>
+			</div>
+			<div class='field'>
+				<div>
+					<span>Tags</span>
+					<div ref='tagDiv' class='tag-field interactable text' contenteditable='true'>
+						{{tagsField}}
+					</div>
+					<ol>
+						<p v-if='tagSuggestions === null'></p>
+						<li v-for='tag in tagSuggestions'>
+							<Button class='interactable' @click='addTag(tag)'>
+								{{tag}}
+							</Button>
+						</li>
+					</ol>
+				</div>
+			</div>
+			<div class='field popup-info'>
+				<div>
+					<span>Privacy</span>
+					<RadioButtons
+						name='privacy'
+						v-model:value='update.privacy'
+						:data="[
+							{ content: 'public' },
+							{ content: 'unlisted' },
+							{ content: 'private' },
+						]"
+					/>
+				</div>
+				<div class='selection-info'>
+					<p v-if='update.privacy === "public"'>Anyone can view, and appears in searches</p>
+					<p v-if='update.privacy === "unlisted"'>Hidden from searches, but anyone with a link can view</p>
+					<!-- <p v-if='update.privacy === "private"'>Only people you explicitly invite can view</p> -->
+					<p v-if='update.privacy === "private"'>Only you can view</p>
+				</div>
+			</div>
+			<div class='field popup-info'>
+				<div>
+					<span>Rating</span>
+					<RadioButtons
+						name='rating'
+						v-model:value='update.rating'
+						:data="[
+							{ content: 'general' },
+							{ content: 'mature' },
+							{ content: 'explicit' },
+						]"
+					/>
+				</div>
+				<div class='selection-info'>
+					<p v-if='update.rating === "general"'>Appropriate for all audiences</p>
+					<p v-if='update.rating === "mature"'>Tasteful nudity, nudity where genitals are not the primary focus</p>
+					<p v-if='update.rating === "explicit"'>Sex, porn, or nudity where genitals are the primary focus</p>
+				</div>
+			</div>
+			<div class='field popup-info' v-show='false'>
+				<div>
+					<span>Flags</span>
+					<CheckBoxes
+						name='flags'
+						v-model:value='update.flags'
+						:data="[
+							'auction',
+							'emoji',
+							'user-icon',
+						]"
+					/>
+				</div>
+				<ul class='selection-info'>
+					<li v-if='update.flags && update.flags.includes("auction")'>Include bidding functions on your post</li>
+					<li v-if='update.flags && update.flags.includes("emoji")'>Create an emoji from your post, to be used across the site</li>
+					<li v-if='update.flags && update.flags.includes("user-icon")'>Make this post your current icon</li>
+				</ul>
+			</div>
+			<div class='field' v-if='update.flags && update.flags.includes("auction")'>
+				<p class='underline'>Auction Info</p>
+				<div class='multi-field'>
+					<div>
+						<span>Duration</span>
+						<input class='interactable text' placeholder='hours' v-model='update.title'>
+					</div>
+					<div>
+						<span>Minimum Bid Increment</span>
+						<input class='interactable text' placeholder='Leave Empty for $1' v-model='update.title'>
+					</div>
+					<div>
+						<span>Starting Bid</span>
+						<input class='interactable text' placeholder='Leave empty for $0' v-model='update.title'>
+					</div>
+					<div>
+						<span>Auto Buy</span>
+						<input class='interactable text' placeholder='Leave empty to omit' v-model='update.title'>
+					</div>
+				</div>
+				<div class='field'>
+					<span>Snipe Protection</span>
+					<div>
+					If a bid is made within <input class='interactable text' placeholder='Leave empty for 60' v-model='update.title'> minutes of the auction ending,
+					extend the auction by <input class='interactable text' placeholder='Leave empty for 60' v-model='update.title'> minutes.
+					</div>
+				</div>
+				<b style='text-align: center; display: block'>Note: kheina.com will not charge your clients for you. You must invoice your clients yourself or use a third party payment processor.</b>
+			</div>
+			<div class='field popup-info' v-if='update.flags && update.flags.includes("emoji")'>
+				<div>
+					<span>Emoji Name</span>
+					<div>
+						<input class='interactable text' :placeholder='emojiPlaceholder' v-model='update.emoji_name'>
+					</div>
+				</div>
+				<div class='selection-info'>
+					Your handle will be appended to the end of the emoji name for uniqueness.
+					Don't worry, it can still be used across the site, without any restrictions
+				</div>
+			</div>
+			<div class='actions'>
+				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
+				<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
+				<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
+			</div>
+		</div>
+		<ThemeMenu/>
+	</main>
 </template>
 
 <script>
@@ -217,7 +215,6 @@ export default {
 			environment,
 			tagGroups,
 			errorDump: null,
-			errorMessage: null,
 			serverTags: null,
 			savedTags: [],
 			tagSuggestions: null,
@@ -281,7 +278,6 @@ export default {
 		},
 		showData() {
 			console.log({
-				errorMessage: this.errorMessage,
 				errorDump: this.errorDump,
 				file: this.file,
 				update: JSON.parse(JSON.stringify(this.update)),
@@ -325,9 +321,8 @@ export default {
 				console.log(JSON.parse(event.target.responseText));
 			}, false);
 			ajax.addEventListener('error', (event) => {
-				console.error(event);
-				this.errorDump = event.target.responseText ? event.target.responseText : event;
-				this.errorMessage = 'An error occurred during image upload. (check the javascript console for error details)';
+				this.$store.commit('error', apiErrorMessage, error);
+				console.error(error);
 			}, false);
 
 			const auth = getCookie('kh-auth');

@@ -14,6 +14,8 @@ export default createStore({
 		contentOffset: null,
 		scroll: null,
 		toasts: {},
+		animatedAccents: null,
+		error: null,
 	},
 	mutations: {
 		setAuth(state, auth) {
@@ -36,6 +38,25 @@ export default createStore({
 		},
 		setUser(state, user) {
 			state.user = user;
+		},
+		animatedAccents(state, animatedAccents) {
+			state.animatedAccents = animatedAccents;
+			if (animatedAccents)
+			{ document.documentElement.classList.add('animated'); }
+			else
+			{ document.documentElement.classList.remove('animated'); }
+		},
+		error(state, message=null, dump=null) {
+			if (message)
+			{
+				console.log(message, dump);
+				state.error = {
+					message,
+					dump,
+				};
+			}
+			else if (state.error !== null)
+			{ state.error = null; console.log(message, dump); }
 		},
 		createToast(state, options) {
 			const id = toastCounter++;

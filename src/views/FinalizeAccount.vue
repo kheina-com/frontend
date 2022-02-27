@@ -1,5 +1,5 @@
 <template>
-	<main v-if='!isError'>
+	<main>
 		<Loading :lazy='false' :isLoading='isLoading' v-if='tokenProvided'>
 			<Title static='center'>Create Account</Title>
 			<div class='form centerx'>
@@ -45,7 +45,6 @@
 		</p>
 		<ThemeMenu/>
 	</main>
-	<Error v-model:dump='errorDump' v-model:message='errorMessage' v-else/>
 </template>
 
 <script>
@@ -55,7 +54,6 @@ import { apiErrorMessage, accountHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
@@ -83,8 +81,6 @@ export default {
 	data() {
 		return {
 			isLoading: false,
-			errorMessage: null,
-			errorDump: null,
 			typingTimer: null,
 			typingInterval: 1000,
 			passwordIcon: null,
@@ -101,7 +97,6 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Error,
 		Media,
 	},
 	created() {
@@ -116,10 +111,6 @@ export default {
 		this.$refs.passwordRepeat.addEventListener('input', this.checkPasswordRepeat);
 		this.$refs.passwordRepeat.addEventListener('keyup', this.checkPasswordRepeat);
 		this.$refs.passwordRepeat.addEventListener('paste', this.checkPasswordRepeat);
-	},
-	computed: {
-		isError()
-		{ return this.errorMessage !== null; },
 	},
 	methods: {
 		sendFinalize() {
@@ -140,22 +131,18 @@ export default {
 						.then(r => {
 							console.log(r);
 							if (response.status === 400)
-							{ this.errorMessage = r.error; }
+							{ this.$store.commit('error', r.error); }
 							else if (response.status === 401)
-							{ this.errorMessage = r.error; }
+							{ this.$store.commit('error', r.error); }
 							else if (response.status === 404)
-							{ this.errorMessage = r.error; }
+							{ this.$store.commit('error', r.error); }
 							else
-							{
-								this.errorMessage = apiErrorMessage;
-								this.errorDump = r;
-							}
+							{ this.$store.commit('error', apiErrorMessage, r); }
 						});
 					this.isLoading = false;
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
+					this.$store.commit('error', apiErrorMessage, error);
 					console.error(error);
 				});
 		},

@@ -1,49 +1,46 @@
 <template>
-	<table class='theme-menu'>
-		<tr>
-			<td>theme</td>
-			<td>
-				<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme.theme'>
-					<option value='kheina'>kheina</option>
-					<option value='light'>light mode</option>
-					<option value='midnight'>midnight</option>
-					<option value='e621'>e621</option>
-					<option value='youtube'>youtube</option>
-					<option value='wikipedia'>wikipedia</option>
-					<option value='terminal'>terminal</option>
-					<option value='solarized-dark'>solarized dark</option>
-					<option value='solarized-light'>solarized light</option>
-					<option value='furaffinity'>fur affinity</option>
-					<option value='discord'>discord</option>
-					<option value='xfire'>xfire</option>
-					<option value='gay'>gay</option>
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td>accent</td>
-			<td>
-				<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='$store.state.theme.accent'>
-					<option value='none'>none</option>
-					<option value='winter'>winter</option>
-					<option value='spring'>spring</option>
-					<option value='summer'>summer</option>
-					<option value='autumn'>autumn</option>
-					<option value='hex'>hex grid</option>
-					<option value='fox'>fox</option>
-					<option value='snep'>snep</option>
-				</select>
-			</td>
-		</tr>
-	</table>
+	<!-- eslint-disable vue/require-v-for-key -->
+	<div class='theme-menu'>
+		<table>
+			<tr>
+				<td>theme</td>
+				<td>
+					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme.theme'>
+						<option v-for='[value, name] in themes' :value='value'>{{name}}</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>accent</td>
+				<td>
+					<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='$store.state.theme.accent'>
+						<option v-for='[value, name] in accents' :value='value'>{{name}}</option>
+					</select>
+				</td>
+			</tr>
+		</table>
+		<div class='accent-checkbox'>
+			<CheckBox
+				skipInput
+				:border='false'
+				id='animated-accents'
+				name='animated-accents'
+				:checked='$store.state.animatedAccents'
+			>animated accents</CheckBox>
+		</div>
+	</div>
 </template>
 
 <script>
 import { ref } from 'vue';
 import { setCookie, getCookie } from '@/utilities';
+import CheckBox from '@/components/CheckBox.vue';
 
 export default {
 	name: 'ThemeSelector',
+	components: {
+		CheckBox,
+	},
 	setup() {
 		const accent = ref(null);
 		const theme = ref(null);
@@ -55,8 +52,35 @@ export default {
 	},
 	data() {
 		return {
+			animations: false,
 			theme: 'none',
 			accent: 'none',
+			themes: [
+				['kheina', 'kheina'],
+				['light', 'light mode'],
+				['midnight', 'midnight'],
+				['e621', 'e621'],
+				['youtube', 'youtube'],
+				['wikipedia', 'wikipedia'],
+				['terminal', 'terminal'],
+				['solarized-dark', 'solarized dark'],
+				['solarized-light', 'solarized light'],
+				['furaffinity', 'fur affinity'],
+				['discord', 'discord'],
+				['xfire', 'xfire'],
+				['gay', 'gay'],
+			],
+			accents: [
+				['none', 'none'],
+				['aurora', 'aurora'],
+				['autumn', 'autumn'],
+				['hex', 'hex grid'],
+				['summer', 'summer'],
+				['space', 'space'],
+				['spring', 'spring'],
+				['stars', 'stars'],
+				['winter', 'winter'],
+			],
 		}
 	},
 	methods: {
@@ -103,5 +127,12 @@ select {
 	color: var(--textcolor);
 	border: var(--border-size) solid var(--bordercolor);
 	width: 100%;
+}
+
+.accent-checkbox {
+	text-align: center;
+	font-size: 0.8em;
+	background: none;
+	border: none;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<main class='error' v-if='isError'>
+	<main class='error'>
 		<Title static='center'>Error</Title>
 		<Subtitle style='margin: 0 0 25px' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
 		<p class='message'>Hmmm, looks like something went wrong.</p>
@@ -15,7 +15,6 @@
 		</div>
 		<ThemeMenu/>
 	</main>
-	<slot v-else/>
 </template>
 
 <script>
@@ -39,16 +38,14 @@ export default {
 			default: null,
 		},
 	},
-	computed: {
-		isError() {
-			return Boolean(this.message);
-		},
+	created() {
+		console.log('error', this.message, this.dump);
 	},
 }
 </script>
 
 <style scoped>
-main.error {
+main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;

@@ -16,8 +16,7 @@
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 		</div>
-		<Error :dump='errorDump' :message='errorMessage' v-if='errorMessage'/>
-		<main ref='main' v-else>
+		<main ref='main'>
 			<div class='header-bar'>
 				<div class='inner'>
 					<Loading :isLoading='isIconLoading' class='profile-image'>
@@ -250,7 +249,6 @@ import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
-import Error from '@/components/Error.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
@@ -282,7 +280,6 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Error,
 		Media,
 		UserIcon,
 		Markdown,
@@ -312,7 +309,6 @@ export default {
 		return {
 			isIconLoading: true,
 			isBannerLoading: true,
-			errorMessage: null,
 			errorDump: null,
 			user: null,
 			posts: null,
@@ -352,18 +348,14 @@ export default {
 						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user?.handle));
 					}
 					else if (response.status < 500)
-					{ this.errorMessage = r.error; }
+					{ this.$store.commit('error', r.error); }
 					else
-					{
-						this.errorMessage = apiErrorMessage;
-						this.errorDump = r;
-					}
+					{ this.$store.commit('error', apiErrorMessage, r); }
 				});
 			})
 			.catch(error => {
+				this.$store.commit('error', apiErrorMessage, error);
 				console.error(error);
-				this.errorMessage = apiErrorMessage;
-				this.error = error;
 			});
 
 		this.fetchData();
@@ -1180,5 +1172,21 @@ html.e621 .header-bar {
 
 html.wikipedia .badges p {
 	border: solid 1px var(--bordercolor);
+}
+
+/* ACCENT OVERRIDES */
+html main.error {
+	background-position-y: 0;
+}
+html.aurora main, html.hex, html.space main, html.stars main {
+	background-position-y: calc(1em + 40px);
+}
+
+html.winter main {
+	background-position-y: bottom, calc(1em + 40px);
+}
+
+html.spring main {
+	background-position-y: bottom, bottom, calc(1em + 40px), calc(1em + 40px);
 }
 </style>

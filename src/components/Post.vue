@@ -223,8 +223,6 @@ export default {
 	},
 	computed: {
 		isMobile,
-		isError()
-		{ return this.errorDump !== null || this.errorMessage !== null; },
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
 		hasMedia()
@@ -321,8 +319,7 @@ export default {
 						});
 				})
 				.catch(error => {
-					this.errorMessage = apiErrorMessage;
-					this.error = error;
+					this.$store.commit('error', apiErrorMessage, error);
 					console.error(error);
 				});
 		},
