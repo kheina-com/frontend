@@ -1175,18 +1175,15 @@ html.wikipedia .badges p {
 }
 
 /* ACCENT OVERRIDES */
-html main.error {
-	background-position-y: 0;
-}
-html.aurora main, html.hex, html.space main, html.stars main {
+html.desktop.aurora main, html.desktop.hex main, html.desktop.space main, html.desktop.stars main {
 	background-position-y: calc(1em + 40px);
 }
 
-html.winter main {
+html.desktop.winter main {
 	background-position-y: bottom, calc(1em + 40px);
 }
 
-html.spring main {
+html.desktop.spring main {
 	background-position-y: bottom, bottom, calc(1em + 40px), calc(1em + 40px);
 }
 </style>

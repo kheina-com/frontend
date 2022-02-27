@@ -59,6 +59,8 @@ export default {
 		{ this.$store.commit('setAuth', authCookie()); }
 		if (isMobile())
 		{ document.documentElement.classList.add('mobile'); }
+		else
+		{ document.documentElement.classList.add('desktop'); }
 
 		// sadly, these must be strings for vite to catch assets
 		const favicons = { };
