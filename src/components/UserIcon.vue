@@ -31,8 +31,8 @@ export default {
 			if (this.post)
 			{
 				if (this.webpFailed)
-				{ return getIconUrl(this.post, this.handle, 'jpg'); }
-				return getIconUrl(this.post, this.handle);
+				{ return getIconUrl(this.post, this.handle.toLowerCase(), 'jpg'); }
+				return getIconUrl(this.post, this.handle.toLowerCase());
 			}
 			else
 			{

@@ -71,7 +71,7 @@ export default {
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
 		parentStyle() {
-			return `aspect-ratio: ${this.width}/${this.height};`;
+			return this.isLoading ? `aspect-ratio: ${this.width}/${this.height};` : null;
 		},
 		linkStyle()
 		{
@@ -113,6 +113,7 @@ export default {
 .media img, .media video {
 	max-width: 100%;
 	max-height: 100%;
+	margin: 0 auto;
 	display: block;
 }
 .media p {

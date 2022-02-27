@@ -773,6 +773,14 @@ html.snep main {
 	{ background-position-x: 481px }
 }
 
-html.aurora.animated main, html.space.animated main, html.stars.animated main, html.winter.animated main
-{ animation: scroll-bg-x 20s linear infinite; }
+@keyframes aurora-hue-shift {
+	00%, 100%
+	{ filter: hue-rotate(0deg) }
+	50%
+	{ filter: hue-rotate(-30deg) }
+}
+
+html.aurora.animated main, html.space.animated main, html.stars.animated main, html.winter.animated main {
+	animation: scroll-bg-x 20s linear infinite, aurora-hue-shift 20s linear infinite;
+}
 </style>
