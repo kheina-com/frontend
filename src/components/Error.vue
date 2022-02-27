@@ -49,7 +49,6 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
-	overflow: hidden;
 	display: block;
 }
 .top
