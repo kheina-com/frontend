@@ -38,7 +38,7 @@
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise'/>
 		<router-link :to='`/p/${postId}`' class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-			<Thumbnail :post='postId' :size='1200' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad'/>
+			<Thumbnail :post='postId' :size='1200' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
 			</button>
@@ -402,7 +402,7 @@ export default {
 	background: var(--bg2color);
 }
 
-.post img {
+.thumbnail {
 	max-width: 100%;
 	max-height: 300px;
 	border-radius: var(--border-radius);
@@ -423,10 +423,8 @@ export default {
 	--bg2color: var(--bg1color);
 }
 .profile {
-	padding: 0.25em;
 	margin: -0.25em;
 	margin-top: 0;
-	border-radius: var(--border-radius);
 }
 a.profile:hover {
 	background: var(--bg2color);

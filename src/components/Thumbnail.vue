@@ -1,12 +1,19 @@
 <template>
-	<img :src='src' @load='loaded' @error='onError'>
+	<Loading class='thumbnail' :style='parentStyle' :isLoading='isLoading'>
+		<img ref='media' :style='imageStyle' :src='src' @load='loaded' @error='onError'>
+	</Loading>
 </template>
 
 <script>
+import { ref } from 'vue';
 import { getMediaThumbnailUrl } from '@/utilities';
+import Loading from '@/components/Loading.vue';
 
 export default {
 	name: 'Media',
+	components: {
+		Loading,
+	},
 	props: {
 		post: {
 			type: String,
@@ -20,14 +27,32 @@ export default {
 			type: Function,
 			default() { },
 		},
-		isLoading: Boolean,
+		width: {
+			type: Number,
+			default: 0,
+		},
+		height: {
+			type: Number,
+			default: 0,
+		},
 	},
 	data() {
 		return {
 			webpFailed: false,
+			isLoading: true,
 		};
 	},
 	computed: {
+		parentStyle() {
+			return this.isLoading && this.width ? `aspect-ratio: ${this.width}/${this.height};` : null;
+		},
+		imageStyle()
+		{
+			if (this.isLoading)
+			{ return `width: ${this.width || '30vw'}px; padding-top: ${this.width ? this.height / this.width * 100 : '30vh'}%;`; }
+			else if (this.isError)
+			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width || '30vw'}px; height: ${this.height || '30vh'};`; }
+		},
 		src() {
 			if (this.webpFailed)
 			{ return getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
@@ -36,7 +61,7 @@ export default {
 	},
 	methods: {
 		loaded(event) {
-			this.$emit('update:isLoading', false);
+			this.isLoading = false;
 			this.onLoad(event);
 		},
 		onError() {
@@ -51,5 +76,10 @@ export default {
 img {
 	object-fit: cover;
 	display: block;
+	max-height: inherit;
+	max-width: inherit;
+}
+.loading {
+	overflow: hidden;
 }
 </style>

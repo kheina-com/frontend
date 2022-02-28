@@ -37,22 +37,8 @@ export default {
 			})
 			.then(response => {
 				response.json().then(r => {
-					console.log(r);
-					console.log(Object.values(r));
 					if (response.status < 300)
-					{
-						this.tags = [];
-						for (const [tagClass, tags] of Object.entries(r))
-						{
-							for (const [tag, tagData] of Object.entries(tags))
-							{
-								this.tags.push(Object.assign(tagData, {
-									class: tagClass,
-									tag,
-								}));
-							}
-						}
-					}
+					{ this.tags = r; }
 					else if (response.status === 400)
 					{ this.$store.commit('error', r.error); }
 					else if (response.status === 401)

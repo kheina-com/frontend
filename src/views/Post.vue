@@ -724,10 +724,8 @@ html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	margin: 0 0 25px;
 }
 .profile {
-	padding: 0.25em;
 	margin: -0.25em;
 	margin-top: 0;
-	border-radius: var(--border-radius);
 }
 a.profile:hover {
 	background: var(--bg2color);

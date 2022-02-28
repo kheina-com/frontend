@@ -121,6 +121,10 @@ export default {
 .profile {
 	display: block;
 	margin-right: auto;
+	padding: 0.25em 0.5em 0.25em 0.25em;
+	margin: -0.25em;
+	border-radius: var(--border-radius);
+	border-radius: calc(var(--border-radius) + 0.125em) var(--border-radius) var(--border-radius) calc(var(--border-radius) + 0.125em);
 }
 .profile .inner {
 	display: flex;

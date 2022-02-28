@@ -38,9 +38,6 @@ export default {
 			default: null,
 		},
 	},
-	created() {
-		console.log('error', this.message, this.dump);
-	},
 }
 </script>
 

@@ -32,7 +32,8 @@ Router.beforeEach((to, from, next) => {
 	// Turn the meta tag definitions into actual elements in the head.
 	meta.metaTags
 		.map(tag => typeof tag === 'function' ? tag(to, from) : tag)
-		.forEach(tag => setMeta(tag));
+		.filter(tag => tag)
+		.forEach(setMeta);
 
 	next();
 });

@@ -48,15 +48,9 @@ export default createStore({
 		},
 		error(state, message=null, dump=null) {
 			if (message)
-			{
-				console.log(message, dump);
-				state.error = {
-					message,
-					dump,
-				};
-			}
+			{ state.error = { message, dump }; }
 			else if (state.error !== null)
-			{ state.error = null; console.log(message, dump); }
+			{ state.error = null; }
 		},
 		createToast(state, options) {
 			const id = toastCounter++;

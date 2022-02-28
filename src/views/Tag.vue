@@ -334,10 +334,7 @@ h2 {
 	margin: 0 0 10px;
 }
 .profile {
-	padding: 0.25em;
-	margin: -0.25em;
 	margin-top: 0;
-	border-radius: var(--border-radius);
 }
 a.profile:hover {
 	background: var(--bg2color);

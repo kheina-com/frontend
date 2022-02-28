@@ -33,7 +33,7 @@
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
 export default {
-	name: 'Login',
+	name: 'Account',
 	components: {
 		ThemeMenu,
 	},

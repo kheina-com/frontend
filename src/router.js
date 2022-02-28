@@ -16,6 +16,8 @@ import Tags from './views/Tags.vue';
 import Users from './views/Users.vue';
 import SearchHelp from './views/SearchHelp.vue';
 import Timeline from './views/Timeline.vue';
+import Privacy from './views/Privacy.vue';
+import BugReport from './views/BugReport.vue';
 
 import Test from './views/Test.vue';
 
@@ -32,10 +34,6 @@ const routes = [
 				{
 					property: 'og:title',
 					content: 'kheina.com',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -61,10 +59,6 @@ const routes = [
 					content: 'kheina.com - the world\'s largest furry image index',
 				},
 				{
-					property: 'og:image',
-					content: '/assets/icon.png',
-				},
-				{
 					name: 'theme-color',
 					content: '#1E1F25',
 				},
@@ -88,10 +82,6 @@ const routes = [
 					content: 'Timeline | kheina.com',
 				},
 				{
-					property: 'og:image',
-					content: '/assets/icon.png',
-				},
-				{
 					name: 'theme-color',
 					content: '#1E1F25',
 				},
@@ -103,15 +93,11 @@ const routes = [
 		name: 'account',
 		component: Account,
 		meta: {
-			title: 'Manage your account',
+			title: 'Manage your kheina.com account',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Manage your kheina.com account.',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Manage your kheina.com account',
 				},
 				{
 					name: 'theme-color',
@@ -129,11 +115,7 @@ const routes = [
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Manage your kheina.com account.',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Sign in to kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -151,11 +133,7 @@ const routes = [
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Create an account on kheina.com.',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Create an account on kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -169,15 +147,11 @@ const routes = [
 		name: 'finalize',
 		component: FinalizeAccount,
 		meta: {
-			title: 'Finish creating your account',
+			title: 'Finish creating your kheina.com account',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Finish creating your kheina.com account.',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Finish creating your kheina.com account',
 				},
 				{
 					name: 'theme-color',
@@ -201,10 +175,6 @@ const routes = [
 					};
 				},
 				{
-					property: 'og:image',
-					content: '/assets/icon.png',
-				},
-				{
 					name: 'theme-color',
 					content: '#1E1F25',
 				},
@@ -217,18 +187,14 @@ const routes = [
 		props: true,
 		component: Search,
 		meta: {
-			title: (to) => `Search results for ${to.params.query}`,
+			title: (to) => `Search results for ${to.params.query} | kheina.com`,
 			metaTags: [
 				(to) => {
 					return {
 						name: 'description',
 						property: 'og:description',
-						content: `Search results for ${to.params.query}`,
+						content: `Search results for ${to.params.query} | kheina.com`,
 					};
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
 				},
 				{
 					name: 'theme-color',
@@ -253,10 +219,6 @@ const routes = [
 					};
 				},
 				{
-					property: 'og:image',
-					content: '/assets/icon.png',
-				},
-				{
 					name: 'theme-color',
 					content: '#1E1F25',
 				},
@@ -268,18 +230,12 @@ const routes = [
 		name: 'tags',
 		component: Tags,
 		meta: {
-			title: (to) => 'Tags',
+			title: 'Tags | kheina.com',
 			metaTags: [
-				(to) => {
-					return {
-						name: 'description',
-						property: 'og:description',
-						content: `Search results for ${to.params.tag}`,
-					};
-				},
 				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					name: 'description',
+					property: 'og:description',
+					content: 'Tags | kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -293,15 +249,11 @@ const routes = [
 		name: 'upload',
 		component: Upload,
 		meta: {
-			title: 'Create new post',
+			title: 'Create new post | kheina.com',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Create new post',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Create new post | kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -315,15 +267,11 @@ const routes = [
 		name: 'markdown',
 		component: MarkdownGuide,
 		meta: {
-			title: 'Markdown Guide',
+			title: 'Markdown Guide | kheina.com',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Markdown Guide',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Markdown Guide | kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -337,15 +285,11 @@ const routes = [
 		name: 'search-help',
 		component: SearchHelp,
 		meta: {
-			title: 'Search Help',
+			title: 'Search Help | kheina.com',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Search Help',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Search Help | kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -359,15 +303,11 @@ const routes = [
 		name: 'report',
 		component: Report,
 		meta: {
-			title: 'Report Content',
+			title: 'Report Content | kheina.com',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Report Content',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'Report Content | kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -381,15 +321,11 @@ const routes = [
 		name: 'users',
 		component: Users,
 		meta: {
-			title: 'all users',
+			title: 'all users | kheina.com',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'all users',
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					content: 'all users | kheina.com',
 				},
 				{
 					name: 'theme-color',
@@ -403,24 +339,44 @@ const routes = [
 		name: 'test',
 		component: Test,
 	},
-	// {
-	// 	path: '/s',
-	// 	name: 'search',
-	// 	props: true,
-	// 	component: Search,
-	// 	meta: {
-	// 		metaTags: [
-	// 			{
-	// 				property: 'og:image',
-	// 				content: '/assets/icon.png',
-	// 			},
-	// 			{
-	// 				name: 'theme-color',
-	// 				content: '#1E1F25',
-	// 			},
-	// 		],
-	// 	},
-	// },
+	{
+		path: '/privacy',
+		name: 'privacy',
+		props: true,
+		component: Privacy,
+		meta: {
+			title: 'Privacy Policy | kheina.com',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Privacy Policy | kheina.com',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/bug',
+		name: 'bug',
+		props: true,
+		component: BugReport,
+		meta: {
+			title: 'Report a Bug | kheina.com',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Report a Bug | kheina.com',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
 	{
 		path: '/:handle',
 		name: 'user',
@@ -430,15 +386,11 @@ const routes = [
 			applyOffset: false,
 			title: (to, from) => to.path !== from.path ? `Retrieving user @${to.params.handle}...` : null,
 			metaTags: [
-				(to) => {
-					return {
+				(to, from) => {
+					return to.path !== from.path ? {
 						property: 'og:title',
 						content: `Retrieving user @${to.params.handle}...`,
-					};
-				},
-				{
-					property: 'og:image',
-					content: '/assets/icon.png',
+					} : null;
 				},
 				{
 					name: 'theme-color',

@@ -1,7 +1,7 @@
 <template>
 	<router-link :to='`/t/${tag}`' :class='divClass'>
 		<h2>{{tag}}</h2>
-		<Profile v-bind='owner' v-if='owner' :link='false'/>
+		<Profile v-bind='owner' v-if='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p :style='`color: var(--${tagColorMap[group]})`'>{{group}}</p>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
 		<p>Inherited Tags: {{inheritedTags}}</p>
@@ -40,7 +40,7 @@ export default {
 	},
 	computed: {
 		divClass()
-		{ return 'tag' + (this.nested ? ' nested' : ''); },
+		{ console.log(this.$route.path); return 'tag' + (this.nested ? ' nested' : ''); },
 	},
 }
 </script>
@@ -51,7 +51,9 @@ export default {
 	background: var(--bg1color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
-	display: block;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 }
 .tag.nested {
 	background: var(--bg2color);
@@ -61,5 +63,11 @@ export default {
 }
 h2 {
 	margin: 0;
+}
+a.profile:hover {
+	background: var(--bg1color);
+}
+.post.nested a.profile:hover {
+	background: var(--bg2color);
 }
 </style>
