@@ -677,6 +677,7 @@ main {
 	margin: 25px 25px 0	;
 	display: flex;
 	justify-content: space-between;
+	display: none;
 }
 .mobile .set-controls {
 	margin: 0 25px 25px;
