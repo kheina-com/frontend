@@ -167,7 +167,7 @@
 							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
-					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
+					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>
 				</div>
 				<div v-show='tab === "sets"'>
 					<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
@@ -197,7 +197,7 @@
 							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
-					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-show='posts'/>
+					<ResultsNavigation class='page-links' :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>
 				</div>
 			</div>
 			<ThemeMenu/>
@@ -235,6 +235,7 @@
 					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels @click='uploadPostId = post.post_id'/>
 				</li>
 			</ol>
+			<ResultsNavigation :navigate='runSearchQuery' :activePage='uploadablePage' :totalPages='uploadablePosts?.length >= 64 ? 10000 : 0' v-if='uploadablePosts'/>
 		</div>
 	</div>
 </template>
@@ -317,6 +318,7 @@ export default {
 			isUploadBanner: false,
 			uploadPostId: null,
 			uploadablePosts: null,
+			uploadablePage: null,
 			searchValue: null,
 			cropperImage: null,
 			uploadLoading: null,
@@ -665,8 +667,9 @@ export default {
 			})
 			.catch(this.disableUploads);
 		},
-		runSearchQuery() {
+		runSearchQuery(page=null) {
 			this.uploadLoading = true;
+			this.uploadablePage = page || 1;
 			if (this.searchValue)
 			{
 				khatch(`${postsHost}/v1/fetch_posts`, {
@@ -675,8 +678,8 @@ export default {
 					body: {
 						sort: 'new',
 						tags: tagSplit(this.searchValue),
-						page: this.page,
-						count: this.count,
+						page: this.uploadablePage,
+						count: 64,
 					},
 				})
 				.then(response => {
@@ -694,8 +697,8 @@ export default {
 					method: 'POST',
 					body: {
 						handle: this.handle,
-						page: this.page,
-						count: this.count,
+						page: this.uploadablePage,
+						count: 64,
 					},
 				})
 				.then(response => {
@@ -1144,6 +1147,9 @@ ul.tags > :last-child {
 .upload-window ol.results li {
 	list-style: none;
 	margin: 0 12.5px 25px;
+}
+.upload-window .page-links {
+	margin-top: 0;
 }
 .search-close {
 	position: fixed;

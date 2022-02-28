@@ -127,8 +127,9 @@ export default {
 				.then(response => {
 					if (response.status < 300)
 					{ this.$router.push('/account/login'); }
-					response.json()
-						.then(r => {
+					else
+					{
+						response.json().then(r => {
 							console.log(r);
 							if (response.status === 400)
 							{ this.$store.commit('error', r.error); }
@@ -139,6 +140,7 @@ export default {
 							else
 							{ this.$store.commit('error', apiErrorMessage, r); }
 						});
+					}
 					this.isLoading = false;
 				})
 				.catch(error => {

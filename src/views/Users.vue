@@ -53,7 +53,9 @@ export default {
 				response.json().then(r => {
 					console.log(r);
 					console.log(Object.values(r));
-					if (response.status === 400)
+					if (response.status < 300)
+					{ this.users = r; }
+					else if (response.status === 400)
 					{ this.$store.commit('error', r.error); }
 					else if (response.status === 401)
 					{ this.$store.commit('error', r.error); }
@@ -63,10 +65,10 @@ export default {
 					{ this.$store.commit('error', apiErrorMessage, r); }
 				});
 			})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
+			.catch(error => {
+				this.$store.commit('error', apiErrorMessage, error);
+				console.error(error);
+			});
 	},
 }
 </script>
