@@ -71,14 +71,14 @@ export default {
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
 		parentStyle() {
-			return this.isLoading ? `aspect-ratio: ${this.width}/${this.height};` : null;
+			return this.isLoading && this.width ? `aspect-ratio: ${this.width}/${this.height};` : null;
 		},
 		linkStyle()
 		{
 			if (this.isLoading && this.lazy)
-			{ return `width: ${this.width}px; padding-top: ${this.height / this.width * 100}%;`; }
+			{ return `width: ${this.width || '30vw'}px; padding-top: ${this.width ? this.height / this.width * 100 : '30vh'}%;`; }
 			else if (this.isError)
-			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width}px; height: ${this.height};`; }
+			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width || '30vw'}px; height: ${this.height || '30vh'};`; }
 			return this.style;
 		},
 	},

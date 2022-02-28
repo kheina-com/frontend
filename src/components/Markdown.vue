@@ -61,7 +61,7 @@ export default {
 			{
 				if (this.concise)
 				{
-					const match = this.content.match(/((?:.+[\n\r]){0,5})([\s\S]+)?/);
+					const match = this.content.match(/((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?/);
 
 					let end = '';
 					if (match[1].length > 500)
