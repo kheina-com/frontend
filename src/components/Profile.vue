@@ -124,7 +124,7 @@ export default {
 	padding: 0.25em 0.5em 0.25em 0.25em;
 	margin: -0.25em;
 	border-radius: var(--border-radius);
-	border-radius: calc(var(--border-radius) + 0.125em) var(--border-radius) var(--border-radius) calc(var(--border-radius) + 0.125em);
+	border-radius: calc(var(--border-radius) + 0.25em) var(--border-radius) var(--border-radius) calc(var(--border-radius) + 0.25em);
 }
 .profile .inner {
 	display: flex;
