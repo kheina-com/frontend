@@ -26,9 +26,12 @@
 							</div>
 							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 						</button>
-						<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
+						<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-if='user?.icon'>
 							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 						</router-link>
+						<div class='thumbnail' v-else>
+							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+						</div>
 					</Loading>
 					<div class='profile-buttons'>
 						<div class='tabs' v-if='!isMobile'>
@@ -448,6 +451,7 @@ export default {
 					this.posts = null;
 
 					khatch(`${postsHost}/v1/fetch_user_posts`, {
+						handleError: true,
 							method: 'POST',
 							body: {
 								handle: this.handle,
@@ -457,36 +461,12 @@ export default {
 						})
 						.then(response => {
 							response.json().then(r => {
-								if (response.status < 300)
-								{
-									if (this.$store.state.scroll)
-									{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
-									this.posts = r;
-								}
-								else if (response.status < 500)
-								{
-									this.$store.commit('createToast', {
-										title: apiErrorMessageToast,
-										description: r.error,
-									});
-								}
-								else
-								{
-									this.$store.commit('createToast', {
-										title: apiErrorMessageToast,
-										description: apiErrorDescriptionToast,
-										dump: r,
-									});
-								}
+								if (this.$store.state.scroll)
+								{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+								this.posts = r;
 							});
 						})
-					.catch(error => {
-						console.error(error);
-						this.$store.commit('createToast', {
-							title: apiErrorMessageToast,
-							description: error,
-						});
-					});
+					.catch(() => { });
 					break;
 
 				case 'sets' :
@@ -1053,18 +1033,8 @@ ul, ol {
 }
 
 @media only screen and (max-width: 900px) {
-	.user {
+	.user, .description, .user-info, .header-bar .inner {
 		width: auto;
-	}
-	.description {
-		width: auto;
-	}
-	.user-info {
-		width: auto;
-	}
-	.header-bar .inner {
-		width: auto;
-		margin: 0 25px;
 	}
 }
 
