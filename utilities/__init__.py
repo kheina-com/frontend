@@ -11,7 +11,7 @@ default_image = header_image.format('https://cdn.kheina.com/file/kheina-content/
 
 api_timeout = 5
 
-concise_regex = re_compile(r'(.+(?:[\n\r]+.+){0,2})([\s\S]+)?')
+concise_regex = re_compile(r'((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?')
 description_limit = 250
 
 markdown_regex = re_compile('|'.join([
@@ -1859,7 +1859,7 @@ def firstGroupOrNone(match) :
 
 
 def demarkdown(string) :
-	return markdown_regex.sub(firstGroupOrNone, emoji_regex.sub(lambda x : emoji_map[x[1]], string))
+	return markdown_regex.sub(firstGroupOrNone, emoji_regex.sub(lambda x : emoji_map[x[1]], string.strip('\r\n')))
 
 
 def concise(string: str) :
@@ -1880,4 +1880,4 @@ def concise(string: str) :
 		cut = False
 		description = match[0]
 
-	return '\n'.join(list(map(str.rstrip, description.split('\n')))) + ('...' if cut else '')
+	return '\n'.join(list(map(str.rstrip, description.strip('\r\n').split('\n')))) + ('...' if cut else '')

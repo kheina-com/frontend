@@ -7,6 +7,7 @@ from headers.tag import tagMetaTags, tag_regex
 from kh_common.logging import getLogger
 from headers.home import homeMetaTags
 from asyncio import ensure_future
+from typing import Optional
 from os import path
 
 
@@ -56,11 +57,14 @@ def pixel(req: Request) :
 
 
 @app.get('{uri:path}')
-async def all_routes(uri: str) :
+async def all_routes(uri: str, force_norich: Optional[str] = None) :
 	local_uri = 'dist/' + uri.strip('\./')
 
 	if path.isfile(local_uri) :
 		return FileResponse(local_uri)
+
+	if force_norich :
+		return HTMLResponse(vueIndex())
 
 	metaTags = ensure_future(matchMetaTags(uri))
 	html = vueIndex()
