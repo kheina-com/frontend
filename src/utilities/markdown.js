@@ -84,21 +84,26 @@ const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => '\\' + 
 
 const userLinks = {
 	// shortcode: [url, emoji]
-	// links get formatted as url + '/' + username
+	// links get formatted as url + username
 	'': ['', null], // default
-	t: ['https://twitter.com', 'twitter'],
-	fa: ['https://www.furaffinity.net/user', 'furaffinity'],
-	f: ['https://www.facebook.com', 'facebook'],
-	u: ['https://www.reddit.com/u', 'reddit'],
-	tw: ['https://www.twitch.tv', 'twitch'],
-	yt: ['https://www.youtube.com/c', 'youtube'],
-	tg: ['https://t.me', 'telegram'],
-	p: ['https://www.patreon.com', 'patreon'],
-	pi: ['https://www.picarto.tv', 'picarto'],
-	kf: ['https://ko-fi.com', 'ko-fi'],
-	gr: ['https://gumroad.com', 'gumroad'],
-	st: ['https://subscribestar.adult', 'subscribestar'],
-	rf: ['https://ref.st', 'refsheet'],
+	t: ['https://twitter.com/', 'twitter'],
+	fa: ['https://www.furaffinity.net/user/', 'furaffinity'],
+	f: ['https://www.facebook.com/', 'facebook'],
+	u: ['https://www.reddit.com/u/', 'reddit'],
+	tw: ['https://www.twitch.tv/', 'twitch'],
+	yt: ['https://www.youtube.com/c/', 'youtube'],
+	tg: ['https://t.me/', 'telegram'],
+	p: ['https://www.patreon.com/', 'patreon'],
+	pi: ['https://www.picarto.tv/', 'picarto'],
+	kf: ['https://ko-fi.com/', 'ko-fi'],
+	gr: ['https://gumroad.com/', 'gumroad'],
+	st: ['https://subscribestar.adult/', 'subscribestar'],
+	rf: ['https://ref.st/', 'refsheet'],
+	pp: ['https://www.paypal.me/', 'paypal'],
+	fn: ['https://www.furrynetwork.com/', 'furrynetwork'],
+	w: ['https://www.weasyl.com/~', 'weasyl'],
+	// need to add tumblr, but tumblr urls are formatted user.tumblr.com
+	// tm: ['https://{username}.tumblr.com', 'tumblr'],
 };
 
 const mdMaxId = 0xffffffff;
@@ -285,7 +290,7 @@ export const mdExtensions = [
 						raw: match[0],
 						text: link[1] ? match[2] : match[0],
 						title: match[0],
-						href: `${link[0]}/${match[2]}`,
+						href: link[0] + match[2],
 						icon: getEmojiUrl(link[1]),
 						username: match[2],
 					};
