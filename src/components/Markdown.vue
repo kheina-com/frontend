@@ -132,7 +132,10 @@ export default {
 	vertical-align: bottom;
 	transform: translateY(calc(50% - 0.6em))
 }
-.markdown img.handle-icon {
+.markdown .handle {
+	white-space: nowrap;
+}
+.markdown .handle img.emoji {
 	position: relative;
 	margin-right: 0.2em;
 }

@@ -325,10 +325,10 @@ export const mdExtensions = [
 					element.addEventListener('click', e => e.stopPropagation())
 				}, 0);
 
-				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}"><img src="${token.icon}" class="emoji handle-icon">${token.text}</a>`;
+				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle"><img src="${token.icon}" class="emoji">${token.text}</a>`;
 			}
 
-			return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}">${token.text}</a>`;
+			return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle">${token.text}</a>`;
 		},
 	},
 	{
