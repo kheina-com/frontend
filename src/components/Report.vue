@@ -1,8 +1,8 @@
 <template>
-	<button @click.prevent.stop='navigate' class='report'>
+	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report'>
 		<i class='kheina-icons'>report_content</i>
 		<span>Report Content</span>
-	</button>
+	</router-link>
 </template>
 
 <script>
@@ -15,17 +15,16 @@ export default {
 		},
 		data: Object,
 	},
-	methods: {
-		navigate() {
-			let query = Object.entries(Object.assign({ url: encodeURIComponent(this.$route.fullPath) }, this.data)).map(x => `${x[0]}=${x[1]}`).join('&');
-			this.$router.push(`/report?${query}`);
+	computed: {
+		destination() {
+			return '/report?' + Object.entries(Object.assign({ url: encodeURIComponent(this.$route.fullPath) }, this.data)).map(x => `${x[0]}=${x[1]}`).join('&');
 		},
 	},
 }
 </script>
 
 <style scoped>
-button {
+.report {
 	display: flex;
 	align-items: center;
 	color: var(--subtle);
@@ -35,7 +34,7 @@ button {
 	position: relative;
 	z-index: 1;
 }
-button:hover {
+.report:hover {
 	color: var(--icolor);
 	background: var(--bg1color);
 }

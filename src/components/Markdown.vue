@@ -279,4 +279,15 @@ export default {
 .markdown.inline p {
 	display: inline;
 }
+
+/* THEME OVERRIDES */
+html.solarized-dark .markdown .gigamoji img,
+html.solarized-dark .markdown img.emoji {
+	filter: contrast(0.625);
+}
+
+html.solarized-light .markdown .gigamoji img,
+html.solarized-light .markdown img.emoji {
+	filter: sepia(0.375);
+}
 </style>

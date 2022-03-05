@@ -121,7 +121,7 @@ export async function khatch(url, options={ })
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
 	const errorHandlers = options?.errorHandlers || { };
 
-	if (url.match(/https:\/\/(?:\w+\.)?kheina.com|http:\/\/localhost/))
+	if (url.match(/https:\/\/(?:\w+\.)?kheina.com\/|http:\/\/localhost/))
 	{
 		const headers = options?.headers || { };
 		const auth = store.state.auth?.token;

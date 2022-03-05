@@ -220,14 +220,14 @@ export const mdRenderer = {
 		{
 			setTimeout(() => {
 				const element = document.getElementById(id);
-				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(href); })
+				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(href); });
 			}, 0);
 		}
 		else
 		{
 			setTimeout(() => {
 				const element = document.getElementById(id);
-				element.addEventListener('click', e => e.stopPropagation())
+				element.addEventListener('click', e => e.stopPropagation());
 			}, 0);
 		}
 
@@ -387,14 +387,8 @@ export const mdExtensions = [
 					if (!element || !r)
 					{ return; }
 
-					element.innerHTML = `
-<a id="${id}" class="post" href="/p/${token.text}">
-<img src="${token.href}" alt="${title}" title="${title}">
-${title ? '<p>' + title + '</p>' : ''}
-</a>
-					`.trim();
-
-					element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push('/p/' + token.text); })
+					element.innerHTML = `<a id="${id}" class="post" href="/p/${token.text}">\n<img src="${token.href}" alt="${title}" title="${title}">\n${title ? '<p>' + title + '</p>' : ''}</a>`;
+					element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push('/p/' + token.text); });
 				});
 
 			return `<span id="${id}">${token.raw}</span>`;
@@ -481,7 +475,6 @@ ${title ? '<p>' + title + '</p>' : ''}
 				align,
 				text,
 			};
-			console.log(token)
 
 			this.lexer.blockTokens(token.text, token.tokens);
 

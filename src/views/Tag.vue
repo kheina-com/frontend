@@ -151,10 +151,10 @@ export default {
 
 				});
 			})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
+			.catch(error => {
+				this.$store.commit('error', apiErrorMessage, error);
+				console.error(error);
+			});
 
 		this.$watch(
 			() => this.$route.query,
@@ -194,7 +194,7 @@ export default {
 						if (response.status < 300)
 						{
 							if (this.$store.state.scroll)
-							{ setTimeout(() => { console.log(this.$store.state.scroll); window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+							{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
 							this.posts = r;
 						}
 						else if (response.status === 400)

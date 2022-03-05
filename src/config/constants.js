@@ -79,6 +79,8 @@ export const apiErrorDescriptionToast = 'If you submit a bug report, please incl
 
 export const tagGroups = ['artist', 'subject', 'sponsor', 'species', 'gender', 'misc'];
 
+export const ratings = new Set(['general', 'mature', 'explicit']);
+
 export const routerMetaTag = 'data-v-router';
 
 export const tagColorMap = {
@@ -195,9 +197,10 @@ initial and trailing | pipes (\`|\`) can be omitted, | if you so choose
 initial and trailing | pipes (\`\\|\`) can be omitted, | if you so choose
 
 
-## Additional Features
+# Additional Features
 These are features unique to kheina.com's implementation of markdown.
-### User Linking
+
+## User Linking
 to link to a user, you can simply precede the user's handle with an \`@\` character: @dani
 this is pretty common on other websites, however kheina.com also supports linking to external websites with this syntax.
 for example, twitter can be linked to like so: t@TwitterSupport. there are many websites with similar syntax. the complete list is below.
@@ -222,14 +225,14 @@ for example, twitter can be linked to like so: t@TwitterSupport. there are many 
 | \`fn@username\` | fn@username |  furrynetwork.com   | https://www.furrynetwork.com/username |
 | \`w@username\`  | w@username  |     weasyl.com      | https://www.weasyl.com/~username      |
 
-### Post Embedding
+## Post Embedding
 posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character
 \`\`\`
 ^nNSsjrxI
 \`\`\`
 ^nNSsjrxI
 
-### Emojis
+## Emojis
 emojis can be accessed by surrounding the emoji's code with \`:\` characters
 \`\`\`
 inline emoji: :heart:

@@ -154,7 +154,7 @@
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, deleteCookie, isMobile, khatch } from '@/utilities';
-import { configHost, environment } from '@/config/constants.js';
+import { configHost, environment, ratings } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
@@ -205,7 +205,7 @@ export default {
 		};
 	},
 	mounted() {
-		if (this.$route.path.match(/^\/[st]\//))
+		if (this.$route.path.match(/^\/[qt]\//))
 		{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
 		else
 		{ this.searchValue = ''; }
@@ -247,7 +247,18 @@ export default {
 		getMediaThumbnailUrl,
 		runSearchQuery() {
 			const query = this.searchValue.trim();
-			this.$router.push(query ? (query.includes(' ') ? '/q/' : '/t/') + encodeURIComponent(query) : '/');
+			if (!query)
+			{
+				this.$router.push('/');
+				return;
+			}
+
+			let route = '/t/';
+
+			if (query.includes(' ') || ratings.has(query) || query.startsWith('@') || query.startsWith('-'))
+			{ route = '/q/'; }
+
+			this.$router.push(route + encodeURIComponent(query));
 		},
 		signOut() {
 			deleteCookie('kh-auth');

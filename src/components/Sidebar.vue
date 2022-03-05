@@ -26,12 +26,9 @@ import TagGroup from '@/components/TagGroup.vue';
 export default {
 	name: 'Sidebar',
 	props: {
+		rating: String,
 		tags: {
 			type: Object,
-			default: null,
-		},
-		rating: {
-			type: String,
 			default: null,
 		},
 	},
