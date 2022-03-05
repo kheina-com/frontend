@@ -8,8 +8,9 @@
 	"dependencies": {
 		"click-outside-vue3": "^4.0.1",
 		"dompurify": "^2.2.7",
-		"marked": "^4.0.4",
-		"prismjs": "^1.25.0",
+		"marked": "^4.0.12",
+		"prismjs": "^1.27.0",
+		"set-value": "^4.0.1",
 		"update": "^0.7.4",
 		"uuid": "^8.3.2",
 		"vue": "^3.0.11",

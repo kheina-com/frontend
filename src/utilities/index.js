@@ -298,3 +298,20 @@ export function demarkdown(string) {
 export function isDarkMode() {
 	return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
+
+export const lazyObserver = new IntersectionObserver(
+	e => {
+		// console.log(e);
+		e.forEach(entry => {
+			if (entry.isIntersecting)
+			{
+				entry.target.src = entry.target.dataset.src;
+				lazyObserver.unobserve(entry.target);
+			}
+		});
+	},
+	{
+		root: null,
+		rootMargin: '10%',
+	}
+);

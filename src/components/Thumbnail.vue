@@ -1,12 +1,12 @@
 <template>
 	<Loading class='thumbnail' :style='parentStyle' :isLoading='isLoading'>
-		<img ref='media' :style='imageStyle' :src='src' @load='loaded' @error='onError'>
+		<img ref='media' :style='imageStyle' :data-src='src' @load='loaded' @error='onError'>
 	</Loading>
 </template>
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl } from '@/utilities';
+import { getMediaThumbnailUrl, lazyObserver } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 
 export default {
@@ -36,11 +36,20 @@ export default {
 			default: 0,
 		},
 	},
+	setup() {
+		const media = ref(null);
+		return {
+			media,
+		};
+	},
 	data() {
 		return {
 			webpFailed: false,
 			isLoading: true,
 		};
+	},
+	mounted() {
+		lazyObserver.observe(this.$refs.media);
 	},
 	computed: {
 		parentStyle() {
