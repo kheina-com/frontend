@@ -5,7 +5,7 @@
 		<p class='parent-title'>Parent post</p>
 		<router-link :to='`/p/${parent.postId}`' class='inner'>
 			<div class='parent-thumbnail'>
-				<Thumbnail v-show='parent?.media_type' :width='parent?.size?.width' :height='parent?.size?.height'/>
+				<Thumbnail :post='post.parent' v-show='parent?.media_type' :width='parent?.size?.width' :height='parent?.size?.height'/>
 			</div>
 			<Markdown :content='parent.title || parent.postId' inline/>
 		</router-link>
