@@ -40,7 +40,7 @@ export default {
 	},
 	computed: {
 		divClass()
-		{ console.log(this.$route.path); return 'tag' + (this.nested ? ' nested' : ''); },
+		{ return 'tag' + (this.nested ? ' nested' : ''); },
 	},
 }
 </script>

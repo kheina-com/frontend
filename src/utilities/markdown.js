@@ -163,48 +163,50 @@ const mdMakeRequest = (url, silent=false) => {
 			resolve(mdRequestCache[url]);
 			return;
 		}
-	
-		khatch(url)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
-						// description exists in a lot of responses, and is almost always the biggest one
-						// delete it just in case it exists to avoid taking up too much storage
-						if (r.hasOwnProperty('description'))
-						{ delete r.description; }
-						mdRequestCache[url] = r;
-						resolve(r);
-						return;
-					}
-					else if (silent)
-					{ }
-					else if (response.status < 500)
-					{
-						store.commit('createToast', {
-							title: apiErrorMessageToast,
-							description: r.error,
-						});
-					}
-					else
-					{
-						store.commit('createToast', {
-							title: apiErrorMessageToast,
-							description: apiErrorDescriptionToast,
-							dump: r,
-						});
-					}
-					mdRequestCache[url] = null;
-					resolve();
-				});
-			}).catch(error => {
-				console.error(error);
-				store.commit('createToast', {
-					title: apiErrorMessageToast,
-					description: error,
-				});
+
+		khatch(url).then(response => {
+			if (response.status === 204)
+			{ resolve(); return; }
+
+			response.json().then(r => {
+				if (response.status < 300)
+				{
+					// description exists in a lot of responses, and is almost always the biggest one
+					// delete it just in case it exists to avoid taking up too much storage
+					if (r.hasOwnProperty('description'))
+					{ delete r.description; }
+					mdRequestCache[url] = r;
+					resolve(r);
+					return;
+				}
+				else if (silent)
+				{ }
+				else if (response.status < 500)
+				{
+					store.commit('createToast', {
+						title: apiErrorMessageToast,
+						description: r.error,
+					});
+				}
+				else
+				{
+					store.commit('createToast', {
+						title: apiErrorMessageToast,
+						description: apiErrorDescriptionToast,
+						dump: r,
+					});
+				}
+				mdRequestCache[url] = null;
 				resolve();
 			});
+		}).catch(error => {
+			console.error(error);
+			store.commit('createToast', {
+				title: apiErrorMessageToast,
+				description: error,
+			});
+			resolve();
+		});
 	});
 
 	return promise;
@@ -231,7 +233,9 @@ export const mdRenderer = {
 			}, 0);
 		}
 
-		return `<a href="${htmlEscape(href)}" id="${id}" title="${title}">${text || href}</a>`;
+		if (title)
+		{ return `<a href="${htmlEscape(href)}" id="${id}" title="${title}">${text || href}</a>`; }
+		return `<a href="${htmlEscape(href)}" id="${id}">${text || href}</a>`;
 	},
 };
 

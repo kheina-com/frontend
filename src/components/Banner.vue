@@ -124,6 +124,7 @@
 					<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
 				</li>
 				<ThemeSelector class='theme-menu'/>
+				<p class='commit'>version: <a :href='`https://github.com/kheina-com/frontend/commit/${fullCommit}`' target='_blank'><code>{{shortCommit}}</code></a></p>
 			</ol>
 		</div>
 		<div ref='menuButton' class='menu-button' v-if='isMobile'>
@@ -195,6 +196,8 @@ export default {
 	},
 	data() {
 		return {
+			fullCommit: __COMMIT_HASH__,
+			shortCommit: __SHORT_COMMIT_HASH__,
 			message: null,
 			editMessage: false,
 			menuOpen: false,
@@ -464,7 +467,7 @@ ol {
 	margin: 0;
 	padding: 0;
 	height: 80%;
-	height: calc(100% - 3.5rem);
+	height: calc(100% - 2.5rem - 0.5em - 25px);
 }
 ol li {
 	margin: 0 0 0.5em;
@@ -617,11 +620,11 @@ html.mobile .menu-open .create p, .menu-open .create p {
 }
 
 .mobile ol {
-	height: calc(100% - 7rem);
+	height: calc(100% - 4rem - 0.5em - 25px);
 }
 .mobile .create {
-    margin-left: 8rem;
-    height: 4rem;
+	margin-left: 8rem;
+	height: 4rem;
 	font-size: 2rem;
 }
 .mobile .icon {
@@ -631,5 +634,23 @@ html.mobile .menu-open .create p, .menu-open .create p {
 }
 .mobile .menu-button .notifications {
 	left: 4rem;
+}
+
+.commit {
+	margin: 0;
+	font-size: 0.75rem;
+	color: var(--subtle);
+}
+.commit a {
+	color: var(--subtle);
+}
+
+.mobile .commit {
+	margin-top: 25px;
+}
+.desktop .commit {
+	position: absolute;
+	bottom: 1em;
+	width: calc(100% - 50px);
 }
 </style>

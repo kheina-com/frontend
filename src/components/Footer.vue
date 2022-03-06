@@ -14,7 +14,6 @@
 			</a>
 		</div>
 		<p style='text-align: center'>Found a bug? <router-link :to='`/bug?url=${encodeURIComponent($route.fullPath)}`'>Report it here</router-link>.</p>
-		<p class='commit'>version: <a :href='`https://github.com/kheina-com/frontend/commit/${fullCommit}`' target='_blank'><code>{{shortCommit}}</code></a></p>
 	</footer>
 </template>
 
@@ -27,12 +26,6 @@ export default {
 	components: {
 		ThemeButton,
 		ProgressBar,
-	},
-	data() {
-		return {
-			fullCommit: __COMMIT_HASH__,
-			shortCommit: __SHORT_COMMIT_HASH__,
-		};
 	},
 }
 </script>
@@ -82,14 +75,6 @@ export default {
 {
 	position: absolute;
 	left: 8px;
-}
-.commit {
-	margin: 0;
-	font-size: 0.75em;
-	color: var(--subtle);
-}
-.commit a {
-	color: var(--subtle);
 }
 .external-logo {
 	display: inline-block;
