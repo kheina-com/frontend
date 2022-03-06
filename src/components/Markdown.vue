@@ -125,6 +125,12 @@ export default {
 			) : '';
 		},
 	},
+	watch: {
+		content() {
+			if (this.renderedMd)
+			{ this.render(); }
+		},
+	},
 }
 </script>
 

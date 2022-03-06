@@ -6,7 +6,7 @@
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
-					<Markdown :content='name' inline/>
+					<Markdown :content='name' inline lazy/>
 				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'>
 					<p>
@@ -23,7 +23,7 @@
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
-					<Markdown :content='name' inline/>
+					<Markdown :content='name' inline lazy/>
 				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'>
 					<p>

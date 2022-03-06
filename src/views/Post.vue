@@ -7,7 +7,7 @@
 			<div class='parent-thumbnail'>
 				<Thumbnail :post='post.parent' v-show='parent?.media_type' :width='parent?.size?.width' :height='parent?.size?.height'/>
 			</div>
-			<Markdown :content='parent.title || parent.postId' inline/>
+			<Markdown :content='parent?.title || post.parent' inline/>
 		</router-link>
 	</div>
 	<div class='container' v-if='!isMobile'>
