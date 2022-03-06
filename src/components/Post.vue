@@ -23,7 +23,7 @@
 				<router-link :to='`/p/${postId}`'>
 					<h2 v-if='isLoading || title'>
 						<Loading span v-if='isLoading'>this is an example title</Loading>
-						<Markdown v-else :content='title' inline class='title'/>
+						<Markdown :content='title' inline class='title' lazy v-else/>
 					</h2>
 				</router-link>
 				<Profile :isLoading='isLoading' v-bind='user'/>
@@ -37,7 +37,7 @@
 				<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
 			</div>
 		</div>
-		<Markdown v-else-if='description' :content='description' :concise='concise'/>
+		<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 		<router-link :to='`/p/${postId}`' class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
 			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
@@ -551,7 +551,7 @@ ol > :last-child, ol > :last-child .post {
 	width: calc(100% + 50px);
 	margin: 0 -25px -25px;
 }
-.mobile .buttons button {
+.mobile .buttons button, .mobile .buttons a {
 	padding: 0 25px 25px;
 	margin: 0;
 }

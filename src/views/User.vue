@@ -34,7 +34,7 @@
 						</div>
 					</Loading>
 					<div class='profile-buttons'>
-						<div class='tabs' v-if='!isMobile'>
+						<div class='tabs' v-show='!isMobile'>
 							<button @click='selectTab' class='posts'>
 								Posts
 								<div class='border'/>
@@ -54,8 +54,8 @@
 								Favorites
 								<div class='border'/>
 							</button>
-							<div class='separator' v-if='isSelf'/>
-							<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-if='isSelf'>
+							<div class='separator' v-show='isSelf'/>
+							<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-show='isSelf'>
 								<i class='material-icons'>lock</i>
 								Uploads
 								<div class='border'/>
@@ -67,9 +67,9 @@
 						</Button>
 						<div class='badges'>
 							<p class='verified' v-if='user?.verified'>
-								<i class='kheina-icons' v-if='user.verified === "admin"' :title="`@${user?.handle} is an admin`">sword</i>
-								<i class='material-icons' v-else-if='user.verified === "mod"' :title="`@${user?.handle} is a moderator`">verified_user</i>
-								<i class='material-icons-round' v-else-if='user.verified === "artist"' :title="`@${user?.handle} is a verified artist`">verified</i>
+								<i class='kheina-icons' v-if='user.verified === "admin"' :title='`@${user?.handle} is an admin`'>sword</i>
+								<i class='material-icons' v-else-if='user.verified === "mod"' :title='`@${user?.handle} is a moderator`'>verified_user</i>
+								<i class='material-icons-round' v-else-if='user.verified === "artist"' :title='`@${user?.handle} is a verified artist`'>verified</i>
 								{{user.verified}}
 							</p>
 							<p v-for='badge in user?.badges'>
@@ -150,7 +150,7 @@
 						<div class='border'/>
 					</button>
 				</div>
-				<div class='tabs' v-if='isSelf'>
+				<div class='tabs' v-show='isSelf'>
 					<button @click='selectTab' class='uploads' title='this tab is only visible to you'>
 						<i class='material-icons'>lock</i>
 						Uploads
@@ -228,8 +228,6 @@
 			<div class='image-uploader' v-if='uploadLoading'>
 				<Loading :lazy='false'/>
 			</div>
-			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
-			<a @click.prevent.stop='disableUploads' class='search-close'><i class='material-icons'>close</i></a>
 			<div v-if='!uploadablePosts' style='margin-top: 25px; text-align: center'>
 				Select an existing post to set as your {{isUploadIcon ? 'profile picture' : 'banner image'}}.
 			</div>
@@ -239,6 +237,8 @@
 				</li>
 			</ol>
 			<ResultsNavigation :navigate='runSearchQuery' :activePage='uploadablePage' :totalPages='uploadablePosts?.length >= 64 ? 10000 : 0' v-if='uploadablePosts'/>
+			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
+			<a @click.prevent.stop='disableUploads' class='search-close'><i class='material-icons'>close</i></a>
 		</div>
 	</div>
 </template>
@@ -311,6 +311,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			isIconLoading: true,
 			isBannerLoading: true,
 			errorDump: null,
@@ -335,7 +336,7 @@ export default {
 		};
 	},
 	created() {
-		const tabs = new Set(['posts', 'sets', 'tags', 'favs']);
+		const tabs = new Set(['posts', 'sets', 'tags', 'favs', 'uploads']);
 
 		if (tabs.has(this.$route.query?.tab))
 		{ this.tab = this.$route.query.tab; }
@@ -371,13 +372,12 @@ export default {
 		);
 	},
 	mounted() {
-		this.tabElement = document.querySelector(`button.${this.tab}`);
+		this.tabElement = document.querySelector(`.${isMobile ? 'mobile-profile-buttons' : 'profile-buttons'} button.${this.tab}`);
 		this.tabElement.lastChild.style.borderBottomWidth = '5px';
 		if (this.$route.query?.edit)
 		{ this.toggleEdit(true); }
 	},
 	computed: {
-		isMobile,
 		isSelf() {
 			return this.$store.state.user && this.$store.state.user?.handle === this.user?.handle;
 		},
@@ -461,8 +461,8 @@ export default {
 						})
 						.then(response => {
 							response.json().then(r => {
-								if (this.$store.state.scroll)
-								{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+								// if (this.$store.state.scroll)
+								// { setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
 								this.posts = r;
 							});
 						})
@@ -1113,6 +1113,7 @@ ul.tags > :last-child {
 	flex-direction: row;
 	justify-content: center;
 	flex-wrap: wrap;
+	padding-top: 1.5em;
 }
 .upload-window ol.results li {
 	list-style: none;
@@ -1136,8 +1137,19 @@ ul.tags > :last-child {
 .mobile .search-close i {
 	font-size: 1.5em;
 	padding: 25px;
+	background: var(--bg1color);
+	border-radius: 50%;
+}
+.mobile .upload-window .results {
+	padding-top: 4em;
 }
 
+.search-bar {
+	position: fixed;
+	width: calc(100% - 100px - var(--border-size) * 2);
+	top: 50px;
+	top: calc(50px + var(--border-size));
+}
 
 /* THEME OVERRIDES */
 html.e621 .header-bar {

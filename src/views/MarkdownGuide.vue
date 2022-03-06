@@ -21,6 +21,7 @@ export default {
 	name: 'MarkdownGuide',
 	data() {
 		return {
+			isMobile,
 			content: mdGuide,
 		};
 	},
@@ -31,9 +32,6 @@ export default {
 	mounted() {
 		if (this.$route.query?.text)
 		{ this.content = this.$route.query.text; }
-	},
-	computed: {
-		isMobile,
 	},
 }
 </script>

@@ -28,13 +28,22 @@ export default {
 	display: flex;
 	align-items: center;
 	color: var(--subtle);
-	border-radius: var(--border-radius);
-	padding: 0.25em 0.25em;
 	margin: -0.1em -0.25em -0.25em;
 	position: relative;
 	z-index: 1;
 }
-.report:hover {
+.mobile .report {
+	padding: 0;
+}
+.desktop .report {
+	padding: 0.25em 0.5em 0.25em 0.25em;
+	border-radius: var(--border-radius);
+}
+.desktop .report:hover {
+	color: var(--icolor);
+	background: var(--bg1color);
+}
+.mobile .report:hover i {
 	color: var(--icolor);
 	background: var(--bg1color);
 }
@@ -43,6 +52,8 @@ i {
 	font-size: 1.2em;
 }
 .mobile i {
+	border-radius: var(--border-radius);
+	padding: 0.25em;
 	margin-right: 0;
 	font-size: 1.5em;
 }

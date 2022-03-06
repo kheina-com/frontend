@@ -260,6 +260,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			environment,
 			editing: false,
 			post: null,
@@ -335,7 +336,6 @@ export default {
 			});
 	},
 	computed: {
-		isMobile,
 		isLoading()
 		{ return this.post === null; },
 		isUpdated()

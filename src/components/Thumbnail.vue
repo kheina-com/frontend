@@ -1,6 +1,6 @@
 <template>
 	<Loading class='thumbnail' :style='parentStyle' :isLoading='isLoading'>
-		<img ref='media' :style='imageStyle' :data-src='src' @load='loaded' @error='onError'>
+		<img ref='media' :style='imageStyle' :data-src='src' :data-webp='true' @load='loaded' @error='onError'>
 	</Loading>
 </template>
 
@@ -45,6 +45,7 @@ export default {
 	data() {
 		return {
 			isLoading: true,
+			webp: true,
 			adjustment: this.width ? Math.min(this.size / Math.max(this.width, this.height), 1) : null,
 		};
 	},
@@ -72,8 +73,17 @@ export default {
 			this.onLoad(event);
 		},
 		onError() {
-			if (this.post)
-			{ this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
+			if (this.post && this.webp)
+			{
+				this.webp = false;
+				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
+			}
+			else
+			{
+				this.isLoading = false;
+				this.$refs.media.alt = 'failed to load media thumbnail';
+				this.isError = true;
+			}
 		},
 	},
 }

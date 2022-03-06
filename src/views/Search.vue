@@ -53,6 +53,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			// undefined for on pageload stuff
 			posts: undefined,
 			page: null,
@@ -83,7 +84,6 @@ export default {
 		ResultsNavigation,
 	},
 	computed: {
-		isMobile,
 		pagesBeforeCurrent() {
 			if (this.posts === null)
 			{ return null; }

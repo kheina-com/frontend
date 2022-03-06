@@ -210,6 +210,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			environment,
 			tagGroups,
 			serverTags: null,
@@ -254,7 +255,6 @@ export default {
 		}
 	},
 	computed: {
-		isMobile,
 		emojiPlaceholder() {
 
 			return ':' +

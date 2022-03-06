@@ -1,9 +1,11 @@
 <template>
-	<span class='markdown inline' v-html='renderedMd' v-if='inline'></span>
-	<div class='markdown block' v-html='renderedMd' v-else></div>
+	<span ref='markdown' class='markdown inline' v-html='renderedMd' v-if='inline'></span>
+	<div ref='markdown' class='markdown block' v-html='renderedMd' v-else></div>
 </template>
 
 <script> 
+import { ref } from 'vue';
+import { lazyConfig } from '@/utilities';
 import { mdEscape, mdExtensions, mdRenderer } from '@/utilities/markdown';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -49,11 +51,45 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		lazy: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	setup() {
+		const markdown = ref(null);
+		return {
+			markdown,
+		};
 	},
 	data() {
 		return {
 			cut: false,
+			renderedMd: null,
+			observer: null,
 		};
+	},
+	mounted() {
+		if (this.lazy)
+		{
+			this.observer = new IntersectionObserver(
+				e => {
+					// console.log(e);
+					e.forEach(entry => {
+						if (entry.isIntersecting)
+						{
+							this.observer.unobserve(entry.target);
+							this.render();
+							this.observer = null;
+						}
+					});
+				},
+				lazyConfig,
+			);
+			this.observer.observe(this.$refs.markdown);
+		}
+		else
+		{ this.render(); }
 	},
 	methods: {
 		mdString() {
@@ -79,10 +115,8 @@ export default {
 				return this.content;
 			}
 		},
-	},
-	computed: {
-		renderedMd() {
-			return this.content ? (
+		render() {
+			this.renderedMd =  this.content ? (
 				this.inline ? (
 					marked.parse(this.mdString())
 				) : (

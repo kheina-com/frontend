@@ -196,6 +196,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			fullCommit: __COMMIT_HASH__,
 			shortCommit: __SHORT_COMMIT_HASH__,
 			message: null,
@@ -230,7 +231,6 @@ export default {
 			});
 	},
 	computed: {
-		isMobile,
 		isVerified() {
 			return Boolean(this.$store.state.user?.verified);
 		},

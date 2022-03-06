@@ -145,4 +145,8 @@ export default {
 .bottom-margin {
 	margin-bottom: 25px;
 }
+.mobile .thumbnail {
+	max-width: 10em;
+}
+
 </style>

@@ -81,10 +81,7 @@ export function round(num, precision)
 	return Math.round(num * multiplier) / multiplier;
 }
 
-export function isMobile()
-{
-	return navigator.userAgent.toLowerCase().includes('mobile');
-}
+export const isMobile = navigator.userAgent.toLowerCase().includes('mobile');
 
 export function tagSplit(tags)
 {
@@ -299,6 +296,11 @@ export function isDarkMode() {
 	return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+export const lazyConfig = {
+	root: null,
+	rootMargin: '10%',
+};
+
 export const lazyObserver = new IntersectionObserver(
 	e => {
 		// console.log(e);
@@ -310,8 +312,5 @@ export const lazyObserver = new IntersectionObserver(
 			}
 		});
 	},
-	{
-		root: null,
-		rootMargin: '10%',
-	}
+	lazyConfig,
 );

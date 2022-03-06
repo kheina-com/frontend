@@ -35,6 +35,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			hasFile: false,
 			src: null,
 		};
@@ -64,7 +65,6 @@ export default {
 		},
 	},
 	computed: {
-		isMobile,
 		hasSlot() {
 			return Boolean(this.$slots.default);
 		},

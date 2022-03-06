@@ -111,6 +111,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			colorMap: {
 				artist: '--pink',
 				sponsor: '--green',
@@ -162,7 +163,6 @@ export default {
 		);
 	},
 	computed: {
-		isMobile,
 		isLoading()
 		{ return this.tagData === null; },
 		editable() {
