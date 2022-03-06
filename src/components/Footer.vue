@@ -2,10 +2,19 @@
 	<footer class='footer'>
 		<!-- <ThemeButton/> -->
 		<div class='anchor'>
-			<a href='https://www.patreon.com/kheina' target='_blank' class='left'><img src='/assets/patreon-logo.svg'> support the project</a>
-			<a href='https://gitlab.com/kheina.com' target='_blank' class='right'>view source code <img src='/assets/gitlab-logo.svg'></a>
+			<a href='https://www.patreon.com/kheina' target='_blank' class='left'>
+				<svg xmlns='http://www.w3.org/2000/svg' viewBox='7.846 7.798 47.363 47.34' class='external-logo patreon'>
+					<path d='M7.846 30.818c0-11.027 8.96-21.366 20.775-22.843 8.468-.985 14.868 2.265 19.298 6.498 4.135 3.938 6.598 8.96 7.188 14.868.492 5.907-.787 11.027-4.233 15.852-3.446 4.727-10.24 9.945-18.708 9.945h-11.52V32.394c.099-5.022 1.772-9.354 7.877-11.422 5.317-1.575 11.52 1.378 13.391 6.991 1.969 6.006-.887 10.043-4.234 12.505s-8.566 2.462-12.012.099v7.778c2.265 1.083 5.12 1.378 7.188 1.28 7.482-1.084 13.292-5.317 15.754-11.717 2.561-6.794.787-14.671-4.529-19.594-6.4-5.219-13.391-6.499-20.874-2.855-5.218 2.659-8.861 8.074-9.748 13.981v25.699H7.945l-.099-24.321z'/>
+				</svg> support the project
+			</a>
+			<a href='https://github.com/kheina-com' target='_blank' class='right'>
+				view source code <svg viewBox='0 0 16 16' class='external-logo github'>
+					<path fill-rule='evenodd' d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z'></path>
+				</svg>
+			</a>
 		</div>
-		<p style='text-align: center'>Found a bug? <a href='https://gitlab.com/groups/kheina.com/-/issues' target='_blank'>Report it here</a>.</p>		
+		<p style='text-align: center'>Found a bug? <router-link to='/bug'>Report it here</router-link>.</p>
+		<p class='commit'>version: <a :href='`https://github.com/kheina-com/frontend/commit/${fullCommit}`' target='_blank'><code>{{shortCommit}}</code></a></p>
 	</footer>
 </template>
 
@@ -18,6 +27,12 @@ export default {
 	components: {
 		ThemeButton,
 		ProgressBar,
+	},
+	data() {
+		return {
+			fullCommit: __COMMIT_HASH__,
+			shortCommit: __SHORT_COMMIT_HASH__,
+		};
 	},
 }
 </script>
@@ -46,7 +61,6 @@ export default {
 }
 .footer .anchor
 {
-	/*bottom: 4px;*/
 	left: 50%;
 	left: calc(50% - 0.5px);
 	position: relative;
@@ -59,10 +73,6 @@ export default {
 	height: 1em;
 	margin-bottom: -0.2em;
 }
-.footer .anchor a
-{ text-shadow: 0 0.125em 0.1875em var(--shadowcolor); }
-.footer .anchor a:hover
-{ text-shadow: 0 0 0.625em var(--activeshadowcolor); }
 .footer .anchor .left
 {
 	position: absolute;
@@ -73,5 +83,35 @@ export default {
 	position: absolute;
 	left: 8px;
 }
+.commit {
+	margin: 0;
+	font-size: 0.75em;
+	color: var(--subtle);
+}
+.commit a {
+	color: var(--subtle);
+}
+.external-logo {
+	display: inline-block;
+	overflow: visible !important;
+	fill: currentColor;
+	height: 1.2em;
+	vertical-align: bottom;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	-o-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+}
+.patreon {
+	fill: #ff5900;
+}
+a:hover .external-logo {
+	fill: var(--icolor);
+}
 
+/* THEME OVERRIDES */
+html.solarized-dark .patreon,
+html.solarized-light .patreon {
+	fill: var(--red);
+}
 </style>
