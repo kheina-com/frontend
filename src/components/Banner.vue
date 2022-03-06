@@ -118,7 +118,7 @@
 					<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
 				</li>
 				<li>
-					<router-link to='/bug'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+					<router-link :to='`/bug?url=${encodeURIComponent($route.fullPath)}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
 				</li>
 				<li>
 					<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>

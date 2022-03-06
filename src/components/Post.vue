@@ -39,7 +39,7 @@
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise'/>
 		<router-link :to='`/p/${postId}`' class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-			<Thumbnail :post='postId' :size='1200' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
+			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
 			</button>

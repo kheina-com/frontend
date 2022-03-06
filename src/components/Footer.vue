@@ -13,7 +13,7 @@
 				</svg>
 			</a>
 		</div>
-		<p style='text-align: center'>Found a bug? <router-link to='/bug'>Report it here</router-link>.</p>
+		<p style='text-align: center'>Found a bug? <router-link :to='`/bug?url=${encodeURIComponent($route.fullPath)}`'>Report it here</router-link>.</p>
 		<p class='commit'>version: <a :href='`https://github.com/kheina-com/frontend/commit/${fullCommit}`' target='_blank'><code>{{shortCommit}}</code></a></p>
 	</footer>
 </template>

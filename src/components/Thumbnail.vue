@@ -45,6 +45,7 @@ export default {
 	data() {
 		return {
 			isLoading: true,
+			adjustment: this.width ? Math.min(this.size / Math.max(this.width, this.height), 1) : null,
 		};
 	},
 	mounted() {
@@ -57,9 +58,9 @@ export default {
 		imageStyle()
 		{
 			if (this.isLoading)
-			{ return `width: ${this.width || '30vw'}px; padding-top: ${this.width ? this.height / this.width * 100 : '30vh'}%;`; }
+			{ return `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; padding-top: ${this.width ? this.height / this.width * 100 + '%' : '30vh'};`; }
 			else if (this.isError)
-			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width || '30vw'}px; height: ${this.height || '30vh'};`; }
+			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; height: ${this.height ? Math.round(this.height * this.adjustment) + 'px' : '30vh'};`; }
 		},
 		src() {
 			return getMediaThumbnailUrl(this.post, this.size);
