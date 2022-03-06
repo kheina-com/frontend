@@ -3,14 +3,12 @@
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<div v-if='parent !== null' class='parent'>
 		<p class='parent-title'>Parent post</p>
-		<Loading :isLoading='!parent.postId'>
-			<router-link :to='`/p/${parent.postId}`' class='inner'>
-				<div class='parent-thumbnail'>
-					<Thumbnail :isLoading='!parent.postId' :post='parent?.postId'/>
-				</div>
-				<Markdown :content='parent.title || parent.postId' inline/>
-			</router-link>
-		</Loading>
+		<router-link :to='`/p/${parent.postId}`' class='inner'>
+			<div class='parent-thumbnail'>
+				<Thumbnail v-show='parent?.media_type' :width='parent?.size?.width' :height='parent?.size?.height'/>
+			</div>
+			<Markdown :content='parent.title || parent.postId' inline/>
+		</router-link>
 	</div>
 	<div class='container' v-if='!isMobile'>
 		<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
@@ -830,20 +828,22 @@ ol p {
 	background: var(--bg1color);
 	text-align: center;
 }
-.parent div {
-	display: inline-block;
-	text-align: center;
+.parent .thumbnail {
+	max-height: 100%;
+	width: 100%;
+	height: 100%;
 }
 .parent .inner {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	border-radius: var(--border-radius);
 	background: #0000;
 	-webkit-transition: ease var(--fadetime);
 	-moz-transition: ease var(--fadetime);
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
-	padding: 0.25em;
+	padding: 0.25em 0.5em 0.25em 0.25em;
 	margin-top: 0.25em;
 }
 .parent .inner:hover {
@@ -863,6 +863,7 @@ ol p {
 	overflow: hidden;
 }
 .parent-thumbnail, .parent-thumbnail img {
+	margin-right: 0.5em;
 	width: 3em;
 	height: 3em;
 }

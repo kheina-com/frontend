@@ -63,8 +63,6 @@ export default {
 			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width || '30vw'}px; height: ${this.height || '30vh'};`; }
 		},
 		src() {
-			if (this.webpFailed)
-			{ return getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
 			return getMediaThumbnailUrl(this.post, this.size);
 		},
 	},
@@ -75,7 +73,7 @@ export default {
 		},
 		onError() {
 			if (this.post)
-			{ this.webpFailed = true; }
+			{ this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
 		},
 	},
 }

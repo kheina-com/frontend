@@ -1150,6 +1150,14 @@ html.wikipedia .badges p {
 	border: solid 1px var(--bordercolor);
 }
 
+html.solarized-dark .badges img.emoji {
+	filter: contrast(0.625);
+}
+
+html.solarized-light .badges img.emoji {
+	filter: sepia(0.375);
+}
+
 /* ACCENT OVERRIDES */
 html.desktop.aurora main, html.desktop.hex main, html.desktop.space main, html.desktop.stars main {
 	background-position-y: calc(1em + 40px);

@@ -1,6 +1,6 @@
 <template>
 	<span class='markdown inline' v-html='renderedMd' v-if='inline'></span>
-	<div class='markdown' v-html='renderedMd' v-else></div>
+	<div class='markdown block' v-html='renderedMd' v-else></div>
 </template>
 
 <script> 
@@ -95,7 +95,7 @@ export default {
 </script>
 
 <style>
-.markdown {
+.markdown.block {
 	width: 100%;
 }
 .markdown * {

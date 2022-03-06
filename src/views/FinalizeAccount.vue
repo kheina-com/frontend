@@ -17,7 +17,7 @@
 				<div class='form-field'>
 					<div class='field-title'>
 						<span>
-							Handle
+							@handle
 							<i class='material-icons' title='your unique identifier across the site. determines your URL.'>help_outline</i>
 						</span>
 						<span style='color: var(--error)'>

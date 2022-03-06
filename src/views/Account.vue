@@ -23,6 +23,9 @@
 				<li>
 					delete your account
 				</li>
+				<li>
+					change local performance settings (load thumbnails vs fullsize)
+				</li>
 			</ul>
 		</div>
 		<ThemeMenu/>
