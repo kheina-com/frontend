@@ -1,6 +1,6 @@
 <template>
 	<Loading class='thumbnail' :style='parentStyle' :isLoading='isLoading'>
-		<img ref='media' :style='imageStyle' :data-src='src' :data-webp='true' @load='loaded' @error='onError'>
+		<img ref='media' :style='imageStyle' :data-src='src' @load='loaded' @error='onError'>
 	</Loading>
 </template>
 
@@ -59,9 +59,9 @@ export default {
 		imageStyle()
 		{
 			if (this.isLoading)
-			{ return `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; padding-top: ${this.width ? this.height / this.width * 100 + '%' : '30vh'};`; }
+			{ return `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; padding-top: ${this.width ? this.height / this.width * 100 : 100}%;`; }
 			else if (this.isError)
-			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; height: ${this.height ? Math.round(this.height * this.adjustment) + 'px' : '30vh'};`; }
+			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; height: ${this.height ? Math.round(this.height * this.adjustment) + 'px' : '30vw'};`; }
 		},
 		src() {
 			return getMediaThumbnailUrl(this.post, this.size);

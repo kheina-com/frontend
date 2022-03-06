@@ -1113,7 +1113,7 @@ ul.tags > :last-child {
 	flex-direction: row;
 	justify-content: center;
 	flex-wrap: wrap;
-	padding-top: 1.5em;
+	padding-top: 2.5em;
 }
 .upload-window ol.results li {
 	list-style: none;
@@ -1148,7 +1148,7 @@ ul.tags > :last-child {
 	position: fixed;
 	width: calc(100% - 100px - var(--border-size) * 2);
 	top: 50px;
-	top: calc(50px + var(--border-size));
+	top: calc(40px + var(--border-size));
 }
 
 /* THEME OVERRIDES */

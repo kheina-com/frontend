@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div class='post nested link'>
-		<Thumbnail class='thumbnail' :post='postId' :size='800' :onLoad='onLoad'/>
+		<Thumbnail class='thumbnail' :post='postId' :size='800' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
 		<Loading span v-if='isLoading'>this is an example title</Loading>
 		<Markdown v-else :content='title' class='title'/>
 	</div>
@@ -45,6 +45,10 @@ export default {
 		title: {
 			type: String, 
 			default: null,
+		},
+		size: {
+			type: Object,
+			default: { width: 0, height: 0 },
 		},
 	},
 	emits: [
@@ -136,7 +140,7 @@ export default {
 	border-radius: var(--border-radius);
 	margin: 0 auto;
 }
-.post .title {
+.post .title, .thumbnail {
 	max-width: 10em;
 }
 .post > :last-child {
@@ -145,8 +149,4 @@ export default {
 .bottom-margin {
 	margin-bottom: 25px;
 }
-.mobile .thumbnail {
-	max-width: 10em;
-}
-
 </style>
