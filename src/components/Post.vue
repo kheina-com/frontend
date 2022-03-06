@@ -1,5 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
+	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
@@ -66,7 +67,7 @@
 			</div>
 		</li>
 		<li v-for='reply in replies'>
-			<Post :postId='reply.post_id' v-bind='reply' :link='false' reply @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
+			<Post :postId='reply.post_id' v-bind='reply' reply @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
 		</li>
 	</ol>
 </template>
@@ -437,9 +438,6 @@ a.profile:hover {
 	padding: 10px;
 	overflow: hidden;
 }
-.post > :last-child {
-	margin-bottom: 0;
-}
 .score {
 	margin: -0.5em 0.5em 0 -0.5em;
 }
@@ -528,6 +526,7 @@ ol > :last-child, ol > :last-child .post {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	margin-bottom: -0.25em;
 }
 .buttons button i {
 	color: var(--subtle);
@@ -560,6 +559,7 @@ ol > :last-child, ol > :last-child .post {
 	display: flex;
 	align-items: center;
 	color: var(--subtle);
+	margin-right: -0.25em;
 }
 .reply-button i {
 	padding: 0.25em;

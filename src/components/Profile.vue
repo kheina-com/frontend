@@ -1,8 +1,8 @@
 <template>
 	<a :href='`/${handle}`' class='profile' :title='`@${handle} is ${verifiedDescription}`' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
 		<div class='inner'>
-			<Loading :isLoading='isLoading' class='image'>
-				<UserIcon :handle='handle' :post='icon'/>
+			<Loading :isLoading='isLoading || iconLoading' class='image'>
+				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
@@ -18,8 +18,8 @@
 	</a>
 	<div class='profile' :title='`@${handle} is ${verifiedDescription}`' v-else>
 		<div class='inner'>
-			<Loading :isLoading='isLoading' class='image'>
-				<UserIcon :handle='handle' :post='icon'/>
+			<Loading :isLoading='isLoading || iconLoading' class='image'>
+				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
@@ -72,6 +72,11 @@ export default {
 			type: String,
 			default: null,
 		},
+	},
+	data() {
+		return {
+			iconLoading: true,
+		};
 	},
 	computed: {
 		iconClass() {

@@ -18,7 +18,7 @@
 				<i class='material-icons icon' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='isVerified'>verified</i>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
-						<UserIcon :handle='$store.state.user?.handle' :post='$store.state.user?.icon' v-model:isLoading='isIconLoading'/>
+						<UserIcon :handle='$store.state.user?.handle' :post='$store.state.user?.icon' v-model:isLoading='isIconLoading' v-if='$store.state.user'/>
 					</router-link>
 				</Loading>
 			</div>
@@ -205,6 +205,7 @@ export default {
 		};
 	},
 	mounted() {
+		// TODO: this doesn't work, route.path isn't populate on load
 		if (this.$route.path.match(/^\/[qt]\//))
 		{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
 		else

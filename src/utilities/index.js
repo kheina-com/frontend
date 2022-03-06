@@ -305,7 +305,7 @@ export const lazyObserver = new IntersectionObserver(
 		e.forEach(entry => {
 			if (entry.isIntersecting)
 			{
-				entry.target.src = entry.target.dataset.src;
+				entry.target.src = entry.target.dataset.src || '';
 				lazyObserver.unobserve(entry.target);
 			}
 		});

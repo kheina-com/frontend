@@ -44,7 +44,6 @@ export default {
 	},
 	data() {
 		return {
-			webpFailed: false,
 			isLoading: true,
 		};
 	},
