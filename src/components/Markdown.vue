@@ -127,7 +127,7 @@ export default {
 	},
 	watch: {
 		content() {
-			if (this.renderedMd)
+			if (this.renderedMd !== null)
 			{ this.render(); }
 		},
 	},

@@ -21,7 +21,6 @@
 				</template>
 			</Loading>
 			<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else/>
-
 			<div class='field'>
 				<div>
 					<span>Title</span>
