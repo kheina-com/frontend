@@ -8,7 +8,9 @@ import global from './global';
 import vClickOutside from 'click-outside-vue3';
 
 
-Router.beforeEach((to, from, next) => {
+Router.afterEach((to, from, next) => {
+	global.commit('error')
+
 	// This goes through the matched routes from last to first, combining routes metadata.
 	// eg. if we have /some/nested/route, route's metadata will be prioritized, with nested, some, and / being used for fallback
 
@@ -37,8 +39,6 @@ Router.beforeEach((to, from, next) => {
 
 	next();
 });
-
-Router.afterEach(() => global.commit('error'));
 
 
 createApp(App)

@@ -870,6 +870,7 @@ ol p {
 }
 .parent-thumbnail, .parent-thumbnail img {
 	margin-right: 0.5em;
+	max-width: 5em;
 	height: 5em;
 }
 .parent-contents h3 {
