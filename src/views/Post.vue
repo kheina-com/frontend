@@ -1,13 +1,18 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<div v-if='parent !== null' class='parent'>
-		<p class='parent-title'>Parent post</p>
+	<div v-if='parent' class='parent'>
 		<router-link :to='`/p/${parent.postId}`' class='inner'>
 			<div class='parent-thumbnail'>
 				<Thumbnail :post='post.parent' v-show='parent?.media_type' :width='parent?.size?.width' :height='parent?.size?.height'/>
 			</div>
-			<Markdown :content='parent?.title || post.parent' inline/>
+			<div class='parent-contents'>
+				<p class='parent-title'>Parent Post</p>
+				<h3 v-show='parent.title'>
+					<Markdown :content='parent?.title || post.parent' inline/>
+				</h3>
+				<Markdown class='parent-description' :content='parent?.description' concise v-show='parent?.description'/>
+			</div>
 		</router-link>
 	</div>
 	<div class='container' v-if='!isMobile'>
@@ -844,7 +849,8 @@ ol p {
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 	padding: 0.25em 0.5em 0.25em 0.25em;
-	margin-top: 0.25em;
+	margin: 0.25em 0;
+	text-align: left;
 }
 .parent .inner:hover {
 	background: var(--bg2color);
@@ -864,8 +870,13 @@ ol p {
 }
 .parent-thumbnail, .parent-thumbnail img {
 	margin-right: 0.5em;
-	width: 3em;
-	height: 3em;
+	height: 5em;
+}
+.parent-contents h3 {
+	margin: 0 0 0 0.5em;
+}
+.parent-contents .parent-description {
+	margin-top: 0.75em;
 }
 
 .post-buttons {
