@@ -23,6 +23,11 @@ export default {
 			media,
 		};
 	},
+	data() {
+		return {
+			webp: true,
+		};
+	},
 	mounted() {
 		lazyObserver.observe(this.$refs.media);
 	},
@@ -42,10 +47,19 @@ export default {
 			this.onLoad(event);
 		},
 		onError() {
-			if (this.post)
-			{ this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
-			else if (this.handle)
+			if (this.post && this.webp)
+			{
+				this.webp = false;
+				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
+			}
+			else if (this.isLoading)
 			{ this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
+			else
+			{ this.$emit('update:isLoading', false); }
+			// if (this.post)
+			// { this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
+			// else if (this.handle)
+			// { this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
 		},
 	},
 }

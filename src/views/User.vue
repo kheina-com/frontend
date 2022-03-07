@@ -30,7 +30,7 @@
 							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 						</router-link>
 						<div class='thumbnail' v-else>
-							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+							<UserIcon :handle='user?.handle' v-model:isLoading='isIconLoading'/>
 						</div>
 					</Loading>
 					<div class='profile-buttons'>
