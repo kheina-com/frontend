@@ -231,7 +231,7 @@ export default {
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
-		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : '') + (this.reply ? ' reply' : ''); },
+		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : ' unnested') + (this.reply ? ' reply' : ''); },
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
@@ -616,6 +616,10 @@ ol > :last-child, ol > :last-child .post {
 .mobile .thumbnail img {
 	max-height: 100%;
 	min-width: 100%;
+}
+
+.unnested .report:hover {
+	background: var(--bg2color) !important;
 }
 
 /* theme overrides */

@@ -823,7 +823,7 @@ ol p {
 	color: var(--icolor);
 }
 .report:hover {
-	background: var(--bg2color);
+	background: var(--bg2color) !important;
 }
 
 
