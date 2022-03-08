@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { khatch, isMobile } from '@/utilities';
+import { khatch } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -31,7 +31,6 @@ export default {
 	name: 'Search',
 	data() {
 		return {
-			isMobile,
 			// undefined for on pageload stuff
 			posts: undefined,
 			page: null,

@@ -10,7 +10,7 @@
 				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'>
 					<p>
-						<i :class='iconClass' v-if='verified'>{{iconName}}</i>@{{handle}}
+						<i :class='iconClass' v-if='verified'>{{iconName}}</i>@{{handle || 'handle'}}
 					</p>
 				</Loading>
 			</div>
@@ -27,7 +27,7 @@
 				</Loading>
 				<Loading :isLoading='isLoading' span class='handle'>
 					<p>
-						<i :class='iconClass' v-if='verified'>{{iconName}}</i>@{{handle}}
+						<i :class='iconClass' v-if='verified'>{{iconName}}</i>@{{handle || 'handle'}}
 					</p>
 				</Loading>
 			</div>
@@ -54,7 +54,7 @@ export default {
 		},
 		handle: {
 			type: String,
-			default: 'handle',
+			default: null,
 		},
 		icon: {
 			type: String,

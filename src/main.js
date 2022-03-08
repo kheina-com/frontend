@@ -8,7 +8,7 @@ import global from './global';
 import vClickOutside from 'click-outside-vue3';
 
 
-Router.afterEach((to, from, next) => {
+Router.afterEach((to, from) => {
 	global.commit('error')
 
 	// This goes through the matched routes from last to first, combining routes metadata.
@@ -22,7 +22,7 @@ Router.afterEach((to, from, next) => {
 
 	// Skip rendering meta tags if there are none.
 	if (!Object.keys(meta).length)
-	{ return next(); }
+	{ return; }
 
 	// If a route with a title was found, set the document (page) title to that value.
 	if (meta.title)
@@ -36,8 +36,6 @@ Router.afterEach((to, from, next) => {
 		.map(tag => typeof tag === 'function' ? tag(to, from) : tag)
 		.filter(tag => tag)
 		.forEach(setMeta);
-
-	next();
 });
 
 

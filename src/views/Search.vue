@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { khatch, tagSplit, isMobile } from '@/utilities';
+import { khatch, tagSplit } from '@/utilities';
 import { apiErrorMessage, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -53,7 +53,6 @@ export default {
 	},
 	data() {
 		return {
-			isMobile,
 			// undefined for on pageload stuff
 			posts: undefined,
 			page: null,

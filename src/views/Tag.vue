@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { khatch, isMobile, setTitle } from '@/utilities';
+import { khatch, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost, usersHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
@@ -111,7 +111,6 @@ export default {
 	},
 	data() {
 		return {
-			isMobile,
 			colorMap: {
 				artist: '--pink',
 				sponsor: '--green',

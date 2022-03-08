@@ -90,11 +90,17 @@ export default {
 </script>
 
 <style scoped>
+.desktop img {
+	max-height: inherit;
+	max-width: inherit;
+}
+.mobile img {
+	height: 100%;
+	width: 100%;
+}
 img {
 	object-fit: cover;
 	display: block;
-	max-height: inherit;
-	max-width: inherit;
 }
 .loading {
 	overflow: hidden;

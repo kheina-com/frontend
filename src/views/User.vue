@@ -19,19 +19,19 @@
 		<main ref='main'>
 			<div class='header-bar'>
 				<div class='inner'>
-					<Loading :isLoading='isIconLoading' class='profile-image'>
+					<Loading :isLoading='isIconLoading || !user' class='profile-image'>
 						<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
 							<div class='add-image-button'>
 								<i class='material-icons-round'>add_a_photo</i>
 							</div>
 							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 						</button>
-						<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
-							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
+						<router-link :to='`/p/${user.icon}`' class='thumbnail' v-else-if='user?.icon'>
+							<UserIcon :handle='user?.handle' :post='user.icon' v-model:isLoading='isIconLoading'/>
 						</router-link>
-						<!-- <div class='thumbnail' v-else>
+						<div class='thumbnail' v-else>
 							<UserIcon :handle='user?.handle' v-model:isLoading='isIconLoading'/>
-						</div> -->
+						</div>
 					</Loading>
 					<div class='profile-buttons'>
 						<div class='tabs' v-show='!isMobile'>

@@ -207,6 +207,7 @@ export default {
 	},
 	data() {
 		return {
+			isMobile,
 			editing: false,
 			guideHeight: null,
 			parentElement: null,
@@ -223,7 +224,6 @@ export default {
 		this.onLoad();
 	},
 	computed: {
-		isMobile,
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
 		hasMedia()

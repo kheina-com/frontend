@@ -12,10 +12,6 @@ export default {
 		isLoading: Boolean,
 		handle: String,
 		post: String,
-		onLoad: { 
-			type: Function,
-			default() { },
-		},
 	},
 	setup() {
 		const media = ref(null);
@@ -33,40 +29,35 @@ export default {
 	},
 	computed: {
 		src() {
-			if (!this.post && !this.handle)
+			console.log(this.handle, this.post)
+			if (!this.handle)
 			{ return null; }
+
 			if (this.post)
 			{ return getIconUrl(this.post, this.handle.toLowerCase()); }
-			// else
-			// { return getMediaThumbnailUrl('_V-EGBtH', 400); }
+			else
+			{ return getMediaThumbnailUrl('_V-EGBtH', 400); }
 		},
 	},
 	methods: {
 		loaded(event) {
-			this.$emit('update:isLoading', false);
-			this.onLoad(event);
+			if (this.handle)
+			{ this.$emit('update:isLoading', false); }
 		},
 		onError() {
-			if (this.post && this.webp)
+			console.log('error', this.handle, this.post)
+			if (!this.handle)
+			{ return; }
+
+			if (this.webp)
 			{
 				this.webp = false;
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
 			}
-			else if (this.isLoading && this.handle)
+			else if (this.handle)
 			{ this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
 			else
 			{ this.$emit('update:isLoading', false); }
-			// if (this.post)
-			// { this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
-			// else if (this.handle)
-			// { this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
-		},
-	},
-	watch: {
-		handle() {
-			this.$emit('update:isLoading', true);
-			this.webp = false;
-			lazyObserver.observe(this.$refs.media);
 		},
 	},
 }
