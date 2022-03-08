@@ -37,8 +37,8 @@ export default {
 			{ return null; }
 			if (this.post)
 			{ return getIconUrl(this.post, this.handle.toLowerCase()); }
-			else
-			{ return getMediaThumbnailUrl('_V-EGBtH', 400); }
+			// else
+			// { return getMediaThumbnailUrl('_V-EGBtH', 400); }
 		},
 	},
 	methods: {
@@ -52,7 +52,7 @@ export default {
 				this.webp = false;
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
 			}
-			else if (this.isLoading)
+			else if (this.isLoading && this.handle)
 			{ this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
 			else
 			{ this.$emit('update:isLoading', false); }
@@ -60,6 +60,13 @@ export default {
 			// { this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg'); }
 			// else if (this.handle)
 			// { this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
+		},
+	},
+	watch: {
+		handle() {
+			this.$emit('update:isLoading', true);
+			this.webp = false;
+			lazyObserver.observe(this.$refs.media);
 		},
 	},
 }

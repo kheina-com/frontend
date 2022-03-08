@@ -26,12 +26,12 @@
 							</div>
 							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 						</button>
-						<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else-if='user?.icon'>
+						<router-link :to='`/p/${user?.icon}`' class='thumbnail' v-else>
 							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
 						</router-link>
-						<div class='thumbnail' v-else>
+						<!-- <div class='thumbnail' v-else>
 							<UserIcon :handle='user?.handle' v-model:isLoading='isIconLoading'/>
-						</div>
+						</div> -->
 					</Loading>
 					<div class='profile-buttons'>
 						<div class='tabs' v-show='!isMobile'>
