@@ -29,7 +29,6 @@ export default {
 	},
 	computed: {
 		src() {
-			console.log(this.handle, this.post)
 			if (!this.handle)
 			{ return null; }
 
@@ -45,7 +44,6 @@ export default {
 			{ this.$emit('update:isLoading', false); }
 		},
 		onError() {
-			console.log('error', this.handle, this.post)
 			if (!this.handle)
 			{ return; }
 
