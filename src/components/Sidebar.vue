@@ -5,8 +5,13 @@
 			<li v-for='(value, name) in sortTagGroups(tags)'>
 				<TagGroup :group='name' :tags='value'/>
 			</li>
-			<li>
-				<TagGroup group='rating' :tags='rating ? [rating] : null'/>
+			<li class='rating'>
+				<h4>Rating</h4>
+				<Loading :class='rating' :isLoading='!rating'>
+					<router-link :to='`/q/${rating}`'>
+						<span>{{rating || 'rating'}}</span>
+					</router-link>
+				</Loading>
 			</li>
 		</ol>
 		<ol v-else>
@@ -26,7 +31,10 @@ import TagGroup from '@/components/TagGroup.vue';
 export default {
 	name: 'Sidebar',
 	props: {
-		rating: String,
+		rating: {
+			type: String,
+			default: null,
+		},
 		tags: {
 			type: Object,
 			default: null,
@@ -53,10 +61,39 @@ h3 {
 	border-bottom: var(--border-size) solid var(--bordercolor);
 	padding: 0 12.5px 12px;
 }
-
 ol {
 	list-style: none;
 	margin: 0 25px 0;
 	padding: 0;
+}
+
+.rating div {
+	margin: 0 0 0 10px;
+	padding: 0;
+}
+h4 {
+	margin: 0.25em 0;
+}
+
+.rating .general a {
+	color: var(--general);
+}
+.rating .mature a {
+	color: var(--mature);
+}
+.rating .explicit a {
+	color: var(--explicit);
+}
+
+/* theme overrides */
+html.e621 .rating .general span, html.e621 .rating .mature span {
+	display: none;
+}
+
+html.e621 .general a::after {
+	content: "safe";
+}
+html.e621 .mature a::after {
+	content: "questionable";
 }
 </style>

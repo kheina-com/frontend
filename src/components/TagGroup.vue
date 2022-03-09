@@ -37,7 +37,8 @@ export default {
 				subject: 1,
 				species: 3,
 				gender: 1,
-				misc: 3,
+				misc: 5,
+				rating: 1,
 			},
 		};
 	},
@@ -85,16 +86,6 @@ html.solarized-dark .loading, html.solarized-light .loading, html.midnight .load
 
 .misc a {
 	color: var(--subtle);
-}
-
-.rating .general a {
-	color: var(--general);
-}
-.rating .mature a {
-	color: var(--mature);
-}
-.rating .explicit a {
-	color: var(--explicit);
 }
 
 
