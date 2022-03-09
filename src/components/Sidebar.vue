@@ -35,18 +35,11 @@ export default {
 	data() {
 		return {
 			tagGroups,
-			post: null,
 		}
 	},
 	components: {
 		Loading,
 		TagGroup,
-	},
-	computed: {
-		isLoading()
-		{ return this.post === null; },
-		mediaUrl()
-		{ return this.post !== null ? getMediaThumbnailUrl(this.postId, this.post.filename) : ''; },
 	},
 	methods: {
 		sortTagGroups,

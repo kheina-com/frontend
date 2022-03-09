@@ -1,5 +1,5 @@
 <template>
-	<a :href='`/${handle}`' class='profile' :title='`@${handle} is ${verifiedDescription}`' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
+	<a :href='`/${handle}`' class='profile' :title='verifiedDescription' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
 		<div class='inner'>
 			<Loading :isLoading='isLoading || iconLoading' class='image'>
 				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading'/>
@@ -16,7 +16,7 @@
 			</div>
 		</div>
 	</a>
-	<div class='profile' :title='`@${handle} is ${verifiedDescription}`' v-else>
+	<div class='profile' :title='verifiedDescription' v-else>
 		<div class='inner'>
 			<Loading :isLoading='isLoading || iconLoading' class='image'>
 				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading'/>
@@ -102,7 +102,6 @@ export default {
 		verifiedDescription() {
 			switch (this.verified) {
 				case 'verified' :
-					return `@${this.handle} is a verified artist`;
 				case 'artist' :
 					return `@${this.handle} is a verified artist`;
 				case 'mod' :

@@ -25,7 +25,7 @@
 			<div>
 				<h2>Tag</h2>
 				<Loading v-if='isLoading'>default</Loading>
-				<p :style='`color: var(${colorMap[tagData?.group]})`' v-else>
+				<p :class='tagData?.group' v-else>
 					{{tagData?.tag.replace(/_/g, ' ')}}
 				</p>
 			</div>
@@ -410,6 +410,30 @@ ol > :last-child {
 	color: var(--icolor);
 }
 
+.artist {
+	color: var(--pink);
+}
+
+.sponsor {
+	color: var(--green);
+}
+
+.subject {
+	color: var(--violet);
+}
+
+.species {
+	color: var(--orange);
+}
+
+.gender {
+	color: var(--blue);
+}
+
+.misc {
+	color: var(--subtle);
+}
+
 @media only screen and (max-width: 900px) {
 	.tag {
 		margin: 0 0 25px;
@@ -418,10 +442,18 @@ ol > :last-child {
 }
 
 /* theme overrides */
-.midnight main {
+html.midnight main {
 	/* --bg2color: var(--bg1color); */
 	--bg1color: var(--bg0color);
 	background: #0000;
 	padding: 0 25px;
+}
+
+html.e621 .subject {
+	color: var(--green);
+}
+
+html.e621 .sponsor {
+	color: var(--violet);
 }
 </style>

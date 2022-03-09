@@ -2,7 +2,7 @@
 	<router-link :to='`/t/${tag}`' :class='divClass'>
 		<h2>{{tag}}</h2>
 		<Profile v-bind='owner' v-if='owner' :link='owner.handle !== $route.path.substring(1)'/>
-		<p :style='`color: var(--${tagColorMap[group]})`'>{{group}}</p>
+		<p :class='group'>{{group}}</p>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
 		<p>Inherited Tags: {{inheritedTags}}</p>
 		<Markdown :content='description'/>
@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import { tagColorMap } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 
@@ -32,11 +31,6 @@ export default {
 	components: {
 		Markdown,
 		Profile,
-	},
-	data() {
-		return {
-			tagColorMap,
-		};
 	},
 	computed: {
 		divClass()
@@ -69,5 +63,39 @@ a.profile:hover {
 }
 .post.nested a.profile:hover {
 	background: var(--bg2color);
+}
+
+.artist {
+	color: var(--pink);
+}
+
+.sponsor {
+	color: var(--green);
+}
+
+.subject {
+	color: var(--violet);
+}
+
+.species {
+	color: var(--orange);
+}
+
+.gender {
+	color: var(--blue);
+}
+
+.misc {
+	color: var(--subtle);
+}
+
+
+/* theme overrides */
+html.e621 .subject {
+	color: var(--green);
+}
+
+html.e621 .sponsor {
+	color: var(--violet);
 }
 </style>

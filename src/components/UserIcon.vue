@@ -25,7 +25,8 @@ export default {
 		};
 	},
 	mounted() {
-		lazyObserver.observe(this.$refs.media);
+		if (this.handle)
+		{ lazyObserver.observe(this.$refs.media); }
 	},
 	computed: {
 		src() {
@@ -47,7 +48,7 @@ export default {
 			if (!this.handle)
 			{ return; }
 
-			if (this.webp)
+			if (this.webp && this.post)
 			{
 				this.webp = false;
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
@@ -56,6 +57,12 @@ export default {
 			{ this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
 			else
 			{ this.$emit('update:isLoading', false); }
+		},
+	},
+	watch: {
+		handle(value) {
+			if (value)
+			{ lazyObserver.observe(this.$refs.media); }
 		},
 	},
 }

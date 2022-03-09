@@ -233,7 +233,8 @@ body, html {
 	margin: 0;
 	padding: 0;
 	color: var(--textcolor);
-	scrollbar-color: #4D535A #151416;
+	scrollbar-color: var(--subtle) var(--bg2color);
+	scrollbar-width: thin;
 }
 a, input, label, textarea
 {
@@ -505,6 +506,10 @@ html.e621
 	--cyan: #b4c7d9;
 	--blue: #d0d;
 	/* sienna */
+
+	--general: #3e9e49;
+	--mature: #ffe666;
+	--explicit: #e45f5f;
 
 	background: url(/assets/themes/stripe.png) var(--bg0color);
 	background-repeat: repeat;

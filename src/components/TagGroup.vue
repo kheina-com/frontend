@@ -2,12 +2,9 @@
 	<!-- eslint-disable vue/no-use-v-if-with-v-for-->
 	<!-- eslint-disable vue/require-v-for-key-->
 	<Loading :isLoading='tags === null'><h4>{{group.substr(0, 1).toUpperCase()}}{{group.substr(1).toLowerCase()}}</h4></Loading>
-	<ol>
-		<li v-if='tags !== null' v-for='tag in tags'>
-			<router-link :to='`/q/${tag}`' :style='`color: var(--${tag})`' v-if='ratings.has(tag)'>
-				{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
-			</router-link>
-			<router-link :to='`/t/${tag}`' :style='`color: var(--${tagColorMap[group]})`' v-else>
+	<ol :class='group'>
+		<li v-if='tags !== null' :class='tag' v-for='tag in tags'>
+			<router-link :to='`/t/${tag}`'>
 				{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
 			</router-link>
 		</li>
@@ -19,7 +16,6 @@
 
 <script>
 import Loading from '@/components/Loading.vue';
-import { ratings, tagColorMap } from '@/config/constants';
 
 export default {
 	name: 'TagGroup',
@@ -35,9 +31,6 @@ export default {
 	},
 	data() {
 		return {
-			ratings,
-			tagColorMap,
-			post: null,
 			loadingMap: {
 				artist: 1,
 				sponsor: 1,
@@ -50,16 +43,6 @@ export default {
 	},
 	components: {
 		Loading,
-	},
-	computed: {
-		isLoading()
-		{ return this.post === null; },
-		mediaUrl()
-		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
-	},
-	methods: {
-		getColorGroup(tagGroup) {
-		},
 	},
 }
 </script>
@@ -78,5 +61,49 @@ h4 {
 }
 html.solarized-dark .loading, html.solarized-light .loading, html.midnight .loading {
 	--bg2color: var(--bg1color);
+}
+
+.artist a {
+	color: var(--pink);
+}
+
+.sponsor a {
+	color: var(--green);
+}
+
+.subject a {
+	color: var(--violet);
+}
+
+.species a {
+	color: var(--orange);
+}
+
+.gender a {
+	color: var(--blue);
+}
+
+.misc a {
+	color: var(--subtle);
+}
+
+.rating .general a {
+	color: var(--general);
+}
+.rating .mature a {
+	color: var(--mature);
+}
+.rating .explicit a {
+	color: var(--explicit);
+}
+
+
+/* theme overrides */
+html.e621 .subject a {
+	color: var(--green);
+}
+
+html.e621 .sponsor a {
+	color: var(--violet);
 }
 </style>

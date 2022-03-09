@@ -340,6 +340,8 @@ export default {
 
 		if (tabs.has(this.$route.query?.tab))
 		{ this.tab = this.$route.query.tab; }
+		else
+		{ this.$router.replace(this.$route.path + '?tab=posts'); }
 
 		if (this.tab !== 'posts')
 		{ this.$store.state.scroll = null; }
