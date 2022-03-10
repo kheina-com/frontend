@@ -1,12 +1,12 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<DropDown class='sort-dropdown' v-model:value='sort' :options="[
-		{ name: 'Hot', value: 'hot' },
-		{ name: 'Top', value: 'top' },
-		{ name: 'Best', value: 'best' },
-		{ name: 'Newest', value: 'new' },
-		{ name: 'Oldest', value: 'old' },
-		{ name: 'Controversial', value: 'controversial' },
+		{ html: 'Hot', value: 'hot' },
+		{ html: 'Top', value: 'top' },
+		{ html: 'Best', value: 'best' },
+		{ html: 'Newest', value: 'new' },
+		{ html: 'Oldest', value: 'old' },
+		{ html: 'Controversial', value: 'controversial' },
 	]">
 		<span class='sort-by'>
 			<i class='material-icons-round'>sort</i>

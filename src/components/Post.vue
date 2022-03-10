@@ -5,9 +5,9 @@
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
 			<DropDown :options="[
-				{ name: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
-				{ name: `Block @${user?.handle}`, action: missingFeature },
-				{ name: `Report @${user?.handle}`, action: missingFeature },
+				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
+				{ html: `Block @${user?.handle}`, action: missingFeature },
+				{ html: `Report @${user?.handle}`, action: missingFeature },
 			]">
 				<i class='more-button material-icons-round'>more_horiz</i>
 			</DropDown>

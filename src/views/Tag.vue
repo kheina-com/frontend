@@ -55,12 +55,12 @@
 		<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
 		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
 		<DropDown class='sort-dropdown' v-model:value='sort' :options="[
-			{ name: 'Newest', value: 'new' },
-			{ name: 'Oldest', value: 'old' },
-			{ name: 'Top', value: 'top' },
-			{ name: 'Hot', value: 'hot' },
-			{ name: 'Best', value: 'best' },
-			{ name: 'Controversial', value: 'controversial' },
+			{ html: 'Newest', value: 'new' },
+			{ html: 'Oldest', value: 'old' },
+			{ html: 'Top', value: 'top' },
+			{ html: 'Hot', value: 'hot' },
+			{ html: 'Best', value: 'best' },
+			{ html: 'Controversial', value: 'controversial' },
 		]">
 			<span class='sort-by'>
 				<i class='material-icons-round'>sort</i>

@@ -79,10 +79,14 @@
 									<i class='material-icons'>close</i>
 								</button>
 							</p>
-							<p v-if='isEditing'>
-								<i class='material-icons'>add</i>
-								Add Badge
-							</p>
+							<DropDown v-if='isEditing' class='dropdown' :options='availableBadges.map(badge => {
+								return { html: `<img class="emoji" src="${getEmojiUrl(badge.emoji)}">${badge.label}`, value: badge, action: () => addBadge(badge) };
+							})'>
+								<p>
+									<i class='material-icons'>add</i>
+									Add Badge
+								</p>
+							</DropDown>
 						</div>
 					</div>
 				</div>
@@ -266,6 +270,7 @@ import Tag from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
+import DropDown from '@/components/DropDown.vue';
 
 
 export default {
@@ -295,6 +300,7 @@ export default {
 		SearchBar,
 		PostTile,
 		ResultsNavigation,
+		DropDown,
 	},
 	setup() {
 		const main = ref(null);
@@ -333,6 +339,7 @@ export default {
 			count: null,
 			page: null,
 			bannerWebpFailed: null,
+			availableBadges: null,
 		};
 	},
 	created() {
@@ -409,6 +416,16 @@ export default {
 	},
 	methods: {
 		getEmojiUrl,
+		addBadge(badge) {
+			console.log('adding', badge)
+			khatch(`${usersHost}/v1/add_badge`, {
+				method: 'POST',
+				errorMessage: 'Failed to add badge.',
+				body: badge,
+			})
+			.then(() => this.user.badges.push(badge))
+			.catch(() => { });
+		},
 		removeBadge(badge) {
 			khatch(`${usersHost}/v1/remove_badge`, {
 				method: 'POST',
@@ -546,6 +563,16 @@ export default {
 					website: this.user?.website,
 					description: this.user?.description,
 				};
+
+				if (this.availableBadges === null)
+				{
+					khatch(`${usersHost}/v1/badges`, {
+						method: 'GET',
+						errorMessage: 'Failed to fetch available badges',
+					})
+					.then(r => r.json().then(response => this.availableBadges = response))
+					.catch(() => { });
+				}
 			}
 		},
 		updateProfile() {
@@ -907,40 +934,7 @@ ul, ol {
 .mobile .header-bar .inner {
 	width: auto;
 }
-.badges {
-	position: absolute;
-	top: 100%;
-	display: flex;
-}
-.badges p {
-	margin: 0.5em 0 0 0.5em;
-	padding: 0.25em 0.5em;
-	background: var(--bg2color);
-	border-radius: var(--border-radius);
-	display: flex;
-	align-items: center;
-}
-.badges p i, .badges p img {
-	margin-right: 0.35em;
-}
-.badges p img {
-	max-height: 1em;
-	border-radius: var(--border-radius);
-	font-size: 1.1em;
-}
-.badges p i {
-	font-size: 1.25em;
-}
-.badges button {
-	margin: 0 0 0 0.35em;
-}
-.badges button i {
-	margin: 0;
-	display: block;
-}
-.badges button:hover {
-	color: var(--error);
-}
+
 .profile-buttons {
 	position: relative;
 	display: flex;
@@ -1202,5 +1196,50 @@ html.mobile.winter .active-tab {
 	background-image: url(/assets/themes/winter/1.png);
 	background-repeat: repeat-x;
 	background-position: center bottom;
+}
+</style>
+
+<style>
+.badges {
+	position: absolute;
+	top: 100%;
+	display: flex;
+}
+.badges p, .badges button, .badges .dropdown button, .badges .dropdown {
+	margin: 0.5em 0 0 0.5em;
+}
+.badges p, .badges button, .badges .dropdown button {
+	padding: 0.25em 0.5em;
+	background: var(--bg2color);
+	border-radius: var(--border-radius);
+	display: flex;
+	align-items: center;
+}
+.badges p i, .badges p img, .badges button img {
+	margin-right: 0.35em;
+}
+.badges p img, .badges button img {
+	max-height: 1em;
+	border-radius: var(--border-radius);
+	font-size: 1.1em;
+}
+.badges p i {
+	font-size: 1.25em;
+}
+.badges button {
+	margin: 0 0 0 0.35em;
+}
+.badges button i {
+	margin: 0;
+	display: block;
+}
+.badges p button:hover {
+	color: var(--error);
+}
+.badges .dropdown-menu button, .badges .dropdown button p, .badges .dropdown-menu button p, .badges .dropdown button {
+	margin: 0;
+}
+.badges .dropdown button p, .badges p button {
+	padding: 0;
 }
 </style>

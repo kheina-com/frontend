@@ -75,9 +75,9 @@
 					<FavoriteButton :postId='postId'/>
 					<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 					<DropDown :options="[
-						{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
-						{ name: `Block @${post?.user?.handle}`, action: () => { } },
-						{ name: `Report @${post?.user?.handle}`, action: () => { } },
+						{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
+						{ html: `Block @${post?.user?.handle}`, action: () => { } },
+						{ html: `Report @${post?.user?.handle}`, action: () => { } },
 					]">
 						<i class='more-button material-icons-round'>more_horiz</i>
 					</DropDown>
@@ -90,10 +90,10 @@
 					<p class='reply-label'>
 						{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
 						<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
-							{ name: 'Top', value: 'top' },
-							{ name: 'Hot', value: 'hot' },
-							{ name: 'Best', value: 'best' },
-							{ name: 'Controversial', value: 'controversial' },
+							{ html: 'Top', value: 'top' },
+							{ html: 'Hot', value: 'hot' },
+							{ html: 'Best', value: 'best' },
+							{ html: 'Controversial', value: 'controversial' },
 						]">
 							<span class='sort-by'>
 								<i class='material-icons-round'>sort</i>
@@ -170,9 +170,9 @@
 						<FavoriteButton :postId='postId'/>
 						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 						<DropDown :options="[
-							{ name: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
-							{ name: `Block @${post?.user?.handle}`, action: () => { } },
-							{ name: `Report @${post?.user?.handle}`, action: () => { } },
+							{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
+							{ html: `Block @${post?.user?.handle}`, action: () => { } },
+							{ html: `Report @${post?.user?.handle}`, action: () => { } },
 						]">
 							<i class='more-button material-icons-round'>more_horiz</i>
 						</DropDown>
@@ -187,10 +187,10 @@
 				<p class='reply-label'>
 					{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
 					<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
-						{ name: 'Top', value: 'top' },
-						{ name: 'Hot', value: 'hot' },
-						{ name: 'Best', value: 'best' },
-						{ name: 'Controversial', value: 'controversial' },
+						{ html: 'Top', value: 'top' },
+						{ html: 'Hot', value: 'hot' },
+						{ html: 'Best', value: 'best' },
+						{ html: 'Controversial', value: 'controversial' },
 					]">
 						<span class='sort-by'>
 							<i class='material-icons-round'>sort</i>

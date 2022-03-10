@@ -4,9 +4,12 @@
 		<button @click.prevent.stop='() => toggleDropdown()' ref='dropdownButton' v-click-outside='() => toggleDropdown(false)'><slot/></button>
 		<div class='dropdown-menu' ref='dropdownMenu'>
 			<div>
-				<button @click.prevent.stop='option.action ? runAction(option) : setValue(option)' :class='option?.value === value ? "selected" : null' v-for='option in options'>
-					{{option?.name || option.value}}
-				</button>
+				<button
+					v-for='option in options'
+					@click.prevent.stop='option.action ? runAction(option) : setValue(option)'
+					:class='option?.value === value ? "selected" : null'
+					v-html='option.html'
+				/>
 			</div>
 		</div>
 	</div>
@@ -68,11 +71,11 @@ export default {
 		setValue(option) {
 			this.$emit(`update:value`, option.value);
 			this.$emit(`change`, option.value);
-			this.toggleDropdown();
+			this.toggleDropdown(false);
 		},
 		runAction(option) {
 			option.action();
-			this.toggleDropdown();
+			this.toggleDropdown(false);
 		},
 	},
 }
