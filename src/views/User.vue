@@ -34,28 +34,28 @@
 						</div>
 					</Loading>
 					<div class='profile-buttons'>
-						<div class='tabs' v-show='!isMobile'>
-							<button @click='selectTab' class='posts'>
+						<div class='tabs' v-if='!isMobile'>
+							<button @click='selectTab' id='posts'>
 								Posts
 								<div class='border'/>
 							</button>
 							<div class='separator'/>
-							<button @click='selectTab' class='sets'>
+							<button @click='selectTab' id='sets'>
 								Sets
 								<div class='border'/>
 							</button>
 							<div class='separator'/>
-							<button @click='selectTab' class='tags'>
+							<button @click='selectTab' id='tags'>
 								Tags
 								<div class='border'/>
 							</button>
 							<div class='separator'/>
-							<button @click='selectTab' class='favs'>
+							<button @click='selectTab' id='favs'>
 								Favorites
 								<div class='border'/>
 							</button>
 							<div class='separator' v-show='isSelf'/>
-							<button @click='selectTab' class='uploads' title='this tab is only visible to you' v-show='isSelf'>
+							<button @click='selectTab' id='uploads' title='this tab is only visible to you' v-show='isSelf'>
 								<i class='material-icons'>lock</i>
 								Uploads
 								<div class='border'/>
@@ -128,30 +128,30 @@
 					Edit Profile
 				</Button>
 			</div>
-			<div class='mobile-profile-buttons' v-show='isMobile'>
+			<div class='mobile-profile-buttons' v-if='isMobile'>
 				<div class='tabs'>
-					<button @click='selectTab' class='posts'>
+					<button @click='selectTab' id='posts'>
 						Posts
 						<div class='border'/>
 					</button>
 					<div class='separator'/>
-					<button @click='selectTab' class='sets'>
+					<button @click='selectTab' id='sets'>
 						Sets
 						<div class='border'/>
 					</button>
 					<div class='separator'/>
-					<button @click='selectTab' class='tags'>
+					<button @click='selectTab' id='tags'>
 						Tags
 						<div class='border'/>
 					</button>
 					<div class='separator'/>
-					<button @click='selectTab' class='favs'>
+					<button @click='selectTab' id='favs'>
 						Favs
 						<div class='border'/>
 					</button>
 				</div>
 				<div class='tabs' v-show='isSelf'>
-					<button @click='selectTab' class='uploads' title='this tab is only visible to you'>
+					<button @click='selectTab' id='uploads' title='this tab is only visible to you'>
 						<i class='material-icons'>lock</i>
 						Uploads
 						<div class='border'/>
@@ -248,7 +248,7 @@ import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, isMobile, khatch, setTitle, tagSplit } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tagsHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tabs, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -336,8 +336,6 @@ export default {
 		};
 	},
 	created() {
-		const tabs = new Set(['posts', 'sets', 'tags', 'favs', 'uploads']);
-
 		if (tabs.has(this.$route.query?.tab))
 		{ this.tab = this.$route.query.tab; }
 		else
@@ -365,6 +363,10 @@ export default {
 				this.$store.commit('error', apiErrorMessage, error);
 				console.error(error);
 			});
+	},
+	mounted() {
+		if (this.$route.query?.edit)
+		{ this.toggleEdit(true); }
 
 		this.fetchData();
 
@@ -372,12 +374,6 @@ export default {
 			() => this.$route.query,
 			this.fetchData,
 		);
-	},
-	mounted() {
-		this.tabElement = document.querySelector(`.${isMobile ? 'mobile-profile-buttons' : 'profile-buttons'} button.${this.tab}`);
-		this.tabElement.lastChild.style.borderBottomWidth = '5px';
-		if (this.$route.query?.edit)
-		{ this.toggleEdit(true); }
 	},
 	computed: {
 		isSelf() {
@@ -426,10 +422,7 @@ export default {
 			.catch(() => { });
 		},
 		selectTab(event) {
-			this.tabElement.lastChild.style.borderBottomWidth = '0';
-			this.tab = event.target.className;
-			event.target.lastChild.style.borderBottomWidth = '5px';
-			this.tabElement = event.target;
+			this.tab = event.target.id;
 			this.$router.push(this.pageLink(1));
 		},
 		follow() {
@@ -444,7 +437,15 @@ export default {
 				this.user.following = !this.user?.following;
 			}).catch(() => { });
 		},
-		fetchData() {
+		fetchData(query = null) {
+			this.tab = query?.tab || this.tab;
+
+			if (this.tabElement)
+			{ this.tabElement.lastChild.style.borderBottomWidth = '0'; }
+
+			this.tabElement = document.getElementById(this.tab);
+			this.tabElement.lastChild.style.borderBottomWidth = '5px';
+
 			switch (this.tab) {
 				case 'posts' :
 					this.page = parseInt(this.$route.query?.page) || 1;
@@ -1005,11 +1006,11 @@ ul, ol {
 	border-bottom: solid 0 var(--icolor);
 }
 
-.uploads {
+#uploads {
 	display: flex;
 	justify-content: center;
 }
-.uploads i {
+#uploads i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
 	pointer-events: none;
