@@ -79,7 +79,7 @@
 									<i class='material-icons'>close</i>
 								</button>
 							</p>
-							<DropDown v-if='isEditing' class='dropdown' :options='availableBadges.map(badge => {
+							<DropDown v-if='isEditing' class='dropdown' :options='availableBadges?.map(badge => {
 								return { html: `<img class="emoji" src="${getEmojiUrl(badge.emoji)}">${badge.label}`, value: badge, action: () => addBadge(badge) };
 							})'>
 								<p>
