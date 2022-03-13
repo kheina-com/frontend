@@ -13,6 +13,7 @@
 <script>
 import { ref } from 'vue';
 import { authCookie, getCookie, isDarkMode, isMobile, setCookie, setMeta } from '@/utilities';
+import { ratingMap } from '@/config/constants';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -75,6 +76,8 @@ export default {
 			favicons[128] = (await import('$/favicon/light/128.png?url')).default;
 			favicons[256] = (await import('$/favicon/light/256.png?url')).default;
 		}
+
+		this.$store.commit('maxRating', ratingMap[getCookie('max-rating', 'general')]);
 
 		[32, 64, 128, 256].forEach(x => {
 			const link = document.createElement('link');

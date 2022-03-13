@@ -9,7 +9,7 @@ import { environment } from '@/config/constants'
 export function setCookie(name, value, maxage=86400, samesite='strict', path='/')
 { document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== 'local' ? 'secure' : ''}`; };
 
-export function getCookie(cookieName)
+export function getCookie(cookieName, default_value=null)
 {
 	let name = cookieName + '=';
 	let ca = document.cookie.split(';');
@@ -21,7 +21,7 @@ export function getCookie(cookieName)
 		if (c.indexOf(name) == 0)
 		{ return decodeURIComponent(c.substring(name.length, c.length)); }
 	}
-	return null;
+	return default_value;
 };
 
 export function deleteCookie(cookieName)

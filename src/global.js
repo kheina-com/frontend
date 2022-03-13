@@ -16,8 +16,12 @@ export default createStore({
 		toasts: {},
 		animatedAccents: null,
 		error: null,
+		maxRating: 'general',
 	},
 	mutations: {
+		maxRating(state, rating) {
+			state.maxRating = rating;
+		},
 		setAuth(state, auth) {
 			state.auth = auth;
 			if (auth)

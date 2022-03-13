@@ -39,7 +39,7 @@
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 		<router-link :to='`/p/${postId}`' class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.user || rating === "general" || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
+			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
 			</button>
@@ -75,7 +75,7 @@
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
-import { uploadHost, usersHost } from '@/config/constants';
+import { ratingMap, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -207,6 +207,7 @@ export default {
 	},
 	data() {
 		return {
+			ratingMap,
 			isMobile,
 			editing: false,
 			guideHeight: null,

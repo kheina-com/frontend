@@ -85,6 +85,12 @@ export const routerMetaTag = 'data-v-router';
 
 export const tabs = new Set(['posts', 'sets', 'tags', 'favs', 'uploads']);
 
+export const ratingMap = {
+	'general': 0,
+	'mature': 1,
+	'explicit': 2,
+};
+
 export const mdGuide = `
 # Markdown Guide
 There are many fantastic guides available for markdown! kheina.com recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!
