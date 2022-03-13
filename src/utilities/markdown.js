@@ -131,7 +131,7 @@ switch (environment)
 		break;
 }
 
-const url = new RegExp(`^${tempUrl.source}|^\/`);
+const url = new RegExp(`^${tempUrl.source}\/|^\/`);
 
 
 export function htmlEscape(html) {
