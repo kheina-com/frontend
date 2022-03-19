@@ -1,7 +1,7 @@
 <template>
 	<main>
 		<div style='display: flex; flex-direction: column; align-items: center'>
-			things you will eventually be able to do here:
+			<h2>things you will eventually be able to do here:</h2>
 			<ul style='display: inline-block; margin-bottom: 0'>
 				<li>
 					change the query used to retrieve posts on your profile page
@@ -28,10 +28,10 @@
 				</li>
 			</ul>
 			<br>
-			things you can already do here:
-			<ul style='display: inline-block; margin-bottom: 0'>
+			<ul style='display: inline-block; margin-bottom: 0' class='settings'>
+				<h2>things you can already do here:</h2>
 				<li>
-					<span>maximum rating for autoloading thumbnails in search results</span>
+					<span>maximum rating for autoloading thumbnails</span>
 					<br>
 					<RadioButtons
 						name='rating'
@@ -42,6 +42,11 @@
 							{ content: 'explicit' },
 						]"
 					/>
+				</li>
+				<li>
+					<span>set custom font-family</span>
+					<br>
+					<input class='interactable text' style='display: block; width: 100%' v-model='fontFamily'>
 				</li>
 			</ul>
 
@@ -65,6 +70,7 @@ export default {
 	data() {
 		return {
 			maxRating: getCookie('max-rating', 'general'),
+			fontFamily: getCookie('font-family'),
 		};
 	},
 	computed: {
@@ -76,6 +82,15 @@ export default {
 			setCookie('max-rating', value, 3155695200);
 			this.$store.commit('maxRating', ratingMap[value]);
 		},
+		fontFamily(value) {
+			setCookie('font-family', value, 3155695200);
+			const fontFamily = document.getElementById('custom-font');
+			if (value)
+			{ fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+			else
+			{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+
+		},
 	},
 }
 </script>
@@ -85,5 +100,18 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
+}
+h2 {
+	margin: 0;
+}
+.settings {
+	padding: 0;
+}
+.settings li {
+	list-style: none;
+	margin-top: 25px;
+}
+.settings li span {
+	margin-left: 25px;
 }
 </style>

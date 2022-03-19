@@ -53,12 +53,22 @@ export default {
 			theme,
 			accent,
 		};
-		this.$store.commit('animatedAccents', "false" !== getCookie('animated-accents'));
+		this.$store.commit('animatedAccents', 'false' !== getCookie('animated-accents'));
 
 		const auth = authCookie();
 		if (auth)
 		{ this.$store.commit('setAuth', authCookie()); }
 		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
+
+		const fontFamily = document.createElement('style');
+		fontFamily.type = 'text/css';
+		fontFamily.id = 'custom-font';
+		const customFont = getCookie('font-family');
+		if (customFont)
+		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+		else
+		{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+		document.head.insertBefore(fontFamily, document.head.firstChild);
 
 		// sadly, these must be strings for vite to catch assets
 		const favicons = { };
@@ -215,8 +225,6 @@ body.menu-open {
 	height: 200%;
 }
 
-html *
-{ font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }
 code, .code, textarea
 { font-size: 0.9em; }
 code, code *, .code, .code *, textarea
