@@ -112,15 +112,15 @@ export default {
 	},
 	methods: {
 		setAnimated(e) {
-			this.$store.commit("animatedAccents", e.target.checked);
+			this.$store.commit('animatedAccents', e.target.checked);
 			setCookie('animated-accents', e.target.checked);
 		},
 		onResize() {
-			let offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
-			this.$store.contentOffset = offset - this.banner.clientHeight;
-
 			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true))
-			{ this.$refs.content.style.top = `${offset}px`; }
+			{
+				const offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
+				this.$refs.content.style.top = `${offset}px`;
+			}
 			else
 			{ this.$refs.content.style.top = `${this.banner.clientHeight}px`; }
 		},

@@ -1,6 +1,25 @@
 <template>
 	<main>
-		<div style='display: flex; flex-direction: column; align-items: center'>
+		<ul class='settings'>
+			<li>
+				<span>maximum rating for autoloading thumbnails</span>
+				<RadioButtons
+					name='rating'
+					v-model:value='maxRating'
+					:data="[
+						{ content: 'general' },
+						{ content: 'mature' },
+						{ content: 'explicit' },
+					]"
+				/>
+			</li>
+			<li>
+				<span>set custom font-family</span>
+				<input class='interactable text' style='display: block; width: 100%' v-model='fontFamily'>
+			</li>
+		</ul>
+
+		<div class='eventually' style='display: flex; flex-direction: column; align-items: center'>
 			<h2>things you will eventually be able to do here:</h2>
 			<ul style='display: inline-block; margin-bottom: 0'>
 				<li>
@@ -27,29 +46,6 @@
 					change local performance settings (load thumbnails vs fullsize)
 				</li>
 			</ul>
-			<br>
-			<ul style='display: inline-block; margin-bottom: 0' class='settings'>
-				<h2>things you can already do here:</h2>
-				<li>
-					<span>maximum rating for autoloading thumbnails</span>
-					<br>
-					<RadioButtons
-						name='rating'
-						v-model:value='maxRating'
-						:data="[
-							{ content: 'general' },
-							{ content: 'mature' },
-							{ content: 'explicit' },
-						]"
-					/>
-				</li>
-				<li>
-					<span>set custom font-family</span>
-					<br>
-					<input class='interactable text' style='display: block; width: 100%' v-model='fontFamily'>
-				</li>
-			</ul>
-
 		</div>
 		<ThemeMenu/>
 	</main>
@@ -102,14 +98,16 @@ main {
 	padding: 25px;
 }
 h2 {
-	margin: 0;
+	margin: 0 auto;
 }
 .settings {
 	padding: 0;
+	margin: 0 auto 0;
+	width: 70vw;
 }
 .settings li {
 	list-style: none;
-	margin-top: 25px;
+	margin-bottom: 25px;
 }
 .settings li span {
 	margin-left: 25px;

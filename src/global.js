@@ -11,7 +11,6 @@ export default createStore({
 		auth: null,
 		user: null,
 		theme: null,
-		contentOffset: null,
 		scroll: null,
 		toasts: {},
 		animatedAccents: null,

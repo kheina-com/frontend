@@ -209,12 +209,6 @@ export default {
 		};
 	},
 	mounted() {
-		// TODO: this doesn't work, route.path isn't populate on load
-		if (this.$route.path.match(/^\/[qt]\//))
-		{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
-		else
-		{ this.searchValue = ''; }
-
 		khatch(`${configHost}/v1/banner`)
 			.then(response => {
 				response.json().then(r => {
@@ -229,6 +223,11 @@ export default {
 			.catch(error => {
 				console.error(error);
 			});
+
+		this.$watch(
+			() => this.$route.path,
+			this.setQuery,
+		);
 	},
 	computed: {
 		isVerified() {
@@ -249,6 +248,10 @@ export default {
 	},
 	methods: {
 		getMediaThumbnailUrl,
+		setQuery() {
+			if (this.$route.path.match(/^\/[qt]\//))
+			{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
+		},
 		runSearchQuery() {
 			const query = this.searchValue.trim();
 			if (!query)
