@@ -41,13 +41,15 @@
 			main div {
 				padding: 25px;
 			}
-			main img#icon {
+			main img {
 				max-width: 100px;
 				max-height: 100px;
 			}
+			main img#icon {
+				opacity: 0.25;
+			}
 			main img#loading {
 				position: absolute;
-				opacity: 0;
 			}
 		</style>
 
@@ -55,8 +57,15 @@
 			<div>
 				<img src='/assets/loading.gif' id='loading'>
 				<img src='/assets/favicon/dark/256.png' id='icon'>
-				<script type='module' src='/src/loaded.js'></script>
 				<noscript>
+					<style>
+						main img#icon {
+							opacity: 1;
+						}
+						main img#loading {
+							opacity: 0;
+						}
+					</style>
 					<h1>Javascript Required</h1>
 					<p>
 						kheina.com runs on Vue 3 and requires javascript to run correctly. Please check your browser settings and enable javascript.

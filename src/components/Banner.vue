@@ -253,7 +253,14 @@ export default {
 			{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
 		},
 		runSearchQuery() {
+			if (!this.searchValue)
+			{
+				this.$router.push('/');
+				return;
+			}
+
 			const query = this.searchValue.trim();
+
 			if (!query)
 			{
 				this.$router.push('/');
@@ -440,7 +447,7 @@ textarea {
 	height: 2rem;
 	margin: 0.25rem;
 }
-.profile-image *  {
+.profile-image * {
 	display: block;
 	width: 2rem;
 	height: 2rem;
@@ -491,9 +498,9 @@ ol > :last-child {
 }
 .create {
 	position: absolute;
-    margin: 0 0 0 10rem;
+	margin: 0 0 0 10rem;
 	padding: 0;
-    height: 2.5rem;
+	height: 2.5rem;
 	left: 0;
 	top: 0;
 }
@@ -612,7 +619,7 @@ html.mobile .menu-open .create p, .menu-open .create p {
 	height: 3.5rem;
 	margin: 0.25rem;
 }
-.mobile .profile-image *  {
+.mobile .profile-image * {
 	display: block;
 	width: 3.5rem;
 	height: 3.5rem;
