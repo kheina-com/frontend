@@ -470,13 +470,14 @@ export default {
 
 					this.posts = null;
 
-					khatch(`${postsHost}/v1/fetch_user_posts`, {
+					khatch(`${postsHost}/v1/fetch_posts`, {
 						handleError: true,
 							method: 'POST',
 							body: {
-								handle: this.handle,
 								page: this.page,
 								count: this.count,
+								sort: 'new',
+								tags: [`@${this.handle}`]
 							},
 						})
 						.then(response => {
@@ -1160,7 +1161,7 @@ html.wikipedia .badges p {
 }
 
 html.solarized-dark .badges img.emoji {
-	filter: contrast(0.625);
+	filter: saturate(0.625);
 }
 
 html.solarized-light .badges img.emoji {

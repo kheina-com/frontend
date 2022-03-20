@@ -64,8 +64,6 @@ export default {
 		const customFont = getCookie('font-family');
 		if (customFont)
 		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
-		else
-		{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
 
 		// sadly, these must be strings for vite to catch assets
 		const favicons = { };
@@ -502,7 +500,7 @@ html.e621
 	--bordercolor: var(--subtle);
 	--border-size: 0;
 	--linecolor: var(--subtle);
-	--borderhover: #0000;
+	--borderhover: var(--icolor);
 	--blockquote: var(--subtle);
 	--subtle: #B4C7D9;
 	--shadowcolor: #0000;

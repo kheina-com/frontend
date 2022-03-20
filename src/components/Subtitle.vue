@@ -38,7 +38,7 @@ p
 	text-align: left;
 	font-size: 1em;
 }
-@media screen and (max-width:90rem)
+@media only screen and (max-width: 90rem)
 {
 	.subtitle
 	{

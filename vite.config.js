@@ -16,6 +16,9 @@ export default {
 		vue(),
 		minifyHtml(),
 	],
+	build: {
+		assetsInlineLimit: 0,
+	},
 	define: {
 		__COMMIT_HASH__: JSON.stringify(fullCommit.trim()),
 		__SHORT_COMMIT_HASH__: JSON.stringify(shortCommit.trim()),

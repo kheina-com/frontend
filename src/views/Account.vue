@@ -1,5 +1,6 @@
 <template>
 	<main>
+		<h2 style='margin-top: 0'>settings</h2>
 		<ul class='settings'>
 			<li>
 				<span>maximum rating for autoloading thumbnails</span>
@@ -14,39 +15,80 @@
 				/>
 			</li>
 			<li>
-				<span>set custom font-family</span>
-				<input class='interactable text' style='display: block; width: 100%' v-model='fontFamily'>
+				<span>custom font-family</span>
+				<input class='interactable text' placeholder='font family' v-model='fontFamily'>
 			</li>
 		</ul>
 
-		<div class='eventually' style='display: flex; flex-direction: column; align-items: center'>
-			<h2>things you will eventually be able to do here:</h2>
-			<ul style='display: inline-block; margin-bottom: 0'>
-				<li>
-					change the query used to retrieve posts on your profile page
-					<br>
-					(defaults to pulling all posts containing one of your owned tags)
-				</li>
-				<li>
-					change your handle to something else (or just change the capitalization)
-				</li>
-				<li>
-					transfer ownership of tags to other users (may require permission or something, not sure yet)
-				</li>
-				<li>
-					change what tags (or users) you have blocked
-				</li>
-				<li>
-					change blocking behavior (omit entirely or just hide image/desc)
-				</li>
-				<li>
-					delete your account
-				</li>
-				<li>
-					change local performance settings (load thumbnails vs fullsize)
-				</li>
-			</ul>
-		</div>
+		<h2>performance</h2>
+		<ul class='settings performance'>
+			<li>
+				<span>animations</span>
+				<CheckBox
+					skipInput
+					id='animated-accents'
+					name='animated-accents'
+					:checked='$store.state.animatedAccents'
+				>animated accents</CheckBox>
+			</li>
+		</ul>
+
+		<h2>NOT IMPLEMENTED</h2>
+		<ul class='settings'>
+			<li>
+				<span>query used to retrieve posts on your profile page</span>
+				<input class='interactable text' :placeholder='`@${$store.state.user?.handle}`'>
+			</li>
+			<li>
+				<span>change your @handle</span>
+				<input class='interactable text' :placeholder='`${$store.state.user?.handle}`'>
+			</li>
+			<li>
+				<span>blocking behavior</span>
+				<RadioButtons
+					name='block-behavior'
+					:data="[
+						{ content: 'hide post content' },
+						{ content: 'omit from results' },
+					]"
+				/>
+			</li>
+			<li>
+				<span>blocked tags</span>
+				<textarea class='interactable text' placeholder='enter blocked tags, separated by commas'/>
+			</li>
+			<li>
+				<span>blocked users</span>
+				<textarea class='interactable text' placeholder='enter blocked users, separated by commas'/>
+			</li>
+		</ul>
+
+		<h2>performance</h2>
+		<ul class='settings performance'>
+			<li>
+				<span>post page media</span>
+				<RadioButtons
+					name='block-behavior'
+					:data="[
+						{ content: 'compressed' },
+						{ content: 'fullsize' },
+					]"
+				/>
+			</li>
+		</ul>
+
+		<h2 class='danger'>DANGER ZONE</h2>
+		<ul class='settings'>
+			<li>
+				<span>change password</span>
+				<input class='interactable text' placeholder='old password'>
+				<input class='interactable text buffer' placeholder='new password'>
+				<input class='interactable text buffer' placeholder='new password'>
+			</li>
+			<li>
+				delete my account
+			</li>
+		</ul>
 		<ThemeMenu/>
 	</main>
 </template>
@@ -56,12 +98,14 @@ import { getCookie, setCookie } from '@/utilities';
 import { ratingMap } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
+import CheckBox from '@/components/CheckBox.vue';
 
 export default {
 	name: 'Account',
 	components: {
 		ThemeMenu,
 		RadioButtons,
+		CheckBox,
 	},
 	data() {
 		return {
@@ -98,7 +142,19 @@ main {
 	padding: 25px;
 }
 h2 {
-	margin: 0 auto;
+	text-align: center;
+	margin: 25px 0;
+}
+input, textarea {
+	display: block;
+	width: 100%;
+}
+textarea {
+	resize: vertical;
+}
+span {
+	position: relative;
+	z-index: 1;
 }
 .settings {
 	padding: 0;
@@ -111,5 +167,26 @@ h2 {
 }
 .settings li span {
 	margin-left: 25px;
+}
+.performance h2 {
+	display: inline;
+}
+.buffer {
+	margin-top: 0.5em;
+}
+
+@keyframes danger {
+	0%, 100%
+	{ color: var(--textcolor) }
+	50%
+	{ color: var(--red) }
+}
+.danger {
+	animation: danger 2s linear infinite;
+}
+@media only screen and (max-width: 900px) {
+	.settings {
+		width: auto;
+	}
 }
 </style>

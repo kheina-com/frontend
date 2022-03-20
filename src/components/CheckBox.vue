@@ -109,7 +109,7 @@ label:hover, label:active, label:focus
 }
 
 label.border {
-	display: flex;
+	display: inline-flex;
 	padding: 0.5em 1em;
 	border: var(--border-size) solid var(--bordercolor);
 	background: var(--bg2color);

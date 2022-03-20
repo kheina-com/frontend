@@ -169,8 +169,8 @@ export default {
 	max-height: 1.2em;
 	position: relative;
 	margin-top: -0.25em;
-	vertical-align: bottom;
-	transform: translateY(calc(50% - 0.6em))
+	vertical-align: middle;
+	/* transform: translateY(calc(50% - 0.6em)) */
 }
 .markdown .handle {
 	white-space: nowrap;
@@ -323,7 +323,7 @@ export default {
 /* THEME OVERRIDES */
 html.solarized-dark .markdown .gigamoji img,
 html.solarized-dark .markdown img.emoji {
-	filter: contrast(0.625);
+	filter: saturate(0.625);
 }
 
 html.solarized-light .markdown .gigamoji img,
