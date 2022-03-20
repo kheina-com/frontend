@@ -1,8 +1,12 @@
-import vue from '@vitejs/plugin-vue'
+import vue from '@vitejs/plugin-vue';
+import { minifyHtml } from './vite-plugins.js';
+
 const path = require('path');
+
 const fullCommit = require('child_process')
 	.execSync('git rev-parse HEAD')
 	.toString();
+
 const shortCommit = require('child_process')
 	.execSync('git rev-parse --short HEAD')
 	.toString();
@@ -10,6 +14,7 @@ const shortCommit = require('child_process')
 export default {
 	plugins: [
 		vue(),
+		minifyHtml(),
 	],
 	define: {
 		__COMMIT_HASH__: JSON.stringify(fullCommit.trim()),

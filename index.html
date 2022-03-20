@@ -2,6 +2,11 @@
 <html lang='en'>
 	<head>
 		<meta charset='utf-8'/>
+		<style type='text/css' id='custom-font'>
+			html * {
+				font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif;
+			}
+		</style>
 		<link href='/assets/fonts/style.css' rel='stylesheet'>
 		<link rel='apple-touch-icon' sizes='180x180' href='/assets/favicon/apple-touch-icon.png'>
 		<link rel='manifest' href='/site.webmanifest'>
@@ -36,15 +41,21 @@
 			main div {
 				padding: 25px;
 			}
-			main img {
+			main img#icon {
 				max-width: 100px;
 				max-height: 100px;
+			}
+			main img#loading {
+				position: absolute;
+				display: none;
 			}
 		</style>
 
 		<main>
 			<div>
-				<img src='/assets/favicon/dark/256.png'>
+				<img src='/assets/loading.gif' id='loading'>
+				<img src='/assets/favicon/dark/256.png' id='icon'>
+				<script type='module' src='/src/loaded.js'></script>
 				<noscript>
 					<h1>Javascript Required</h1>
 					<p>

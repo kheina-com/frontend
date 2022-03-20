@@ -3,7 +3,7 @@ import { v4 as uuid4 } from 'uuid';
 import store from '@/global';
 
 
-export default 0;
+export default null;
 
 import { environment } from '@/config/constants'
 export function setCookie(name, value, maxage=86400, samesite='strict', path='/')

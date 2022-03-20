@@ -60,15 +60,12 @@ export default {
 		{ this.$store.commit('setAuth', authCookie()); }
 		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
 
-		const fontFamily = document.createElement('style');
-		fontFamily.type = 'text/css';
-		fontFamily.id = 'custom-font';
+		const fontFamily = document.getElementById('custom-font');
 		const customFont = getCookie('font-family');
 		if (customFont)
 		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
 		else
 		{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
-		document.head.insertBefore(fontFamily, document.head.firstChild);
 
 		// sadly, these must be strings for vite to catch assets
 		const favicons = { };
