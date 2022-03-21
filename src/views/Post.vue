@@ -844,10 +844,10 @@ ol p {
 	justify-content: center;
 	border-radius: var(--border-radius);
 	background: #0000;
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	padding: 0.25em 0.5em 0.25em 0.25em;
 	margin: 0.25em 0;
 	text-align: left;
@@ -897,10 +897,10 @@ ol p {
 	padding: 0.25em;
 	color: var(--subtle);
 	background: #00000000;
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .post-buttons button:hover, .more-button:hover {
 	color: var(--icolor);
@@ -918,10 +918,10 @@ ol p {
 	display: flex;
 	align-items: center;
 	color: var(--subtle);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .sort-by i {
 	margin-right: 0.25em;

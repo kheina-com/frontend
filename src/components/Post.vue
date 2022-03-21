@@ -354,10 +354,10 @@ export default {
 
 <style>
 .post.link .title {
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .post.link:hover .title {
 	color: var(--icolor);
@@ -374,10 +374,10 @@ export default {
 	position: relative;
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .post.nested {
 	background: var(--bg2color);
@@ -533,10 +533,10 @@ ol > :last-child, ol > :last-child .post {
 	color: var(--subtle);
 	background: #0000;
 	border-radius: var(--border-radius);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .buttons button:hover i {
 	color: var(--icolor);
@@ -592,10 +592,10 @@ ol > :last-child, ol > :last-child .post {
 	padding: calc(0.5em / 3);
 	color: var(--subtle);
 	background: #00000000;
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .more-button:hover {
 	color: var(--icolor);

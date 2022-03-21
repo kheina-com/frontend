@@ -61,10 +61,10 @@ export default {
 	border-left: var(--border-size) solid var(--bordercolor);
 	border-top: var(--border-size) solid var(--bordercolor);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .theme-menu tr
 { text-align: right; }

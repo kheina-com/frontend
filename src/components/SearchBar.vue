@@ -58,10 +58,10 @@ i {
 	border: none;
 	background: none;
 	color: var(--textcolor);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	cursor: pointer;
 }
 button:hover /*, button:active, button:focus */

@@ -24,12 +24,21 @@
 		<ul class='settings performance'>
 			<li>
 				<span>animations</span>
-				<CheckBox
-					skipInput
-					id='animated-accents'
-					name='animated-accents'
-					:checked='$store.state.animatedAccents'
-				>Animated Accents</CheckBox>
+				<div class='checkboxes'>
+					<CheckBox
+						class='checkbox'
+						id='css-transitions-checkbox'
+						name='css-transitions-checkbox'
+						v-model:checked='CssTransitions'
+					>CSS Transitions</CheckBox>
+					<CheckBox
+						skipInput
+						class='checkbox'
+						id='animated-accents'
+						name='animated-accents'
+						:checked='$store.state.animatedAccents'
+					>Animated Accents</CheckBox>
+				</div>
 			</li>
 		</ul>
 
@@ -66,6 +75,17 @@
 
 		<h2>Performance</h2>
 		<ul class='settings performance'>
+			<li>
+				<span>animations</span>
+				<div class='checkboxes'>
+					<CheckBox
+						class='checkbox'
+						id='animated-emoji'
+						name='animated-emoji'
+						v-model:checked='animatedEmoji'
+					>Animated Emoji</CheckBox>
+				</div>
+			</li>
 			<li>
 				<span>post page media</span>
 				<RadioButtons
@@ -115,11 +135,9 @@ export default {
 			fontFamily: getCookie('font-family'),
 			blockBehavior: getCookie('block-behavior'),
 			mediaQuality: getCookie('media-quality'),
+			animatedEmoji: Boolean(getCookie('animated-emoji', true)),
+			CssTransitions: Boolean(getCookie('css-transitions', true)),
 		};
-	},
-	computed: {
-	},
-	methods: {
 	},
 	watch: {
 		maxRating(value) {
@@ -133,7 +151,14 @@ export default {
 			{ fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
 			else
 			{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
-
+		},
+		CssTransitions(value) {
+			setCookie('css-transitions', value, 3155695200);
+			const CssTransitions = document.getElementById('css-transitions');
+			if (value)
+			{ CssTransitions.innerHTML = null; }
+			else
+			{ CssTransitions.innerHTML = `html { --transition: none }`; }
 		},
 	},
 }
@@ -177,6 +202,15 @@ span {
 }
 .buffer {
 	margin-top: 0.5em;
+}
+.checkboxes {
+	display: flex;
+}
+.checkboxes .checkbox {
+	margin-right: 25px;
+}
+.checkboxes:last-child {
+	margin-right: 0;
 }
 
 .mobile .settings {

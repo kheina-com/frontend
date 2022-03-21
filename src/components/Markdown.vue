@@ -292,20 +292,20 @@ export default {
 	overflow: hidden;
 	background: var(--bg2color);
 	white-space: initial;
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .markdown .post:hover {
 	border-color: var(--borderhover);
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 .markdown .post p {
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	margin: 0.25em;
 }
 .markdown .post img {

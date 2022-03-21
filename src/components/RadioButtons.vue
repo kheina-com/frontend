@@ -102,10 +102,10 @@ label div.checkmark div, label div.radio div
 	border: solid 0 #0000;
 	border-width: 0;
 	position: absolute;
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 label div.checkmark div
 {

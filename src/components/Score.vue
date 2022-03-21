@@ -96,10 +96,10 @@ button b {
 	display: block;
 	padding: 0.25em 0.5em;
 	border-radius: var(--border-radius);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 button:hover b {
 	background: var(--bg2color);

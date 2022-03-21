@@ -23,7 +23,7 @@
 				</Loading>
 			</div>
 			<div class='profile' v-else>
-				<router-link :to='`/account/login?path=${$route.fullPath}`' class='interactable login'>Login</router-link>
+				<router-link :to='`/account/login?path=${route}`' class='interactable login'>Login</router-link>
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 		</div>
@@ -64,7 +64,8 @@
 				</li>
 				<li v-if='isMod'>
 					<router-link to='/mod'>
-						<i class='material-icons'>shield</i>Moderate
+						<i class='material-icons'>shield</i>
+						Moderate
 					</router-link>
 				</li>
 				<li v-if='isAdmin'>
@@ -109,7 +110,7 @@
 					<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
 				</li>
 				<li v-if='!isLoggedIn'>
-					<router-link :to='`/account/login?path=${$route.fullPath}`'><i class='material-icons-round'>login</i>Login</router-link>
+					<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
 				</li>
 				<li>
 					<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
@@ -118,7 +119,7 @@
 					<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
 				</li>
 				<li>
-					<router-link :to='`/bug?url=${encodeURIComponent($route.fullPath)}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+					<router-link :to='`/bug?url=${route}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
 				</li>
 				<li>
 					<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
@@ -245,6 +246,9 @@ export default {
 		showUploadButton() {
 			return this.$route.path !== '/create';
 		},
+		route() {
+			return encodeURIComponent(this.$route.fullPath)
+		},
 	},
 	methods: {
 		getMediaThumbnailUrl,
@@ -269,7 +273,7 @@ export default {
 
 			let route = '/t/';
 
-			if (query.includes(' ') || ratings.has(query) || query.startsWith('@') || query.startsWith('-'))
+			if (ratings.has(query) || query.startsWith('@') || query.startsWith('-') || query.includes(' ') || query.includes('sort:'))
 			{ route = '/q/'; }
 
 			this.$router.push(route + encodeURIComponent(query));
@@ -326,10 +330,10 @@ export default {
 	background: var(--bg2color);
 	border-right: var(--border-size) solid var(--bordercolor);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	height: 100%;
 	top: 0;
 	left: -25vw;
@@ -346,10 +350,10 @@ html.mobile .menu-open .menu, .menu-open .menu {
 }
 
 .screen-cover {
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	position: fixed;
 	height: 100vh;
 	width: 100vw;
@@ -560,10 +564,10 @@ ol > :last-child {
 	left: 5rem;
 }
 .create p {
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	position: relative;
 	right: 25vw;
 	right: calc(max(20vw, 18em) + 3px);

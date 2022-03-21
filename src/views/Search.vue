@@ -207,10 +207,10 @@ ol > :last-child {
 	display: flex;
 	align-items: center;
 	color: var(--subtle);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .sort-by i {
 	margin-right: 0.25em;

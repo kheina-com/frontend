@@ -63,7 +63,16 @@ export default {
 		const fontFamily = document.getElementById('font-family');
 		const customFont = getCookie('font-family');
 		if (customFont)
-		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`; }
+
+		// we need to inject the customizable css
+		const CssTransitionsElement = document.createElement('style');
+		CssTransitionsElement.id = 'css-transitions';
+		CssTransitionsElement.type = 'text/css';
+		const CssTransitions = getCookie('css-transitions', true);
+		if (!CssTransitions)
+		{ CssTransitionsElement.innerHTML = `html { --transition: none }`; }
+		document.head.appendChild(CssTransitionsElement);
 
 		// sadly, these must be strings for vite to catch assets
 		const favicons = { };
@@ -247,10 +256,10 @@ a, input, label, textarea
 	cursor: pointer;
 	pointer-events: all;
 	text-decoration: none;
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 input, textarea, select {
 	font-size: 0.9em;
@@ -258,10 +267,10 @@ input, textarea, select {
 }
 *::placeholder {
 	color: var(--subtle);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 input:hover::placeholder {
 	color: var(--icolor);
@@ -280,10 +289,10 @@ button
 	border: none;
 	background: none;
 	color: var(--textcolor);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	cursor: pointer;
 }
 button:hover /*, button:active, button:focus */
@@ -329,10 +338,10 @@ form, p
 	background: var(--bg2color);
 	box-sizing: border-box;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .interactable.text {
 	cursor: text;
@@ -382,10 +391,10 @@ p.center
 	display: inline-block;
 	min-height: 128px;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-	-webkit-transition: ease var(--fadetime);
-	-moz-transition: ease var(--fadetime);
-	-o-transition: ease var(--fadetime);
-	transition: ease var(--fadetime);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 .source img
 {
@@ -421,6 +430,7 @@ h3#percent
 
 html
 {
+	--transition: ease;
 	--fadetime: 0.15s;
 	--warning: yellow;
 	--error: darkred;
