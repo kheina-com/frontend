@@ -44,4 +44,4 @@ createApp(App)
 	.use(Vuex)
 	.use(global)
 	.use(vClickOutside)
-	.mount('#app');
+	.mount('body');

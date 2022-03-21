@@ -175,6 +175,10 @@ span {
 	margin-top: 0.5em;
 }
 
+.mobile .settings {
+	width: auto;
+}
+
 @keyframes danger {
 	0%, 100%
 	{ color: var(--textcolor) }
@@ -182,7 +186,7 @@ span {
 	{ color: var(--red) }
 }
 .danger {
-	animation: danger 2s linear infinite;
+	animation: danger 2s ease-in-out infinite;
 }
 @media only screen and (max-width: 900px) {
 	.settings {
