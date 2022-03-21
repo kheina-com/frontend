@@ -55,6 +55,8 @@ export default {
 		};
 		this.$store.commit('animatedAccents', 'false' !== getCookie('animated-accents'));
 
+		this.$store.commit('maxRating', ratingMap[getCookie('max-rating', 'general')]);
+
 		const auth = authCookie();
 		if (auth)
 		{ this.$store.commit('setAuth', authCookie()); }
@@ -90,8 +92,6 @@ export default {
 			favicons[128] = (await import('$/favicon/light/128.png?url')).default;
 			favicons[256] = (await import('$/favicon/light/256.png?url')).default;
 		}
-
-		this.$store.commit('maxRating', ratingMap[getCookie('max-rating', 'general')]);
 
 		[32, 64, 128, 256].forEach(x => {
 			const link = document.createElement('link');

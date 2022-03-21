@@ -43,6 +43,9 @@
 		</ul>
 
 		<h2>NOT IMPLEMENTED</h2>
+		<p style='text-align: center; margin: -25px 0 25px'>
+			everything below this point is non-functional and a work in progress
+		</p>
 		<ul class='settings'>
 			<li>
 				<span>query used to retrieve posts on your profile page</span>
