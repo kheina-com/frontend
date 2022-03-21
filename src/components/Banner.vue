@@ -100,7 +100,7 @@
 					</ol>
 				</li>
 				<li v-if='isLoggedIn'>
-					<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Account</router-link>
+					<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
 				</li>
 				<li v-if='isLoggedIn'>
 					<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>

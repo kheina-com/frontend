@@ -1,6 +1,6 @@
 <template>
 	<main>
-		<h2 style='margin-top: 0'>settings</h2>
+		<h2 style='margin-top: 0'>Settings</h2>
 		<ul class='settings'>
 			<li>
 				<span>maximum rating for autoloading thumbnails</span>
@@ -20,7 +20,7 @@
 			</li>
 		</ul>
 
-		<h2>performance</h2>
+		<h2>Performance</h2>
 		<ul class='settings performance'>
 			<li>
 				<span>animations</span>
@@ -29,7 +29,7 @@
 					id='animated-accents'
 					name='animated-accents'
 					:checked='$store.state.animatedAccents'
-				>animated accents</CheckBox>
+				>Animated Accents</CheckBox>
 			</li>
 		</ul>
 
@@ -47,6 +47,7 @@
 				<span>blocking behavior</span>
 				<RadioButtons
 					name='block-behavior'
+					v-model:value='blockBehavior'
 					:data="[
 						{ content: 'hide post content' },
 						{ content: 'omit from results' },
@@ -63,12 +64,13 @@
 			</li>
 		</ul>
 
-		<h2>performance</h2>
+		<h2>Performance</h2>
 		<ul class='settings performance'>
 			<li>
 				<span>post page media</span>
 				<RadioButtons
-					name='block-behavior'
+					name='media-quality'
+					v-model:value='mediaQuality'
 					:data="[
 						{ content: 'compressed' },
 						{ content: 'fullsize' },
@@ -111,6 +113,8 @@ export default {
 		return {
 			maxRating: getCookie('max-rating', 'general'),
 			fontFamily: getCookie('font-family'),
+			blockBehavior: getCookie('block-behavior'),
+			mediaQuality: getCookie('media-quality'),
 		};
 	},
 	computed: {
@@ -124,7 +128,7 @@ export default {
 		},
 		fontFamily(value) {
 			setCookie('font-family', value, 3155695200);
-			const fontFamily = document.getElementById('custom-font');
+			const fontFamily = document.getElementById('font-family');
 			if (value)
 			{ fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
 			else

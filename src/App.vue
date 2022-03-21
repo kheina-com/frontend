@@ -60,7 +60,7 @@ export default {
 		{ this.$store.commit('setAuth', authCookie()); }
 		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
 
-		const fontFamily = document.getElementById('custom-font');
+		const fontFamily = document.getElementById('font-family');
 		const customFont = getCookie('font-family');
 		if (customFont)
 		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }

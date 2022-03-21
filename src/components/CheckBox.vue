@@ -75,8 +75,7 @@ export default {
 </script>
 
 <style scoped>
-input
-{
+input {
 	position: absolute;
 	display: none;
 	top: -100vh;
@@ -84,8 +83,7 @@ input
 	height: 0;
 	width: 0;
 }
-label
-{
+label {
 	cursor: pointer;
 	margin: 0;
 	display: inline-flex;
@@ -101,10 +99,7 @@ span {
 .check-boxes > :last-child {
 	margin-right: 0;
 }
-.maxrating label:hover, .maxrating label:active, .maxrating label:focus,
-label:hover, label:active, label:focus
-{
-	border-color: var(--borderhover);
+label:hover, label:active, label:focus {
 	color: var(--icolor);
 }
 
@@ -116,10 +111,11 @@ label.border {
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	border-radius: var(--border-radius);
 }
-label.border:hover
-{ box-shadow: 0 0 10px 3px var(--activeshadowcolor); }
-label div.checkmark
-{
+label.border:hover, label.border:active, label.border:focus {
+	border-color: var(--borderhover);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
+}
+label div.checkmark {
 	position: relative;
 	display: block;
 	left: 0;
@@ -131,8 +127,7 @@ label div.checkmark
 	background: var(--bg1color);
 	pointer-events: none;
 }
-label div.checkmark div
-{
+label div.checkmark div {
 	border: solid 0 #0000;
 	border-width: 0;
 	position: absolute;
@@ -141,16 +136,14 @@ label div.checkmark div
 	-o-transition: ease var(--fadetime);
 	transition: ease var(--fadetime);
 }
-label div.checkmark div
-{
+label div.checkmark div {
 	left: 0.35em;
 	top: 0.15em;
 	width: 0.3em;
 	height: 0.55em;
 }
 
-input:checked + label div.checkmark div, label.checked div.checkmark div
-{
+input:checked + label div.checkmark div, label.checked div.checkmark div {
 	border-color: var(--icolor);
 	border-width: 0 0.1875em 0.1875em 0;
 	-webkit-transform: rotate(45deg);
@@ -160,6 +153,6 @@ input:checked + label div.checkmark div, label.checked div.checkmark div
 
 /* THEME OVERRIDES */
 html.light .checkmark, html.midnight .checkmark, html.terminal .checkmark, html.wikipedia .checkmark {
-	border: solid 1px var(--bordercolor);
+	border: solid var(--border-size) var(--bordercolor);
 }
 </style>

@@ -17,6 +17,8 @@ export default {
 		minifyHtml(),
 	],
 	build: {
+		// vite won't base64-encode files and inject them into the html
+		// we want to keep the html file small so it loads as fast as possible
 		assetsInlineLimit: 0,
 	},
 	define: {
