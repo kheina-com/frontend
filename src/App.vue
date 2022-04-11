@@ -440,7 +440,7 @@ html
 	--explicit: #A32121;
 	--icolor: #F29B17; /* F1B636 */
 	--bg0color: #000000;
-	--bg1color: #1E1F25;
+	--bg1color: #1e1f25;
 	--bg2color: #151416;
 	--bg3color: var(--bordercolor);
 	--blockquote: var(--bordercolor);
@@ -598,6 +598,17 @@ html.terminal {
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 	filter: sepia(100%) saturate(550%) hue-rotate(90deg);
+}
+
+html.high-contrast-dark {
+	--textcolor: #ffffff;
+	--subtle: #cccccc;
+	--bordercolor: #aaa;
+	--icolor: #00ff00;
+	--screen-cover: #000000d0;
+	--bg1color: #000000;
+	--bg2color: #1e1f25;
+	--bg3color: #000000;
 }
 
 html.solarized-dark {

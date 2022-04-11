@@ -2,7 +2,9 @@
 	<div class='banner'>
 		<div class='nav-backdrop'/>
 		<div v-if='editMessage' class='markdown edit-message'>
-			<textarea ref='messageField' class='interactable text' v-model='message'></textarea>
+			<router-link style='position: absolute; right: calc(15vw + 25px); font-size: 0.9em; top: 0.1em; text-decoration: none' to='/md'>markdown guide</router-link>
+			<MarkdownEditor resize='none' v-model:value='message' style='min-width: 70vw; display: inline-block'/>
+			<p>note: banner is always centered</p>
 			<div style='display: flex'>
 				<Button @click='updateMessage'>update</button>
 				<Button @click='removeMessage' red>remove</button>
@@ -27,8 +29,8 @@
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 		</div>
-		<div class='screen-cover' ref='screenCover' @click='toggleMenu'></div>
-		<div class='menu' ref='menu'>
+		<div class='screen-cover' @click='toggleMenu'></div>
+		<div class='menu'>
 			<router-link to='/create' :class='(isLoggedIn ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
 				<div class='icon'>
 					<i class='material-icons'>upload</i>
@@ -128,7 +130,7 @@
 				<p class='commit'>version: <a :href='`https://github.com/kheina-com/frontend/commit/${fullCommit}`' target='_blank'><code>{{shortCommit}}</code></a></p>
 			</ol>
 		</div>
-		<div ref='menuButton' class='menu-button' v-if='isMobile'>
+		<div class='menu-button' v-if='isMobile'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 				<div class='counter' v-show='!menuOpen'>
@@ -136,7 +138,7 @@
 				</div>
 			</button>
 		</div>
-		<div ref='menuButton' class='menu-button' v-else>
+		<div class='menu-button' v-else>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 			</button>
@@ -158,6 +160,7 @@ import { ref } from 'vue';
 import { getMediaThumbnailUrl, deleteCookie, isMobile, khatch } from '@/utilities';
 import { configHost, environment, ratings } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
 import Button from '@/components/Button.vue';
 import UserIcon from '@/components/UserIcon.vue';
@@ -169,6 +172,7 @@ export default {
 	name: 'Banner',
 	components: {
 		Markdown,
+		MarkdownEditor,
 		Loading,
 		Button,
 		UserIcon,
@@ -180,20 +184,6 @@ export default {
 			type: Function,
 			default() { },
 		},
-	},
-	setup() {
-		const search = ref(null);
-		const menu = ref(null);
-		const messageField = ref(null);
-		const menuButton = ref(null);
-		const screenCover = ref(null);
-		return {
-			search,
-			menu,
-			messageField,
-			menuButton,
-			screenCover,
-		};
 	},
 	data() {
 		return {

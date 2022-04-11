@@ -63,6 +63,7 @@ export default {
 				['youtube', 'youtube'],
 				['wikipedia', 'wikipedia'],
 				['terminal', 'terminal'],
+				['high-contrast-dark', 'high contrast dark'],
 				['solarized-dark', 'solarized dark'],
 				['solarized-light', 'solarized light'],
 				['furaffinity', 'fur affinity'],

@@ -49,7 +49,7 @@
 						<p v-if='tagSuggestions === null'></p>
 						<li v-for='tag in tagSuggestions'>
 							<Button class='interactable' @click='addTag(tag)'>
-								{{tag}}
+								{{tag.replace(/_/g, ' ')}}
 							</Button>
 						</li>
 					</ol>

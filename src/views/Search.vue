@@ -1,18 +1,21 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<DropDown class='sort-dropdown' v-model:value='sort' :options="[
-		{ html: 'Hot', value: 'hot' },
-		{ html: 'Top', value: 'top' },
-		{ html: 'Best', value: 'best' },
-		{ html: 'Newest', value: 'new' },
-		{ html: 'Oldest', value: 'old' },
-		{ html: 'Controversial', value: 'controversial' },
-	]">
-		<span class='sort-by'>
-			<i class='material-icons-round'>sort</i>
-			sort by
-		</span>
-	</DropDown>
+	<div class='buttons'>
+		<button v-if='false'><i class='material-icons'>notification_add</i></button>
+		<DropDown v-model:value='sort' :options="[
+			{ html: 'Newest', value: 'new' },
+			{ html: 'Oldest', value: 'old' },
+			{ html: 'Top', value: 'top' },
+			{ html: 'Hot', value: 'hot' },
+			{ html: 'Best', value: 'best' },
+			{ html: 'Controversial', value: 'controversial' },
+		]">
+			<span class='sort-by'>
+				<i class='material-icons-round'>sort</i>
+				sort by
+			</span>
+		</DropDown>
+	</div>
 	<main>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
@@ -197,11 +200,15 @@ ol > :last-child {
 	margin-top: 25px;
 }
 
-.sort-dropdown {
-	left: 50px;
+.buttons {
+	margin: 0 25px;
 }
-.sort-dropdown button {
-	display: inline-block;
+.buttons button {
+	color: var(--subtle);
+	margin-right: 25px;
+}
+.buttons button:hover {
+	color: var(--icolor);
 }
 .sort-by {
 	display: flex;

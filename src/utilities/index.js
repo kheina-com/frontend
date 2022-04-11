@@ -264,11 +264,7 @@ export function authCookie(cookie=null)
 	return auth;
 }
 
-const mdRegex = new RegExp([
-	`\[.+\]\((.+)\)`,
-	`#{1,6} `,
-	'`+',
-].join('|'), 'gi'); 
+const mdRegex = /\[.+?\]\((.+?)\)|#{1,6}\s*|`+/gi
 
 const linkRegex = /\((.+)\)/;
 

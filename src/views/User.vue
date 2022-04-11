@@ -1156,8 +1156,8 @@ html.e621 .header-bar {
 	margin-top: 0.82em;
 }
 
-html.wikipedia .badges p {
-	border: solid 1px var(--bordercolor);
+html.wikipedia .badges p, html.high-contrast-dark .badges p {
+	border: solid var(--border-size) var(--bordercolor);
 }
 
 html.solarized-dark .badges img.emoji {

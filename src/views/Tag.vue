@@ -54,19 +54,22 @@
 		</div>
 		<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
 		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
-		<DropDown class='sort-dropdown' v-model:value='sort' :options="[
-			{ html: 'Newest', value: 'new' },
-			{ html: 'Oldest', value: 'old' },
-			{ html: 'Top', value: 'top' },
-			{ html: 'Hot', value: 'hot' },
-			{ html: 'Best', value: 'best' },
-			{ html: 'Controversial', value: 'controversial' },
-		]">
-			<span class='sort-by'>
-				<i class='material-icons-round'>sort</i>
-				sort by
-			</span>
-		</DropDown>
+		<div class='buttons'>
+			<button v-if='false'><i class='material-icons'>notification_add</i></button>
+			<DropDown v-model:value='sort' :options="[
+				{ html: 'Newest', value: 'new' },
+				{ html: 'Oldest', value: 'old' },
+				{ html: 'Top', value: 'top' },
+				{ html: 'Hot', value: 'hot' },
+				{ html: 'Best', value: 'best' },
+				{ html: 'Controversial', value: 'controversial' },
+			]">
+				<span class='sort-by'>
+					<i class='material-icons-round'>sort</i>
+					sort by
+				</span>
+			</DropDown>
+		</div>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
 			<li v-for='post in posts || 3' v-else>
@@ -100,7 +103,6 @@ export default {
 	components: {
 		ThemeMenu,
 		Loading,
-		Error,
 		Post,
 		Profile,
 		Button,
@@ -388,11 +390,15 @@ ol > :last-child {
 	margin-top: 25px;
 }
 
-.sort-dropdown {
-	left: 50px;
+.buttons {
+	margin: 0 25px;
 }
-.sort-dropdown button {
-	display: inline-block;
+.buttons button {
+	color: var(--subtle);
+	margin-right: 25px;
+}
+.buttons button:hover {
+	color: var(--icolor);
 }
 .sort-by {
 	display: flex;
