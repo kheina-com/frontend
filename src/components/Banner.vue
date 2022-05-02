@@ -29,7 +29,7 @@
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 		</div>
-		<div class='screen-cover' @click='toggleMenu'></div>
+		<div class='screen-cover' @click='closeMenu'></div>
 		<div class='menu'>
 			<router-link to='/create' :class='(isLoggedIn ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
 				<div class='icon'>
@@ -45,86 +45,124 @@
 					<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
 				</li>
 				<li>
-					<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
+					</span>
 				</li>
 				<li v-if='isLoggedIn'>
-					<router-link to='/notifications'>
-						<div class='notifications'>
-							<i class='material-icons-round'>notifications</i>
-							<div class='counter' v-show='true'>
-								<span>1</span>
+					<span @click='closeMenu'>
+						<router-link to='/notifications'>
+							<div class='notifications'>
+								<i class='material-icons-round'>notifications</i>
+								<div class='counter' v-show='true'>
+									<span>1</span>
+								</div>
 							</div>
-						</div>
-						Notifications
-					</router-link>
+							Notifications
+						</router-link>
+					</span>
 				</li>
 				<li v-if='isLoggedIn'>
-					<router-link to='/timeline'>
-						<i class='material-icons'>timeline</i>
-						Timeline
-					</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/timeline'>
+							<i class='material-icons'>timeline</i>
+							Timeline
+						</router-link>
+					</span>
 				</li>
 				<li v-if='isMod'>
-					<router-link to='/mod'>
-						<i class='material-icons'>shield</i>
-						Moderate
-					</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/mod'>
+							<i class='material-icons'>shield</i>
+							Moderate
+						</router-link>
+					</span>
 				</li>
 				<li v-if='isAdmin'>
 					<ol>
 						<li>
-							<button><i class='material-icons'>add_moderator</i>Add Mod</button>
+							<span @click='closeMenu'>
+								<button><i class='material-icons'>add_moderator</i>Add Mod</button>
+							</span>
 						</li>
 						<li>
-							<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
+							<span @click='closeMenu'>
+								<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
+							</span>
 						</li>
 						<li>
-							<router-link to='/users'><i class='material-icons-round'>people</i>All Users</router-link>
+							<span @click='closeMenu'>
+								<router-link to='/users'><i class='material-icons-round'>people</i>All Users</router-link>
+							</span>
 						</li>
 					</ol>
 				</li>
 				<li>
-					<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
+					</span>
 				</li>
 				<li>
-					<router-link to='/tags'><i class='material-icons-round'>tag</i>Tags</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/tags'><i class='material-icons-round'>tag</i>Tags</router-link>
+					</span>
 				</li>
 				<li>
-					<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
+					</span>
 				</li>
 				<li v-if='isLoggedIn'>
-					<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
+					<span @click='closeMenu'>
+						<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
+					</span>
 				</li>
 				<li v-if='isLoggedIn'>
 					<ol>
 						<li>
-							<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
+							<span @click='closeMenu'>
+								<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
+							</span>
 						</li>
 					</ol>
 				</li>
 				<li v-if='isLoggedIn'>
-					<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
+					</span>
 				</li>
 				<li v-if='isLoggedIn'>
 					<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
 				</li>
 				<li v-if='!isLoggedIn'>
-					<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
+					</span>
 				</li>
 				<li v-if='!isLoggedIn'>
-					<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
+					<span @click='closeMenu'>
+						<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
+					</span>
 				</li>
 				<li>
-					<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
+					</span>
 				</li>
 				<li>
-					<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
+					</span>
 				</li>
 				<li>
-					<router-link :to='`/bug?url=${route}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+					<span @click='closeMenu'>
+						<router-link :to='`/bug?url=${route}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+					</span>
 				</li>
 				<li>
-					<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
+					<span @click='closeMenu'>
+						<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
+					</span>
 				</li>
 				<ThemeSelector class='theme-menu'/>
 				<p class='commit'>version: <a :href='`https://github.com/kheina-com/frontend/commit/${fullCommit}`' target='_blank'><code>{{shortCommit}}</code></a></p>
@@ -156,7 +194,6 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import { getMediaThumbnailUrl, deleteCookie, isMobile, khatch } from '@/utilities';
 import { configHost, environment, ratings } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
@@ -278,6 +315,10 @@ export default {
 			{ document.body.classList.add('menu-open'); }
 			else
 			{ document.body.classList.remove('menu-open'); }
+		},
+		closeMenu() {
+			this.menuOpen = false;
+			document.body.classList.remove('menu-open');
 		},
 		toggleEditMessage() {
 			this.editMessage = !this.editMessage;

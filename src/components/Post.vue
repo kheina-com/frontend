@@ -280,7 +280,6 @@ export default {
 				title: 'This function does not exist yet',
 				description: 'Sorry!',
 			});
-			
 		},
 		postComment() {
 			let created = new Date();
