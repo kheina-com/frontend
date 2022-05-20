@@ -17,6 +17,9 @@
 			<li>
 				<span>custom font-family</span>
 				<input class='interactable text' placeholder='font family' v-model='fontFamily'>
+				<p v-show='fontFamily' class='warn'>
+					warning: changing the site font may cause some elements to render incorrectly
+				</p>
 			</li>
 		</ul>
 
@@ -214,6 +217,11 @@ span {
 }
 .checkboxes:last-child {
 	margin-right: 0;
+}
+
+.warn {
+	margin-top: 10px;
+	text-align: center;
 }
 
 .mobile .settings {

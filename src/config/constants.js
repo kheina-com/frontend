@@ -71,6 +71,8 @@ export const uploadHost = uHost;
 export const configHost = cHost;
 export const usersHost = usrHost;
 
+export const cdnHost = 'https://cdn.kheina.com/file/kheina-content'
+
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
 
 export const apiErrorMessageToast = 'An error occurred during an API call';

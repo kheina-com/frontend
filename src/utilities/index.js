@@ -5,7 +5,7 @@ import store from '@/global';
 
 export default null;
 
-import { environment } from '@/config/constants'
+import { cdnHost, environment } from '@/config/constants'
 export function setCookie(name, value, maxage=86400, samesite='strict', path='/')
 { document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== 'local' ? 'secure' : ''}`; };
 
@@ -52,27 +52,27 @@ export function commafy(x)
 
 export function getMediaUrl(postId, filename)
 {
-	return `https://cdn.kheina.com/file/kheina-content/${postId}/${filename}`;
+	return `${cdnHost}/${postId}/${filename}`;
 }
 
 export function getEmojiUrl(emojiName)
 {
-	return `https://cdn.kheina.com/file/kheina-content/emoji/${emojiName}.webp`;
+	return `${cdnHost}/emoji/${emojiName}.webp`;
 }
 
 export function getMediaThumbnailUrl(postId, resolution=800, extension='webp')
 {
-	return `https://cdn.kheina.com/file/kheina-content/${postId}/thumbnails/${resolution}.${extension}`;
+	return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`;
 }
 
 export function getIconUrl(postId, handle, extension='webp')
 {
-	return `https://cdn.kheina.com/file/kheina-content/${postId}/icons/${handle}.${extension}`;
+	return `${cdnHost}/${postId}/icons/${handle}.${extension}`;
 }
 
 export function getBannerUrl(postId, handle, extension='webp')
 {
-	return `https://cdn.kheina.com/file/kheina-content/${postId}/banners/${handle}.${extension}`;
+	return `${cdnHost}/${postId}/banners/${handle}.${extension}`;
 }
 
 export function round(num, precision)

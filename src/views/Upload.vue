@@ -185,7 +185,7 @@
 <script>
 import { ref } from 'vue';
 import { createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile } from '@/utilities';
-import { apiErrorMessage, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
+import { apiErrorMessage, cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
 import Title from '@/components/Title.vue';
@@ -318,8 +318,6 @@ export default {
 
 			this.isUploading = true;
 
-			this.mediaUrl = getMediaUrl(this.postId, encodeURIComponent(this.file.name));
-
 			let formdata = new FormData();
 			formdata.append('file', this.file);
 			formdata.append('post_id', this.postId);
@@ -331,14 +329,21 @@ export default {
 
 			ajax.upload.addEventListener('progress', (event) => this.uploadProgress = (event.loaded / event.total) * 100, false);
 			ajax.addEventListener('load', (event) => {
+				const response = JSON.parse(event.target.responseText);
+				console.log(response);
+				this.mediaUrl = `${cdnHost}/${response.url}`;
 				this.mime = this.file.type;
 				this.uploadDone = true;
 				this.isUploading = false;
 				this.file = null;
-				console.log(JSON.parse(event.target.responseText));
+				this.uploadProgress = 0;
 			}, false);
 			ajax.addEventListener('error', (event) => {
-				this.$store.commit('error', apiErrorMessage, event.target.responseText ?? event);
+				this.$store.commit('createToast', {
+					title: 'Something broke during upload',
+					description: 'If you submit a bug report, please include the data below.',
+					dump: event.target.responseText ?? event,
+				})
 				console.error(error);
 			}, false);
 
