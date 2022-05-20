@@ -162,7 +162,7 @@ export default {
 }
 .markdown img {
 	max-width: 100%;
-	max-height: 10em;
+	max-height: 100%;
 }
 .markdown img.emoji, .markdown.inline .gigamoji img {
 	max-width: 1.2em;
@@ -276,7 +276,7 @@ export default {
 	margin-left: 17.5px;
 }
 .markdown i.material-icons-round {
-	margin-top: -0.6em;
+	margin-top: -0.2em;
 	margin-left: -0.15em;
 }
 .markdown > h1:last-child, .markdown > h2:last-child {
@@ -311,6 +311,8 @@ export default {
 .markdown .post img {
 	display: block;
 	margin: 0 auto;
+	max-width: 20em;
+	max-height: 10em;
 }
 .markdown a.post:link, .markdown a.post:visited {
 	text-decoration: none;

@@ -16,6 +16,7 @@ export default createStore({
 		animatedAccents: null,
 		error: null,
 		maxRating: 'general',
+		notifications: 0,
 	},
 	mutations: {
 		maxRating(state, rating) {

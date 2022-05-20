@@ -37,6 +37,9 @@ export default {
 			default: true,
 		},
 	},
+	emits: [
+		'update:checked',
+	],
 	setup() {
 		const label = ref(null);
 
@@ -45,7 +48,7 @@ export default {
 		};
 	},
 	created() {
-		this.$emit(`update:checked`, this.checked);
+		this.$emit('update:checked', this.checked);
 	},
 	mounted() {
 		if (this.checked)
@@ -60,7 +63,7 @@ export default {
 			return index.split(/[\-\_]/).join(' ');
 		},
 		emitValue(event) {
-			this.$emit(`update:checked`, event.target.checked);
+			this.$emit('update:checked', event.target.checked);
 		}
 	},
 	watch: {

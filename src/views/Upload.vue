@@ -11,8 +11,19 @@
 						<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
 							<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh'/>
 						</FileField>
-						<div class='field actions' v-if='file !== null'>
-							<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
+						<div class='field' v-if='file !== null'>
+							<div class='actions' v-if='file !== null'>
+								<CheckBox
+									class='checkbox'
+									id='resize-for-web'
+									name='resize-for-web'
+									v-model:checked='update.webResize'
+								>Resize For Web</CheckBox>
+								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
+							</div>
+							<ul style='padding: 0; text-align: right'>
+								<li v-if='update?.webResize'>Resize your post to 1500px on its longest side</li>
+							</ul>
 						</div>
 					</div>
 				</div>
@@ -70,9 +81,9 @@
 				</div>
 				<div class='selection-info'>
 					<p v-if='update.privacy === "public"'>Anyone can view, and appears in searches</p>
-					<p v-if='update.privacy === "unlisted"'>Hidden from searches, but anyone with a link can view</p>
-					<!-- <p v-if='update.privacy === "private"'>Only people you explicitly invite can view</p> -->
-					<p v-if='update.privacy === "private"'>Only you can view</p>
+					<p v-else-if='update.privacy === "unlisted"'>Hidden from searches, but anyone with a link can view</p>
+					<!-- <p v-else-if='update.privacy === "private"'>Only people you explicitly invite can view</p> -->
+					<p v-else-if='update.privacy === "private"'>Only you can view</p>
 				</div>
 			</div>
 			<div class='field popup-info'>
@@ -94,26 +105,33 @@
 					<p v-if='update.rating === "explicit"'>Sex, porn, or nudity where genitals are the primary focus</p>
 				</div>
 			</div>
-			<div class='field popup-info' v-show='false'>
-				<div>
-					<span>Flags</span>
-					<CheckBoxes
-						name='flags'
-						v-model:value='update.flags'
-						:data="[
-							'auction',
-							'emoji',
-							'user-icon',
-						]"
-					/>
+			<div class='field' v-show='false'>
+				<span>Flags</span>
+				<div class='checkboxes'>
+					<!-- <CheckBox
+						id='is-post-auction'
+						name='is-post-auction'
+						v-model:checked='update.auction'
+					>Auction</CheckBox>
+					<CheckBox
+						id='is-post-emoji'
+						name='is-post-emoji'
+						v-model:checked='update.emoji'
+					>Emoji</CheckBox>
+					<CheckBox
+						id='is-post-user-icon'
+						name='is-post-user-icon'
+						v-model:checked='update.userIcon'
+					>User Icon</CheckBox> -->
 				</div>
 				<ul class='selection-info'>
-					<li v-if='update.flags && update.flags.includes("auction")'>Include bidding functions on your post</li>
-					<li v-if='update.flags && update.flags.includes("emoji")'>Create an emoji from your post, to be used across the site</li>
-					<li v-if='update.flags && update.flags.includes("user-icon")'>Make this post your current icon</li>
+					<li v-if='update?.webResize'>Resize your post 1500px on its longest side</li>
+					<li v-if='update?.auction'>Include bidding functions on your post</li>
+					<li v-if='update?.emoji'>Create an emoji from your post, to be used across the site</li>
+					<li v-if='update?.userIcon'>Make this post your current icon</li>
 				</ul>
 			</div>
-			<div class='field' v-if='update.flags && update.flags.includes("auction")'>
+			<div class='field' v-if='update.flags?.auction'>
 				<p class='underline'>Auction Info</p>
 				<div class='multi-field'>
 					<div>
@@ -142,7 +160,7 @@
 				</div>
 				<b style='text-align: center; display: block'>Note: kheina.com will not charge your clients for you. You must invoice your clients yourself or use a third party payment processor.</b>
 			</div>
-			<div class='field popup-info' v-if='update.flags && update.flags.includes("emoji")'>
+			<div class='field popup-info' v-if='update.flags?.emoji'>
 				<div>
 					<span>Emoji Name</span>
 					<div>
@@ -180,7 +198,7 @@ import RadioButtons from '@/components/RadioButtons.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
 import CopyText from '@/components/CopyText.vue';
-import CheckBoxes from '@/components/CheckBoxes.vue';
+import CheckBox from '@/components/CheckBox.vue';
 
 export default {
 	name: 'Upload',
@@ -197,7 +215,7 @@ export default {
 		Button,
 		CopyText,
 		MarkdownEditor,
-		CheckBoxes,
+		CheckBox,
 	},
 	setup() {
 		const tagRecommendations = ref(null);
@@ -305,6 +323,9 @@ export default {
 			let formdata = new FormData();
 			formdata.append('file', this.file);
 			formdata.append('post_id', this.postId);
+
+			if (this.update.webResize)
+			{ formdata.append('web_resize', this.update.webResize); }
 
 			const ajax = new XMLHttpRequest();
 
@@ -580,7 +601,7 @@ main {
 	display: flex;
 	justify-content: flex-end;
 }
-.actions button {
+.actions button, .actions .checkbox {
 	margin-right: 25px;
 }
 .actions > :last-child {
@@ -664,6 +685,18 @@ li {
 .form .field .title-render {
 	left: 0;
 	margin: 15px 0 0;
+}
+
+.checkboxes {
+	display: flex;
+}
+
+.checkboxes > div {
+	margin-right: 25px;
+}
+
+.checkboxes > :last-child {
+	margin-right: 0;
 }
 
 @media only screen and (max-width: 1000px) {

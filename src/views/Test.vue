@@ -1,25 +1,34 @@
 <template>
 	<main>
-		<Countdown :endtime='date'/>
-		<div><Timestamp :datetime='datetime' live/></div>
-		<div><Timestamp :datetime='epoch' live/></div>
-		<div>
-			<Button @click='audio.play()'>
-				play me
-			</Button>
-		</div>
-		<div>
-			<Button @click="$store.commit('createToast', {
-				title: 'An error occurred during an API call',
-				description: 'If you submit a bug report, please include the data below.',
-				dump: {
-					error: 'Internal Server Error',
-					refid: '87e1b61cceeb495b9583afefd785e4a6',
-					status: 500,
-				},
-			})">
-				toast
-			</Button>
+		<h3 class='swagger'>
+			<a :href='`https://${environment != "prod" ? "dev." : ""}kheina.com/docs`' target='_blank'>swagger docs</a>
+		</h3>
+		<div class='clicky-things'>
+			<div class='timers'>
+				<Countdown :endtime='date'/>
+				<div><Timestamp :datetime='datetime' live/></div>
+				<div><Timestamp :datetime='epoch' live/></div>
+			</div>
+			<div class='buttons'>
+				<div>
+					<Button @click='audio.play()'>
+						play me
+					</Button>
+				</div>
+				<div>
+					<Button @click="$store.commit('createToast', {
+						title: 'You just created an error toast',
+						description: 'If you submit a bug report, please include the data below.',
+						dump: {
+							error: 'This Is Not A Real Error',
+							refid: uuid(),
+							status: 0xdeadbeef,
+						},
+					})">
+						toast
+					</Button>
+				</div>
+			</div>
 		</div>
 		<div class='token'>
 			<textarea class='interactable text' v-model='content'/>
@@ -39,6 +48,7 @@ import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
 import { authCookie } from '@/utilities';
 import epoch from '@/config/constants';
+import { environment } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 
 
@@ -58,7 +68,18 @@ export default {
 			datetime: new Date(Date.now()).toString(),
 			audio: new Audio(notify),
 			content: authCookie()?.token,
+			environment,
 		}
+	},
+	methods: {
+		uuid() {
+			let uuid = '';
+			for (let i = 0; i < 32; i++)
+			{
+				uuid += Math.floor(Math.random() * 16).toString(16);
+			}
+			return uuid;
+		},
 	},
 	computed: {
 		cookie() {
@@ -131,6 +152,19 @@ ol > :last-child {
 i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
+}
+
+.swagger {
+	text-align: center;
+}
+
+.clicky-things {
+	display: flex;
+	justify-content: space-around;
+}
+
+.clicky-things div div {
+	margin: 0.5em 0;
 }
 
 .token {

@@ -54,8 +54,8 @@
 						<router-link to='/notifications'>
 							<div class='notifications'>
 								<i class='material-icons-round'>notifications</i>
-								<div class='counter' v-show='true'>
-									<span>1</span>
+								<div class='counter' v-show='$store.state.notifications'>
+									<span>{{$store.state.notifications}}</span>
 								</div>
 							</div>
 							Notifications
@@ -171,8 +171,8 @@
 		<div class='menu-button' v-if='isMobile'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-				<div class='counter' v-show='!menuOpen'>
-					<span>1</span>
+				<div class='counter' v-show='!menuOpen && $store.state.notifications'>
+					<span>{{$store.state.notifications}}</span>
 				</div>
 			</button>
 		</div>
@@ -182,8 +182,8 @@
 			</button>
 			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='isLoggedIn'>
 				<i class='material-icons-round'>notifications</i>
-				<div class='counter' v-show='true'>
-					<span>1</span>
+				<div class='counter' v-show='$store.state.notifications'>
+					<span>{{$store.state.notifications}}</span>
 				</div>
 			</router-link>
 			<router-link to='/timeline' class='icon timeline' title='Timeline' v-if='isLoggedIn'>

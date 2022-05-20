@@ -18,6 +18,7 @@ import SearchHelp from './views/SearchHelp.vue';
 import Timeline from './views/Timeline.vue';
 import Privacy from './views/Privacy.vue';
 import BugReport from './views/BugReport.vue';
+import Notifications from './views/Notifications.vue';
 
 import Test from './views/Test.vue';
 
@@ -152,6 +153,24 @@ const routes = [
 				{
 					property: 'og:title',
 					content: 'Finish creating your kheina.com account',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/notifications',
+		name: 'notifications',
+		component: Notifications,
+		meta: {
+			title: 'Notifications | kheina.com',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Notifications | kheina.com',
 				},
 				{
 					name: 'theme-color',

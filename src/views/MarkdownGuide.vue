@@ -48,7 +48,7 @@ main {
 }
 .guide {
 	margin: 0 auto;
-	min-width: 1000px;
+	/* min-width: 1000px; */
 	position: relative;
 }
 .title {
