@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
-	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self'>
+	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self' v-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
 			<DropDown :options="[
@@ -191,6 +191,10 @@ export default {
 		size: {
 			type: Object,
 			default: { width: 0, height: 0 },
+		},
+		blocked: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	emits: [

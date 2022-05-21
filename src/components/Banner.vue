@@ -44,6 +44,9 @@
 				<li v-if='environment == "local"'>
 					<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
 				</li>
+				<li v-else-if='environment == "dev"'>
+					<a :href='`http://localhost:3000${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Localhost</a>
+				</li>
 				<li>
 					<span @click='closeMenu'>
 						<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>

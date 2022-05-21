@@ -25,7 +25,7 @@
 				:border='false'
 				id='animated-accents'
 				name='animated-accents'
-				:checked='$store.state.animatedAccents'
+				v-model:checked='$store.state.animatedAccents'
 			>animated accents</CheckBox>
 		</div>
 	</div>

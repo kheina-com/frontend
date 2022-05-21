@@ -39,7 +39,7 @@
 						class='checkbox'
 						id='animated-accents'
 						name='animated-accents'
-						:checked='$store.state.animatedAccents'
+						v-model:checked='$store.state.animatedAccents'
 					>Animated Accents</CheckBox>
 				</div>
 			</li>
@@ -75,7 +75,7 @@
 			</li>
 			<li>
 				<span>blocked users</span>
-				<textarea class='interactable text' placeholder='enter blocked users, separated by commas'/>
+				<textarea class='interactable text' placeholder='enter blocked users, separated by commas (without the @)'/>
 			</li>
 		</ul>
 

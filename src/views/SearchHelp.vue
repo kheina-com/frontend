@@ -5,7 +5,7 @@
 				Tag Search
 			</h2>
 			<p>
-				Search for a tag by typing a tag into the search bar and hitting enter. Searching for a single tag will perform an approximate search and return all tags containing the search parameter, if an exact match doesn't exist
+				Search for a tag by typing a tag into the search bar and hitting enter. Searching for a single tag will perform an approximate search and return all tags containing the search parameter, if an exact match doesn't exist. (not yet implemented)
 			</p>
 			<p>
 				You can search for multiple tags by entering multiple tags into the search bar, separated by spaces
@@ -14,7 +14,7 @@
 				User Search
 			</h2>
 			<p>
-				Search for a user by searching for their handle in the format @handle
+				Search for a user by searching for their handle in the format <code>@handle</code>
 			</p>
 			<p>
 				User searches can be combined with tags, for example <code>@handle solo</code> will return posts made by @handle with the solo tag 
@@ -58,12 +58,18 @@
 				For example, <code>solo -@dani</code> will return all results for the <code>solo</code> tag, except those posted by @dani
 			</p>
 		</div>
+		<ThemeMenu/>
 	</main>
 </template>
 
 <script>
+import ThemeMenu from '@/components/ThemeMenu.vue';
+
 export default {
 	name: 'SearchHelp',
+	components: {
+		ThemeMenu,
+	},
 }
 </script>
 
