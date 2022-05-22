@@ -659,6 +659,10 @@ h4 {
 	margin: 0;
 }
 
+li {
+	list-style: none;
+}
+
 .media {
 	display: flex;
 	justify-content: center;
