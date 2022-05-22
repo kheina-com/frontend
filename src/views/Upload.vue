@@ -62,9 +62,9 @@
 							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
 								<p class='group-title'>{{group}}</p>
 								<li v-for='tag in tags'>
-									<Button class='interactable' @click='addTag(tag)'>
+									<button class='interactable' @click='addTag(tag)'>
 										{{tag.replace(/_/g, ' ')}}
-									</Button>
+									</button>
 								</li>
 							</ol>
 						</div>
@@ -697,7 +697,7 @@ h4 {
 
 .frequently-used ol {
 	padding: 0;
-	margin: 3em 0 -10px;
+	margin: 2.5em 0 -10px;
 	list-style: none;
 	display: flex;
 	flex-direction: row;
@@ -726,7 +726,7 @@ h4 {
 .frequently-used .group-title {
 	text-transform: capitalize;
 	position: absolute;
-	top: 0.5em;
+	top: 0.7em;
 	padding: 0;
 	margin: 0;
 }
