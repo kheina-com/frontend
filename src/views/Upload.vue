@@ -56,14 +56,19 @@
 					<div ref='tagDiv' class='tag-field interactable text' contenteditable='true'>
 						{{tagsField}}
 					</div>
-					<ol>
-						<p v-if='tagSuggestions === null'></p>
-						<li v-for='tag in tagSuggestions'>
-							<Button class='interactable' @click='addTag(tag)'>
-								{{tag.replace(/_/g, ' ')}}
-							</Button>
-						</li>
-					</ol>
+					<div class='frequently-used' v-if='tagSuggestions'>
+						<span style='margin-top: 25px'>Frequently Used Tags <button @click='showSuggestions = !showSuggestions'><i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
+						<div v-show='showSuggestions'>
+							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
+								<p class='group-title'>{{group}}</p>
+								<li v-for='tag in tags'>
+									<Button class='interactable' @click='addTag(tag)'>
+										{{tag.replace(/_/g, ' ')}}
+									</Button>
+								</li>
+							</ol>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class='field popup-info'>
@@ -184,8 +189,8 @@
 
 <script>
 import { ref } from 'vue';
-import { createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile } from '@/utilities';
-import { apiErrorMessage, cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
+import { createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile, sortTagGroups } from '@/utilities';
+import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
 import Title from '@/components/Title.vue';
@@ -233,6 +238,7 @@ export default {
 			serverTags: null,
 			savedTags: [],
 			tagSuggestions: null,
+			showSuggestions: true,
 
 			showUpload: false,
 			isUploading: false,
@@ -287,6 +293,7 @@ export default {
 		},
 	},
 	methods: {
+		sortTagGroups,
 		addTag(tag) {
 			this.$refs.tagDiv.textContent += ' ' + tag;
 		},
@@ -539,10 +546,7 @@ export default {
 				errorHandlers: { 404: () => { } },
 			}).then(response => {
 				response.json().then(r => {
-					this.tagSuggestions = [];
-					r.forEach(tag => {
-						this.tagSuggestions.push(tag);
-					});
+					this.tagSuggestions = r;
 				});
 			}).catch(() => { });
 		},
@@ -654,19 +658,6 @@ p {
 h4 {
 	margin: 0;
 }
-ol {
-	padding: 0;
-	margin: 15px -12.5px -10px;
-	list-style: none;
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	flex-wrap: wrap;
-}
-li {
-	list-style: none;
-	margin: 0 12.5px 10px;
-}
 
 .media {
 	display: flex;
@@ -702,6 +693,42 @@ li {
 
 .checkboxes > :last-child {
 	margin-right: 0;
+}
+
+.frequently-used ol {
+	padding: 0;
+	margin: 3em 0 -10px;
+	list-style: none;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	flex-wrap: wrap;
+	align-content: flex-start;
+}
+
+.frequently-used li {
+	list-style: none;
+	margin: 0 12.5px 10px;
+}
+
+.frequently-used > div {
+	display: flex;
+	width: calc(100vw - 50px);
+	left: calc(25px - 20vw);
+	position: relative;
+	border-top: solid var(--bordercolor) var(--border-size);
+}
+
+.frequently-used > span {
+	display: inline-flex;
+}
+
+.frequently-used .group-title {
+	text-transform: capitalize;
+	position: absolute;
+	top: 0.5em;
+	padding: 0;
+	margin: 0;
 }
 
 @media only screen and (max-width: 1000px) {
