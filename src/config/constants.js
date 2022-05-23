@@ -203,7 +203,7 @@ These are features unique to kheina.com's implementation of markdown.
 ## User Linking
 to link to a user, you can simply precede the user's handle with an \`@\` character: @dani
 this is pretty common on other websites, however kheina.com also supports linking to external websites with this syntax.
-for example, twitter can be linked to like so: t@TwitterSupport. there are many websites with similar syntax. the complete list is below.
+for example, twitter can be linked to like so: t@Twitter. there are many websites with similar syntax. the complete list is below.
 
 |    Example    |  Rendered   |       Website       |               Formatted               |
 |:-------------:|:-----------:|:-------------------:|:-------------------------------------:|

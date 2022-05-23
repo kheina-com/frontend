@@ -229,9 +229,7 @@ body.menu-open {
 	height: 200%;
 }
 
-code, .code, textarea
-{ font-size: 0.9em; }
-code, code *, .code, .code *, textarea
+code, code *, .code, .code *, textarea, pre
 { font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace; }
 html {
 	background: var(--bg0color);	
@@ -800,9 +798,9 @@ html.snep main {
 
 @keyframes scroll-bg-x {
 	00%
-	{ background-position-x: 0 }
+	{ background-position-x: 0, 0 }
 	100%
-	{ background-position-x: 481px }
+	{ background-position-x: 481px, 2405px }
 }
 
 html.aurora.animated main, html.space.animated main, html.stars.animated main, html.winter.animated main {

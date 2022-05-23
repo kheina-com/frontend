@@ -454,7 +454,7 @@ html.mobile .menu-open .menu, .menu-open .menu {
 	font-size: 1.5em;
 }
 .markdown {
-	padding: 20px 0 25px;
+	padding: 1.25em 0 25px;
 	position: relative;
 	background: var(--bg1color);
 }
@@ -525,7 +525,7 @@ ol li, li a, li button, .create {
 	align-items: center;
 }
 li ol {
-	margin: 0 0 0 25px;
+	margin: 0 0 0 1em;
 }
 ol i, .menu i {
 	display: inline-block;
