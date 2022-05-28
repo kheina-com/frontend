@@ -45,8 +45,8 @@
 			</button>
 		</router-link>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
-			<Subtitle static='left' v-if='isUpdated'>posted <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
-			<Subtitle static='left' v-else>posted <Timestamp :datetime='created'/></Subtitle>
+			<Subtitle static='left' v-if='isUpdated'>{{privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
+			<Subtitle static='left' v-else>{{privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
 		</Loading>
 		<div class='buttons' v-if='!isLoading'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>

@@ -49,7 +49,7 @@
 				</li>
 				<li>
 					<span @click='closeMenu'>
-						<router-link to='/'><i class='material-icons-round'>home</i>Home</router-link>
+						<router-link to='/?#'><i class='material-icons-round'>home</i>Home</router-link>
 					</span>
 				</li>
 				<li v-if='isLoggedIn'>

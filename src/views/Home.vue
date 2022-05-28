@@ -92,6 +92,9 @@ export default {
 		isStageResults()
 		{ return this.searchStage > 1; },
 	},
+	created() {
+		this.$router.replace(this.$route.path);
+	},
 	methods: {
 		search() {
 			let form = document.querySelector('form.centerx');

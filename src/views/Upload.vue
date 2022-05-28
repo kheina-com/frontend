@@ -63,7 +63,7 @@
 								<p class='group-title'>{{group}}</p>
 								<li v-for='tag in tags'>
 									<button class='interactable' @click='addTag(tag)'>
-										{{tag.replace(/_/g, ' ')}}
+										{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
 									</button>
 								</li>
 							</ol>

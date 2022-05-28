@@ -348,9 +348,6 @@ export default {
 		else
 		{ this.$router.replace(this.$route.path + '?tab=posts'); }
 
-		if (this.tab !== 'posts')
-		{ this.$store.state.scroll = null; }
-
 		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
 			.then(response => {
 				response.json().then(r => {
