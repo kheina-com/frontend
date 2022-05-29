@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/valid-v-for -->
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div>
+	<div :class='selfClass'>
 		<Loading :isLoading='isBannerLoading' class='banner' v-if='user?.banner'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
@@ -54,14 +54,14 @@
 								Favorites
 								<div class='border'/>
 							</button>
-							<div class='separator' v-show='isSelf'/>
-							<button @click='selectTab' id='uploads' title='this tab is only visible to you' v-show='isSelf'>
+							<div class='separator upload-tab'/>
+							<button @click='selectTab' id='uploads' title='this tab is only visible to you' class='upload-tab'>
 								<i class='material-icons'>lock</i>
 								Uploads
 								<div class='border'/>
 							</button>
 						</div>
-						<Button @click='follow' :red='user?.following' v-show='!isSelf' class='follow-button' :nested='isMobile'>
+						<Button @click='follow' :red='user?.following' class='follow-button' :nested='isMobile'>
 							<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
 							{{user?.following ? 'Unfollow' : 'Follow'}}
 						</Button>
@@ -114,9 +114,9 @@
 					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
 				</div>
 			</div>
-			<MarkdownEditor v-model:value='update.description' class='description' v-if='isEditing'/>
+			<MarkdownEditor v-model:value='update.description' class='description' resize='vertical' v-if='isEditing'/>
 			<Markdown :content='user?.description' class='description' v-else/>
-			<div class='edit-profile-button' v-if='isSelf'>
+			<div class='edit-profile-button'>
 				<div v-if='isEditing'>
 					<Button class='interactable' title='Edit profile' @click='updateProfile'>
 						<i class='material-icons'>done</i>
@@ -154,7 +154,7 @@
 						<div class='border'/>
 					</button>
 				</div>
-				<div class='tabs' v-show='isSelf'>
+				<div class='tabs upload-tab'>
 					<button @click='selectTab' id='uploads' title='this tab is only visible to you'>
 						<i class='material-icons'>lock</i>
 						Uploads
@@ -380,8 +380,8 @@ export default {
 		);
 	},
 	computed: {
-		isSelf() {
-			return this.$store.state.user && this.$store.state.user?.handle === this.user?.handle;
+		selfClass() {
+			return (this.$store.state.user && this.$store.state.user?.handle === this.user?.handle) ? 'self' : 'selfless';
 		},
 		banner() {
 			if (!this.user?.banner)
@@ -878,6 +878,14 @@ main {
 	height: calc(4em + 28px);
 }
 
+.edit-profile-button {
+	display: none;
+}
+
+.self .edit-profile-button {
+	display: inherit;
+}
+
 .edit-profile-button div {
 	text-align: center;
 }
@@ -922,7 +930,9 @@ ul, ol {
 .mobile .header-bar {
 	background: none;
 	border-bottom: none;
-	margin-bottom: 4.25em;
+	min-height: 1.75em;
+	min-height: calc(1.5em + 3px);
+	margin-bottom: 2.5em;
 }
 
 .header-bar .inner {
@@ -943,11 +953,45 @@ ul, ol {
 }
 .mobile .profile-buttons {
 	left: calc(8em + 6px);
+	width: calc(100% - 8em - 6px);
+	align-items: flex-start;
+	padding-top: 25px;
 }
 
-.mobile .follow-button {
-	left: 25px;
-	top: 25px;
+.mobile .selfless .profile-buttons {
+	flex-flow: row-reverse;
+}
+
+.mobile .selfless .badges {
+	flex-flow: column;
+}
+
+.mobile .badges {
+	position: relative;
+}
+
+.mobile .badges > p {
+	margin-left: 25px;
+}
+
+.mobile .self .badges p {
+	margin-top: 0;
+}
+
+.mobile .badges > p:first-child {
+	margin-top: 0;
+}
+
+.self .follow-button {
+	display: none;
+}
+
+.selfless .upload-tab {
+	display: none;
+}
+
+.self .upload-tab {
+	display: inherit;
 }
 
 .mobile-profile-buttons {
@@ -1202,8 +1246,9 @@ html.mobile.winter .active-tab {
 	position: absolute;
 	top: 100%;
 	display: flex;
+	flex-flow: wrap;
 }
-.badges p, .badges button, .badges .dropdown button, .badges .dropdown {
+.badges > p, .badges > button, .badges .dropdown button, .badges .dropdown {
 	margin: 0.5em 0 0 0.5em;
 }
 .badges p, .badges button, .badges .dropdown button {

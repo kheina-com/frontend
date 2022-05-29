@@ -338,14 +338,16 @@ export default {
 				})
 				.then(response => {
 					if (response.status < 300)
-					{ this.isMessageLoading = this.editMessage = false; }
+					{
+						this.isMessageLoading = this.editMessage = false;
+						setTimeout(this.onResize, 0);
+					}
 					else
 					{ console.error(response); }
 				})
 				.catch(error => {
 					console.error(error);
 				});
-			setTimeout(this.onResize, 0);
 		},
 		removeMessage() {
 			this.message = null;

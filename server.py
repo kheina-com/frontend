@@ -1,6 +1,7 @@
 from kh_common.server import Request, Response, ServerApp
 from fastapi.responses import FileResponse, HTMLResponse
 from kh_common.caching import ArgsCache, SimpleCache
+from kh_common.config.constants import environment
 from headers.post import postMetaTags, post_regex
 from headers.user import userMetaTags, user_regex
 from headers.tag import tagMetaTags, tag_regex
@@ -31,7 +32,7 @@ uri_map = {
 }
 
 
-@SimpleCache(60)  # change to inf on switch to kube
+@SimpleCache(float('inf') if environment.is_prod() else 60)
 def vueIndex() :
 	return open('dist/index.html').read()
 
