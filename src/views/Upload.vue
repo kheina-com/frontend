@@ -718,7 +718,7 @@ li {
 .frequently-used > div {
 	display: flex;
 	width: calc(100vw - 50px);
-	left: calc(25px - 20vw);
+	left: calc(50% - 50vw + 25px);
 	position: relative;
 	border-top: solid var(--bordercolor) var(--border-size);
 }
