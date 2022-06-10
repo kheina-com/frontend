@@ -150,7 +150,7 @@ export default {
 	align-items: flex-start;
 }
 .profile .name {
-	font-size: 1.3em;
+	font-size: 1.2em;
 	margin: 0 0 0.1em;
 	display: flex;
 	align-items: center;

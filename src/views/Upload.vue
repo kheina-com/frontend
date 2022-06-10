@@ -708,6 +708,7 @@ li {
 	justify-content: center;
 	flex-wrap: wrap;
 	align-content: flex-start;
+	position: relative;
 }
 
 .frequently-used li {
@@ -722,6 +723,9 @@ li {
 	position: relative;
 	border-top: solid var(--bordercolor) var(--border-size);
 }
+.mobile .frequently-used > div {
+	flex-direction: column;
+}
 
 .frequently-used > span {
 	display: inline-flex;
@@ -730,7 +734,7 @@ li {
 .frequently-used .group-title {
 	text-transform: capitalize;
 	position: absolute;
-	top: 0.7em;
+	top: -1.8em;
 	padding: 0;
 	margin: 0;
 }
@@ -739,11 +743,8 @@ li {
 	.form {
 		width: auto;
 	}
-	/* .description {
-		width: auto;
+	.frequently-used > div {
+		flex-direction: column;
 	}
-	.user-info {
-		width: auto;
-	} */
 }
 </style>
