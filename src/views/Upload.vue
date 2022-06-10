@@ -738,6 +738,9 @@ li {
 	padding: 0;
 	margin: 0;
 }
+.mobile .frequently-used .group-title {
+	left: 25px;
+}
 
 @media only screen and (max-width: 1000px) {
 	.form {
@@ -745,6 +748,9 @@ li {
 	}
 	.frequently-used > div {
 		flex-direction: column;
+	}
+	.frequently-used .group-title {
+		left: 25px;
 	}
 }
 </style>
