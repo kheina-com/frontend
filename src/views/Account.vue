@@ -237,7 +237,7 @@ span {
 .danger {
 	animation: danger 2s ease-in-out infinite;
 }
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 1000px) {
 	.settings {
 		width: auto;
 	}

@@ -168,7 +168,7 @@
 					</span>
 				</li>
 				<ThemeSelector class='theme-menu'/>
-				<p class='commit'>version: <a :href='`https://github.com/kheina-com/frontend/commit/${fullCommit}`' target='_blank'><code>{{shortCommit}}</code></a></p>
+				<p class='commit'>version: <router-link to='/version'><code>{{shortCommit}}</code></router-link></p>
 			</ol>
 		</div>
 		<div class='menu-button' v-if='isMobile'>

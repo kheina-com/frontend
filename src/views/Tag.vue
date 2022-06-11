@@ -440,7 +440,7 @@ ol > :last-child {
 	color: var(--subtle);
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 1000px) {
 	.tag {
 		margin: 0 0 25px;
 		width: auto;

@@ -19,6 +19,7 @@ import Timeline from './views/Timeline.vue';
 import Privacy from './views/Privacy.vue';
 import BugReport from './views/BugReport.vue';
 import Notifications from './views/Notifications.vue';
+import Version from './views/Version.vue';
 
 import Test from './views/Test.vue';
 
@@ -357,6 +358,11 @@ const routes = [
 		path: '/test',
 		name: 'test',
 		component: Test,
+	},
+	{
+		path: '/version',
+		name: 'version',
+		component: Version,
 	},
 	{
 		path: '/privacy',

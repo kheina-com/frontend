@@ -1071,7 +1071,7 @@ ul, ol {
 	width: auto;
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 1000px) {
 	.user, .description, .user-info, .header-bar .inner {
 		width: auto;
 	}

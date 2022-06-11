@@ -58,6 +58,7 @@
 					</div>
 					<div class='frequently-used' v-if='tagSuggestions'>
 						<span style='margin-top: 25px'>Frequently Used Tags <button @click='showSuggestions = !showSuggestions'><i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
+						<div class='frequently-used-border'/>
 						<div v-show='showSuggestions'>
 							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
 								<p class='group-title'>{{group}}</p>
@@ -721,7 +722,6 @@ li {
 	width: calc(100vw - 50px);
 	left: calc(50% - 50vw + 25px);
 	position: relative;
-	border-top: solid var(--bordercolor) var(--border-size);
 }
 .mobile .frequently-used > div {
 	flex-direction: column;
@@ -740,6 +740,10 @@ li {
 }
 .mobile .frequently-used .group-title {
 	left: 25px;
+}
+
+.frequently-used-border {
+	border-bottom: solid var(--bordercolor) var(--border-size);
 }
 
 @media only screen and (max-width: 1000px) {
