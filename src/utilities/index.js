@@ -152,7 +152,6 @@ export async function khatch(url, options={ })
 	{
 		try {
 			response = await fetch(url, options);
-			console.log(response.headers.get('kh-hash'));
 		}
 		catch (e) {
 			error = e;
