@@ -6,10 +6,19 @@
 		</h3>
 		<div class='clicky-things'>
 			<table>
+				<tr class='header'>
+					<td>Service</td>
+					<td/>
+					<td>Hash</td>
+				</tr>
 				<tr v-for='(hash, service) in versioning'>
 					<td>{{service}}</td>
-					<td>:</td>
-					<td>{{hash}}</td>
+					<td>:&nbsp;</td>
+					<td>
+						<Loading :isLoading='hash === null'>
+							<a :href='`https://github.com/kheina-com/${service}/commit/${hash}`' target='_target'><code>{{hash || 'abcdef0'}}</code></a>
+						</Loading>
+					</td>
 				</tr>
 			</table>
 		</div>
@@ -19,21 +28,25 @@
 <script>
 import { khatch } from '@/utilities';
 import { accountHost, configHost, environment, postsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
+import Loading from '@/components/Loading.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
 
 export default {
 	name: 'Version',
 	components: {
+		Loading,
 		ThemeMenu,
 	},
 	data() {
 		return {
 			versioning: {
+				// key must be the repo name on github
+				frontend: __SHORT_COMMIT_HASH__,
 				account: null,
 				configs: null,
 				posts: null,
-				tags: null,
+				tagger: null,
 				uploader: null,
 				users: null,
 			},
@@ -41,27 +54,48 @@ export default {
 		}
 	},
 	created() {
+		khatch(`${accountHost}/`, {
+			// errorMessage: 'Error occurred while retrieving post deployment hash.',
+			method: 'GET',
+		})
+		.then(response => this.versioning.account = response.headers.get('kh-hash'))
+		.catch(() => { });
+
+		khatch(`${configHost}/`, {
+			// errorMessage: 'Error occurred while retrieving post deployment hash.',
+			method: 'GET',
+		})
+		.then(response => this.versioning.configs = response.headers.get('kh-hash'))
+		.catch(() => { });
+
 		khatch(`${postsHost}/`, {
 			// errorMessage: 'Error occurred while retrieving post deployment hash.',
 			method: 'GET',
 		})
-		.then(response => {
-			console.log(response.headers);
-			this.versioning.posts = response.headers.get('kh-hash');
-		})
+		.then(response => this.versioning.posts = response.headers.get('kh-hash'))
 		.catch(() => { });
 
-		var xhr = new XMLHttpRequest();
+		khatch(`${tagsHost}/`, {
+			// errorMessage: 'Error occurred while retrieving post deployment hash.',
+			method: 'GET',
+		})
+		.then(response => this.versioning.tagger = response.headers.get('kh-hash'))
+		.catch(() => { });
 
-		xhr.open('GET', `${postsHost}/`, true);            // Relative path of resource
+		khatch(`${uploadHost}/`, {
+			// errorMessage: 'Error occurred while retrieving post deployment hash.',
+			method: 'GET',
+		})
+		.then(response => this.versioning.uploader = response.headers.get('kh-hash'))
+		.catch(() => { });
 
-		xhr.onreadystatechange = () => {
-			if (xhr.readyState === 4) {
-				console.log(xhr.getAllResponseHeaders());
-			}
-		}
+		khatch(`${usersHost}/`, {
+			// errorMessage: 'Error occurred while retrieving post deployment hash.',
+			method: 'GET',
+		})
+		.then(response => this.versioning.users = response.headers.get('kh-hash'))
+		.catch(() => { });
 
-		xhr.send(null);
 	},
 	computed: {
 		cookie() {
@@ -145,23 +179,7 @@ i {
 	justify-content: space-around;
 }
 
-.clicky-things div div {
-	margin: 0.5em 0;
-}
-
-.token {
-	display: grid;
-	grid-template-columns: [editor-start] 1fr [editor-end] 25px [preview-start] 1fr [preview-end];
-	margin: 0 auto;
-	min-width: 1000px;
-	position: relative;
-}
-.token textarea {
-	grid-area: editor;
-	resize: vertical;
-	line-height: 1.5;
-}
-.token div {
-	grid-area: preview;
+.header {
+	text-align: center;
 }
 </style>
