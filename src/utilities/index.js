@@ -52,12 +52,12 @@ export function commafy(x)
 
 export function getMediaUrl(postId, filename)
 {
-	return `${cdnHost}/${postId}/${filename}`;
+	return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`;
 }
 
 export function getEmojiUrl(emojiName)
 {
-	return `${cdnHost}/emoji/${emojiName}.webp`;
+	return `${cdnHost}/emoji/${encodeURIComponent(emojiName)}.webp`;
 }
 
 export function getMediaThumbnailUrl(postId, resolution=800, extension='webp')
@@ -131,7 +131,7 @@ export async function khatch(url, options={ })
 		options.headers = headers;
 	}
 
-	// options.headers.trace = options.headers?.trace || options?.trace || uuid4();
+	// options.headers['kh-trace'] = options.headers['kh-trace'] || options?.trace || uuid4();
 
 	if (options.hasOwnProperty('body') && typeof(options.body) != 'string')
 	{

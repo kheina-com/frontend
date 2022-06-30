@@ -52,7 +52,7 @@
 		<ul class='settings'>
 			<li>
 				<span>query used to retrieve posts on your profile page</span>
-				<input class='interactable text' :placeholder='`@${$store.state.user?.handle}`'>
+				<input class='interactable text' :placeholder='`@${$store.state.user?.handle} sort:new`'>
 			</li>
 			<li>
 				<span>change your @handle</span>

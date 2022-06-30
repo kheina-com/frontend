@@ -4,7 +4,7 @@
 		<button class='interactable edit-button' @click='editToggle' v-if='editable'>
 			<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
 		</button>
-		<Loading v-if='editing' :lazy='false' :isLoading='pendingUpdate'>
+		<Loading v-if='editing' class='editing' :lazy='false' :isLoading='pendingUpdate'>
 			<div class='tag'>
 				<div>
 					<h2>Tag</h2>
@@ -13,6 +13,17 @@
 				<div>
 					<h2>Class</h2>
 					<input class='interactable text' v-model='updateBody.tag_class'>
+				</div>
+				<div>
+					<h2>Inherited Tags</h2>
+					<ul>
+						<li v-for='tag in tagData?.inherited_tags'>
+							<button @click='removeInheritance(tag)'><i class='material-icons'>close</i></button>
+							<span>
+								{{tag.replace(/_/g, ' ')}}
+							</span>
+						</li>
+					</ul>
 				</div>
 				<div>
 					<h2>Owner</h2>
@@ -82,6 +93,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { khatch, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost, usersHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -216,10 +228,27 @@ export default {
 		},
 		editToggle() {
 			this.editing = !this.editing;
-			this.updateBody.name = this.tag;
-			this.updateBody.tag_class = this.tagData.group;
-			this.updateBody.description = this.tagData.description;
-			this.updateBody.owner = this.tagData.owner?.handle;
+			if (this.editing)
+			{
+				this.updateBody.name = this.tag;
+				this.updateBody.tag_class = this.tagData.group;
+				this.updateBody.description = this.tagData.description;
+				this.updateBody.owner = this.tagData.owner?.handle;
+			}
+		},
+		removeInheritance(tag_to_remove) {
+			khatch(`${tagsHost}/v1/remove_inheritance`, {
+				method: 'POST',
+				errorMessage: 'Could not remove inherited tag.',
+				body: {
+					parent_tag: this.tag,
+					child_tag: tag_to_remove,
+				},
+			})
+			.then(response => {
+				this.tagData.inherited_tags.splice(this.tagData.inherited_tags.indexOf(tag_to_remove), 1);
+			})
+			.catch(() => { });
 		},
 		updateTag() {
 			this.pendingUpdate = true;
@@ -438,6 +467,42 @@ ol > :last-child {
 
 .misc {
 	color: var(--subtle);
+}
+
+ul {
+	margin: 0 0 0 1em;
+	padding: 0;
+}
+
+.editing ul {
+	list-style-type: none;
+	margin: 0;
+}
+
+.editing ul li {
+	display: flex;
+	justify-items: center;
+}
+
+.editing ul li button {
+	font-size: 0.8em;
+}
+
+.editing ul li i {
+	display: block;
+}
+
+.mobile .editing .tag {
+	justify-content: flex-start;
+	flex-flow: column;
+}
+
+.mobile .editing h2 {
+	margin-left: 25px;
+}
+
+.mobile .tag .interactable.text {
+	width: 100%;
 }
 
 @media only screen and (max-width: 1000px) {

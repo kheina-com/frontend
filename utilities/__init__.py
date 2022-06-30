@@ -6,6 +6,7 @@ header_image = '<meta property="og:image" content="{0}"><meta property="twitter:
 header_description = '<meta name="description" property="og:description" content="{0}"><meta property="twitter:description" content="{0}">'
 header_card_large = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary_large_image">'
 header_card_summary = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary">'
+header_site_name = '<meta property="og:site_name" content="kheina.com">'
 
 default_image = header_image.format('https://cdn.kheina.com/file/kheina-content/favicon.png')
 

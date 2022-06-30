@@ -333,27 +333,30 @@ export default {
 			if (this.update.webResize)
 			{ formdata.append('web_resize', this.update.webResize); }
 
+			const errorHandler = (event) => {
+				this.$store.commit('createToast', {
+					title: 'Something broke during upload',
+					description: 'If you submit a bug report, please include the data below.',
+					dump: event?.target?.responseText ?? event,
+				});
+				console.error('error:', error);
+			};
+
 			const ajax = new XMLHttpRequest();
 
 			ajax.upload.addEventListener('progress', (event) => this.uploadProgress = (event.loaded / event.total) * 100, false);
 			ajax.addEventListener('load', (event) => {
+				if (event.target.status >= 400)
+				{ return errorHandler(event); }
 				const response = JSON.parse(event.target.responseText);
-				console.log(response);
-				this.mediaUrl = `${cdnHost}/${response.url}`;
+				this.mediaUrl = `${cdnHost}/${encodeURIComponent(response.url)}`;
 				this.mime = this.file.type;
 				this.uploadDone = true;
 				this.isUploading = false;
 				this.file = null;
 				this.uploadProgress = 0;
 			}, false);
-			ajax.addEventListener('error', (event) => {
-				this.$store.commit('createToast', {
-					title: 'Something broke during upload',
-					description: 'If you submit a bug report, please include the data below.',
-					dump: event.target.responseText ?? event,
-				})
-				console.error(error);
-			}, false);
+			ajax.addEventListener('error', errorHandler, false);
 
 			const auth = getCookie('kh-auth');
 			ajax.open('POST', `${uploadHost}/v1/upload_image`);
