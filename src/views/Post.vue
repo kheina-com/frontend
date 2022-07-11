@@ -16,7 +16,7 @@
 		</router-link>
 	</div>
 	<div class='container' v-if='!isMobile'>
-		<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
+		<Sidebar :tags='tags' :post='post' class='sidebar'/>
 		<div class='content'>
 			<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
 				<Media class='media' v-show='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height'/>
@@ -49,7 +49,7 @@
 						</h2>
 						<div class='privacy'>
 							<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-							<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+							<router-link v-if='userIsUploader' :to='"/create?post=" + postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button></router-link>
 						</div>
 						<Profile :isLoading='isLoading' v-bind='post?.user'/>
 					</div>
@@ -68,10 +68,10 @@
 					<Subtitle static='left' v-if='isUpdated'>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
 					<Subtitle static='left' v-else>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
 				</Loading>
-				<div class='post-buttons' v-show='!isLoading'>
+				<div class='post-buttons' v-if='!isLoading'>
 					<Report :data='{ post: postId }' v-if='!isLoading'/>
-					<RepostButton :postId='postId'/>
-					<FavoriteButton :postId='postId'/>
+					<RepostButton :postId='postId' v-model:count='post.reposts'/>
+					<FavoriteButton :postId='postId' v-model:count='post.favorites'/>
 					<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 					<DropDown :options="[
 						{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
@@ -130,7 +130,7 @@
 			</div>
 		</div>
 		<div class='container'>
-			<Sidebar :tags='tags' :rating='post?.rating' class='sidebar' :style='sidebarStyle'/>
+			<Sidebar :tags='tags' :post='post' class='sidebar'/>
 			<div class='main'>
 				<main>
 					<div class='post-header'>
@@ -143,7 +143,7 @@
 							</h2>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<Button class='edit-button' v-if='userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+								<router-link v-if='userIsUploader' :to='"/create?post=" + postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button></router-link>
 							</div>
 							<Profile :isLoading='isLoading' v-bind='post?.user'/>
 						</div>
@@ -162,10 +162,10 @@
 						<Subtitle static='left' v-if='isUpdated'>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
 						<Subtitle static='left' v-else>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
 					</Loading>
-					<div class='post-buttons' v-show='!isLoading'>
+					<div class='post-buttons' v-if='!isLoading'>
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
-						<RepostButton :postId='postId'/>
-						<FavoriteButton :postId='postId'/>
+						<RepostButton :postId='postId' v-model:count='post.reposts'/>
+						<FavoriteButton :postId='postId' v-model:count='post.favorites'/>
 						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 						<DropDown :options="[
 							{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
@@ -268,7 +268,6 @@ export default {
 			editing: false,
 			post: null,
 			tags: null,
-			sidebarStyle: null,
 			writeComment: null,
 			replies: null,
 			newComment: null,
@@ -284,11 +283,7 @@ export default {
 				response.json().then(r => {
 					if (response.status < 300)
 					{ this.tags = r; }
-					else if (response.status === 400)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 401)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 404)
+					else if (response.status < 500)
 					{ this.$store.commit('error', r.error); }
 					else
 					{ this.$store.commit('error', apiErrorMessage, r); }
@@ -309,6 +304,8 @@ export default {
 				response.json().then(r => {
 					if (response.status < 300)
 					{
+						r.favorites = 0;
+						r.reposts = 0;
 						this.post = r;
 						this.width = r.size?.width;
 						this.height = r.size?.height;
@@ -323,11 +320,7 @@ export default {
 						if (this.tags !== null)
 						{ this.setPageTitle(); }
 					}
-					else if (response.status === 400)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 401)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 404)
+					else if (response.status < 500)
 					{ this.$store.commit('error', r.error); }
 					else
 					{ this.$store.commit('error', apiErrorMessage, r); }
@@ -884,12 +877,6 @@ ol p {
 	justify-content: space-between;
 	align-items: center;
 }
-.post-buttons button {
-	color: var(--subtle);
-	background: #00000000;
-	margin: -0.1em -0.25em -0.25em;
-	border-radius: var(--border-radius);
-}
 .more-button {
 	border-radius: var(--border-radius);
 	padding: 0.25em;
@@ -900,11 +887,11 @@ ol p {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 }
-.post-buttons button:hover, .more-button:hover {
+.more-button:hover {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
-.post-buttons button i, .more-button {
+.more-button {
 	display: block;
 	font-size: 1.5em;
 }

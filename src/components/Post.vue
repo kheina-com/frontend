@@ -50,8 +50,8 @@
 		</Loading>
 		<div class='buttons' v-if='!isLoading'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
-			<RepostButton :postId='postId'/>
-			<FavoriteButton :postId='postId'/>
+			<RepostButton :postId='postId' v-model:count='reposts'/>
+			<FavoriteButton :postId='postId' v-model:count='favorites'/>
 			<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 			<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
 				<i class='material-icons'>reply</i>
@@ -195,6 +195,14 @@ export default {
 		blocked: {
 			type: Boolean,
 			default: false,
+		},
+		favorites: {
+			type: Number,
+			default: 0, // this value needs to be updated to null when api is updated
+		},
+		reposts: {
+			type: Number,
+			default: 0, // this value needs to be updated to null when api is updated
 		},
 	},
 	emits: [
@@ -532,7 +540,7 @@ ol > :last-child, ol > :last-child .post {
 	align-items: center;
 	margin-bottom: -0.25em;
 }
-.buttons button i {
+.buttons button div {
 	color: var(--subtle);
 	background: #0000;
 	border-radius: var(--border-radius);
@@ -541,15 +549,12 @@ ol > :last-child, ol > :last-child .post {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 }
-.buttons button:hover i {
+.buttons button:hover div {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
-.nested .buttons button:hover i {
+.nested .buttons button:hover div {
 	background: var(--bg1color);
-}
-.buttons button i {
-	display: block;
 }
 .mobile .buttons {
 	width: calc(100% + 50px);

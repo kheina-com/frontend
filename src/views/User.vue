@@ -991,8 +991,16 @@ ul, ol {
 }
 
 .self .upload-tab {
-	display: inherit;
+	display: flex;
+	justify-content: center;
 }
+
+.self .upload-tab i {
+	margin: 0 0.25em 0 0;
+	font-size: 1.2em;
+	pointer-events: none;
+}
+
 
 .mobile-profile-buttons {
 	position: relative;
@@ -1040,16 +1048,6 @@ ul, ol {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 	border-bottom: solid 0 var(--icolor);
-}
-
-#uploads {
-	display: flex;
-	justify-content: center;
-}
-#uploads i {
-	margin: 0 0.25em 0 0;
-	font-size: 1.2em;
-	pointer-events: none;
 }
 
 .user-info {

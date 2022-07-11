@@ -102,6 +102,7 @@ const userLinks = {
 	pp: ['https://www.paypal.me/', 'paypal'],
 	fn: ['https://www.furrynetwork.com/', 'furrynetwork'],
 	w: ['https://www.weasyl.com/~', 'weasyl'],
+	b: ['https://boosty.to/', 'boosty'],
 	// need to add tumblr, but tumblr urls are formatted user.tumblr.com
 	// tm: ['https://{username}.tumblr.com', 'tumblr'],
 };

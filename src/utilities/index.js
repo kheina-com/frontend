@@ -45,9 +45,9 @@ export function setMeta(content)
 
 export function commafy(x)
 { // from https://stackoverflow.com/a/2901298
-	let parts = x.toString().split(".");
-	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	return parts.join(".");
+	let parts = x.toString().split('.');
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	return parts.join('.');
 }
 
 export function getMediaUrl(postId, filename)

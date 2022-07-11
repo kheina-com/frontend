@@ -1,4 +1,5 @@
 <template>
+	<!-- eslint-disable vue/require-v-for-key -->
 	<div>
 		<h3>Tags</h3>
 		<ol v-if='tags'>
@@ -7,9 +8,9 @@
 			</li>
 			<li class='rating'>
 				<h4>Rating</h4>
-				<Loading :class='rating' :isLoading='!rating'>
-					<router-link :to='`/q/${rating}`'>
-						<span>{{rating || 'rating'}}</span>
+				<Loading :class='post?.rating' :isLoading='!post?.rating'>
+					<router-link :to='`/q/${post?.rating}`'>
+						<span>{{post?.rating || 'rating'}}</span>
 					</router-link>
 				</Loading>
 			</li>
@@ -19,20 +20,32 @@
 				<TagGroup :group='name'/>
 			</li>
 		</ol>
+		<h3 style='padding-top: 2em'>Info</h3>
+		<div class='post-data' v-if='post'>
+			size: {{post.size ? `${post.size.width}x${post.size.height}px` : 'none'}}
+			<br>
+			file type: {{post.media_type ? post.media_type.file_type : 'none'}}
+			<br>
+			filename: {{post.filename || 'none'}}
+			<br>
+			description: {{post.description ? `${post.description.length} chars` : 'none'}}
+			<br>
+			views: {{post.views ? commafy(post.views) : 'some'}}
+		</div>
 	</div>
 </template>
 
 <script>
-import { sortTagGroups } from '@/utilities'
-import { tagGroups } from '@/config/constants'
+import { commafy, sortTagGroups } from '@/utilities';
+import { tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
 
 export default {
 	name: 'Sidebar',
 	props: {
-		rating: {
-			type: String,
+		post: {
+			type: Object,
 			default: null,
 		},
 		tags: {
@@ -50,6 +63,7 @@ export default {
 		TagGroup,
 	},
 	methods: {
+		commafy,
 		sortTagGroups,
 	},
 }
@@ -95,5 +109,9 @@ html.e621 .general a::after {
 }
 html.e621 .mature a::after {
 	content: "questionable";
+}
+
+.post-data {
+	margin: 0 1em 0 25px;
 }
 </style>
