@@ -4,12 +4,12 @@
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self' v-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<div class='labels'>
-			<DropDown :options="[
+			<DropDown class='more-button' :options="[
 				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
 				{ html: `Block @${user?.handle}`, action: missingFeature },
 				{ html: `Report @${user?.handle}`, action: missingFeature },
 			]">
-				<i class='more-button material-icons-round'>more_horiz</i>
+				<i class='material-icons-round'>more_horiz</i>
 			</DropDown>
 			<div v-if='labels && !isLoading'>
 				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
@@ -540,7 +540,7 @@ ol > :last-child, ol > :last-child .post {
 	align-items: center;
 	margin-bottom: -0.25em;
 }
-.buttons button div {
+.buttons button div, .reply-button i {
 	color: var(--subtle);
 	background: #0000;
 	border-radius: var(--border-radius);
@@ -549,11 +549,11 @@ ol > :last-child, ol > :last-child .post {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 }
-.buttons button:hover div {
+.buttons button:hover div, .reply-button:hover i {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
-.nested .buttons button:hover div {
+.nested .buttons button:hover div, .nested .reply-button:hover i {
 	background: var(--bg1color);
 }
 .mobile .buttons {
@@ -574,9 +574,6 @@ ol > :last-child, ol > :last-child .post {
 	padding: 0.25em;
 	font-size: 1.5em;
 }
-.reply-button:hover {
-	color: var(--icolor);
-}
 
 .reply-buttons {
 	display: flex;
@@ -593,7 +590,7 @@ ol > :last-child, ol > :last-child .post {
 	margin-bottom: 25px;
 }
 
-.more-button {
+.more-button i {
 	display: block;
 	font-size: 1.5em;
 	border-radius: var(--border-radius);
@@ -605,11 +602,11 @@ ol > :last-child, ol > :last-child .post {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 }
-.more-button:hover {
+.more-button:hover i {
 	color: var(--icolor);
 	background: var(--bg2color);
 }
-.nested .more-button:hover {
+.nested .more-button:hover i {
 	background: var(--bg1color);
 }
 .mobile .more-button {

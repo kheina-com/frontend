@@ -39,6 +39,9 @@ export default {
 
 <style scoped>
 div {
+	display: flex;
+	padding: 0.375em;
+	align-items: center;
 	border-radius: var(--border-radius);
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
@@ -46,7 +49,7 @@ div {
 	transition: var(--transition) var(--fadetime);
 }
 i {
-	padding: 0.25em;
+	padding-right: 0.25em;
 	font-size: 1.5em;
 	display: block;
 }
@@ -54,13 +57,6 @@ button {
 	color: var(--subtle);
 	background: #0000;
 	position: relative;
-}
-div {
-	display: flex;
-	align-items: center;
-}
-span {
-	padding: 0.25em 0.25em 0.25em 0;
 }
 button:hover div {
 	color: var(--icolor);
