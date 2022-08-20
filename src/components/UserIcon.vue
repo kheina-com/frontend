@@ -5,6 +5,7 @@
 <script>
 import { ref } from 'vue';
 import { getIconUrl, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
+import { defaultUserIcon } from '@/config/constants';
 
 export default {
 	name: 'Media',
@@ -36,7 +37,7 @@ export default {
 			if (this.post)
 			{ return getIconUrl(this.post, this.handle.toLowerCase()); }
 			else
-			{ return getMediaThumbnailUrl('_V-EGBtH', 400); }
+			{ return getMediaThumbnailUrl(defaultUserIcon, 400); }
 		},
 	},
 	methods: {
@@ -54,7 +55,7 @@ export default {
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
 			}
 			else if (this.handle)
-			{ this.$refs.media.src = getMediaThumbnailUrl('_V-EGBtH', 400); }
+			{ this.$refs.media.src = getMediaThumbnailUrl(defaultUserIcon, 400); }
 			else
 			{ this.$emit('update:isLoading', false); }
 		},

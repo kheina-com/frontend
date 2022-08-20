@@ -62,7 +62,9 @@ export default {
 span {
 	display: inline-block;
 }
+</style>
 
+<style>
 .loading {
 	pointer-events: none;
 }
@@ -90,6 +92,25 @@ span {
 
 .loading div.loadingicon * {
 	opacity: 100%;
+}
+
+.loading.wave * {
+	opacity: 0% !important;
+}
+.loading.wave, .loading.wave *, .loading.wave *:hover, .loading.wave *:focus, .loading.wave *:active {
+	color: #00000000 !important;
+}
+
+.emoji.loading.wave {
+	width: 1.2em;
+	height: 1.2em;
+	border-radius: 50%;
+}
+
+.gigamoji .loading.wave {
+	width: 5em;
+	height: 5em;
+	border-radius: var(--border-radius);
 }
 
 .loading.wave {
@@ -121,14 +142,5 @@ span {
 
 html.solarized-dark div.loadingicon img {
 	filter: sepia(100%) saturate(232%) hue-rotate(1deg) brightness(99.5%);
-}
-</style>
-
-<style>
-.loading.wave * {
-	opacity: 0% !important;
-}
-.loading.wave, .loading.wave *, .loading.wave *:hover, .loading.wave *:focus, .loading.wave *:active {
-	color: #00000000 !important;
 }
 </style>

@@ -142,7 +142,7 @@ export default {
 			blockBehavior: getCookie('block-behavior'),
 			mediaQuality: getCookie('media-quality'),
 			animatedEmoji: Boolean(getCookie('animated-emoji', true)),
-			CssTransitions: Boolean(getCookie('css-transitions', true)),
+			CssTransitions: this.$store.state.cssTransitions,
 		};
 	},
 	watch: {
@@ -159,12 +159,7 @@ export default {
 			{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
 		},
 		CssTransitions(value) {
-			setCookie('css-transitions', value, 3155695200);
-			const CssTransitions = document.getElementById('css-transitions');
-			if (value)
-			{ CssTransitions.innerHTML = null; }
-			else
-			{ CssTransitions.innerHTML = `html { --transition: none }`; }
+			this.$store.commit('cssTransitions', value);
 		},
 	},
 }

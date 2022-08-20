@@ -1,5 +1,5 @@
-import { getMediaThumbnailUrl, getEmojiUrl, getMediaUrl, khatch } from '@/utilities';
-import { postsHost, usersHost, apiErrorDescriptionToast, apiErrorMessageToast, environment } from '@/config/constants';
+import { getMediaThumbnailUrl, getEmojiUrl, getIconUrl, khatch } from '@/utilities';
+import { postsHost, usersHost, apiErrorDescriptionToast, apiErrorMessageToast, defaultUserIcon, environment, iconShortcode } from '@/config/constants';
 import store from '@/global';
 import router from '@/router';
 
@@ -85,13 +85,15 @@ const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => '\\' + 
 const userLinks = {
 	// shortcode: [url, emoji]
 	// links get formatted as url + username
-	'': ['', null], // default
+	'': ['/', null], // default
+	[iconShortcode]: ['/', null],  // unique case, this loads icons
 	t: ['https://twitter.com/', 'twitter'],
 	fa: ['https://www.furaffinity.net/user/', 'furaffinity'],
 	f: ['https://www.facebook.com/', 'facebook'],
 	u: ['https://www.reddit.com/u/', 'reddit'],
 	tw: ['https://www.twitch.tv/', 'twitch'],
 	yt: ['https://www.youtube.com/c/', 'youtube'],
+	tt: ['https://www.tiktok.com/@', 'tiktok'],
 	tg: ['https://t.me/', 'telegram'],
 	p: ['https://www.patreon.com/', 'patreon'],
 	pi: ['https://www.picarto.tv/', 'picarto'],
@@ -103,6 +105,7 @@ const userLinks = {
 	fn: ['https://www.furrynetwork.com/', 'furrynetwork'],
 	w: ['https://www.weasyl.com/~', 'weasyl'],
 	b: ['https://boosty.to/', 'boosty'],
+	ig: ['https://www.instagram.com/', 'instagram']
 	// need to add tumblr, but tumblr urls are formatted user.tumblr.com
 	// tm: ['https://{username}.tumblr.com', 'tumblr'],
 };
@@ -296,6 +299,7 @@ export const mdExtensions = [
 						text: link[1] ? match[2] : match[0],
 						title: match[0],
 						href: link[0] + match[2],
+						code: match[1],
 						icon: getEmojiUrl(link[1]),
 						username: match[2],
 					};
@@ -322,18 +326,39 @@ export const mdExtensions = [
 					else
 					{ element.outerHTML = `<span id="${id}" title="${token.title}">${token.text}</span>`; }
 				});
+
+				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle">${token.text}</a>`;
+			}
+			else if (token.code === iconShortcode)
+			{
+				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
+					const element = document.getElementById(id);
+					if (r)
+					{
+						element.innerHTML = `<img src="${r.icon ? getIconUrl(r.icon, r.handle.toLowerCase()) : getMediaThumbnailUrl(defaultUserIcon, 400)}" class="profile-user-icon loading wave">`;
+						element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
+						element.firstChild.addEventListener('load', e => e.target.classList = 'profile-user-icon');
+					}
+					else
+					{ element.outerHTML = `<span id="${id}" title="@${token.username}">${token.text}</span>`; }
+				});
+
+				return `<a href="${htmlEscape(token.href)}" id="${id}" title="@${token.username}"><span class="profile-user-icon loading wave"/></a>`;
 			}
 			else
 			{
+				const imgId = mdRefId();
+
 				setTimeout(() => {
 					const element = document.getElementById(id);
-					element.addEventListener('click', e => e.stopPropagation())
+					const imgElement = document.getElementById(imgId);
+					element.addEventListener('click', e => e.stopPropagation());
+					imgElement.addEventListener('load', e => e.target.classList = 'emoji');
+					imgElement.src = token.icon;
 				}, 0);
 
-				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle"><img src="${token.icon}" class="emoji">${token.text}</a>`;
+				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle"><img id="${imgId}" class="emoji loading wave">${token.text}</a>`;
 			}
-
-			return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle">${token.text}</a>`;
 		},
 	},
 	{
@@ -358,7 +383,15 @@ export const mdExtensions = [
 			}
 		},
 		renderer(token) {
-			return `<img src="${token.href}" alt="${emojiMap[token.text] || token.text}" title="${token.title}" class="emoji">`;
+			const id = mdRefId();
+
+			setTimeout(() => {
+				const element = document.getElementById(id);
+				element.addEventListener("load", e => e.target.classList = 'emoji');
+				element.src = token.href;
+			}, 0);
+
+			return `<img id="${id}" alt="${emojiMap[token.text] || token.text}" title="${token.title}" class="emoji loading wave">`;
 		},
 	},
 	{
@@ -443,7 +476,22 @@ export const mdExtensions = [
 		renderer(token) {
 			let rendered = '<p class="gigamoji">';
 			for (const t of token.tokens)
-			{ rendered += t.type === 'emoji' ? `<img src="${t.href}" alt="${emojiMap[t.text] || t.text}" title="${t.title}">` : `<span>${t.text}</span>`; }
+			{
+				if (t.type === 'emoji')
+				{
+					const id = mdRefId();
+
+					setTimeout(() => {
+						const element = document.getElementById(id);
+						element.addEventListener("load", e => e.target.classList = null);
+						element.src = t.href;
+					}, 0);
+
+					rendered += `<img id="${id}" alt="${emojiMap[t.text] || t.text}" title="${t.title}" class="loading wave">`;
+				}
+				else
+				{ rendered += `<span>${t.text}</span>`; }
+			}
 			return rendered + '</p>';
 		},
 	},

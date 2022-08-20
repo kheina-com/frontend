@@ -3,7 +3,7 @@
 		<div v-if='preview' class='markdown-container'>
 			<Markdown :content='value'/>
 		</div>
-		<textarea ref='mdTextArea' class='interactable text' v-show='!preview' v-model='value' @input='$emit(`update:value`, $event.target.value)' :style='`height: ${height}; resize: ${resize}`'></textarea>
+		<textarea ref='mdTextArea' class='interactable text' v-show='!preview' v-model='value' @input='$emit(`update:value`, $event.target.value)'></textarea>
 		<button @click='togglePreview' :title='preview ? `Disable preview` : `Show preview`'><i class='material-icons-round'>{{preview ? 'visibility_off' : 'visibility'}}</i></button>
 	</div>
 </template>
@@ -48,6 +48,9 @@ export default {
 		return {
 			preview: this.initRendered,
 		};
+	},
+	mounted() {
+		this.$refs.mdTextArea.style=`height: ${this.height}; resize: ${this.resize}`;
 	},
 	methods: {
 		togglePreview() {

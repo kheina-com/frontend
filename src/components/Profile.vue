@@ -2,7 +2,7 @@
 	<a :href='`/${handle}`' class='profile' :title='verifiedDescription' v-if='link && !isLoading' @click.stop.prevent='navigateToUser'>
 		<div class='inner'>
 			<Loading :isLoading='isLoading || iconLoading' class='image'>
-				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading'/>
+				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading' class='profile-user-icon'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
@@ -19,7 +19,7 @@
 	<div class='profile' :title='verifiedDescription' v-else>
 		<div class='inner'>
 			<Loading :isLoading='isLoading || iconLoading' class='image'>
-				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading'/>
+				<UserIcon :handle='handle' :post='icon' v-model:isLoading='iconLoading' class='profile-user-icon'/>
 			</Loading>
 			<div class='user'>
 				<Loading :isLoading='isLoading' span class='name'>
@@ -120,6 +120,14 @@ export default {
 	},
 }
 </script>
+
+<style>
+.profile-user-icon {
+	width: 3em;
+	height: 3em;
+	border-radius: var(--border-radius);
+}
+</style>
 
 <style scoped>
 .profile {

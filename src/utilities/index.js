@@ -215,12 +215,12 @@ export async function khatch(url, options={ })
 }
 
 export function abbreviate(value) {
-	if (value > 1000000000)
-	{ return `${Math.round(value / 10000000) / 100}B`; }
-	if (value > 1000000)
-	{ return `${Math.round(value / 10000) / 100}M`; }
-	if (value > 1000)
-	{ return `${Math.round(value / 10) / 100}k`; }
+	if (value >= 1000000000)
+	{ return `${Math.round(value / 100000000) / 10}B`; }
+	if (value >= 1000000)
+	{ return `${Math.round(value / 100000) / 10}M`; }
+	if (value >= 1000)
+	{ return `${Math.round(value / 100) / 10}k`; }
 	return `${value}`;
 }
 

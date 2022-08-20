@@ -3,7 +3,7 @@
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self' v-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
-		<div class='labels'>
+		<div class='labels' v-show='!isLoading'>
 			<DropDown class='more-button' :options="[
 				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
 				{ html: `Block @${user?.handle}`, action: missingFeature },
@@ -11,9 +11,9 @@
 			]">
 				<i class='material-icons-round'>more_horiz</i>
 			</DropDown>
-			<div v-if='labels && !isLoading'>
-				<Subtitle static='right' v-if='showPrivacy'>{{privacy}}</Subtitle>
-				<Subtitle static='right' v-if='parent'>reply</Subtitle>
+			<div v-if='labels'>
+				<Subtitle static='right' v-show='showPrivacy'>{{privacy}}</Subtitle>
+				<Subtitle static='right' v-show='parent'>reply</Subtitle>
 			</div>
 			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 		</div>

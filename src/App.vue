@@ -54,6 +54,7 @@ export default {
 			accent,
 		};
 		this.$store.commit('animatedAccents', 'false' !== getCookie('animated-accents'));
+		this.$store.commit('cssTransitions', 'false' !== getCookie('css-transitions'));
 
 		this.$store.commit('maxRating', ratingMap[getCookie('max-rating', 'general')]);
 
@@ -66,15 +67,6 @@ export default {
 		const customFont = getCookie('font-family');
 		if (customFont)
 		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`; }
-
-		// we need to inject the customizable css
-		const CssTransitionsElement = document.createElement('style');
-		CssTransitionsElement.id = 'css-transitions';
-		CssTransitionsElement.type = 'text/css';
-		const CssTransitions = getCookie('css-transitions', true);
-		if (!CssTransitions)
-		{ CssTransitionsElement.innerHTML = `html { --transition: none }`; }
-		document.head.appendChild(CssTransitionsElement);
 
 		// sadly, these must be strings for vite to catch assets
 		const favicons = { };
@@ -93,13 +85,13 @@ export default {
 			favicons[256] = (await import('$/favicon/light/256.png?url')).default;
 		}
 
-		[32, 64, 128, 256].forEach(x => {
+		Object.entries(favicons).forEach(([key, value]) => {
 			const link = document.createElement('link');
 
 			link.rel = 'icon';
 			link.type = 'image/png';
-			link.sizes = `${x}x${x}`;
-			link.href = favicons[x];
+			link.sizes = `${key}x${key}`;
+			link.href = value;
 
 			document.head.appendChild(link);
 		});
@@ -192,6 +184,10 @@ html.mobile {
 }
 body.menu-open {
 	overflow: hidden;
+}
+
+html.transitions {
+	--transition: ease;
 }
 
 .expand {
@@ -428,7 +424,7 @@ h3#percent
 
 html
 {
-	--transition: ease;
+	--transition: none;
 	--fadetime: 0.15s;
 	--warning: yellow;
 	--error: darkred;

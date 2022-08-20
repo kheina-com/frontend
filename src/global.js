@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { khatch } from '@/utilities';
+import { khatch, setCookie } from '@/utilities';
 import { usersHost } from '@/config/constants';
 
 
@@ -49,6 +49,14 @@ export default createStore({
 			{ document.documentElement.classList.add('animated'); }
 			else
 			{ document.documentElement.classList.remove('animated'); }
+		},
+		cssTransitions(state, cssTransitions) {
+			state.cssTransitions = cssTransitions;
+			setCookie('css-transitions', cssTransitions, 3155695200);
+			if (cssTransitions)
+			{ document.documentElement.classList.add('transitions'); }
+			else
+			{ document.documentElement.classList.remove('transitions'); }
 		},
 		error(state, message=null, dump=null) {
 			if (message)

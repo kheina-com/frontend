@@ -32,6 +32,9 @@ export default {
 	mounted() {
 		if (this.$route.query?.text)
 		{ this.content = this.$route.query.text; }
+
+		if (this.$route.hash)
+		{ setTimeout(() => document.getElementById(this.$route.hash.substring(1)).scrollIntoView(), 0); }
 	},
 }
 </script>
