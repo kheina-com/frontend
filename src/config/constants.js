@@ -211,7 +211,7 @@ for example, twitter can be linked to like so: t@Twitter. there are many website
 |       Example       |     Rendered      |       Website       |                Formatted                 |
 |:-------------------:|:-----------------:|:-------------------:|:----------------------------------------:|
 |   \`@kheina\`         |      @kheina      |      kheina.com     | https://kheina.com/kheina                |
-|   \`${iconShortcode}@kheina\`     |    ${iconShortcode}@kheina    |      kheina.com     | https://kheina.com/kheina                |
+| \`${iconShortcode}@kheina\` | ${iconShortcode}@kheina | kheina.com | https://kheina.com/kheina             |
 | \`t@username\`        |    t@username     |     twitter.com     | https://twitter.com/username             |
 | \`f@username\`        |    f@username     |     facebook.com    | https://facebook.com/username            |
 | \`ig@theounderstars\` | ig@theounderstars |    instagram.com    | https://www.instagram.com/theounderstars |
@@ -231,6 +231,7 @@ for example, twitter can be linked to like so: t@Twitter. there are many website
 | \`fn@username\`       |    fn@username    |  furrynetwork.com   | https://www.furrynetwork.com/username    |
 | \`w@username\`        |    w@username     |     weasyl.com      | https://www.weasyl.com/~username         |
 | \`b@username\`        |    b@username     |      boosty.to      | https://boosty.to/username               |
+| \`tm@username\`       |    tm@username    |     tumblr.com      | https://username.tumblr.com/             |
 
 ## Post Embedding
 posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character

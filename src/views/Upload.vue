@@ -272,7 +272,7 @@ export default {
 				body: { },
 			}).then(response => {
 				response.json().then(r => {
-					history.replaceState(null, document.title, this.$route.path + '?post=' + r.post_id);
+					history.replaceState(null, "", this.$route.path + '?post=' + r.post_id);
 					this.postId = r.post_id;
 				});
 			});
@@ -465,7 +465,7 @@ export default {
 						method: 'POST',
 						body: {
 							post_id: this.postId,
-							tags: activeTags,
+							tags: newTags,
 						},
 					})
 					.then(response => {
