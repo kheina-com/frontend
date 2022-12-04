@@ -100,6 +100,11 @@ export default {
 		this.fetchPosts();
 
 		this.$watch(
+			() => this.$route.hash,
+			hash => history.replaceState(null, '', this.$route.path.replace('#', '')),
+		);
+
+		this.$watch(
 			() => this.$route.query,
 			this.fetchPosts,
 		);
@@ -127,6 +132,9 @@ export default {
 	},
 	methods: {
 		fetchPosts() {
+			if (this.posts === null)
+			{ return; }
+
 			this.page = parseInt(this.$route.query?.page) || 1;
 			this.count = parseInt(this.$route.query?.count) || 64;
 			this.sort = this.$route.query?.sort || 'hot';

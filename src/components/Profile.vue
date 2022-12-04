@@ -96,7 +96,7 @@ export default {
 				case 'admin' :
 					return 'sword';
 				default :
-					return 'verified';
+					return 'brush';
 			}
 		},
 		verifiedDescription() {

@@ -87,29 +87,28 @@ const userLinks = {
 	// links get formatted as url + username
 	'': ['/', null], // default
 	[iconShortcode]: ['/', null],  // unique case, this loads icons
-	t: ['https://twitter.com/', 'twitter'],
-	fa: ['https://www.furaffinity.net/user/', 'furaffinity'],
-	f: ['https://www.facebook.com/', 'facebook'],
-	u: ['https://www.reddit.com/u/', 'reddit'],
-	tw: ['https://www.twitch.tv/', 'twitch'],
-	yt: ['https://www.youtube.com/c/', 'youtube'],
-	tt: ['https://www.tiktok.com/@', 'tiktok'],
-	tg: ['https://t.me/', 'telegram'],
-	p: ['https://www.patreon.com/', 'patreon'],
-	pi: ['https://www.picarto.tv/', 'picarto'],
-	kf: ['https://ko-fi.com/', 'ko-fi'],
-	gr: ['https://gumroad.com/', 'gumroad'],
-	st: ['https://subscribestar.adult/', 'subscribestar'],
-	rf: ['https://ref.st/', 'refsheet'],
-	pp: ['https://www.paypal.me/', 'paypal'],
-	fn: ['https://www.furrynetwork.com/', 'furrynetwork'],
-	w: ['https://www.weasyl.com/~', 'weasyl'],
-	b: ['https://boosty.to/', 'boosty'],
-	ig: ['https://www.instagram.com/', 'instagram'],
-	th: ['https://toyhou.se/', 'toyhouse'],
-	cm: ['https://commiss.io/foxovh', 'commissio'],
-	// need to add tumblr, but tumblr urls are formatted user.tumblr.com
-	// tm: ['https://{username}.tumblr.com', 'tumblr'],
+	t: ['https://twitter.com/{0}', 'twitter'],
+	fa: ['https://www.furaffinity.net/user/{0}', 'furaffinity'],
+	f: ['https://www.facebook.com/{0}', 'facebook'],
+	u: ['https://www.reddit.com/u/{0}', 'reddit'],
+	tw: ['https://www.twitch.tv/{0}', 'twitch'],
+	yt: ['https://www.youtube.com/c/{0}', 'youtube'],
+	tt: ['https://www.tiktok.com/@{0}', 'tiktok'],
+	tg: ['https://t.me/{0}', 'telegram'],
+	p: ['https://www.patreon.com/{0}', 'patreon'],
+	pi: ['https://www.picarto.tv/{0}', 'picarto'],
+	kf: ['https://ko-fi.com/{0}', 'ko-fi'],
+	gr: ['https://gumroad.com/{0}', 'gumroad'],
+	st: ['https://subscribestar.adult/{0}', 'subscribestar'],
+	rf: ['https://ref.st/{0}', 'refsheet'],
+	pp: ['https://www.paypal.me/{0}', 'paypal'],
+	fn: ['https://www.furrynetwork.com/{0}', 'furrynetwork'],
+	w: ['https://www.weasyl.com/~{0}', 'weasyl'],
+	b: ['https://boosty.to/{0}', 'boosty'],
+	th: ['https://toyhou.se/{0}', 'toyhouse'],
+	cm: ['https://commiss.io/{0}', 'commissio'],
+	ig: ['https://www.instagram.com/{0}', 'instagram'],
+	tm: ['https://{0}.tumblr.com', 'tumblr'],
 };
 
 const mdMaxId = 0xffffffff;
@@ -277,6 +276,18 @@ const mdRules = {
 	},
 };
 
+String.prototype.format = function () {
+	// store arguments in an array
+	const args = arguments;
+	// use replace to iterate over the string
+	// select the match and check if the related argument is present
+	// if yes, replace the match with the argument
+	return this.replace(/{([0-9]+)}/g, function (match, index) {
+		// check if the argument is present
+		return typeof args[index] == 'undefined' ? match : args[index];
+	});
+};
+
 import emojiMap from '@/config/emoji';
 
 export const mdExtensions = [
@@ -300,7 +311,7 @@ export const mdExtensions = [
 						raw: match[0],
 						text: link[1] ? match[2] : match[0],
 						title: match[0],
-						href: link[0] + match[2],
+						href: link[0].format(match[2]),
 						code: match[1],
 						icon: getEmojiUrl(link[1]),
 						username: match[2],
