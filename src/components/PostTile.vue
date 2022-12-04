@@ -1,13 +1,26 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div class='post nested link'>
-		<Thumbnail class='thumbnail' :post='postId' :size='800' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
-		<Loading span v-if='isLoading'>this is an example title</Loading>
-		<Markdown v-else :content='title' class='title'/>
+	<div class='post nested link' @click='$router.push(`/p/${postId}`)'>
+		<div v-if='media_type'>
+			<Thumbnail class='thumbnail' :post='postId' :size='800' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
+		</div>
+		<div v-else>
+			<div class='parent' v-if='parent'>
+				<Loading span v-if='parentData === null'>this is an example title</Loading>
+				<Markdown :content='parentData?.title || parent' inline v-else/>
+				<i class='material-icons'>reply</i>
+			</div>
+			<Loading span v-if='isLoading'>this is an example title</Loading>
+			<Markdown :content='title' class='title' inline v-else/>
+			<Markdown :content='description' :concise='true' class='title'/>
+		</div>
+		<Report forceMobile/>
 	</div>
 </template>
 
 <script>
+import { khatch } from '@/utilities';
+import { postsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -18,6 +31,10 @@ import Timestamp from '@/components/Timestamp.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Thumbnail from '@/components/Thumbnail.vue';
+import Report from '@/components/Report.vue';
+import FavoriteButton from '@/components/FavoriteButton.vue';
+import RepostButton from '@/components/RepostButton.vue';
+
 
 export default {
 	name: 'PostTile',
@@ -32,8 +49,15 @@ export default {
 		MarkdownEditor,
 		Button,
 		Thumbnail,
+		Report,
+		FavoriteButton,
+		RepostButton,
 	},
 	props: {
+		parent: {
+			type: String,
+			default: null,
+		},
 		postId: {
 			type: String,
 			default: null,
@@ -42,9 +66,18 @@ export default {
 			type: Object,
 			default: { },
 		},
+		score: Object,
 		title: {
 			type: String, 
 			default: null,
+		},
+		description: {
+			type: String, 
+			default: null,
+		},
+		blocked: {
+			type: Boolean,
+			default: false,
 		},
 		size: {
 			type: Object,
@@ -54,6 +87,23 @@ export default {
 	emits: [
 		'loaded',
 	],
+	data() {
+		return {
+			parentData: null,
+		};
+	},
+	mounted() {
+		if (this.parent) {
+			khatch(`${postsHost}/v1/post/${this.parent}`, {
+				method: 'GET',
+				errorMessage: 'Failed to retrieve post parent.',
+			})
+			.then(response => {
+				response.json().then(r => this.parentData = r);
+			})
+			.catch(() => { });
+		}
+	},
 	computed: {
 		isLoading()
 		{ return this.postId === null; },
@@ -76,9 +126,18 @@ export default {
 		},
 	},
 	watch: {
-		// loadTrigger() {
-		// 	this.onLoad();
-		// },
+		parent(value) {
+			if (value) {
+				khatch(`${postsHost}/v1/post/${value}`, {
+					method: 'GET',
+					errorMessage: 'Failed to retrieve post parent.',
+				})
+				.then(response => {
+					response.json().then(r => this.parentData = r);
+				})
+				.catch(() => { });
+			}
+		},
 	},
 }
 </script>
@@ -110,6 +169,7 @@ export default {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 	text-align: center;
+	max-width: 10em;
 }
 .post.link {
 	cursor: pointer;
@@ -134,6 +194,13 @@ export default {
 	background: var(--bg2color);
 }
 
+.parent {
+	color: var(--subtle);
+	display: flex;
+	align-items: center;
+	margin: auto;
+}
+
 .post img {
 	max-width: 10em;
 	max-height: 10em;
@@ -142,6 +209,8 @@ export default {
 }
 .post .title, .thumbnail {
 	max-width: 10em;
+	max-height: 10em;
+	margin: auto;
 }
 .post > :last-child {
 	margin-bottom: 0;

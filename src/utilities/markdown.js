@@ -105,7 +105,9 @@ const userLinks = {
 	fn: ['https://www.furrynetwork.com/', 'furrynetwork'],
 	w: ['https://www.weasyl.com/~', 'weasyl'],
 	b: ['https://boosty.to/', 'boosty'],
-	ig: ['https://www.instagram.com/', 'instagram']
+	ig: ['https://www.instagram.com/', 'instagram'],
+	th: ['https://toyhou.se/', 'toyhouse'],
+	cm: ['https://commiss.io/foxovh', 'commissio'],
 	// need to add tumblr, but tumblr urls are formatted user.tumblr.com
 	// tm: ['https://{username}.tumblr.com', 'tumblr'],
 };

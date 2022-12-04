@@ -128,6 +128,7 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import CheckBox from '@/components/CheckBox.vue';
 
+
 export default {
 	name: 'Account',
 	components: {

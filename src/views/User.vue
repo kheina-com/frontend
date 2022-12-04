@@ -2,11 +2,11 @@
 	<!-- eslint-disable vue/valid-v-for -->
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='selfClass'>
-		<Loading :isLoading='isBannerLoading' class='banner' v-if='user?.banner'>
+		<Loading :isLoading='isBannerLoading' class='banner' v-if='user?.banner || !user'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
-			<router-link :to='`/p/${user.banner}`' class='banner-link' v-else>
+			<router-link :to='`/p/${user?.banner}`' class='banner-link' v-else>
 				<i class='material-icons-round' style='display: block'>open_in_new</i>
 			</router-link>
 			<img :src='banner' @load='isBannerLoading = false'>

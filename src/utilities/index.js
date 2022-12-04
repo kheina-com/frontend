@@ -9,19 +9,31 @@ import { cdnHost, environment } from '@/config/constants'
 export function setCookie(name, value, maxage=86400, samesite='strict', path='/')
 { document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== 'local' ? 'secure' : ''}`; };
 
-export function getCookie(cookieName, default_value=null)
+const ParserTypeMap = {
+	[Boolean]: v => typeof(v) === 'string' ? 'false' !== v : Boolean(v),
+};
+
+export function getCookie(cookieName, default_value=null, type=null)
 {
 	let name = cookieName + '=';
 	let ca = document.cookie.split(';');
+	let value = default_value;
 	for (let i = 0; i < ca.length; i++)
 	{
 		let c = ca[i];
 		while (c.charAt(0) == ' ')
 		{ c = c.substring(1); }
 		if (c.indexOf(name) == 0)
-		{ return decodeURIComponent(c.substring(name.length, c.length)); }
+		{
+			value = decodeURIComponent(c.substring(name.length, c.length));
+			break;
+		}
 	}
-	return default_value;
+
+	if (type !== null)
+	{ return ParserTypeMap[type](value); }
+
+	return value;
 };
 
 export function deleteCookie(cookieName)
@@ -297,13 +309,19 @@ export const lazyConfig = {
 	rootMargin: '10%',
 };
 
+const unloadable = new Set(['null', 'undefined', null, undefined])
+
 export const lazyObserver = new IntersectionObserver(
 	e => {
 		// console.log(e);
 		e.forEach(entry => {
 			if (entry.isIntersecting)
 			{
-				entry.target.src = entry.target.dataset.src || '';
+				const src = entry.target.dataset.src;
+				if (unloadable.has(src))
+				{ entry.target.dataset.intersected = true; }
+				else
+				{ entry.target.src = src; }
 				lazyObserver.unobserve(entry.target);
 			}
 		});

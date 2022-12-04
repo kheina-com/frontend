@@ -36,6 +36,10 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+		nested: {
+			type: Boolean,
+			default: false,
+		}
 	},
 	emits: [
 		'update:checked',
@@ -57,6 +61,8 @@ export default {
 		{ this.$refs.label.classList.remove('checked'); }
 		if (this.border)
 		{ this.$refs.label.classList.add('border'); }
+		if (this.nested)
+		{ this.$refs.label.classList.add('nested'); }
 	},
 	methods: {
 		getName(index) {
@@ -92,6 +98,7 @@ label {
 	display: inline-flex;
 	white-space: nowrap;
 	align-items: center;
+	padding-left: 0.25em;
 }
 span {
 	margin: 0 25px 0 0;
@@ -129,6 +136,9 @@ label div.checkmark {
 	border-radius: var(--border-radius);
 	background: var(--bg1color);
 	pointer-events: none;
+}
+.nested label div.checkmark {
+	background: var(--bg2color);
 }
 label div.checkmark div {
 	border: solid 0 #0000;

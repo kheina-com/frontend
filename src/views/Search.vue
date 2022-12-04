@@ -1,24 +1,38 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div class='buttons'>
-		<button v-if='false'><i class='material-icons'>notification_add</i></button>
-		<DropDown v-model:value='sort' :options="[
-			{ html: 'Newest', value: 'new' },
-			{ html: 'Oldest', value: 'old' },
-			{ html: 'Top', value: 'top' },
-			{ html: 'Hot', value: 'hot' },
-			{ html: 'Best', value: 'best' },
-			{ html: 'Controversial', value: 'controversial' },
-		]">
-			<span class='sort-by'>
-				<i class='material-icons-round'>sort</i>
-				sort by
-			</span>
-		</DropDown>
+		<div>
+			<button v-if='false'><i class='material-icons'>notification_add</i></button>
+			<DropDown v-model:value='sort' :options="[
+				{ html: 'Newest', value: 'new' },
+				{ html: 'Oldest', value: 'old' },
+				{ html: 'Top', value: 'top' },
+				{ html: 'Hot', value: 'hot' },
+				{ html: 'Best', value: 'best' },
+				{ html: 'Controversial', value: 'controversial' },
+			]">
+				<span class='sort-by'>
+					<i class='material-icons-round'>sort</i>
+					sort by
+				</span>
+			</DropDown>
+		</div>
+		<div>
+			<CheckBox
+				:border='false'
+				id='search-results-tiles'
+				name='search-results-tiles'
+				class='checkbox'
+				v-model:checked='tiles'
+			>Tiles</CheckBox>
+		</div>
 	</div>
 	<main>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
+			<li v-for='post in posts || 20' v-else-if='tiles'>
+				<PostTile :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+			</li>
 			<li v-for='post in posts || 3' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
@@ -41,6 +55,8 @@ import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 import DropDown from '@/components/DropDown.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
+import CheckBox from '@/components/CheckBox.vue';
+import PostTile from '@/components/PostTile.vue';
 
 
 const routes = new Set(['home', 'search']);
@@ -48,6 +64,20 @@ const routes = new Set(['home', 'search']);
 
 export default {
 	name: 'Search',
+	components: {
+		Timestamp,
+		ThemeMenu,
+		Loading,
+		Sidebar,
+		Subtitle,
+		Title,
+		Media,
+		Post,
+		DropDown,
+		ResultsNavigation,
+		CheckBox,
+		PostTile,
+	},
 	props: {
 		query: {
 			type: String,
@@ -61,6 +91,7 @@ export default {
 			page: null,
 			count: null,
 			sort: null,
+			tiles: this.$store.state.searchResultsTiles,
 		}
 	},
 	setup() {
@@ -72,18 +103,6 @@ export default {
 			() => this.$route.query,
 			this.fetchPosts,
 		);
-	},
-	components: {
-		Timestamp,
-		ThemeMenu,
-		Loading,
-		Sidebar,
-		Subtitle,
-		Title,
-		Media,
-		Post,
-		DropDown,
-		ResultsNavigation,
 	},
 	computed: {
 		pagesBeforeCurrent() {
@@ -173,6 +192,9 @@ export default {
 			{ return; }
 			this.$router.push(this.pageLink(this.page));
 		},
+		tiles(value) {
+			this.$store.commit('searchResultsTiles', value);
+		},
 	},
 }
 </script>
@@ -196,12 +218,26 @@ ol > :last-child {
 	margin-bottom: 0;
 }
 
+.tiles ol {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	margin: -12.5px;
+}
+
+.tiles ol li {
+	margin: 12.5px;
+}
+
 .page-links {
 	margin-top: 25px;
 }
 
 .buttons {
 	margin: 0 25px;
+	display: flex;
+	justify-content: space-between;
 }
 .buttons button {
 	color: var(--subtle);
@@ -224,6 +260,9 @@ ol > :last-child {
 }
 .sort-by:hover {
 	color: var(--icolor);
+}
+.checkbox {
+	color: var(--subtle);
 }
 
 /* theme overrides */

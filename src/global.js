@@ -58,6 +58,14 @@ export default createStore({
 			else
 			{ document.documentElement.classList.remove('transitions'); }
 		},
+		searchResultsTiles(state, tiles) {
+			state.searchResultsTiles = tiles;
+			setCookie('search-results-tiles', tiles, 3155695200);
+			if (tiles)
+			{ document.documentElement.classList.add('tiles'); }
+			else
+			{ document.documentElement.classList.remove('tiles'); }
+		},
 		error(state, message=null, dump=null) {
 			if (message)
 			{ state.error = { message, dump }; }

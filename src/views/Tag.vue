@@ -30,6 +30,7 @@
 					<input class='interactable text' v-model='updateBody.owner'>
 				</div>
 			</div>
+			<router-link style='position: relative; right: 25px; font-size: 0.9em; text-decoration: none; display: block; text-align: right' to='/md'>markdown guide</router-link>
 			<MarkdownEditor class='markdown-editor' v-model:value='updateBody.description'/>
 		</Loading>
 		<div class='tag' v-else>
@@ -66,23 +67,37 @@
 		<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
 		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
 		<div class='buttons'>
-			<button v-if='false'><i class='material-icons'>notification_add</i></button>
-			<DropDown v-model:value='sort' :options="[
-				{ html: 'Newest', value: 'new' },
-				{ html: 'Oldest', value: 'old' },
-				{ html: 'Top', value: 'top' },
-				{ html: 'Hot', value: 'hot' },
-				{ html: 'Best', value: 'best' },
-				{ html: 'Controversial', value: 'controversial' },
-			]">
-				<span class='sort-by'>
-					<i class='material-icons-round'>sort</i>
-					sort by
-				</span>
-			</DropDown>
+			<div>
+				<button v-if='false'><i class='material-icons'>notification_add</i></button>
+				<DropDown v-model:value='sort' :options="[
+					{ html: 'Newest', value: 'new' },
+					{ html: 'Oldest', value: 'old' },
+					{ html: 'Top', value: 'top' },
+					{ html: 'Hot', value: 'hot' },
+					{ html: 'Best', value: 'best' },
+					{ html: 'Controversial', value: 'controversial' },
+				]">
+					<span class='sort-by'>
+						<i class='material-icons-round'>sort</i>
+						sort by
+					</span>
+				</DropDown>
+			</div>
+			<div>
+				<CheckBox
+					:border='false'
+					id='search-results-tiles'
+					name='search-results-tiles'
+					class='checkbox nested'
+					v-model:checked='tiles'
+				>Tiles</CheckBox>
+			</div>
 		</div>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
+			<li v-for='post in posts || 20' v-else-if='tiles'>
+				<PostTile :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+			</li>
 			<li v-for='post in posts || 3' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
@@ -105,6 +120,8 @@ import Markdown from '@/components/Markdown.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import DropDown from '@/components/DropDown.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
+import CheckBox from '@/components/CheckBox.vue';
+import PostTile from '@/components/PostTile.vue';
 
 
 export default {
@@ -122,6 +139,8 @@ export default {
 		MarkdownEditor,
 		DropDown,
 		ResultsNavigation,
+		CheckBox,
+		PostTile,
 	},
 	data() {
 		return {
@@ -141,6 +160,7 @@ export default {
 			sort: null,
 			page: null,
 			count: null,
+			tiles: this.$store.state.searchResultsTiles,
 		}
 	},
 	created() {
@@ -349,6 +369,9 @@ export default {
 			{ return; }
 			this.$router.push(this.pageLink(this.page));
 		},
+		tiles(value) {
+			this.$store.commit('searchResultsTiles', value);
+		},
 	},
 }
 </script>
@@ -415,12 +438,21 @@ ol > :last-child {
 	margin-bottom: 0;
 }
 
+.tiles ol {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
 .page-links {
 	margin-top: 25px;
 }
 
 .buttons {
 	margin: 0 25px;
+	display: flex;
+	justify-content: space-between;
 }
 .buttons button {
 	color: var(--subtle);
@@ -443,6 +475,10 @@ ol > :last-child {
 }
 .sort-by:hover {
 	color: var(--icolor);
+}
+
+.checkbox {
+	color: var(--subtle);
 }
 
 .artist {

@@ -64,7 +64,7 @@ export default {
 			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; height: ${this.height ? Math.round(this.height * this.adjustment) + 'px' : '30vw'};`; }
 		},
 		src() {
-			return getMediaThumbnailUrl(this.post, this.size);
+			return this.post ? getMediaThumbnailUrl(this.post, this.size) : null;
 		},
 	},
 	methods: {
@@ -83,6 +83,13 @@ export default {
 				this.isLoading = false;
 				this.$refs.media.alt = 'failed to load media thumbnail';
 				this.isError = true;
+			}
+		},
+	},
+	watch: {
+		post(value) {
+			if (this.$refs.media.dataset.intersected) {
+				this.$refs.media.src = getMediaThumbnailUrl(this.post, this.size);
 			}
 		},
 	},

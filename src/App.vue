@@ -53,8 +53,10 @@ export default {
 			theme,
 			accent,
 		};
-		this.$store.commit('animatedAccents', 'false' !== getCookie('animated-accents'));
-		this.$store.commit('cssTransitions', 'false' !== getCookie('css-transitions'));
+		this.$store.commit('animatedAccents', getCookie('animated-accents', true, Boolean));
+		this.$store.commit('cssTransitions', getCookie('css-transitions', true, Boolean));
+		// TODO: once tiles look good, change default to true
+		this.$store.commit('searchResultsTiles', getCookie('search-results-tiles', false, Boolean));
 
 		this.$store.commit('maxRating', ratingMap[getCookie('max-rating', 'general')]);
 

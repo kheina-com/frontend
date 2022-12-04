@@ -231,6 +231,7 @@ for example, twitter can be linked to like so: t@Twitter. there are many website
 | \`fn@username\`       |    fn@username    |  furrynetwork.com   | https://www.furrynetwork.com/username    |
 | \`w@username\`        |    w@username     |     weasyl.com      | https://www.weasyl.com/~username         |
 | \`b@username\`        |    b@username     |      boosty.to      | https://boosty.to/username               |
+| \`th@username\`       |    th@username    |      toyhou.se      | https://toyhou.se/username               |
 
 ## Post Embedding
 posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character

@@ -180,8 +180,9 @@
 			</div>
 			<div class='actions'>
 				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
-				<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
+				<Button @click='saveDraft'><i class='material-icons'>note_add</i>Mark Draft</Button>
 				<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
+				<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
 			</div>
 		</div>
 		<ThemeMenu/>

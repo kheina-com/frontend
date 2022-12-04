@@ -1,7 +1,7 @@
 <template>
 	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report'>
 		<i class='kheina-icons'>report_content</i>
-		<span>Report Content</span>
+		<span v-show='!forceMobile'>Report Content</span>
 	</router-link>
 </template>
 
@@ -14,6 +14,10 @@ export default {
 			default: null,
 		},
 		data: Object,
+		forceMobile: {
+			type: Boolean,
+			default: false,
+		}
 	},
 	computed: {
 		destination() {
