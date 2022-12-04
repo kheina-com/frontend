@@ -1,10 +1,11 @@
-from kh_common.models.user import UserPortable
-from kh_common.models.privacy import Privacy
-from kh_common.models.rating import Rating
-from typing import Dict, List, Optional
-from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum, unique
+from typing import Dict, List, Optional
+
+from kh_common.models.privacy import Privacy
+from kh_common.models.rating import Rating
+from kh_common.models.user import UserPortable
+from pydantic import BaseModel
 
 
 @unique

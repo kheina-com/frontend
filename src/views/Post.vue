@@ -357,7 +357,19 @@ export default {
 	},
 	methods: {
 		setPageTitle() {
-			let title = `${demarkdown(this.post?.title || this.postId)} by ${demarkdown(this.post.user.name || this.post.user.handle)}`;
+			let title = demarkdown(this.post?.title || this.postId);
+
+			if (this.tags.hasOwnProperty('artist'))
+			{
+				const artists = this.tags.artist.map(x => x.endsWith('_(artist)') ? x.slice(0, -10) : x);
+
+				if (artists.length > 2)
+				{ title += ' by ' + artists.slice(0, -1).join(', ') + ', and ' + artists.slice(-1)[0]; }
+				else if (artists.length === 2)
+				{ title += ' by ' + artists[0] + ' and ' + artists[1]; }
+				else
+				{ title += ' by ' + artists[0]; }
+			}
 
 			if (this.tags.hasOwnProperty('subject'))
 			{

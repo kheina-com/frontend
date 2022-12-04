@@ -1,7 +1,9 @@
-from utilities import default_image, header_card_summary, header_description, header_title
-from kh_common.caching import SimpleCache
-from re import compile as re_compile
 from html import escape
+from re import compile as re_compile
+
+from kh_common.caching import SimpleCache
+
+from utilities import default_image, header_card_summary, header_description, header_title
 
 
 home_regex = re_compile(r'^\/?$')

@@ -1,12 +1,14 @@
-from utilities import api_timeout, concise, default_image, header_card_summary, header_description, header_image, header_title
-from aiohttp import ClientTimeout, request as request_async
-from kh_common.config.constants import tags_host
-from aiohttp import ClientResponseError
-from kh_common.logging import getLogger
-from kh_common.gateway import Gateway
-from re import compile as re_compile
-from headers.models import Tag
 from html import escape
+from re import compile as re_compile
+
+from aiohttp import ClientResponseError, ClientTimeout
+from aiohttp import request as request_async
+from kh_common.config.constants import tags_host
+from kh_common.gateway import Gateway
+from kh_common.logging import getLogger
+
+from headers.models import Tag
+from utilities import api_timeout, concise, default_image, header_card_summary, header_description, header_image, header_title
 
 
 TagService: Gateway = Gateway(tags_host + '/v1/tag/{tag}', Tag)
