@@ -214,18 +214,18 @@ export default {
 	text-align: center;
 	max-width: 20em;
 	min-width: 7em;
-	overflow: hidden;
 }
 .thumbnail {
 	max-width: 20em;
 }
 .text {
+	overflow: hidden;
 	max-width: 10em;
 }
 .description {
 	color: var(--text);
 }
-.thumbnail, .title, .description {
+.thumbnail, .text {
 	max-height: 10em;
 	margin: auto;
 }
