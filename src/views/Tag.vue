@@ -443,6 +443,11 @@ ol > :last-child {
 	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: space-between;
+	margin: -12.5px;
+}
+
+.tiles ol li {
+	margin: 12.5px;
 }
 
 .page-links {

@@ -137,10 +137,10 @@
 						<Score :score='post?.score' :postId='postId'/>
 						<div class='post-title'>
 							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
-							<h2 v-else>
+							<h3 v-else>
 								<Loading span v-if='isLoading'>this is an example title</Loading>
 								<Markdown v-else :content='post?.title' inline/>
-							</h2>
+							</h3>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 								<router-link v-if='userIsUploader' :to='"/create?post=" + postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button></router-link>

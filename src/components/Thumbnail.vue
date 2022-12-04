@@ -46,7 +46,6 @@ export default {
 		return {
 			isLoading: true,
 			webp: true,
-			adjustment: this.width ? Math.min(this.size / Math.max(this.width, this.height), 1) : null,
 		};
 	},
 	mounted() {
@@ -56,8 +55,10 @@ export default {
 		parentStyle() {
 			return this.isLoading && this.width ? `aspect-ratio: ${this.width}/${this.height};` : null;
 		},
-		imageStyle()
-		{
+		adjustment() {
+			return this.width ? Math.min(this.size / Math.max(this.width, this.height), 1) : null;
+		},
+		imageStyle() {
 			if (this.isLoading)
 			{ return `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; padding-top: ${this.width ? this.height / this.width * 100 : 100}%;`; }
 			else if (this.isError)
