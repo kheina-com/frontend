@@ -1,8 +1,22 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
+	<div class='buttons'>
+		<div>
+			<CheckBox
+				:border='false'
+				id='search-results-tiles'
+				name='search-results-tiles'
+				class='checkbox'
+				v-model:checked='tiles'
+			>Tiles</CheckBox>
+		</div>
+	</div>
 	<main>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>Your timeline is empty!</p>
+			<li v-for='post in posts || 20' v-else-if='tiles'>
+				<PostTile :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+			</li>
 			<li v-for='post in posts || 3' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
@@ -25,6 +39,8 @@ import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 import DropDown from '@/components/DropDown.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
+import CheckBox from '@/components/CheckBox.vue';
+import PostTile from '@/components/PostTile.vue';
 
 
 export default {
@@ -37,6 +53,7 @@ export default {
 			count: null,
 			errorDump: null,
 			errorMessage: null,
+			tiles: this.$store.state.searchResultsTiles,
 		}
 	},
 	created() {
@@ -58,6 +75,8 @@ export default {
 		Post,
 		DropDown,
 		ResultsNavigation,
+		CheckBox,
+		PostTile,
 	},
 	computed: {
 		pagesBeforeCurrent() {
@@ -120,6 +139,11 @@ export default {
 			this.$router.push(this.pageLink(page));
 		},
 	},
+	watch: {
+		tiles(value) {
+			this.$store.commit('searchResultsTiles', value);
+		},
+	},
 }
 </script>
 
@@ -140,6 +164,18 @@ ol li {
 }
 ol > :last-child {
 	margin-bottom: 0;
+}
+
+.tiles ol {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	margin: -12.5px;
+}
+.tiles ol li {
+	margin: 12.5px;
 }
 
 .page-links {
@@ -174,5 +210,17 @@ ol > :last-child {
 	--bg1color: var(--bg0color);
 	background: #0000;
 	padding: 0 25px;
+}
+.buttons {
+	margin: 0 25px;
+	display: flex;
+	justify-content: end;
+}
+.buttons button {
+	color: var(--subtle);
+	margin-right: 25px;
+}
+.buttons button:hover {
+	color: var(--icolor);
 }
 </style>

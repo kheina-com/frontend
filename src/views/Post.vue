@@ -231,6 +231,7 @@ import DropDown from '@/components/DropDown.vue';
 import ShareLink from '@/components/ShareLink.vue';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import RepostButton from '@/components/RepostButton.vue';
+import CheckBox from '@/components/CheckBox.vue';
 
 export default {
 	name: 'Post',
@@ -260,6 +261,7 @@ export default {
 		ShareLink,
 		FavoriteButton,
 		RepostButton,
+		CheckBox,
 	},
 	data() {
 		return {

@@ -86,7 +86,7 @@ const userLinks = {
 	// shortcode: [url, emoji]
 	// links get formatted as url + username
 	'': ['/', null], // default
-	[iconShortcode]: ['/', null],  // unique case, this loads icons
+	[iconShortcode]: ['/{0}', null],  // unique case, this loads icons
 	t: ['https://twitter.com/{0}', 'twitter'],
 	fa: ['https://www.furaffinity.net/user/{0}', 'furaffinity'],
 	f: ['https://www.facebook.com/{0}', 'facebook'],

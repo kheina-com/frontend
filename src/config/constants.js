@@ -102,7 +102,7 @@ There are many fantastic guides available for markdown! kheina.com recommends [m
 In addition to all the base markdown features, kheina.com has many [extra features](#additional-features) to make linking to other parts of the website faster and easier.
 
 If you want to deep dive into kheina.com's implementation of markdown, you can see github's full spec for [github flavored markdown](https://github.github.com/gfm/).
-However, this does not include the additional features below.
+However, this does not include the [additional features](#additional-features) below.
 
 
 ## Header Examples

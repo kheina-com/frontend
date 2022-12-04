@@ -20,6 +20,7 @@ import Privacy from './views/Privacy.vue';
 import BugReport from './views/BugReport.vue';
 import Notifications from './views/Notifications.vue';
 import Version from './views/Version.vue';
+import Content from './views/Content.vue';
 
 import Test from './views/Test.vue';
 
@@ -375,6 +376,25 @@ const routes = [
 				{
 					property: 'og:title',
 					content: 'Privacy Policy | kheina.com',
+				},
+				{
+					name: 'theme-color',
+					content: '#1E1F25',
+				},
+			],
+		},
+	},
+	{
+		path: '/content',
+		name: 'content',
+		props: true,
+		component: Content,
+		meta: {
+			title: 'Content Policy | kheina.com',
+			metaTags: [
+				{
+					property: 'og:title',
+					content: 'Content Policy | kheina.com',
 				},
 				{
 					name: 'theme-color',

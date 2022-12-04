@@ -39,7 +39,7 @@ export default {
 		nested: {
 			type: Boolean,
 			default: false,
-		}
+		},
 	},
 	emits: [
 		'update:checked',
@@ -98,7 +98,7 @@ label {
 	display: inline-flex;
 	white-space: nowrap;
 	align-items: center;
-	padding-left: 0.25em;
+	padding-left: 0.3em;
 }
 span {
 	margin: 0 25px 0 0;

@@ -234,7 +234,6 @@ ol > :last-child {
 	align-items: center;
 	margin: -12.5px;
 }
-
 .tiles ol li {
 	margin: 12.5px;
 }
