@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div class='post tile nested link' @click='$router.push(`/p/${postId}`)'>
+	<div class='post tile nested link' @click='$router.push(`/p/${postId}`)' v-if='link'>
 		<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' v-if='media_type'/>
 		<div class='text' v-else>
 			<div class='parent' v-if='parent'>
@@ -25,6 +25,19 @@
 					<i class='material-icons-round'>more_horiz</i>
 				</div>
 			</DropDown>
+		</div>
+	</div>
+	<div class='post tile nested link no-buttons' v-else>
+		<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' v-if='media_type'/>
+		<div class='text' v-else>
+			<div class='parent' v-if='parent'>
+				<Loading span v-if='parentData === null'>this is an example title</Loading>
+				<Markdown :content='parentData?.title || parent' inline v-else/>
+				<i class='material-icons'>reply</i>
+			</div>
+			<Loading span v-if='isLoading'>this is an example title</Loading>
+			<h3 class='title' v-else><Markdown :content='title' inline/></h3>
+			<Markdown :content='description' :concise='true' class='description'/>
 		</div>
 	</div>
 </template>
@@ -99,6 +112,10 @@ export default {
 		user: {
 			type: Object,
 			default: null,
+		},
+		link: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	emits: [
@@ -214,6 +231,9 @@ export default {
 	text-align: center;
 	max-width: 20em;
 	min-width: 7em;
+}
+.post.no-buttons {
+	padding: 25px;
 }
 .thumbnail {
 	max-width: 20em;
