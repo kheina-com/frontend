@@ -53,10 +53,20 @@ i {
 	font-size: 1.5em;
 	display: block;
 }
+.tile i {
+	font-size: 1.2em;
+	padding: 0;
+}
 button {
 	color: var(--subtle);
 	background: #0000;
 	position: relative;
+}
+.tile button {
+	margin: -0.1em -0.25em -0.25em;
+}
+.tile span {
+	display: none;
 }
 button:hover div {
 	color: var(--icolor);

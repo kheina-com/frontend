@@ -1,7 +1,7 @@
 <template>
 	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report'>
 		<i class='kheina-icons'>report_content</i>
-		<span v-show='!forceMobile'>Report Content</span>
+		<span>Report Content</span>
 	</router-link>
 </template>
 
@@ -14,10 +14,6 @@ export default {
 			default: null,
 		},
 		data: Object,
-		forceMobile: {
-			type: Boolean,
-			default: false,
-		}
 	},
 	computed: {
 		destination() {
@@ -47,7 +43,7 @@ export default {
 	color: var(--icolor);
 	background: var(--bg1color);
 }
-.mobile .report:hover i {
+.mobile .report:hover i, .tile .report:hover i {
 	color: var(--icolor);
 	background: var(--bg1color);
 }
@@ -55,13 +51,18 @@ i {
 	margin-right: 0.25em;
 	font-size: 1.2em;
 }
+.mobile i, .tile i {
+	margin-right: 0;
+}
+.tile .report {
+	padding: 0.375em;
+}
 .mobile i {
 	border-radius: var(--border-radius);
 	padding: 0.25em;
-	margin-right: 0;
 	font-size: 1.5em;
 }
-.mobile span {
+.mobile span, .tile span {
 	display: none;
 }
 </style>

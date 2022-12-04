@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div class='post nested link' @click='$router.push(`/p/${postId}`)'>
+	<div class='post tile nested link' @click='$router.push(`/p/${postId}`)'>
 		<div v-if='media_type'>
 			<Thumbnail class='thumbnail' :post='postId' :size='800' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
 		</div>
@@ -14,13 +14,26 @@
 			<Markdown :content='title' class='title' inline v-else/>
 			<Markdown :content='description' :concise='true' class='title'/>
 		</div>
-		<Report forceMobile/>
+		<div class='buttons'>
+			<Report :data='{ post: postId }'/>
+			<RepostButton :postId='postId'/>
+			<FavoriteButton :postId='postId'/>
+			<DropDown :options="[
+				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
+				{ html: `Block @${user?.handle}`, action: () => { } },
+				{ html: `Report @${user?.handle}`, action: () => { } },
+			]">
+				<div class='more-button'>
+					<i class='material-icons-round'>more_horiz</i>
+				</div>
+			</DropDown>
+		</div>
 	</div>
 </template>
 
 <script>
 import { khatch } from '@/utilities';
-import { postsHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, postsHost, usersHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -34,6 +47,7 @@ import Thumbnail from '@/components/Thumbnail.vue';
 import Report from '@/components/Report.vue';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import RepostButton from '@/components/RepostButton.vue';
+import DropDown from '@/components/DropDown.vue';
 
 
 export default {
@@ -52,6 +66,7 @@ export default {
 		Report,
 		FavoriteButton,
 		RepostButton,
+		DropDown,
 	},
 	props: {
 		parent: {
@@ -82,6 +97,10 @@ export default {
 		size: {
 			type: Object,
 			default: { width: 0, height: 0 },
+		},
+		user: {
+			type: Object,
+			default: null,
 		},
 	},
 	emits: [
@@ -124,6 +143,44 @@ export default {
 			this.$emit('loaded');
 			// this.childTrigger = !this.childTrigger;
 		},
+		followUser() {
+			khatch(`${usersHost}/v1/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
+				method: 'POST',
+				body: {
+					handle: this.user?.handle,
+				},
+			})
+			.then(response => {
+				if (response.status < 300)
+				{
+					this.user.following = !this.user.following;
+					this.$store.commit('createToast', {
+						icon: this.user.following ? 'person_add_alt' : 'person_remove',
+						title: `Successfully ${this.user.following ? 'Followed' : 'Unfollowed'} @${this.user.handle}`,
+						time: 5,
+					});
+				}
+				else if (response.status < 500)
+				{
+					response.json().then(r => {
+						this.$store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: r.error,
+						});
+					});
+				}
+				else
+				{
+					response.json().then(r => {
+						this.$store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: apiErrorDescriptionToast,
+							dump: r,
+						});
+					});
+				}
+			})
+		},
 	},
 	watch: {
 		parent(value) {
@@ -159,7 +216,7 @@ export default {
 	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
-	padding: 25px 25px 15px;
+	padding: 25px 25px 10px;
 	align-items: flex-start;
 	position: relative;
 	border: var(--border-size) solid var(--bordercolor);
@@ -217,5 +274,33 @@ export default {
 }
 .bottom-margin {
 	margin-bottom: 25px;
+}
+.buttons {
+	margin: 0 -15px;
+	width: calc(100% + 30px);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.more-button {
+	border-radius: var(--border-radius);
+	padding: 0.375em;
+	color: var(--subtle);
+	background: #00000000;
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
+}
+.more-button i {
+	font-size: 1.2em;
+	display: block;
+}
+.more-button:hover {
+	color: var(--icolor);
+	background: var(--bg2color);
+}
+.nested .more-button:hover {
+	background: var(--bg1color);
 }
 </style>

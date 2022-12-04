@@ -404,17 +404,21 @@ export default {
 				}
 				else if (response.status < 500)
 				{
-					this.$store.commit('createToast', {
-						title: apiErrorMessageToast,
-						description: r.error,
+					response.json().then(r => {
+						this.$store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: r.error,
+						});
 					});
 				}
 				else
 				{
-					this.$store.commit('createToast', {
-						title: apiErrorMessageToast,
-						description: apiErrorDescriptionToast,
-						dump: r,
+					response.json().then(r => {
+						this.$store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: apiErrorDescriptionToast,
+							dump: r,
+						});
 					});
 				}
 			})

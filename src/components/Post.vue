@@ -75,7 +75,7 @@
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
-import { ratingMap, uploadHost, usersHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, ratingMap, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -271,17 +271,21 @@ export default {
 				}
 				else if (response.status < 500)
 				{
-					this.$store.commit('createToast', {
-						title: apiErrorMessageToast,
-						description: r.error,
+					response.json().then(r => {
+						this.$store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: r.error,
+						});
 					});
 				}
 				else
 				{
-					this.$store.commit('createToast', {
-						title: apiErrorMessageToast,
-						description: apiErrorDescriptionToast,
-						dump: r,
+					response.json().then(r => {
+						this.$store.commit('createToast', {
+							title: apiErrorMessageToast,
+							description: apiErrorDescriptionToast,
+							dump: r,
+						});
 					});
 				}
 			})
