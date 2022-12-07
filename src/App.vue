@@ -1,5 +1,5 @@
 <template>
-	<input ref='animatedAccents' type='checkbox' name='animated-accents' value='animated-accents' id='animated-accents' @click='setAnimated' v-show='false'>
+	<input type='checkbox' name='animated-accents' value='animated-accents' id='animated-accents' @click='setAnimated' v-show='false'>
 	<Banner :onResize='onResize'/>
 	<div ref='content' id='content'>
 		<router-view :key='$route.path' v-if='$store.state?.error === null'/>
@@ -32,37 +32,22 @@ export default {
 	},
 	setup() {
 		const content = ref(null);
-		const animatedAccents = ref(null);
 		return {
 			content,
-			animatedAccents,
-		};
-	},
-	data() {
-		return {
-			
 		};
 	},
 	async created() {
-		const theme = getCookie('theme');
-		const accent = getCookie('accent');
-		document.documentElement.classList.add(theme);
-		document.documentElement.classList.add(accent);
-
-		this.$store.state.theme = {
-			theme,
-			accent,
-		};
+		this.$store.commit('cookiesAllowed', getCookie('cookies', false, Boolean));
+		this.$store.commit('theme', getCookie('theme', 'kheina'));
+		this.$store.commit('accent', getCookie('accent', 'none'));
 		this.$store.commit('animatedAccents', getCookie('animated-accents', true, Boolean));
 		this.$store.commit('cssTransitions', getCookie('css-transitions', true, Boolean));
-		// TODO: once tiles look good, change default to true
 		this.$store.commit('searchResultsTiles', getCookie('search-results-tiles', !isMobile, Boolean));
-
-		this.$store.commit('maxRating', ratingMap[getCookie('max-rating', 'general')]);
+		this.$store.commit('maxRating', getCookie('max-rating', 'general'));
 
 		const auth = authCookie();
 		if (auth)
-		{ this.$store.commit('setAuth', authCookie()); }
+		{ this.$store.commit('setAuth', auth); }
 		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
 
 		const fontFamily = document.getElementById('font-family');
@@ -101,7 +86,10 @@ export default {
 	mounted() {
 		this.ResizeSensor(this.$refs.content, this.onResize);
 		this.onResize();
-		this.$refs.animatedAccents.checked = this.$store.state.animatedAccents;
+		document.getElementById('animated-accents').checked = this.$store.state.animatedAccents;
+
+		// TODO: we use this to change the behavior of certain functions during startup. don't remove it.
+		this.$store.state.init = false;
 	},
 	computed: {
 		banner() {
@@ -111,7 +99,6 @@ export default {
 	methods: {
 		setAnimated(e) {
 			this.$store.commit('animatedAccents', e.target.checked);
-			setCookie('animated-accents', e.target.checked);
 		},
 		onResize() {
 			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true))

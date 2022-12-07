@@ -122,7 +122,8 @@
 </template>
 
 <script>
-import { getCookie, setCookie } from '@/utilities';
+import { getCookie, setCookie, createToast } from '@/utilities';
+import { cookieFailedError } from '@/global';
 import { ratingMap } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
@@ -148,8 +149,7 @@ export default {
 	},
 	watch: {
 		maxRating(value) {
-			setCookie('max-rating', value, 3155695200);
-			this.$store.commit('maxRating', ratingMap[value]);
+			this.$store.commit('maxRating', value);
 		},
 		fontFamily(value) {
 			setCookie('font-family', value, 3155695200);
@@ -158,6 +158,14 @@ export default {
 			{ fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
 			else
 			{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+
+			if (!this.$store.state.cookiesAllowed)
+			{
+				createToast({
+					title: 'Could could not set font family cookie',
+					description: cookieFailedError,
+				});
+			}
 		},
 		CssTransitions(value) {
 			this.$store.commit('cssTransitions', value);

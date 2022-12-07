@@ -8,7 +8,6 @@
 				this post is <b>{{rating}}</b>, click to show.
 			</button>
 		</div>
-		<!--<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' v-if='media_type' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)'/>-->	
 		<div class='text' v-else>
 			<div class='parent' v-if='parent'>
 				<Loading span v-if='parentData === null'>this is an example title</Loading>

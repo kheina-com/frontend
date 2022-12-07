@@ -71,7 +71,7 @@ export default {
 			searchStage: 0,
 			uploadProgress: 0,
 			results: null,
-			setCookie: setCookie,
+			setCookie,
 		}
 	},
 	components: {

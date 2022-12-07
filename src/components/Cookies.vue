@@ -1,27 +1,23 @@
 <template>
-	<div class='cookies' v-if='displayWindow'>
+	<div class='cookies' v-show='!cookiesAllowed'>
 		<span>This website uses cookies.</span>
-		<button id='cookies' class='interactable' @click='goAway'>coolio</button>
+		<button id='cookies' class='interactable' @click='cookiesAllowed=true'>coolio</button>
 	</div>
 </template>
 
 <script>
-import {setCookie, getCookie} from '@/utilities'
+import { getCookie } from '@/utilities'
 
 export default {
 	name: 'Cookies',
 	data() {
 		return {
-			displayWindow: false,
+			cookiesAllowed: this.$store.state.cookiesAllowed,
 		}
 	},
-	mounted() {
-		this.displayWindow = !getCookie('cookies');
-	},
-	methods: {
-		goAway() {
-			setCookie('cookies', true, 31536000);
-			this.displayWindow = false;
+	watch: {
+		cookiesAllowed(value) {
+			this.$store.commit('cookiesAllowed', value);
 		},
 	},
 }

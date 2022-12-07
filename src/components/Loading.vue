@@ -123,7 +123,9 @@ span {
 }
 
 .nested .loading.wave {
+	background: var(--bg2color);
 	background: linear-gradient(100deg, var(--bg1color) 40vw, var(--bordercolor) 50vw, var(--bg1color) 60vw);
+	background-size: 100vw 100%;
 }
 
 @keyframes wave {

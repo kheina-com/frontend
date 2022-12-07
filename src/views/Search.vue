@@ -132,14 +132,13 @@ export default {
 	},
 	methods: {
 		defaultSearch() {
-			console.log('this.$store.state.maxRating:', this.$store.state.maxRating);
 			switch (this.$store.state.maxRating) {
 				case 1 :
 					return ['-explicit'];
 				case 2 :
 					return [];
 				default :
-					return ['-explicit', '-mature'];
+					return ['general'];
 			}
 		},
 		fetchPosts() {

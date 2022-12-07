@@ -22,7 +22,7 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, khatch, setCookie } from '@/utilities';
+import { khatch } from '@/utilities';
 import { apiErrorMessage, accountHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -61,7 +61,7 @@ export default {
 		sendLogin() {
 			this.isLoading = true;
 			khatch(`${accountHost}/v1/login`, {
-					method:'POST',
+					method: 'POST',
 					credentials: 'include',
 					body: {
 						email: this.$refs.email.value,
@@ -72,8 +72,7 @@ export default {
 					response.json().then(r => {
 						if (response.status < 400 && r.token_data.token.length > 10)
 						{
-							setCookie('kh-auth', r.token_data.token, r.token_data.expires - new Date().valueOf() / 1000);
-							this.$store.commit('setAuth', authCookie());
+							this.$store.commit('setAuth', r.token_data);
 							this.$router.push(this.$route.query?.path ? this.$route.query.path : '/');
 						}
 						else if (response.status === 400)

@@ -41,7 +41,7 @@ export default {
 	display: flex;
 	align-items: center;
 	flex-direction: column;
-	z-index: 1;
+	z-index: 1000;
 }
 
 .toast {

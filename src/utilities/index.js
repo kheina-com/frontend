@@ -7,7 +7,10 @@ export default null;
 
 import { cdnHost, environment } from '@/config/constants'
 export function setCookie(name, value, maxage=86400, samesite='strict', path='/')
-{ document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== 'local' ? 'secure' : ''}`; };
+{
+	if (store.state.cookiesAllowed)
+	{ document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== 'local' ? 'secure' : ''}`; }
+};
 
 const ParserTypeMap = {
 	[Boolean]: v => typeof(v) === 'string' ? 'false' !== v : Boolean(v),
@@ -276,7 +279,8 @@ export function authCookie(cookie=null)
 	return auth;
 }
 
-const mdRegex = /\[.+?\]\((.+?)\)|#{1,6}\s*|`+/gi
+const mdRegex = /\[.+?\]\((.+?)\)|#{1,6}\s*|`+/gi;
+const mdRegex2 = /(\_{1,2}|\*{1,2})(.+?)\1/gi;
 
 const linkRegex = /\((.+)\)/;
 
@@ -290,7 +294,7 @@ const emojiRegex = new RegExp(
 )
 
 export function demarkdown(string) {
-	return string
+	let str = string
 		.replaceAll(emojiRegex, x => emojiMap[x.substring(1, x.length - 1)])
 		.replaceAll(mdRegex, x => {
 			const match = linkRegex.exec(x);
@@ -298,6 +302,11 @@ export function demarkdown(string) {
 			{ return match[1]; }
 			return '';
 		});
+
+	for (const m of str.matchAll(mdRegex2))
+	{ str = str.replace(m[0], m[2]); }
+
+	return str;
 }
 
 export function isDarkMode() {

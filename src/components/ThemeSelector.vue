@@ -5,7 +5,7 @@
 			<tr>
 				<td>theme</td>
 				<td>
-					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme.theme'>
+					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme.name'>
 						<option v-for='[value, name] in themes' :value='value'>{{name}}</option>
 					</select>
 				</td>
@@ -13,7 +13,7 @@
 			<tr>
 				<td>accent</td>
 				<td>
-					<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='$store.state.theme.accent'>
+					<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='$store.state.accent'>
 						<option v-for='[value, name] in accents' :value='value'>{{name}}</option>
 					</select>
 				</td>
@@ -33,7 +33,7 @@
 
 <script>
 import { ref } from 'vue';
-import { setCookie, getCookie } from '@/utilities';
+import { getCookie } from '@/utilities';
 import CheckBox from '@/components/CheckBox.vue';
 
 export default {
@@ -41,20 +41,9 @@ export default {
 	components: {
 		CheckBox,
 	},
-	setup() {
-		const accent = ref(null);
-		const theme = ref(null);
-
-		return {
-			accent,
-			theme,
-		};
-	},
 	data() {
 		return {
 			animations: false,
-			theme: 'none',
-			accent: 'none',
 			themes: [
 				['kheina', 'kheina'],
 				['light', 'light mode'],
@@ -86,25 +75,11 @@ export default {
 	},
 	methods: {
 		setTheme(event) {
-			document.documentElement.classList.remove(this.$store.state.theme.theme);
-			this.$store.state.theme.theme = event.target.value;
-			document.documentElement.classList.add(this.$store.state.theme.theme);
-			setCookie('theme', this.$store.state.theme.theme);
-			this.$store.state.theme.bg1color = getComputedStyle(document.body).getPropertyValue('--bg1color');
+			this.$store.commit('theme', event.target.value);
 		},
 		setAccent(event) {
-			document.documentElement.classList.remove(this.$store.state.theme.accent);
-			this.$store.state.theme.accent = event.target.value;
-			document.documentElement.classList.add(this.$store.state.theme.accent);
-			setCookie('accent', this.$store.state.theme.accent);
+			this.$store.commit('accent', event.target.value);
 		},
-	},
-	mounted() {
-		this.$store.state.theme.theme = getCookie('theme');
-		this.$store.state.theme.accent = getCookie('accent');
-
-		this.$refs.theme.value = this.$store.state.theme.theme;
-		this.$refs.accent.value = this.$store.state.theme.accent;
 	},
 }
 </script>
