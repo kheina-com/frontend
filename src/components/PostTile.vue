@@ -1,7 +1,14 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div class='post tile nested link' @click='$router.push(`/p/${postId}`)' v-if='link'>
-		<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' v-if='media_type'/>
+	<div class='post tile nested link' v-if='link'>
+		<router-link :to='`/p/${postId}`' class='background-link'/>
+		<div :to='`/p/${postId}`' class='thumbnail' v-if='media_type'>
+			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
+			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${size?.width}/${size?.height}`' v-else>
+				this post is <b>{{rating}}</b>, click to show.
+			</button>
+		</div>
+		<!--<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' v-if='media_type' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)'/>-->	
 		<div class='text' v-else>
 			<div class='parent' v-if='parent'>
 				<Loading span v-if='parentData === null'>this is an example title</Loading>
@@ -12,6 +19,9 @@
 			<h3 class='title' v-else><Markdown :content='title' inline/></h3>
 			<Markdown :content='description' :concise='true' class='description'/>
 		</div>
+		<p class='privacy' v-show='privacy !== "public"'>
+		{{privacy}}
+		</p>
 		<div class='buttons'>
 			<Report :data='{ post: postId }'/>
 			<RepostButton :postId='postId'/>
@@ -44,7 +54,7 @@
 
 <script>
 import { khatch } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, postsHost, usersHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, postsHost, ratingMap, usersHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -117,13 +127,20 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		rating: {
+			type: String,
+			default: 'general',
+		},
+		privacy: String,
 	},
 	emits: [
 		'loaded',
 	],
 	data() {
 		return {
+			ratingMap,
 			parentData: null,
+			acceptedMature: false,
 		};
 	},
 	mounted() {
@@ -232,10 +249,17 @@ export default {
 	max-width: 20em;
 	min-width: 7em;
 }
+.background-link {
+	top: 0;
+	left: 0;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
 .post.no-buttons {
 	padding: 25px;
 }
-.thumbnail {
+.thumbnail, .show-mature {
 	max-width: 20em;
 }
 .text {
@@ -245,7 +269,7 @@ export default {
 .description {
 	color: var(--text);
 }
-.thumbnail, .text {
+.thumbnail, .text, .show-mature {
 	max-height: 10em;
 	margin: auto;
 }
@@ -298,6 +322,10 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	pointer-events: none;
+}
+.buttons * {
+	pointer-events: all;
 }
 .more-button {
 	border-radius: var(--border-radius);
@@ -319,5 +347,13 @@ export default {
 }
 .nested .more-button:hover {
 	background: var(--bg1color);
+}
+.nested .show-mature {
+	background: var(--bg1color);
+}
+.privacy {
+	color: var(--subtle);
+	text-align: center;
+	align-self: center;
 }
 </style>

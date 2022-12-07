@@ -65,6 +65,7 @@ export default {
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
+	z-index: 1;
 }
 .theme-menu tr
 { text-align: right; }

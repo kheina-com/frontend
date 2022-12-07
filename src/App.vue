@@ -746,6 +746,7 @@ html.autumn main {
 	background-image: url(/assets/themes/autumn.png);
 	background-repeat: repeat-x;
 	background-position: center bottom;
+	padding-bottom: 50px;
 }
 
 html.hex main {
@@ -764,7 +765,7 @@ html.spring main {
 	background-image: url(/assets/themes/spring/1.png), url(/assets/themes/spring/2.png), url(/assets/themes/spring/3.png), url(/assets/themes/spring/4.png);
 	background-repeat: repeat-x, no-repeat, no-repeat, repeat-x;
 	background-position: center bottom, right bottom, top right, center top;
-	padding-bottom: 25px;
+	padding-bottom: 50px;
 }
 
 html.stars main {

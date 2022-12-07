@@ -131,6 +131,17 @@ export default {
 		},
 	},
 	methods: {
+		defaultSearch() {
+			console.log('this.$store.state.maxRating:', this.$store.state.maxRating);
+			switch (this.$store.state.maxRating) {
+				case 1 :
+					return ['-explicit'];
+				case 2 :
+					return [];
+				default :
+					return ['-explicit', '-mature'];
+			}
+		},
 		fetchPosts() {
 			if (this.posts === null)
 			{ return; }
@@ -145,7 +156,7 @@ export default {
 					method: 'POST',
 					body: {
 						sort: this.sort,
-						tags: this.query ? tagSplit(this.query) : [],
+						tags: this.query ? tagSplit(this.query) : this.defaultSearch(),
 						page: this.page,
 						count: this.count,
 					},
@@ -230,7 +241,7 @@ ol > :last-child {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: space-around;
 	align-items: center;
 	margin: -12.5px;
 }

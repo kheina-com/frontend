@@ -88,8 +88,9 @@
 					:border='false'
 					id='search-results-tiles'
 					name='search-results-tiles'
-					class='checkbox nested'
+					class='checkbox'
 					v-model:checked='tiles'
+					nested
 				>Tiles</CheckBox>
 			</div>
 		</div>
@@ -442,11 +443,10 @@ ol > :last-child {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: space-around;
 	align-items: center;
 	margin: -12.5px;
 }
-
 .tiles ol li {
 	margin: 12.5px;
 }

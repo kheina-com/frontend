@@ -170,7 +170,7 @@ ol > :last-child {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: space-around;
 	align-items: center;
 	margin: -12.5px;
 }

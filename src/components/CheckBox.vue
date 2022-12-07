@@ -137,7 +137,7 @@ label div.checkmark {
 	background: var(--bg1color);
 	pointer-events: none;
 }
-.nested label div.checkmark {
+label.nested div.checkmark {
 	background: var(--bg2color);
 }
 label div.checkmark div {

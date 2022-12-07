@@ -163,15 +163,30 @@
 				</div>
 			</div>
 			<div class='active-tab'>
-				<div v-show='tab === "posts"'>
+				<div v-show='tab === "posts" || tab === "uploads"'>
+					<div class='result-buttons'>
+						<div>
+							<CheckBox
+								:border='false'
+								id='search-results-tiles'
+								name='search-results-tiles'
+								class='checkbox'
+								v-model:checked='tiles'
+								nested
+							>Tiles</CheckBox>
+						</div>
+					</div>
 					<ol class='results'>
 						<p v-if='posts?.length === 0' style='text-align: center'>
 							<Markdown :content='user?.name' inline v-if='user?.name'/>
 							<span v-else>@{{handle}}</span>
 							hasn't made any posts yet.
 						</p>
+						<li v-for='post in posts || 20' v-else-if='tiles'>
+							<PostTile :postId='post?.post_id' :nested='true' v-bind='post' link/>
+						</li>
 						<li v-for='post in posts || 3' v-else>
-							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
+							<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 						</li>
 					</ol>
 					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>
@@ -196,15 +211,6 @@
 				</div>
 				<div v-show='tab === "favs"'>
 					<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
-				</div>
-				<div v-show='tab === "uploads"'>
-					<ol class='results'>
-						<p v-if='posts?.length === 0' style='text-align: center'>you haven't made any posts yet.</p>
-						<li v-for='post in posts || 3' v-else>
-							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
-						</li>
-					</ol>
-					<ResultsNavigation class='page-links' :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>
 				</div>
 			</div>
 			<ThemeMenu/>
@@ -271,6 +277,7 @@ import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
 import DropDown from '@/components/DropDown.vue';
+import CheckBox from '@/components/CheckBox.vue';
 
 
 export default {
@@ -301,6 +308,7 @@ export default {
 		PostTile,
 		ResultsNavigation,
 		DropDown,
+		CheckBox,
 	},
 	setup() {
 		const main = ref(null);
@@ -340,6 +348,7 @@ export default {
 			page: null,
 			bannerWebpFailed: null,
 			availableBadges: null,
+			tiles: this.$store.state.searchResultsTiles,
 		};
 	},
 	created() {
@@ -752,6 +761,9 @@ export default {
 			})
 			.catch(e => { });
 		},
+		tiles(value) {
+			this.$store.commit('searchResultsTiles', value);
+		},
 	},
 }
 </script>
@@ -911,6 +923,25 @@ ul, ol {
 	list-style: none;
 	margin: 0;
 	padding: 0;
+}
+
+.tiles ol {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: center;
+	margin: -12.5px;
+}
+.tiles ol li {
+	margin: 12.5px;
+}
+.tiles ol.results > :last-child {
+	margin-bottom: 12.5px;
+}
+
+.checkbox {
+	color: var(--subtle);
 }
 
 .page-links {
@@ -1075,10 +1106,10 @@ ul, ol {
 	}
 }
 
-ol.results li {
+ol li {
 	margin: 0 0 25px;
 }
-ol.results > :last-child {
+ol > :last-child {
 	margin-bottom: 0;
 }
 
@@ -1282,5 +1313,18 @@ html.mobile.winter .active-tab {
 }
 .badges .dropdown button p, .badges p button {
 	padding: 0;
+}
+
+.result-buttons {
+	margin: 0 25px;
+	display: flex;
+	justify-content: end;
+}
+.result-buttons button {
+	color: var(--subtle);
+	margin-right: 25px;
+}
+.result-buttons button:hover {
+	color: var(--icolor);
 }
 </style>
