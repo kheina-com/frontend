@@ -92,6 +92,9 @@ export default {
 .score {
 	text-align: center;
 }
+button {
+	pointer-events: all;
+}
 button b {
 	display: block;
 	padding: 0.25em 0.5em;

@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div class='post tile nested link' v-if='link'>
+	<div :class='divClass' v-if='link'>
 		<router-link :to='`/p/${postId}`' class='background-link'/>
 		<div :to='`/p/${postId}`' class='thumbnail' v-if='media_type'>
 			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
@@ -126,6 +126,10 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		nested: {
+			type: Boolean,
+			default: false,
+		},
 		rating: {
 			type: String,
 			default: 'general',
@@ -158,7 +162,7 @@ export default {
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
-		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : '') + (this.reply ? ' reply' : ''); },
+		{ return 'post tile' + (!this.isLoading ? ' link' : '') + (this.nested ? ' nested' : ''); },
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()

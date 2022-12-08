@@ -435,6 +435,7 @@ export default {
 .header-block {
 	display: flex;
 	position: relative;
+	pointer-events: none;
 }
 
 .post-header {

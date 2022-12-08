@@ -64,8 +64,11 @@
 				<b v-else>None</b>
 			</div>
 		</div>
-		<Markdown :content='tagData?.description' class='markdown' v-if='!editing'/>
 		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
+		<div class='markdown-block' v-else>
+			<Markdown :content='showingMore ? tagData.description : tagDescription'/>
+			<button v-show='showMore && !showingMore' class='show-more' @click='showingMore=true'>show more</button>
+		</div>
 		<div class='buttons'>
 			<div>
 				<button v-if='false'><i class='material-icons'>notification_add</i></button>
@@ -162,6 +165,8 @@ export default {
 			page: null,
 			count: null,
 			tiles: this.$store.state.searchResultsTiles,
+			showMore: false,
+			showingMore: false,
 		}
 	},
 	created() {
@@ -199,6 +204,19 @@ export default {
 	computed: {
 		isLoading()
 		{ return this.tagData === null; },
+		tagDescription() {
+			if (this.tagData === null || !this.tagData.description)
+			{ return null; }
+
+			const newline = this.tagData.description.indexOf('\n');
+			if (newline >= 0)
+			{
+				this.showMore = true;
+				return this.tagData.description.substring(0, newline);
+			}
+
+			return this.tagData.description;
+		},
 		editable() {
 			return (this.$store.state.user && this.tagData?.owner?.handle === this.$store.state.user?.handle) || Boolean(this.$store.state.auth?.scope?.includes('admin'));
 		},
@@ -403,7 +421,7 @@ ul {
 	display: flex;
 	justify-content: space-between;
 }
-.markdown {
+.markdown-block {
 	width: 70vw;
 	margin: 0 auto 25px;
 }
@@ -411,8 +429,11 @@ ul {
 	background: var(--bg2color);
 	margin-bottom: 25px;
 }
-.mobile .markdown, .mobile .tag {
+.mobile .markdown-block, .mobile .tag {
 	width: auto;
+}
+.show-more {
+	margin-top: 1em;
 }
 
 .edit-button {

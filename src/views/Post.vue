@@ -137,10 +137,10 @@
 						<Score :score='post?.score' :postId='postId'/>
 						<div class='post-title'>
 							<input v-if='editing' class='interactable text title-field' v-model='post.title'>
-							<h3 v-else>
+							<h2 v-else>
 								<Loading span v-if='isLoading'>this is an example title</Loading>
 								<Markdown v-else :content='post?.title' inline/>
-							</h3>
+							</h2>
 							<div class='privacy'>
 								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
 								<router-link v-if='userIsUploader' :to='"/create?post=" + postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button></router-link>
@@ -231,7 +231,6 @@ import DropDown from '@/components/DropDown.vue';
 import ShareLink from '@/components/ShareLink.vue';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import RepostButton from '@/components/RepostButton.vue';
-import CheckBox from '@/components/CheckBox.vue';
 
 export default {
 	name: 'Post',
@@ -261,7 +260,6 @@ export default {
 		ShareLink,
 		FavoriteButton,
 		RepostButton,
-		CheckBox,
 	},
 	data() {
 		return {
@@ -363,7 +361,7 @@ export default {
 
 			if (this.tags.hasOwnProperty('artist'))
 			{
-				const artists = this.tags.artist.map(x => x.endsWith('_(artist)') ? x.slice(0, -10) : x);
+				const artists = this.tags.artist.map(x => x.endsWith('_(artist)') ? x.slice(0, -9).replaceAll('_', ' ') : x.replaceAll('_', ' '));
 
 				if (artists.length > 2)
 				{ title += ' by ' + artists.slice(0, -1).join(', ') + ', and ' + artists.slice(-1)[0]; }
@@ -375,7 +373,7 @@ export default {
 
 			if (this.tags.hasOwnProperty('subject'))
 			{
-				const subjects = this.tags.subject.map(x => x.endsWith('_(subject)') ? x.slice(0, -10) : x);
+				const subjects = this.tags.subject.map(x => x.endsWith('_(subject)') ? x.slice(0, -10).replaceAll('_', ' ') : x.replaceAll('_', ' '));
 
 				if (subjects.length > 2)
 				{ title += ' featuring ' + subjects.slice(0, -1).join(', ') + ', and ' + subjects.slice(-1)[0]; }
@@ -755,6 +753,9 @@ a.profile:hover {
 	font-size: 2em;
 	font-weight: normal;
 	margin: 0;
+}
+.mobile .post-title h2 {
+	font-size: 1.5em;
 }
 .edit-button {
 	margin-left: 0.5em;

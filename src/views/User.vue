@@ -183,10 +183,10 @@
 							hasn't made any posts yet.
 						</p>
 						<li v-for='post in posts || 20' v-else-if='tiles'>
-							<PostTile :postId='post?.post_id' :nested='true' v-bind='post' link/>
+							<PostTile :postId='post?.post_id' :nested='!isMobile' v-bind='post' link/>
 						</li>
 						<li v-for='post in posts || 3' v-else>
-							<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
+							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
 					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>

@@ -43,7 +43,7 @@ async def postMetaTags(match) :
 
 
 	if tags.artist :
-		artists = list(map(lambda x : x.split('_(artist)')[0], tags.artist))
+		artists = list(map(lambda x : x.split('_(artist)')[0].replace('_', ' '), tags.artist))
 		title += ' by '
 
 		if len(artists) > 2 :
@@ -57,7 +57,7 @@ async def postMetaTags(match) :
 
 
 	if tags.subject :
-		subjects = list(map(lambda x : x.split('_(subject)')[0], tags.subject))
+		subjects = list(map(lambda x : x.split('_(subject)')[0].replace('_', ' '), tags.subject))
 		title += ' featuring '
 
 		if len(subjects) > 2 :
