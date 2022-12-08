@@ -114,6 +114,7 @@ button {
 	color: var(--subtle);
 	text-decoration-style: dotted;
 	text-decoration-line: underline;
+	position: relative;
 }
 button:hover {
 	color: var(--icolor);

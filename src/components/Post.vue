@@ -3,7 +3,7 @@
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self' v-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
-		<!-- <router-link :to='`/p/${postId}`' class='background-link' v-show='link'/>-->
+		<router-link :to='`/p/${postId}`' class='background-link' v-show='link'/>
 		<div class='labels' v-show='!isLoading'>
 			<DropDown class='more-button' :options="[
 				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
@@ -18,15 +18,13 @@
 			</div>
 			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
 		</div>
-		<div style='display: flex'>
+		<div class='header-block'>
 			<Score :score='score' :postId='postId'/>
 			<div class='post-header'>
-				<router-link :to='`/p/${postId}`'>
-					<h2 v-if='isLoading || title'>
-						<Loading span v-if='isLoading'>this is an example title</Loading>
-						<Markdown :content='title' inline class='title' lazy v-else/>
-					</h2>
-				</router-link>
+				<h2 v-if='isLoading || title'>
+					<Loading span v-if='isLoading'>this is an example title</Loading>
+					<Markdown :content='title' inline class='title' lazy v-else/>
+				</h2>
 				<Profile :isLoading='isLoading' v-bind='user'/>
 			</div>
 		</div>
@@ -395,6 +393,13 @@ export default {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 }
+.background-link {
+	top: 0;
+	left: 0;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
 .post.nested {
 	background: var(--bg2color);
 }
@@ -426,6 +431,12 @@ export default {
 	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
 }
+
+.header-block {
+	display: flex;
+	position: relative;
+}
+
 .post-header {
 	margin-bottom: 25px;
 	display: flex;
@@ -574,6 +585,7 @@ ol > :last-child, ol > :last-child .post {
 	align-items: center;
 	color: var(--subtle);
 	margin-right: -0.25em;
+	position: relative;
 }
 .reply-button i {
 	padding: 0.25em;

@@ -141,6 +141,9 @@ export default {
 .markdown * {
 	vertical-align: top;
 }
+.post .markdown a {
+	position: relative;
+}
 .markdown a:link, .markdown a:visited {
 	text-decoration: underline;
 	text-decoration-style: dotted;
