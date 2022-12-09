@@ -360,6 +360,7 @@ export default {
 		if (window.history.state.user)
 		{
 			this.user = window.history.state.user;
+			setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) | kheina.com` : `@${this.user?.handle} | kheina.com`);
 			return;
 		}
 		else
