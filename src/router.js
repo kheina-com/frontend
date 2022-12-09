@@ -451,7 +451,10 @@ export default createRouter({
 	routes,
 	scrollBehavior(to, from, savedPosition) {
 		if (savedPosition)
-		{ store.state.scroll = savedPosition.top; }
+		{
+			setTimeout(() => window.scrollTo(0, savedPosition.top), 0);
+			return;
+		}
 		return { top: 0 };
 	},
 });

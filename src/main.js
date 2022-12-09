@@ -4,12 +4,12 @@ import App from '@/App.vue';
 import { routerMetaTag } from '@/config/constants';
 import { setMeta } from '@/utilities';
 import Vuex from 'vuex';
-import global from './global';
+import store from './global';
 import vClickOutside from 'click-outside-vue3';
 
 
 Router.afterEach((to, from) => {
-	global.commit('error')
+	store.commit('error')
 
 	// This goes through the matched routes from last to first, combining routes metadata.
 	// eg. if we have /some/nested/route, route's metadata will be prioritized, with nested, some, and / being used for fallback
@@ -42,6 +42,6 @@ Router.afterEach((to, from) => {
 createApp(App)
 	.use(Router)
 	.use(Vuex)
-	.use(global)
+	.use(store)
 	.use(vClickOutside)
 	.mount('body');

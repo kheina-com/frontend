@@ -278,8 +278,10 @@ export default {
 		};
 	},
 	created() {
-		khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`)
-			.then(response => {
+		khatch(
+			`${tagsHost}/v1/fetch_tags/${this.postId}`,
+			{ errorMessage: apiErrorMessage },
+		).then(response => {
 				response.json().then(r => {
 					if (response.status < 300)
 					{ this.tags = r; }
@@ -292,44 +294,50 @@ export default {
 					{ this.setPageTitle(); }
 				});
 			})
-			.catch(error => {
-				this.$store.commit('error', apiErrorMessage, error);
-				console.error(error);
-			});
+			.catch(() => { });
 
 		this.fetchComments();
 
-		khatch(`${postsHost}/v1/post/${this.postId}`)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
-						r.favorites = 0;
-						r.reposts = 0;
-						this.post = r;
-						this.width = r.size?.width;
-						this.height = r.size?.height;
-						if (r.parent)
-						{
-							this.parent = false;
-							this.fetchParent(r.parent);
-						}
-						if (this.$store.state.scroll)
-						{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+		if (this.$store.state.postCache?.post_id === this.postId)
+		{
+			const r = this.$store.state.postCache;
 
-						if (this.tags !== null)
-						{ this.setPageTitle(); }
+			r.favorites = 0;
+			r.reposts = 0;
+			this.post = r;
+			this.width = r.size?.width;
+			this.height = r.size?.height;
+			if (r.parent)
+			{
+				this.parent = false;
+				this.fetchParent(r.parent);
+			}
+		}
+		else
+		{
+			// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
+			khatch(
+				`${postsHost}/v1/post/${this.postId}`,
+				{ errorMessage: apiErrorMessage },
+			).then(response => {
+				response.json().then(r => {
+					r.favorites = 0;
+					r.reposts = 0;
+					this.post = r;
+					this.width = r.size?.width;
+					this.height = r.size?.height;
+					if (r.parent)
+					{
+						this.parent = false;
+						this.fetchParent(r.parent);
 					}
-					else if (response.status < 500)
-					{ this.$store.commit('error', r.error); }
-					else
-					{ this.$store.commit('error', apiErrorMessage, r); }
+
+					if (this.tags !== null)
+					{ this.setPageTitle(); }
 				});
 			})
-			.catch(error => {
-				this.$store.commit('error', apiErrorMessage, error);
-				console.error(error);
-			});
+			.catch(() => { });
+		}
 	},
 	computed: {
 		isLoading()
@@ -559,7 +567,6 @@ export default {
 				.then(response => {
 					response.json()
 						.then(r => {
-							console.log(r);
 							this.replies.unshift({
 								post_id: r.post_id,
 								user: this.$store.state.user,

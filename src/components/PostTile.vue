@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='divClass' v-if='link'>
-		<router-link :to='`/p/${postId}`' class='background-link'/>
+		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='link'/>
 		<div :to='`/p/${postId}`' class='thumbnail' v-if='media_type'>
 			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${size?.width}/${size?.height}`' v-else>
@@ -103,16 +103,28 @@ export default {
 		},
 		score: Object,
 		title: {
-			type: String, 
+			type: String,
 			default: null,
 		},
 		description: {
-			type: String, 
+			type: String,
 			default: null,
 		},
 		blocked: {
 			type: Boolean,
 			default: false,
+		},
+		created: {
+			type: String,
+			default: null,
+		},
+		updated: {
+			type: String,
+			default: null,
+		},
+		filename: {
+			type: String,
+			default: null,
 		},
 		size: {
 			type: Object,
@@ -135,6 +147,14 @@ export default {
 			default: 'general',
 		},
 		privacy: String,
+		favorites: {
+			type: Number,
+			default: 0, // this value needs to be updated to null when api is updated
+		},
+		reposts: {
+			type: Number,
+			default: 0, // this value needs to be updated to null when api is updated
+		},
 	},
 	emits: [
 		'loaded',
@@ -169,6 +189,62 @@ export default {
 		{ return this.post !== null ? this.created !== this.updated : false; },
 	},
 	methods: {
+		nav() {
+			// this needs to match the fingerprint of the api:
+			/*{
+				"post_id": "string",
+				"title": "string",
+				"description": "string",
+				"user": {
+					"name": "string",
+					"handle": "string",
+					"privacy": "public",
+					"icon": "string",
+					"verified": "artist",
+					"following": true
+				},
+				"score": {
+					"up": 0,
+					"down": 0,
+					"total": 0,
+					"user_vote": 0
+				},
+				"rating": "general",
+				"parent": "string",
+				"privacy": "public",
+				"created": "2022-12-08T17:45:00.119Z",
+				"updated": "2022-12-08T17:45:00.119Z",
+				"filename": "string",
+				"media_type": {
+					"file_type": "string",
+					"mime_type": "string"
+				},
+				"size": {
+					"width": 0,
+					"height": 0
+				},
+				"blocked": true
+			}*/
+			this.$store.state.postCache = {
+				post_id: this.postId,
+				title: this.title,
+				description: this.description,
+				user: this.user,
+				score: this.score,
+				rating: this.rating,
+				parent: this.parent,
+				privacy: this.privacy,
+				created: this.created,
+				updated: this.updated,
+				filename: this.filename,
+				media_type: this.media_type,
+				size: this.size,
+				blocked: this.blocked,
+				favorites: this.favorites,
+				reposts: this.reposts,
+			};
+			this.$router.push('/p/' + this.postId);
+		},
 		onLoad() {
 			if (this.parentElement)
 			{

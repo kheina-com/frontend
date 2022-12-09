@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { khatch } from '@/utilities';
+import { khatch, saveToHistory } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -104,6 +104,12 @@ export default {
 			this.page = parseInt(this.$route.query?.page) || 1;
 			this.count = parseInt(this.$route.query?.count) || 64;
 
+			if (window.history.state.posts)
+			{
+				this.posts = window.history.state.posts;
+				return;
+			}
+
 			this.posts = null;
 
 			khatch(`${postsHost}/v1/timeline_posts`, {
@@ -116,8 +122,7 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						if (this.$store.state.scroll)
-						{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+						saveToHistory({ posts: r })
 						this.posts = r;
 					});
 				})

@@ -3,7 +3,7 @@
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self' v-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
-		<router-link :to='`/p/${postId}`' class='background-link' v-show='link'/>
+		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='link'/>
 		<div class='labels' v-show='!isLoading'>
 			<DropDown class='more-button' :options="[
 				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
@@ -160,15 +160,15 @@ export default {
 		user: Object,
 		score: Object,
 		title: {
-			type: String, 
+			type: String,
 			default: null,
 		},
 		description: {
-			type: String, 
+			type: String,
 			default: null,
 		},
 		privacy: {
-			type: String, 
+			type: String,
 			default: null,
 		},
 		tags: {
@@ -180,11 +180,15 @@ export default {
 			default: false,
 		},
 		created: {
-			type: String, 
+			type: String,
 			default: null,
 		},
 		updated: {
-			type: String, 
+			type: String,
+			default: null,
+		},
+		filename: {
+			type: String,
 			default: null,
 		},
 		size: {
@@ -251,6 +255,62 @@ export default {
 	},
 	methods: {
 		getMediaThumbnailUrl,
+		nav() {
+			// this needs to match the fingerprint of the api:
+			/*{
+				"post_id": "string",
+				"title": "string",
+				"description": "string",
+				"user": {
+					"name": "string",
+					"handle": "string",
+					"privacy": "public",
+					"icon": "string",
+					"verified": "artist",
+					"following": true
+				},
+				"score": {
+					"up": 0,
+					"down": 0,
+					"total": 0,
+					"user_vote": 0
+				},
+				"rating": "general",
+				"parent": "string",
+				"privacy": "public",
+				"created": "2022-12-08T17:45:00.119Z",
+				"updated": "2022-12-08T17:45:00.119Z",
+				"filename": "string",
+				"media_type": {
+					"file_type": "string",
+					"mime_type": "string"
+				},
+				"size": {
+					"width": 0,
+					"height": 0
+				},
+				"blocked": true
+			}*/
+			this.$store.state.postCache = {
+				post_id: this.postId,
+				title: this.title,
+				description: this.description,
+				user: this.user,
+				score: this.score,
+				rating: this.rating,
+				parent: this.parent,
+				privacy: this.privacy,
+				created: this.created,
+				updated: this.updated,
+				filename: this.filename,
+				media_type: this.media_type,
+				size: this.size,
+				blocked: this.blocked,
+				favorites: this.favorites,
+				reposts: this.reposts,
+			};
+			this.$router.push('/p/' + this.postId);
+		},
 		followUser() {
 			khatch(`${usersHost}/v1/${this.user.following ? 'unfollow_user' : 'follow_user'}`, {
 				method: 'POST',
@@ -312,7 +372,6 @@ export default {
 				.then(response => {
 					response.json()
 						.then(r => {
-							console.log(r);
 							this.replies?.unshift({
 								post_id: r.post_id,
 								user: this.$store.state.user,

@@ -113,7 +113,7 @@
 
 <script>
 import { ref } from 'vue';
-import { khatch, setTitle } from '@/utilities';
+import { khatch, saveToHistory, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost, usersHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
@@ -230,6 +230,12 @@ export default {
 			this.count = parseInt(this.$route.query?.count) || 64;
 			this.sort = this.$route.query?.sort || 'hot';
 
+			if (window.history.state.posts)
+			{
+				this.posts = window.history.state.posts;
+				return;
+			}
+
 			this.posts = null;
 
 			khatch(`${postsHost}/v1/fetch_posts`, {
@@ -245,8 +251,7 @@ export default {
 					response.json().then(r => {
 						if (response.status < 300)
 						{
-							if (this.$store.state.scroll)
-							{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+							saveToHistory({ posts: r })
 							this.posts = r;
 						}
 						else if (response.status === 400)

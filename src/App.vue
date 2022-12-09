@@ -88,7 +88,7 @@ export default {
 		this.onResize();
 		document.getElementById('animated-accents').checked = this.$store.state.animatedAccents;
 
-		// TODO: we use this to change the behavior of certain functions during startup. don't remove it.
+		// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
 		this.$store.state.init = false;
 	},
 	computed: {

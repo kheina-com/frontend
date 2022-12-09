@@ -32,6 +32,7 @@ export default createStore({
 		error: null,
 		maxRating: 'general',
 		notifications: 0,
+		postCache: null,
 	},
 	mutations: {
 		createToast,

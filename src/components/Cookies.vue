@@ -1,6 +1,9 @@
 <template>
 	<div class='cookies' v-show='!cookiesAllowed'>
-		<span>This website uses cookies.</span>
+		<div>
+			<p>This website uses cookies.</p>
+			<p><a href='https://en.wikipedia.org/wiki/HTTP_cookie'>what are cookies?</a></p>
+		</div>
 		<button id='cookies' class='interactable' @click='cookiesAllowed=true'>coolio</button>
 	</div>
 </template>
@@ -24,8 +27,7 @@ export default {
 </script>
 
 <style scoped>
-.cookies
-{
+.cookies {
 	position: fixed;
 	left: 25px;
 	bottom: 25px;
@@ -35,10 +37,14 @@ export default {
 	padding: 25px;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	z-index: 1;
+	display: flex;
 }
-.cookies .interactable
-{
+.interactable {
 	margin: 0 0 0 25px;
 	display: inline-block;
+}
+.cookies a:link, .cookies a:visited {
+	font-size: 0.8em;
+	color: var(--subtle);
 }
 </style>

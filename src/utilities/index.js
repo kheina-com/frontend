@@ -104,8 +104,7 @@ export function tagSplit(tags)
 }
 
 import { tagGroups } from '@/config/constants'
-export function sortTagGroups(tags)
-{
+export function sortTagGroups(tags) {
 	let sorted = { };
 	tagGroups.forEach(i => {
 		if (tags.hasOwnProperty(i))
@@ -114,16 +113,18 @@ export function sortTagGroups(tags)
 	return sorted;
 }
 
-export function createToast(options)
-{
+export function createToast(options) {
 	store.commit('createToast', options);
 }
 
-export function guid()
-{
+export function guid() {
 	return btoa(String.fromCharCode.apply(null,
 		uuid4().replace(/\r|\n|-/g, '').replace(/([\da-fA-F]{2}) ?/g, '0x$1 ').replace(/ +$/, '').split(' '))
 	).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+export function saveToHistory(data) {
+	history.replaceState(Object.assign(window.history.state, data), '');
 }
 
 export async function khatch(url, options={ })
@@ -160,7 +161,7 @@ export async function khatch(url, options={ })
 	{ options.method = 'POST'; }
 
 	let attempt = 1;
-	let response;
+	let response = null;
 	let error = null;
 
 	while (attempt <= attempts)
@@ -181,50 +182,53 @@ export async function khatch(url, options={ })
 		attempt++;
 	}
 
+	if (error)
+	{
+		if (handleError)
+		{
+			if (error)
+			{
+				console.log(JSON.stringify(options));
+				console.error(error);
+				store.commit('createToast', {
+					title: apiErrorMessageToast,
+					description: error,
+				});
+			}
+			else if (errorHandlers.hasOwnProperty(response.status))
+			{
+				if (errorHandlers[response.status])
+				{ errorHandlers[response.status](response); }
+			}
+			else if (response.status < 400)
+			{ return response; }
+			else if (response.status < 500)
+			{
+				store.commit('createToast', {
+					title: errorMessage,
+					description: (await response.json()).error,
+				});
+			}
+			else
+			{
+				store.commit('createToast', {
+					title: errorMessage,
+					description: apiErrorDescriptionToast,
+					dump: await response.json(),
+				});
+			}
+
+			throw Error('Request Failed (handled).');
+		}
+		else
+		{ throw error; }
+	}
+
 	if (response.status < 400)
 	{ return response; }
 
 	if (response.status === 401)
 	{ store.commit('setAuth', null); }
-
-	if (handleError)
-	{
-		if (error)
-		{
-			console.error(error);
-			store.commit('createToast', {
-				title: apiErrorMessageToast,
-				description: error,
-			});
-		}
-		else if (errorHandlers.hasOwnProperty(response.status))
-		{
-			if (errorHandlers[response.status])
-			{ errorHandlers[response.status](response); }
-		}
-		else if (response.status < 400)
-		{ return response; }
-		else if (response.status < 500)
-		{
-			store.commit('createToast', {
-				title: errorMessage,
-				description: (await response.json()).error,
-			});
-		}
-		else
-		{
-			store.commit('createToast', {
-				title: errorMessage,
-				description: apiErrorDescriptionToast,
-				dump: await response.json(),
-			});
-		}
-
-		throw Error('Request Failed (handled).');
-	}
-
-	if (error)
-	{ throw error; }
 
 	return response;
 }

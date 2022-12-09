@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { khatch, tagSplit } from '@/utilities';
+import { khatch, saveToHistory, tagSplit } from '@/utilities';
 import { apiErrorMessage, postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -142,12 +142,19 @@ export default {
 			}
 		},
 		fetchPosts() {
-			if (this.posts === null)
+			if (this.posts === null || !routes.has(this.$route.name))
 			{ return; }
 
 			this.page = parseInt(this.$route.query?.page) || 1;
 			this.count = parseInt(this.$route.query?.count) || 64;
 			this.sort = this.$route.query?.sort || 'hot';
+
+			console.log(window.history.state)
+			if (window.history.state.posts)
+			{
+				this.posts = window.history.state.posts;
+				return;
+			}
 
 			this.posts = null;
 
@@ -164,8 +171,7 @@ export default {
 					response.json().then(r => {
 						if (response.status < 300)
 						{
-							if (this.$store.state.scroll)
-							{ setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+							saveToHistory({ posts: r })
 							this.posts = r;
 						}
 						else if (response.status === 400)

@@ -172,7 +172,7 @@
 								name='search-results-tiles'
 								class='checkbox'
 								v-model:checked='tiles'
-								nested
+								:nested='!isMobile'
 							>Tiles</CheckBox>
 						</div>
 					</div>
@@ -257,7 +257,7 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, isMobile, khatch, setTitle, tagSplit } from '@/utilities';
+import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, isMobile, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tabs, tagsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -357,14 +357,23 @@ export default {
 		else
 		{ this.$router.replace(this.$route.path + '?tab=posts'); }
 
-		khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
+		if (window.history.state.user)
+		{
+			this.user = window.history.state.user;
+			return;
+		}
+		else
+		{
+			khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
 			.then(response => {
 				response.json().then(r => {
 					if (response.status < 300)
 					{
 						this.user = r;
 						setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) | kheina.com` : `@${this.user?.handle} | kheina.com`);
-						this.$router.replace(this.$route.fullPath.replace(this.handle, this.user?.handle));
+						const route = this.$route.fullPath.replace(this.handle, this.user?.handle);
+						saveToHistory({ user: r })
+						this.$router.replace(route);
 					}
 					else if (response.status < 500)
 					{ this.$store.commit('error', r.error); }
@@ -376,6 +385,7 @@ export default {
 				this.$store.commit('error', apiErrorMessage, error);
 				console.error(error);
 			});
+		}
 	},
 	mounted() {
 		if (this.$route.query?.edit)
@@ -474,6 +484,12 @@ export default {
 					this.page = parseInt(this.$route.query?.page) || 1;
 					this.count = parseInt(this.$route.query?.count) || 64;
 
+					if (window.history.state.posts)
+					{
+						this.posts = window.history.state.posts;
+						return;
+					}
+
 					this.posts = null;
 
 					khatch(`${postsHost}/v1/fetch_posts`, {
@@ -488,8 +504,7 @@ export default {
 						})
 						.then(response => {
 							response.json().then(r => {
-								// if (this.$store.state.scroll)
-								// { setTimeout(() => { window.scrollTo(0, this.$store.state.scroll); this.$store.state.scroll = null; }, 0); }
+							saveToHistory({ posts: r })
 								this.posts = r;
 							});
 						})
@@ -522,6 +537,15 @@ export default {
 					break;
 
 				case 'uploads' :
+					this.page = parseInt(this.$route.query?.page) || 1;
+					this.count = parseInt(this.$route.query?.count) || 64;
+
+					if (window.history.state.uploads)
+					{
+						this.posts = window.history.state.uploads;
+						return;
+					}
+
 					this.posts = null;
 
 					khatch(`${postsHost}/v1/fetch_my_posts`, {
@@ -533,7 +557,10 @@ export default {
 						.then(response => {
 							response.json().then(r => {
 								if (response.status < 300)
-								{ this.posts = r; }
+								{
+									saveToHistory({ uploads: r })
+									this.posts = r;
+								}
 								else if (response.status < 500)
 								{
 									this.$store.commit('createToast', {
