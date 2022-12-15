@@ -20,6 +20,16 @@ import Banner from '@/components/Banner.vue';
 import Toast from '@/components/Toast.vue';
 import Error from '@/components/Error.vue';
 
+import light32 from '$/favicon/light/32.png';
+import light64 from '$/favicon/light/64.png';
+import light128 from '$/favicon/light/128.png';
+import light256 from '$/favicon/light/256.png';
+
+import dark32 from '$/favicon/dark/32.png';
+import dark64 from '$/favicon/dark/64.png';
+import dark128 from '$/favicon/dark/128.png';
+import dark256 from '$/favicon/dark/256.png';
+
 
 export default {
 	name: 'App',
@@ -59,17 +69,17 @@ export default {
 		const favicons = { };
 		if (isDarkMode())
 		{
-			favicons[32] = (await import('$/favicon/dark/32.png?url')).default;
-			favicons[64] = (await import('$/favicon/dark/64.png?url')).default;
-			favicons[128] = (await import('$/favicon/dark/128.png?url')).default;
-			favicons[256] = (await import('$/favicon/dark/256.png?url')).default;
+			favicons[32] = dark32;
+			favicons[64] = dark64;
+			favicons[128] = dark128;
+			favicons[256] = dark256;
 		}
 		else
 		{
-			favicons[32] = (await import('$/favicon/light/32.png?url')).default;
-			favicons[64] = (await import('$/favicon/light/64.png?url')).default;
-			favicons[128] = (await import('$/favicon/light/128.png?url')).default;
-			favicons[256] = (await import('$/favicon/light/256.png?url')).default;
+			favicons[32] = light32;
+			favicons[64] = light64;
+			favicons[128] = light128;
+			favicons[256] = light256;
 		}
 
 		Object.entries(favicons).forEach(([key, value]) => {

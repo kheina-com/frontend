@@ -172,7 +172,7 @@ export default {
 					response.json().then(r => {
 						// if (this.$route.hash)
 						// {}
-						console.log(this.$route)
+						// console.log(this.$route)
 						saveToHistory({ posts: r })
 						this.posts = r;
 					});

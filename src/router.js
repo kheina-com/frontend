@@ -32,11 +32,11 @@ const routes = [
 		name: 'home',
 		component: Search,
 		meta: {
-			title: 'fuzz.ly',
+			title: 'Building a new home for all things fluff, scaled, and feathered! | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'fuzz.ly',
+					content: 'Building a new home for all things fluff, scaled, and feathered! | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
