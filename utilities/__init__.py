@@ -8,7 +8,7 @@ header_card_large = '<meta property="twitter:site" content="@kheinacom"><meta pr
 header_card_summary = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary">'
 header_site_name = '<meta property="og:site_name" content="fuzz.ly">'
 
-default_image = header_image.format('/assets/favicon/splash.png')
+default_image = header_image.format('https://cdn.fuzz.ly/favicon.png')
 
 api_timeout = 5
 

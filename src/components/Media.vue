@@ -83,6 +83,7 @@ export default {
 		},
 	},
 	mounted() {
+		this.$refs.media.addEventListener('fetch', e => console.log(e));
 		this.load();
 	},
 	methods: {

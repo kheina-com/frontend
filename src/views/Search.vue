@@ -149,7 +149,7 @@ export default {
 			this.count = parseInt(this.$route.query?.count) || 64;
 			this.sort = this.$route.query?.sort || 'hot';
 
-			console.log(window.history.state)
+			// console.log(window.history.state)
 			if (window.history.state.posts)
 			{
 				this.posts = window.history.state.posts;
