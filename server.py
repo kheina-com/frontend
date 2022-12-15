@@ -24,7 +24,25 @@ pixel = Response(
 	},
 )
 
-app = ServerApp(auth=False)
+app = ServerApp(
+	auth = False,
+	allowed_hosts = [
+		'localhost',
+		'127.0.0.1',
+		'*.kheina.com',
+		'kheina.com',
+		'*.fuzz.ly',
+		'fuzz.ly',
+	],
+	allowed_origins = [
+		'localhost',
+		'127.0.0.1',
+		'dev.kheina.com',
+		'kheina.com',
+		'dev.fuzz.ly',
+		'fuzz.ly',
+	],
+)
 
 logger = getLogger()
 
