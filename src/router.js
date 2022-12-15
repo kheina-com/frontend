@@ -32,11 +32,11 @@ const routes = [
 		name: 'home',
 		component: Search,
 		meta: {
-			title: 'kheina.com',
+			title: 'fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'kheina.com',
+					content: 'fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -50,7 +50,7 @@ const routes = [
 		name: 'image-search',
 		component: ImageSearch,
 		meta: {
-			title: 'kheina.com - the world\'s largest furry image index',
+			title: 'fuzz.ly - the world\'s largest furry image index',
 			metaTags: [
 				{
 					name: 'description',
@@ -59,7 +59,7 @@ const routes = [
 				},
 				{
 					property: 'og:title',
-					content: 'kheina.com - the world\'s largest furry image index',
+					content: 'fuzz.ly - the world\'s largest furry image index',
 				},
 				{
 					name: 'theme-color',
@@ -73,16 +73,16 @@ const routes = [
 		name: 'timeline',
 		component: Timeline,
 		meta: {
-			title: 'Timeline | kheina.com',
+			title: 'Timeline | fuzz.ly',
 			metaTags: [
 				{
 					name: 'description',
 					property: 'og:description',
-					content: 'See the latest posts from everyone you\'re following | kheina.com',
+					content: 'See the latest posts from everyone you\'re following | fuzz.ly',
 				},
 				{
 					property: 'og:title',
-					content: 'Timeline | kheina.com',
+					content: 'Timeline | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -96,11 +96,11 @@ const routes = [
 		name: 'account',
 		component: Account,
 		meta: {
-			title: 'Manage your kheina.com account',
+			title: 'Manage your fuzz.ly account',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Manage your kheina.com account',
+					content: 'Manage your fuzz.ly account',
 				},
 				{
 					name: 'theme-color',
@@ -114,11 +114,11 @@ const routes = [
 		name: 'login',
 		component: Login,
 		meta: {
-			title: 'Sign in to kheina.com',
+			title: 'Sign in to fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Sign in to kheina.com',
+					content: 'Sign in to fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -132,11 +132,11 @@ const routes = [
 		name: 'create',
 		component: CreateAccount,
 		meta: {
-			title: 'Create an account on kheina.com',
+			title: 'Create an account on fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Create an account on kheina.com',
+					content: 'Create an account on fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -150,11 +150,11 @@ const routes = [
 		name: 'finalize',
 		component: FinalizeAccount,
 		meta: {
-			title: 'Finish creating your kheina.com account',
+			title: 'Finish creating your fuzz.ly account',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Finish creating your kheina.com account',
+					content: 'Finish creating your fuzz.ly account',
 				},
 				{
 					name: 'theme-color',
@@ -168,11 +168,11 @@ const routes = [
 		name: 'notifications',
 		component: Notifications,
 		meta: {
-			title: 'Notifications | kheina.com',
+			title: 'Notifications | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Notifications | kheina.com',
+					content: 'Notifications | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -208,13 +208,13 @@ const routes = [
 		props: true,
 		component: Search,
 		meta: {
-			title: (to) => `Search results for ${to.params.query} | kheina.com`,
+			title: (to) => `Search results for ${to.params.query} | fuzz.ly`,
 			metaTags: [
 				(to) => {
 					return {
 						name: 'description',
 						property: 'og:description',
-						content: `Search results for ${to.params.query} | kheina.com`,
+						content: `Search results for ${to.params.query} | fuzz.ly`,
 					};
 				},
 				{
@@ -230,7 +230,7 @@ const routes = [
 		props: true,
 		component: Tag,
 		meta: {
-			title: (to) => `${to.params.tag}, tag | kheina.com`,
+			title: (to) => `${to.params.tag}, tag | fuzz.ly`,
 			metaTags: [
 				(to) => {
 					return {
@@ -251,12 +251,12 @@ const routes = [
 		name: 'tags',
 		component: Tags,
 		meta: {
-			title: 'Tags | kheina.com',
+			title: 'Tags | fuzz.ly',
 			metaTags: [
 				{
 					name: 'description',
 					property: 'og:description',
-					content: 'Tags | kheina.com',
+					content: 'Tags | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -270,11 +270,11 @@ const routes = [
 		name: 'upload',
 		component: Upload,
 		meta: {
-			title: 'Create new post | kheina.com',
+			title: 'Create new post | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Create new post | kheina.com',
+					content: 'Create new post | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -288,11 +288,11 @@ const routes = [
 		name: 'markdown',
 		component: MarkdownGuide,
 		meta: {
-			title: 'Markdown Guide | kheina.com',
+			title: 'Markdown Guide | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Markdown Guide | kheina.com',
+					content: 'Markdown Guide | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -306,11 +306,11 @@ const routes = [
 		name: 'search-help',
 		component: SearchHelp,
 		meta: {
-			title: 'Search Help | kheina.com',
+			title: 'Search Help | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Search Help | kheina.com',
+					content: 'Search Help | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -324,11 +324,11 @@ const routes = [
 		name: 'report',
 		component: Report,
 		meta: {
-			title: 'Report Content | kheina.com',
+			title: 'Report Content | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Report Content | kheina.com',
+					content: 'Report Content | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -342,11 +342,11 @@ const routes = [
 		name: 'users',
 		component: Users,
 		meta: {
-			title: 'all users | kheina.com',
+			title: 'all users | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'all users | kheina.com',
+					content: 'all users | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -371,11 +371,11 @@ const routes = [
 		props: true,
 		component: Privacy,
 		meta: {
-			title: 'Privacy Policy | kheina.com',
+			title: 'Privacy Policy | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Privacy Policy | kheina.com',
+					content: 'Privacy Policy | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -390,11 +390,11 @@ const routes = [
 		props: true,
 		component: Content,
 		meta: {
-			title: 'Content Policy | kheina.com',
+			title: 'Content Policy | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Content Policy | kheina.com',
+					content: 'Content Policy | fuzz.ly',
 				},
 				{
 					name: 'theme-color',
@@ -409,11 +409,11 @@ const routes = [
 		props: true,
 		component: BugReport,
 		meta: {
-			title: 'Report a Bug | kheina.com',
+			title: 'Report a Bug | fuzz.ly',
 			metaTags: [
 				{
 					property: 'og:title',
-					content: 'Report a Bug | kheina.com',
+					content: 'Report a Bug | fuzz.ly',
 				},
 				{
 					name: 'theme-color',

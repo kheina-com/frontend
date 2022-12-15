@@ -29,14 +29,14 @@ async def userMetaTags(match) :
 			raise
 
 	if user.name :
-		title = f'{escape(demarkdown(user.name))} (@{user.handle}) | kheina.com'
+		title = f'{escape(demarkdown(user.name))} (@{user.handle}) | fuzz.ly'
 
 	else :
-		title = f'@{user.handle} | kheina.com'
+		title = f'@{user.handle} | fuzz.ly'
 
 	return ''.join([
 		header_title.format(escape(title)),
-		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{user.icon}/icons/{user.handle.lower()}.jpg') if user.icon else default_image,
+		header_image.format(f'https://cdn.fuzz.ly/{user.icon}/icons/{user.handle.lower()}.jpg') if user.icon else default_image,
 		header_description.format(escape(concise(user.description))) if user.description and user.description.strip() else '',
 		header_card_summary,
 	])

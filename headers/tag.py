@@ -52,7 +52,7 @@ async def tagMetaTags(match) :
 
 	return ''.join([
 		header_title.format(f'{tag.tag}, {tag.group.name} tag'),
-		header_image.format(f'https://cdn.kheina.com/file/kheina-content/{tag.owner.icon}/icons/{tag.owner.handle}.jpg') if tag.owner and tag.owner.icon else default_image,
+		header_image.format(f'https://cdn.fuzz.ly/{tag.owner.icon}/icons/{tag.owner.handle}.jpg') if tag.owner and tag.owner.icon else default_image,
 		header_description.format(escape(concise(tag.description))) if tag.description else '',
 		header_card_summary,
 	])

@@ -79,13 +79,13 @@ async def postMetaTags(match) :
 
 	if post.media_type :
 		headers += [
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{post_id}/thumbnails/1200.jpg'),
+			header_image.format(f'https://cdn.fuzz.ly/{post_id}/thumbnails/1200.jpg'),
 			header_card_large,
 		]
 
 	elif post.user.icon :
 		headers += [
-			header_image.format(f'https://cdn.kheina.com/file/kheina-content/{post.user.icon}/icons/{post.user.handle}.jpg'),
+			header_image.format(f'https://cdn.fuzz.ly/{post.user.icon}/icons/{post.user.handle}.jpg'),
 			header_card_summary,
 		]
 
