@@ -12,7 +12,7 @@ home_regex = re_compile(r'^\/?$')
 @SimpleCache(float('inf'))
 def homeMetaTags(match = None) :
 	return ''.join([
-		header_title.format('kheina.com'),
+		header_title.format('fuzz.ly'),
 		default_image,
 		header_description.format(escape('Building a new home for all things fluff, scaled, and feathered!')),
 		header_card_summary,

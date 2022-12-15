@@ -73,7 +73,8 @@ export default {
 			this.isLoading = false;
 			this.onLoad(event);
 		},
-		onError() {
+		onError(event) {
+			// console.log(event);
 			if (this.post && this.webp)
 			{
 				this.webp = false;

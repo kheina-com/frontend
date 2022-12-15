@@ -90,4 +90,7 @@ label i {
 input {
 	display: none;
 }
+.loading * {
+	pointer-events: none;
+}
 </style>

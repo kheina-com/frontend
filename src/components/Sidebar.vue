@@ -26,11 +26,7 @@
 			<br>
 			file type: {{post.media_type ? post.media_type.file_type : 'none'}}
 			<br>
-			filename: {{post.filename || 'none'}}
-			<br>
 			description: {{post.description ? `${post.description.length} chars` : 'none'}}
-			<br>
-			views: {{post.views ? commafy(post.views) : 'some'}}
 		</div>
 	</div>
 </template>

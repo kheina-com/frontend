@@ -164,6 +164,10 @@ input:checked + label div.checkmark div, label.checked div.checkmark div {
 	transform: rotate(45deg);
 }
 
+.loading * {
+	pointer-events: none;
+}
+
 /* THEME OVERRIDES */
 html.light .checkmark, html.midnight .checkmark, html.terminal .checkmark, html.wikipedia .checkmark, html.high-contrast-dark .checkmark {
 	border: solid var(--border-size) var(--bordercolor);

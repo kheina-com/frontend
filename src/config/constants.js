@@ -8,10 +8,12 @@ let env = null;
 switch (window.location.hostname.toLowerCase())
 {
 	case 'kheina.com' :
+	case 'fuzz.ly' :
 		env = 'prod';
 		break;
 
 	case 'dev.kheina.com' :
+	case 'dev.fuzz.ly' :
 		env = 'dev';
 		break;
 
@@ -71,7 +73,7 @@ export const uploadHost = uHost;
 export const configHost = cHost;
 export const usersHost = usrHost;
 
-export const cdnHost = 'https://cdn.kheina.com/file/kheina-content'
+export const cdnHost = 'https://cdn.fuzz.ly'
 
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
 
@@ -98,10 +100,10 @@ export const ratingMap = {
 
 export const mdGuide = `
 # Markdown Guide
-There are many fantastic guides available for markdown! kheina.com recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!
-In addition to all the base markdown features, kheina.com has many [extra features](#additional-features) to make linking to other parts of the website faster and easier.
+There are many fantastic guides available for markdown! fuzz.ly recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!
+In addition to all the base markdown features, fuzz.ly has many [extra features](#additional-features) to make linking to other parts of the website faster and easier.
 
-If you want to deep dive into kheina.com's implementation of markdown, you can see github's full spec for [github flavored markdown](https://github.github.com/gfm/).
+If you want to deep dive into fuzz.ly's implementation of markdown, you can see github's full spec for [github flavored markdown](https://github.github.com/gfm/).
 However, this does not include the [additional features](#additional-features) below.
 
 
@@ -205,13 +207,13 @@ These are features unique to kheina.com's implementation of markdown.
 
 ## User Linking
 to link to a user, you can simply precede the user's handle with an \`@\` character: @dani
-this is pretty common on other websites, however kheina.com also supports linking to external websites with this syntax.
+this is pretty common on other websites, however fuzz.ly also supports linking to external websites with this syntax.
 for example, twitter can be linked to like so: t@Twitter. there are many websites with similar syntax. the complete list is below.
 
 |       Example       |     Rendered      |       Website       |                Formatted                 |
 |:-------------------:|:-----------------:|:-------------------:|:----------------------------------------:|
-|   \`@kheina\`         |      @kheina      |      kheina.com     | https://kheina.com/kheina                |
-| \`${iconShortcode}@kheina\` | ${iconShortcode}@kheina | kheina.com | https://kheina.com/kheina             |
+|   \`@kheina\`         |      @kheina      |       fuzz.ly       | https://fuzz.ly/kheina                   |
+| \`${iconShortcode}@kheina\` | ${iconShortcode}@kheina | fuzz.ly | https://fuzz.ly/kheina                   |
 | \`t@username\`        |    t@username     |     twitter.com     | https://twitter.com/username             |
 | \`f@username\`        |    f@username     |     facebook.com    | https://facebook.com/username            |
 | \`ig@theounderstars\` | ig@theounderstars |    instagram.com    | https://www.instagram.com/theounderstars |

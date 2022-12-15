@@ -99,10 +99,10 @@ export default {
 	created() {
 		this.fetchPosts();
 
-		this.$watch(
-			() => this.$route.hash,
-			hash => history.replaceState(null, '', this.$route.path.replace('#', '')),
-		);
+		// this.$watch(
+		// 	() => this.$route.hash,
+		// 	hash => history.replaceState(window.history.state, '', this.$route.path.replace('#', '')),
+		// );
 
 		this.$watch(
 			() => this.$route.query,
@@ -166,28 +166,18 @@ export default {
 						page: this.page,
 						count: this.count,
 					},
+					handleError: true,
 				})
 				.then(response => {
 					response.json().then(r => {
-						if (response.status < 300)
-						{
-							saveToHistory({ posts: r })
-							this.posts = r;
-						}
-						else if (response.status === 400)
-						{ this.$store.commit('error', r.error); }
-						else if (response.status === 401)
-						{ this.$store.commit('error', r.error); }
-						else if (response.status === 404)
-						{ this.$store.commit('error', r.error); }
-						else
-						{ this.$store.commit('error', apiErrorMessage, r); }
+						// if (this.$route.hash)
+						// {}
+						console.log(this.$route)
+						saveToHistory({ posts: r })
+						this.posts = r;
 					});
 				})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
+				.catch(() => { });
 		},
 		pageLink(page) {
 			let url = this.query ? `/q/${this.query}` : '/';

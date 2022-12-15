@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<main>
 		<Title static='center'>New Post</Title>
-		<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `kheina.com/p/${postId}` : `dev.kheina.com/p/${postId}`}}</router-link></Loading></Subtitle>
+		<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
 		<div class='form'>
 			<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadUnavailable'>
 				<div class='field'>
@@ -164,7 +164,7 @@
 					extend the auction by <input class='interactable text' placeholder='Leave empty for 60' v-model='update.title'> minutes.
 					</div>
 				</div>
-				<b style='text-align: center; display: block'>Note: kheina.com will not charge your clients for you. You must invoice your clients yourself or use a third party payment processor.</b>
+				<b style='text-align: center; display: block'>Note: fuzz.ly will not charge your clients for you. You must invoice your clients yourself or use a third party payment processor.</b>
 			</div>
 			<div class='field popup-info' v-if='update.flags?.emoji'>
 				<div>
@@ -340,7 +340,7 @@ export default {
 					description: 'If you submit a bug report, please include the data below.',
 					dump: event?.target?.responseText ?? event,
 				});
-				console.error('error:', error);
+				console.error('error:', event);
 			};
 
 			const ajax = new XMLHttpRequest();
@@ -588,6 +588,9 @@ main {
 .form .multi-field :last-child, .form .multi-field span {
 	margin: 0;
 	left: 0;
+}
+.loading .field, .loading .field * {
+	pointer-events: none;
 }
 .underline {
 	border-bottom: var(--border-size) solid var(--bordercolor);

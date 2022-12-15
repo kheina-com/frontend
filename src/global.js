@@ -1,6 +1,6 @@
 import { createStore } from 'vuex';
 import { authCookie, khatch, setCookie } from '@/utilities';
-import { ratingMap, usersHost } from '@/config/constants';
+import { environment, ratingMap, usersHost } from '@/config/constants';
 
 
 let toastCounter = 0;
@@ -97,7 +97,10 @@ export default createStore({
 				}
 				else
 				{
-					setCookie('kh-auth', auth.token, auth.expires - new Date().valueOf() / 1000);
+					const maxage = auth.expires - new Date().valueOf() / 1000;
+					setCookie('kh-auth', auth.token, maxage);
+					// specifically open this cookie to subdomains so that cdn works
+					document.cookie = `kh-auth=auth.token; max-age=${maxage}; samesite=strict; domain=.fuzz.ly path=/; ${environment !== 'local' ? 'secure' : ''}`;
 					state.auth = authCookie();
 					khatch(
 						`${usersHost}/v1/fetch_self`,

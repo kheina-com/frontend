@@ -10,6 +10,7 @@ from kh_common.server import Request, Response, ServerApp
 
 from headers.home import homeMetaTags
 from headers.post import post_regex, postMetaTags
+from headers.static import Headers
 from headers.tag import tag_regex, tagMetaTags
 from headers.user import user_regex, userMetaTags
 
@@ -64,18 +65,15 @@ async def all_routes(uri: str, force_norich: Optional[str] = None) :
 	local_uri = 'dist/' + uri.strip('\./')
 
 	if path.isfile(local_uri) :
-		return FileResponse(local_uri)
+		return FileResponse(local_uri, headers=Headers)
 
 	if force_norich :
-		return HTMLResponse(vueIndex())
+		return HTMLResponse(vueIndex(), headers=Headers)
 
 	metaTags = ensure_future(matchMetaTags(uri))
-	html = vueIndex()
 	metaTags = (await metaTags) or homeMetaTags()
 
-	html = html.replace('<head>', '<head>' + metaTags)
-
-	return HTMLResponse(html)
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + metaTags), headers=Headers)
 
 
 if __name__ == '__main__' :

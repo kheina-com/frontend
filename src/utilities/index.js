@@ -124,6 +124,8 @@ export function guid() {
 }
 
 export function saveToHistory(data) {
+	if (!window.history.state)
+	{ return; }
 	history.replaceState(Object.assign(window.history.state, data), '');
 }
 
@@ -134,7 +136,7 @@ export async function khatch(url, options={ })
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
 	const errorHandlers = options?.errorHandlers || { };
 
-	if (url.match(/https:\/\/(?:\w+\.)?kheina.com\/|http:\/\/localhost/))
+	if (url.match(/^(?:https:\/\/(?:\w+\.)?kheina.com\/|http:\/\/localhost(?:\:\d{2,4})?\/|https:\/\/(?:\w+\.)?fuzz.ly\/)/))
 	{
 		const headers = options?.headers || { };
 		const auth = store.state.auth?.token;

@@ -694,7 +694,7 @@ html.xfire div.loadingicon img
 { filter: sepia(100%) saturate(2000%) hue-rotate(201deg) brightness(83%) }
 
 html.xfire main {
-	background-image: linear-gradient(#8BA0E3 0, #2D6191 2px, #2D6191 4px, #00022C 5px, #0000 5px), linear-gradient(#0000 calc(100% - 5px), #8BA0E3 calc(100% - 5px), #2D6191 calc(100% - 3px), #2D6191 calc(100% - 1px), #00022C 100%), linear-gradient(#0000 0, #12283F 12.5em), url(https://cdn.kheina.com/file/kheinacom/bc83a6cc07e0c47c9b7d226ef47f556b4aeddfcf.png), linear-gradient(#030316 0, #030316 100%);
+	background-image: linear-gradient(#8BA0E3 0, #2D6191 2px, #2D6191 4px, #00022C 5px, #0000 5px), linear-gradient(#0000 calc(100% - 5px), #8BA0E3 calc(100% - 5px), #2D6191 calc(100% - 3px), #2D6191 calc(100% - 1px), #00022C 100%), linear-gradient(#0000 0, #12283F 12.5em), url(https://cdn.fuzz.ly/bc83a6cc07e0c47c9b7d226ef47f556b4aeddfcf.png), linear-gradient(#030316 0, #030316 100%);
 	background-position: left top, left top, left top, left top, left bottom;
 }
 
