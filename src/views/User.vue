@@ -360,7 +360,7 @@ export default {
 		if (window.history.state.user)
 		{
 			this.user = window.history.state.user;
-			setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) | fuzz.ly` : `@${this.user?.handle} | fuzz.ly`);
+			setTitle(this.user?.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
 			return;
 		}
 		else
@@ -371,7 +371,7 @@ export default {
 					if (response.status < 300)
 					{
 						this.user = r;
-						setTitle(this.user?.name ? `${demarkdown(this.user?.name)} (@${this.user?.handle}) | fuzz.ly` : `@${this.user?.handle} | fuzz.ly`);
+						setTitle(this.user.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
 						const route = this.$route.fullPath.replace(this.handle, this.user?.handle);
 						saveToHistory({ user: r })
 						this.$router.replace(route);

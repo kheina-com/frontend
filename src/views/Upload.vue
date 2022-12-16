@@ -76,6 +76,7 @@
 				<div>
 					<span>Privacy</span>
 					<RadioButtons
+						class='radio-buttons'
 						name='privacy'
 						v-model:value='update.privacy'
 						:data="[
@@ -96,6 +97,7 @@
 				<div>
 					<span>Rating</span>
 					<RadioButtons
+						class='radio-buttons'
 						name='rating'
 						v-model:value='update.rating'
 						:data="[
@@ -701,6 +703,10 @@ li {
 
 .checkboxes > div {
 	margin-right: 25px;
+}
+
+.radio-buttons {
+	flex-flow: nowrap;
 }
 
 .checkboxes > :last-child {
