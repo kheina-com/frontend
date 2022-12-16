@@ -2,6 +2,7 @@
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<main>
 		<Title>Report Content</Title>
+		<Post :postId='post?.post_id' :nested='true' v-bind='post' labels class='post' v-if='post'/>
 		<div class='container'>
 			<span>Select a report type below or enter your own</span>
 		</div>
@@ -22,13 +23,20 @@
 				]"
 			/>
 		</div>
+		<div class='container' v-show='reportType === "copyright"'>
+			<span>For legal reasons, additional fields will need to be added for DMCA</span>
+			<textarea class='interactable text'></textarea>
+		</div>
 		<div class='container'>
 			<span>Data included in this report</span>
-			<pre>{{JSON.stringify($route.query, null, 4)}}</pre>
-			<span>Please describe the reason for your report below, please add all relevant details</span>
-			<textarea class='interactable text'></textarea>
+			<pre>{{JSON.stringify(data, null, 4)}}</pre>
+		</div>
+		<div class='container'>
+			<span>Please describe the reason for your report below, including any offending usernames and post ids</span>
+			<router-link class='md-link' to='/md'>markdown guide</router-link>
+			<MarkdownEditor v-model:value='message'/>
 			<div class='buttons'>
-				<Button>Submit</Button>
+				<button class='interactable' @click='sendReport'>Submit »</button>
 			</div>
 		</div>
 		<ThemeMenu/>
@@ -36,10 +44,15 @@
 </template>
 
 <script>
+import { createToast, khatch } from '@/utilities';
+import { postsHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
 import Button from '@/components/Button.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
+import Post from '@/components/Post.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
+
 
 export default {
 	name: 'Report',
@@ -48,11 +61,46 @@ export default {
 		Title,
 		Button,
 		RadioButtons,
+		Post,
+		MarkdownEditor,
 	},
 	data() {
 		return {
+			data: this.$route.query,
 			reportType: null,
+			post: null,
+			message: null,
 		};
+	},
+	created() {
+		if (this.$route.query?.post)
+		{
+			this.post = this.$route.query?.post;
+			khatch(
+				`${postsHost}/v1/post/${this.post}`,
+				{ handleError: true },
+			).then(response => {
+				response.json().then(r => {
+					r.favorites = 0;
+					r.reposts = 0;
+					this.post = r;
+				});
+			})
+			.catch(() => { });
+		}
+	},
+	methods: {
+		sendReport() {
+			createToast({
+				title: "This feature doesn't exist yet, sorry!",
+				description: "yes, I know this is a very important feature. it's currently being worked on",
+				dump: {
+					...this.data,
+					report_type: this.reportType,
+					message: this.message,
+				},
+			});
+		},
 	},
 }
 </script>
@@ -64,9 +112,10 @@ main {
 	padding: 25px;
 }
 .container {
+	position: relative;
 	width: 50vw;
 	min-width: 600px;
-	margin: 0 auto;
+	margin: 25px auto 0;
 }
 .mobile .container {
 	width: 100%;
@@ -86,7 +135,7 @@ pre {
 	padding: 0.5em;
 	white-space: pre-wrap;
 	word-break: break-word;
-	margin: 0 auto 25px;
+	margin: auto;
 }
 pre code {
 	padding: 0;
@@ -98,6 +147,22 @@ pre code {
 	justify-content: center;
 }
 .buttons {
+	margin-top: 25px;
 	text-align: right;
+}
+
+span {
+	padding-bottom: 0.1em;
+}
+
+.post {
+	margin-top: 25px;
+}
+
+.md-link {
+	position: absolute;
+	right: 25px;
+	font-size: 0.9em;
+	color: var(--subtle);
 }
 </style>
