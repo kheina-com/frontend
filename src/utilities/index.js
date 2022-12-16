@@ -158,8 +158,6 @@ export async function khatch(url, options={ })
 	if (options.hasOwnProperty('body') && !options?.method)
 	{ options.method = 'POST'; }
 
-	console.log(options);
-
 	let attempt = 1;
 	let response = null;
 	let error = null;

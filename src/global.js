@@ -98,9 +98,8 @@ export default createStore({
 				else
 				{
 					const maxage = Math.round(auth.expires - new Date().valueOf() / 1000);
-					const cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=strict; domain=.fuzz.ly; path=/; secure`;
 					if (window.location.hostname.toLowerCase().includes('fuzz.ly')) // specifically open this cookie to subdomains so that cdn works
-					{ document.cookie = cookie; console.log(cookie, '\n', document.cookie); }
+					{ document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=strict; domain=.fuzz.ly; path=/; secure`; }
 					else
 					{ setCookie('kh-auth', auth.token, maxage); }
 					state.auth = authCookie();
