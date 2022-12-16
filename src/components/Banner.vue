@@ -11,13 +11,13 @@
 			</div>
 		</div>
 		<Markdown :content='message' v-else-if='message'/>
-		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
+		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='$store.state.auth?.isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
 		<div class='nav'>
 			<div class='bg'/>
-			<div class='profile' v-if='isLoggedIn'>
-				<i class='kheina-icons icon' title='You are an admin' v-if='isAdmin'>sword</i>
-				<i class='material-icons icon' title='You are a moderator' v-else-if='isMod'>verified_user</i>
-				<i class='material-icons icon' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='isVerified'>verified</i>
+			<div class='profile' v-if='$store.state.auth'>
+				<i class='kheina-icons icon' title='You are an admin' v-if='$store.state.auth?.isAdmin'>sword</i>
+				<i class='material-icons icon' title='You are a moderator' v-else-if='$store.state.auth?.isMod'>verified_user</i>
+				<i class='material-icons icon' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='$store.state.user?.verified'>verified</i>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
 						<UserIcon :handle='$store.state.user?.handle' :post='$store.state.user?.icon' v-model:isLoading='isIconLoading' v-if='$store.state.user'/>
@@ -31,7 +31,7 @@
 		</div>
 		<div class='screen-cover' @click='closeMenu'></div>
 		<div class='menu'>
-			<router-link to='/create' :class='(isLoggedIn ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
+			<router-link to='/create' :class='($store.state.auth ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
 				<div class='icon'>
 					<i class='material-icons'>upload</i>
 				</div>
@@ -42,7 +42,7 @@
 			<div class='menu-border'></div>
 			<ol class='inner'>
 				<li v-if='environment == "local"'>
-					<a :href='`https://dev.kheina.com${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
+					<a :href='`https://dev.fuzz.ly${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
 				</li>
 				<li v-else-if='environment == "dev"'>
 					<a :href='`http://localhost:3000${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Localhost</a>
@@ -52,7 +52,7 @@
 						<router-link to='/?#'><i class='material-icons-round'>home</i>Home</router-link>
 					</span>
 				</li>
-				<li v-if='isLoggedIn'>
+				<li v-if='$store.state.auth'>
 					<span @click='closeMenu'>
 						<router-link to='/notifications'>
 							<div class='notifications'>
@@ -65,7 +65,7 @@
 						</router-link>
 					</span>
 				</li>
-				<li v-if='isLoggedIn'>
+				<li v-if='$store.state.auth'>
 					<span @click='closeMenu'>
 						<router-link to='/timeline'>
 							<i class='material-icons'>timeline</i>
@@ -73,15 +73,12 @@
 						</router-link>
 					</span>
 				</li>
-				<li v-if='isMod'>
+				<li v-if='$store.state.auth?.isMod'>
 					<span @click='closeMenu'>
-						<router-link to='/mod'>
-							<i class='material-icons'>shield</i>
-							Moderate
-						</router-link>
+						<router-link to='/mod/queue'><i class='material-icons'>security</i>Moderate</router-link>
 					</span>
 				</li>
-				<li v-if='isAdmin'>
+				<li v-if='$store.state.auth?.isAdmin'>
 					<ol>
 						<li>
 							<span @click='closeMenu'>
@@ -115,12 +112,12 @@
 						<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
 					</span>
 				</li>
-				<li v-if='isLoggedIn'>
+				<li v-if='$store.state.auth'>
 					<span @click='closeMenu'>
 						<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
 					</span>
 				</li>
-				<li v-if='isLoggedIn'>
+				<li v-if='$store.state.auth'>
 					<ol>
 						<li>
 							<span @click='closeMenu'>
@@ -129,20 +126,20 @@
 						</li>
 					</ol>
 				</li>
-				<li v-if='isLoggedIn'>
+				<li v-if='$store.state.auth'>
 					<span @click='closeMenu'>
 						<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
 					</span>
 				</li>
-				<li v-if='isLoggedIn'>
+				<li v-if='$store.state.auth'>
 					<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
 				</li>
-				<li v-if='!isLoggedIn'>
+				<li v-if='!$store.state.auth'>
 					<span @click='closeMenu'>
 						<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
 					</span>
 				</li>
-				<li v-if='!isLoggedIn'>
+				<li v-if='!$store.state.auth'>
 					<span @click='closeMenu'>
 						<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
 					</span>
@@ -183,13 +180,13 @@
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 			</button>
-			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='isLoggedIn'>
+			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='$store.state.auth'>
 				<i class='material-icons-round'>notifications</i>
 				<div class='counter' v-show='$store.state.notifications'>
 					<span>{{$store.state.notifications}}</span>
 				</div>
 			</router-link>
-			<router-link to='/timeline' class='icon timeline' title='Timeline' v-if='isLoggedIn'>
+			<router-link to='/timeline' class='icon timeline' title='Timeline' v-if='$store.state.auth'>
 				<i class='material-icons'>timeline</i>
 			</router-link>
 		</div>
@@ -261,21 +258,6 @@ export default {
 		);
 	},
 	computed: {
-		isVerified() {
-			return Boolean(this.$store.state.user?.verified);
-		},
-		isMod() {
-			return Boolean(this.$store.state.auth?.scope?.includes('mod'));
-		},
-		isAdmin() {
-			return Boolean(this.$store.state.auth?.scope?.includes('admin'));
-		},
-		isLoggedIn() {
-			return Boolean(this.$store.state.auth);
-		},
-		showUploadButton() {
-			return this.$route.path !== '/create';
-		},
 		route() {
 			return encodeURIComponent(this.$route.fullPath)
 		},

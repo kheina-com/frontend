@@ -46,6 +46,11 @@ export default {
 			content,
 		};
 	},
+	data() {
+		return {
+			banner: null,
+		};
+	},
 	async created() {
 		this.$store.commit('cookiesAllowed', getCookie('cookies', false, Boolean));
 		this.$store.commit('theme', getCookie('theme', 'kheina'));
@@ -94,17 +99,13 @@ export default {
 		});
 	},
 	mounted() {
+		this.banner = document.getElementsByClassName('banner')[0];
 		this.ResizeSensor(this.$refs.content, this.onResize);
 		this.onResize();
 		document.getElementById('animated-accents').checked = this.$store.state.animatedAccents;
 
 		// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
 		this.$store.state.init = false;
-	},
-	computed: {
-		banner() {
-			return document.getElementsByClassName('banner')[0];
-		},
 	},
 	methods: {
 		setAnimated(e) {

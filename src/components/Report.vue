@@ -1,5 +1,9 @@
 <template>
-	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report'>
+	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report' v-if='$store.state.auth?.isMod'>
+		<i class='material-icons'>security</i>
+		<span>Moderate</span>
+	</router-link>
+	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report' v-else>
 		<i class='kheina-icons'>report_content</i>
 		<span>Report Content</span>
 	</router-link>
@@ -9,15 +13,14 @@
 export default {
 	name: 'Report',
 	props: {
-		button: {
-			type: String,
-			default: null,
-		},
 		data: Object,
 	},
 	computed: {
 		destination() {
-			return '/report?' + Object.entries(Object.assign({ url: encodeURIComponent(this.$route.fullPath) }, this.data)).map(x => `${x[0]}=${x[1]}`).join('&');
+			const params = Object.entries(Object.assign({ url: this.$route.fullPath }, this.data)).map(x => `${x[0]}=${encodeURIComponent(x[1])}`).join('&');
+			if (this.$store.state.auth?.isMod)
+			{ return '/mod?' + params; }
+			return '/report?' + params;
 		},
 	},
 }

@@ -2,42 +2,42 @@
 	<main>
 		<Loading :lazy='false' :isLoading='isLoading' v-if='tokenProvided'>
 			<Title static='center'>Create Account</Title>
-			<div class='form centerx'>
-				<div class='form-field'>
+			<div class='form'>
+				<div class='field'>
 					<div class='field-title'>
 						<span>
 							Name
 							<i class='material-icons' title='the name that will be displayed on the site. can be anything you want.'>help_outline</i>
 						</span>
-						<span style='color: var(--error)'>
-						</span>
 					</div>
-					<input ref='name' type='name' id='name' name='name' class='interactable text'>
+					<input ref='name' type='name' id='name' name='name' class='interactable'>
 				</div>
-				<div class='form-field'>
+				<div class='field'>
 					<div class='field-title'>
 						<span>
 							@handle
 							<i class='material-icons' title='your unique identifier across the site. determines your URL.'>help_outline</i>
 						</span>
-						<span style='color: var(--error)'>
-						</span>
 					</div>
-					<input ref='handle' type='handle' id='handle' name='handle' class='interactable text'>
+					<input ref='handle' type='handle' id='handle' name='handle' class='interactable'>
 				</div>
-				<div class='form-field'>
+				<div class='final-field'>
 					<div class='field-title'>
 						<span>
 							Password
 							<i class='material-icons' title='must be at least 10 characters.'>help_outline</i>
 						</span>
-						<span style='color: var(--error)'>
-						</span>
 					</div>
-					<input ref='password' type='password' id='password' name='password' autocomplete='off' class='interactable text'><i class='material-icons pwned-icon' ref='passwordPwned' :style='`color: var(--${passwordColor})`'>{{passwordIcon}}</i>
-					<input ref='passwordRepeat' type='password' id='passwordRepeat' name='passwordRepeat' placeholder='re-enter password' autocomplete='off' :class='`interactable text ${passwordRepeatClass}`'>
+					<input ref='password' type='password' id='password' name='password' autocomplete='off' class='interactable password'>
+					<div class='pwned'>
+						<i class='material-icons' ref='pwnedIcon' :style='`color: var(--${passwordColor})`'>{{passwordIcon}}</i>
+						<span ref='pwnedDescription'>{{pwnedDescription}}</span>
+					</div>
+					<div class='submit-field'>
+						<input ref='passwordRepeat' type='password' id='passwordRepeat' name='passwordRepeat' placeholder='re-enter password' autocomplete='off' :class='`interactable ${passwordRepeatClass}`'>
+						<button @click='sendFinalize' class='interactable'>Submit »</button>
+					</div>
 				</div>
-				<Button @click='sendFinalize'>Create Account</Button>
 			</div>
 		</Loading>
 		<p style='text-align: center' v-else>
@@ -67,7 +67,6 @@ export default {
 		const handle = ref(null);
 		const password = ref(null);
 		const passwordRepeat = ref(null);
-		const passwordPwned = ref(null);
 
 		return {
 			token,
@@ -75,7 +74,6 @@ export default {
 			handle,
 			password,
 			passwordRepeat,
-			passwordPwned,
 		};
 	},
 	data() {
@@ -88,6 +86,7 @@ export default {
 			passwordRepeatClass: null,
 			queriedPasswords: { },
 			tokenProvided: null,
+			pwnedDescription: null,
 		};
 	},
 	components: {
@@ -116,37 +115,37 @@ export default {
 		sendFinalize() {
 			this.isLoading = true;
 			khatch(`${accountHost}/v1/finalize`, {
-					method:'POST',
-					body: {
-						token: this.tokenProvided ? this.$route.query.token : this.$refs.token.value,
-						name: this.$refs.name.value,
-						handle: this.$refs.handle.value,
-						password: this.$refs.password.value,
-					},
-				})
-				.then(response => {
-					if (response.status < 300)
-					{ this.$router.push('/account/login'); }
-					else
-					{
-						response.json().then(r => {
-							console.log(r);
-							if (response.status === 400)
-							{ this.$store.commit('error', r.error); }
-							else if (response.status === 401)
-							{ this.$store.commit('error', r.error); }
-							else if (response.status === 404)
-							{ this.$store.commit('error', r.error); }
-							else
-							{ this.$store.commit('error', apiErrorMessage, r); }
-						});
-					}
-					this.isLoading = false;
-				})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
+				method:'POST',
+				body: {
+					token: this.tokenProvided ? this.$route.query.token : this.$refs.token.value,
+					name: this.$refs.name.value,
+					handle: this.$refs.handle.value,
+					password: this.$refs.password.value,
+				},
+			})
+			.then(response => {
+				if (response.status < 300)
+				{ this.$router.push('/account/login'); }
+				else
+				{
+					response.json().then(r => {
+						console.log(r);
+						if (response.status === 400)
+						{ this.$store.commit('error', r.error); }
+						else if (response.status === 401)
+						{ this.$store.commit('error', r.error); }
+						else if (response.status === 404)
+						{ this.$store.commit('error', r.error); }
+						else
+						{ this.$store.commit('error', apiErrorMessage, r); }
+					});
+				}
+				this.isLoading = false;
+			})
+			.catch(error => {
+				this.$store.commit('error', apiErrorMessage, error);
+				console.error(error);
+			});
 		},
 		checkPassword() {
 			this.$refs.passwordRepeat.style.borderColor = '';
@@ -158,27 +157,34 @@ export default {
 				{
 					this.passwordIcon = 'report';
 					this.passwordColor = 'error';
+					this.pwnedDescription = 'Password invalid, passwords must be 10 characters or longer';
 				}
 				else if (this.queriedPasswords.hasOwnProperty(this.$refs.password.value))
 				{
 					if (this.queriedPasswords[this.$refs.password.value])
-					{ this.passwordColor = this.passwordIcon = 'warning'; }
+					{
+						this.passwordColor = this.passwordIcon = 'warning';
+						this.pwnedDescription = 'This password has been compromised';
+					}
 					else
 					{
-						this.passwordIcon = 'check_circle';
+						this.passwordIcon = 'check_circle_outline';
 						this.passwordColor = 'valid';
+						this.pwnedDescription = 'This password has not been compromised!';
 					}
 				}
 				else
 				{
 					this.passwordIcon = 'timer';
 					this.passwordColor = 'subtle';
+					this.pwnedDescription = 'Checking password...';
 					this.typingTimer = setTimeout(() => this.hasPasswordBeenPwned(this.$refs.password.value), this.typingInterval);
 				}
 			}
 			else
 			{
 				this.passwordIcon = '';
+				this.pwnedDescription = null;
 			}
 		},
 		checkPasswordRepeat() {
@@ -193,22 +199,22 @@ export default {
 			{ this.passwordRepeatClass = null; }
 		},
 		hasPasswordBeenPwned(password) {
-			let hash = this.sha1(password);
+			const hash = this.sha1(password);
 			fetch('https://api.pwnedpasswords.com/range/'.concat(hash.substring(0, 5)))
-			.then(response =>
-			{
+			.then(response => {
 				response.text()
-				.then(hashes =>
-				{
+				.then(hashes => {
 					if (hashes.split('\r\n').map(x => x.substring(0,35)).includes(hash.substring(5,40).toUpperCase()))
 					{
 						this.passwordColor = this.passwordIcon = 'warning';
+						this.pwnedDescription = 'This password has been compromised';
 						this.queriedPasswords[password] = true;
 					}
 					else
 					{
 						this.passwordIcon = 'check_circle_outline';
 						this.passwordColor = 'valid';
+						this.pwnedDescription = 'This password has not been compromised!';
 						this.queriedPasswords[password] = false;
 					}
 				});
@@ -345,143 +351,79 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
+}
+input {
 	display: block;
-}
-
-.form .text
-{
-	width: 100%;
-	color: var(--textcolor);
-	padding: 0.5em;
-}
-.form .text:hover
-{ color: var(--icolor); }
-.form .text:active, .form .text:focus
-{ color: var(--textcolor); }
-input
-{
-	display: inline-block;
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
 	background: var(--bg2color);
 	color: var(--textcolor);
 	font-size: 1em;
-	padding: 1px 3px;
+	width: 100%;
 }
-.form
-{
-	width: 800px;
-	max-width: calc(100% - 50px);
+input:hover {
+	color: var(--icolor);
+}
+input:active, input:focus {
+	color: var(--textcolor);
+}
+
+.form {
+	max-width: 25em;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
+	margin: auto;
 }
-.form .maxrating, .form .integratedsearch
-{
-	margin: -14px 0 9px;
-	padding: 0.5em 0;
-	display: inline-block;
-	width: calc(100% - 80px);
-	line-height: 3;
-}
-.form .maxrating input, .form .integratedsearch input, .form .submit input
-{
-	top: -100vh;
-	opacity: 0;
-	height: 0;
-	width: 0;
-}
-.form input
-{ margin: 0 0 25px; }
-.form p
-{ margin-left: 25px; }
-
-.form input.submit
-{ float: right; }
-.form input#passwordRepeat
-{
-	width: 225px;
-	width: calc(100% - 125px);
-}
-.form input.valid:active, .form input.valid:focus
-{ border-color: var(--valid); }
-.form input.error:active, .form input.error:focus
-{ border-color: var(--error); }
-
-label.hide-password
-{
-	position: absolute;
-	right: 0;
-	margin: 0.5em;
-	height: 24px;
-}
-label.hide-password svg
-{ height: 24px; }
-
-input#hide-password
-{ display: none; }
-
-.form
-{ max-width: 350px; }
-.form input.submit
-{ float: right; }
-.form input#passwordRepeat
-{
-	width: 225px;
-	width: calc(100% - 125px);
-}
-.form input.valid:active, .form input.valid:focus
-{ border-color: var(--valid); }
-.form input.error:active, .form input.error:focus
-{ border-color: var(--error); }
-
-label.hide-password
-{
-	position: absolute;
-	right: 0;
-	margin: 0.5em;
-	height: 24px;
-}
-label.hide-password svg
-{ height: 24px; }
-
-.warn {
-	border-color: var(--warning);
-}
-
-.error {
-	border-color: var(--error);
-}
-
-.centerx {
-	margin: 0 auto;
-}
-
-.form-field {
-	width: 100%;
-}
-
-.field-title span {
+.form span {
+	position: relative;
+	left: 25px;
+	padding: 0 0 0.1em;
 	display: flex;
-	align-items: center;
 }
-.field-title {
-	padding: 0 0 2px;
-	margin-left: 25px;
-	display: flex;
-	justify-content: space-between;
-}
-
 i {
 	font-size: 1.2em;
 	margin-left: 0.25em;
 }
 
-.pwned-icon {
-	position: absolute;
-	height: 24px;
-	margin-top: 7px;
-	display: inline-block;
-	pointer-events: none;
+.field {
+	width: 100%;
+	margin-bottom: 25px;
+}
+
+.final-field {
+	width: 100%;
+}
+
+.pwned {
+	display: flex;
+	align-items: center;
+	margin-bottom: 1em;
+}
+.pwned span {
+	left: 0.25em;
+}
+.password {
+	margin-bottom: 1em;
+}
+
+.submit-field {
+	width: 100%;
+	display: flex;
+}
+.submit-field input {
+	margin-right: 25px;
+}
+
+button {
+	word-wrap: normal;
+	white-space: nowrap;
+}
+
+.valid {
+	border-color: var(--valid);
+}
+.error {
+	border-color: var(--error);
 }
 </style>

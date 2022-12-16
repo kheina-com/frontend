@@ -270,6 +270,7 @@ export function authCookie(cookie=null)
 	{ throw TypeError(`Cannot decode auth token with version: ${tokenVersion}`); }
 
 	const payload = atob(components[1]).split('.').map(x => x.replace('-', '+').replace('_', '/'));
+	const misc = JSON.parse(atob(components[1]).match(/{.+}/)[0]);
 
 	const auth = {
 		token,
@@ -279,7 +280,9 @@ export function authCookie(cookie=null)
 		expires: new Date(int_from_bytes(atob(payload[2])) * 1000),
 		userId: int_from_bytes(atob(payload[3])),
 		guid: payload[4].replace(/\+/g, '-').replace(/\//g, '_'),
-		...JSON.parse(atob(components[1]).match(/{.+}/)[0]),
+		isMod: misc?.scope?.includes('mod'),
+		isAdmin: misc?.scope?.includes('admin'),
+		...misc,
 	};
 
 	return auth;

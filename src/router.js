@@ -21,9 +21,26 @@ import BugReport from './views/BugReport.vue';
 import Notifications from './views/Notifications.vue';
 import Version from './views/Version.vue';
 import Content from './views/Content.vue';
+import ModQueue from './views/ModQueue.vue';
+import Moderate from './views/Moderate.vue';
 
 import Test from './views/Test.vue';
 
+
+/*
+meta formatting:
+meta: {
+	title: string or function returning string,
+	metaTags: {
+		meta name: object containing meta key/value pairs or function returning meta key/value pairs,
+		EX:
+		description: {
+			property: 'og:description',
+			content: 'page description',
+		},
+	},
+},
+*/
 
 // NOTE: root paths MUST start with '/', child paths CANNOT start with '/'
 const routes = [
@@ -31,41 +48,19 @@ const routes = [
 		path: '/',
 		name: 'home',
 		component: Search,
-		meta: {
-			title: 'Building a new home for all things fluff, scaled, and feathered! | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Building a new home for all things fluff, scaled, and feathered! | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
-		},
 	},
 	{
 		path: '/search',
 		name: 'image-search',
 		component: ImageSearch,
 		meta: {
-			title: 'fuzz.ly - the world\'s largest furry image index',
-			metaTags: [
-				{
-					name: 'description',
+			title: "fuzz.ly - the world's largest furry image index",
+			metaTags: {
+				description: {
 					property: 'og:description',
-					content: 'Search the world\'s largest furry image database and find the artist behind your favorite artwork.',
+					content: "Search the world's largest furry image database and find the artist behind your favorite artwork.",
 				},
-				{
-					property: 'og:title',
-					content: 'fuzz.ly - the world\'s largest furry image index',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
+			},
 		},
 	},
 	{
@@ -74,21 +69,12 @@ const routes = [
 		component: Timeline,
 		meta: {
 			title: 'Timeline | fuzz.ly',
-			metaTags: [
-				{
-					name: 'description',
+			metaTags: {
+				description: {
 					property: 'og:description',
 					content: 'See the latest posts from everyone you\'re following | fuzz.ly',
 				},
-				{
-					property: 'og:title',
-					content: 'Timeline | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
+			},
 		},
 	},
 	{
@@ -97,16 +83,6 @@ const routes = [
 		component: Account,
 		meta: {
 			title: 'Manage your fuzz.ly account',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Manage your fuzz.ly account',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -115,16 +91,6 @@ const routes = [
 		component: Login,
 		meta: {
 			title: 'Sign in to fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Sign in to fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -133,16 +99,6 @@ const routes = [
 		component: CreateAccount,
 		meta: {
 			title: 'Create an account on fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Create an account on fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -151,16 +107,6 @@ const routes = [
 		component: FinalizeAccount,
 		meta: {
 			title: 'Finish creating your fuzz.ly account',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Finish creating your fuzz.ly account',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -169,16 +115,6 @@ const routes = [
 		component: Notifications,
 		meta: {
 			title: 'Notifications | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Notifications | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -188,18 +124,6 @@ const routes = [
 		component: Post,
 		meta: {
 			title: 'Loading...',
-			metaTags: [
-				(to) => {
-					return {
-						property: 'og:title',
-						content: to.params.postId,
-					};
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -209,19 +133,14 @@ const routes = [
 		component: Search,
 		meta: {
 			title: (to) => `Search results for ${to.params.query} | fuzz.ly`,
-			metaTags: [
-				(to) => {
+			metaTags: {
+				description: (to) => {
 					return {
-						name: 'description',
 						property: 'og:description',
 						content: `Search results for ${to.params.query} | fuzz.ly`,
 					};
 				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
+			},
 		},
 	},
 	{
@@ -231,19 +150,14 @@ const routes = [
 		component: Tag,
 		meta: {
 			title: (to) => `${to.params.tag}, tag | fuzz.ly`,
-			metaTags: [
-				(to) => {
+			metaTags: {
+				description: (to) => {
 					return {
-						name: 'description',
 						property: 'og:description',
 						content: `Search results for ${to.params.tag}`,
 					};
 				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
+			},
 		},
 	},
 	{
@@ -252,17 +166,6 @@ const routes = [
 		component: Tags,
 		meta: {
 			title: 'Tags | fuzz.ly',
-			metaTags: [
-				{
-					name: 'description',
-					property: 'og:description',
-					content: 'Tags | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -271,16 +174,6 @@ const routes = [
 		component: Upload,
 		meta: {
 			title: 'Create new post | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Create new post | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -289,16 +182,6 @@ const routes = [
 		component: MarkdownGuide,
 		meta: {
 			title: 'Markdown Guide | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Markdown Guide | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -307,16 +190,6 @@ const routes = [
 		component: SearchHelp,
 		meta: {
 			title: 'Search Help | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Search Help | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -325,16 +198,6 @@ const routes = [
 		component: Report,
 		meta: {
 			title: 'Report Content | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Report Content | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -342,65 +205,23 @@ const routes = [
 		name: 'users',
 		component: Users,
 		meta: {
-			title: 'all users | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'all users | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
+			title: 'All Users | fuzz.ly',
 		},
-	},
-	{
-		path: '/test',
-		name: 'test',
-		component: Test,
-	},
-	{
-		path: '/version',
-		name: 'version',
-		component: Version,
 	},
 	{
 		path: '/privacy',
 		name: 'privacy',
-		props: true,
 		component: Privacy,
 		meta: {
 			title: 'Privacy Policy | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Privacy Policy | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
 		path: '/content',
 		name: 'content',
-		props: true,
 		component: Content,
 		meta: {
 			title: 'Content Policy | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Content Policy | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
 	},
 	{
@@ -410,17 +231,46 @@ const routes = [
 		component: BugReport,
 		meta: {
 			title: 'Report a Bug | fuzz.ly',
-			metaTags: [
-				{
-					property: 'og:title',
-					content: 'Report a Bug | fuzz.ly',
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			],
 		},
+	},
+	{
+		path: '/mod',
+		name: 'mod',
+		props: true,
+		component: Moderate,
+		meta: {
+			title: 'Moderate Content | fuzz.ly',
+		},
+	},
+	{
+		path: '/mod/queue',
+		name: 'modqueue',
+		component: ModQueue,
+		meta: {
+			title: 'Moderation Queue | fuzz.ly',
+		},
+	},
+	// {
+	// 	path: '/cookies',
+	// 	name: 'cookies',
+	// 	props: true,
+	// 	component: BugReport,
+	// 	meta: {
+	// 		title: 'Cookies | fuzz.ly',
+	// 	},
+	// },
+	{
+		path: '/version',
+		name: 'version',
+		component: Version,
+		meta: {
+			title: 'Version Info | fuzz.ly',
+		},
+	},
+	{
+		path: '/test',
+		name: 'test',
+		component: Test,
 	},
 	{
 		path: '/:handle',
@@ -430,18 +280,6 @@ const routes = [
 		meta: {
 			applyOffset: false,
 			title: (to, from) => to.path !== from.path ? `Retrieving user @${to.params.handle}...` : null,
-			metaTags: [
-				(to, from) => {
-					return to.path !== from.path ? {
-						property: 'og:title',
-						content: `Retrieving user @${to.params.handle}...`,
-					} : null;
-				},
-				{
-					name: 'theme-color',
-					content: '#1E1F25',
-				},
-			]
 		},
 	},
 ];
@@ -452,6 +290,7 @@ export default createRouter({
 	scrollBehavior(to, from, savedPosition) {
 		if (savedPosition)
 		{
+			// we set a timeout here so the scroll takes effect after vue renders the page
 			setTimeout(() => window.scrollTo(0, savedPosition.top), 0);
 			return;
 		}

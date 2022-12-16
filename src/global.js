@@ -86,18 +86,22 @@ export default createStore({
 			}
 		},
 		setAuth(state, auth) {
-			if (auth)
+			if (auth && auth.token.length > 10)
 			{
 				if (!state.cookiesAllowed)
 				{
 					createToast(state, {
-						title: 'Could could not complete login',
+						title: 'Could not complete login',
 						description: 'Logins require the use of browser cookies. To login, hit the "coolio" button on the cookies popup',
 					});
 				}
 				else
 				{
-					setCookie('kh-auth', auth.token, auth.expires - new Date().valueOf() / 1000);
+					const maxage = auth.expires - new Date().valueOf() / 1000;
+					if (window.location.hostname.toLowerCase().includes('fuzz.ly')) // specifically open this cookie to subdomains so that cdn works
+					{ document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=strict; domain=.fuzz.ly path=/; secure`; }
+					else
+					{ setCookie('kh-auth', auth.token, maxage); }
 					state.auth = authCookie();
 					khatch(
 						`${usersHost}/v1/fetch_self`,
