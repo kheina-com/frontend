@@ -135,18 +135,14 @@ export async function khatch(url, options={ })
 	const handleError = Boolean(options?.handleError || options?.errorMessage);
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
 	const errorHandlers = options?.errorHandlers || { };
+	options.headers = options?.headers || { };
 
 	if (url.match(/^(?:https:\/\/(?:\w+\.)?kheina.com\/|http:\/\/localhost(?:\:\d{2,4})?\/|https:\/\/(?:\w+\.)?fuzz.ly\/)/))
 	{
-		const headers = options?.headers || { };
+		options.credentials = 'include';
 		const auth = store.state.auth?.token;
-
 		if (auth)
-		{
-			headers.authorization = 'bearer ' + auth;
-			options.credentials = 'include';
-		}
-		options.headers = headers;
+		{ options.headers.authorization = 'bearer ' + auth; }
 	}
 
 	// options.headers['kh-trace'] = options.headers['kh-trace'] || options?.trace || uuid4();
