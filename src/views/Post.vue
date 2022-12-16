@@ -1,21 +1,8 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
-	
 	<div v-if='parent' class='parent'>
 		<Reply :postId='parent?.post_id' v-bind='parent' nested/>
-		<router-link :to='`/p/${parent.postId}`' class='inner' v-show='false'>
-			<div class='parent-thumbnail'>
-				<Thumbnail :post='post.parent' v-show='parent?.media_type' :width='parent?.size?.width' :height='parent?.size?.height'/>
-			</div>
-			<div class='parent-contents'>
-				<p class='parent-title'>Parent Post</p>
-				<h3 v-show='parent.title'>
-					<Markdown :content='parent?.title || post.parent' inline/>
-				</h3>
-				<Markdown class='parent-description' :content='parent?.description' concise v-show='parent?.description'/>
-			</div>
-		</router-link>
 	</div>
 
 	<div class='container' v-if='!isMobile'>
