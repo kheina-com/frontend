@@ -7,7 +7,7 @@
 				<br>
 				in order to perform logins (with your email), we use a 512-byte variant of the <a href='https://en.wikipedia.org/wiki/SHA-3'>sha-3</a> hash.
 				<br>
-				this allows us to securely perform logins (and other account verifications) without storing your email. no one at kheina.com or otherwise is able to access your email
+				this allows us to securely perform logins (and other account verifications) without storing your email. no one at fuzz.ly or otherwise is able to access your email
 			</p>
 		</div>
 		<ThemeMenu/>

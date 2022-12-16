@@ -51,7 +51,7 @@
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
 			<RepostButton :postId='postId' v-model:count='reposts'/>
 			<FavoriteButton :postId='postId' v-model:count='favorites'/>
-			<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+			<ShareLink class='post-buttons' :content='`https://${environment === "prod" ? "fuzz.ly" : "dev.fuzz.ly"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 			<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
 				<i class='material-icons'>reply</i>
 			</button>

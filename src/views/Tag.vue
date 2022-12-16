@@ -178,7 +178,7 @@ export default {
 					if (response.status < 300)
 					{
 						this.tagData = r;
-						setTitle(`${r.tag}, ${r.group} tag | kheina.com`);
+						setTitle(`${r.tag}, ${r.group} tag | fuzz.ly`);
 					}
 					else if (response.status === 400)
 					{ this.$store.commit('error', r.error); }

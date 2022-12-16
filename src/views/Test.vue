@@ -1,7 +1,7 @@
 <template>
 	<main>
 		<h3 class='swagger'>
-			<a :href='`https://${environment != "prod" ? "dev." : ""}kheina.com/docs`' target='_blank'>swagger docs</a>
+			<a :href='`https://${environment != "prod" ? "dev." : ""}fuzz.ly/docs`' target='_blank'>swagger docs</a>
 		</h3>
 		<div class='clicky-things'>
 			<div class='timers'>
