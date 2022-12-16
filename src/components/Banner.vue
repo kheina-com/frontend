@@ -292,7 +292,7 @@ export default {
 		},
 		signOut() {
 			deleteCookie('kh-auth');
-			document.cookie = `kh-auth=null; max-age=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
+			document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
 			this.$store.commit('setAuth', null);
 		},
 		toggleMenu() {
