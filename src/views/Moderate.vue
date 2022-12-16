@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<main>
+	<main v-if='$store.state.auth?.isMod'>
 		<Post :postId='post?.post_id' :nested='true' v-bind='post' labels v-if='post'/>
 		<Title v-else>Moderate Content</Title>
 		<div class='container'>
@@ -35,6 +35,16 @@
 		</div>
 		<ThemeMenu/>
 	</main>
+	<main v-else>
+		<Title>Moderate Content</Title>
+		<div class='container'>
+			<div class='not-mod'>
+				<i class='material-icons'>remove_moderator</i> You cannot access this page without being a moderator
+			</div>
+		</div>
+		<ThemeMenu/>
+	</main>
+
 </template>
 
 <script>
@@ -100,6 +110,19 @@ main {
 	position: relative;
 	padding: 25px;
 }
+
+.not-mod {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	margin: auto;
+}
+
+.not-mod i {
+	margin-right: 0.25em;
+}
+
 .container, .action-description {
 	width: 50vw;
 	min-width: 600px;
