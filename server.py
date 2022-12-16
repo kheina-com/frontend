@@ -15,7 +15,7 @@ from headers.tag import tag_regex, tagMetaTags
 from headers.user import user_regex, userMetaTags
 
 
-pixel = Response(
+PixelResponse = Response(
 	b'GIF89a\x01\x00\x01\x00p\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;',
 	headers={
 		'cache-control': 'no-cache',
@@ -26,22 +26,26 @@ pixel = Response(
 
 app = ServerApp(
 	auth = False,
-	allowed_hosts = [
-		'localhost',
-		'127.0.0.1',
-		'*.kheina.com',
-		'kheina.com',
-		'*.fuzz.ly',
-		'fuzz.ly',
-	],
-	allowed_origins = [
-		'localhost',
-		'127.0.0.1',
-		'dev.kheina.com',
-		'kheina.com',
-		'dev.fuzz.ly',
-		'fuzz.ly',
-	],
+	allowed_hosts = (
+		['fuzz.ly']
+		if environment.is_prod() else
+		[
+			'localhost',
+			'127.0.0.1',
+			'*.kheina.com',
+			'*.fuzz.ly',
+		]
+	),
+	allowed_origins = (
+		['fuzz.ly']
+		if environment.is_prod() else
+		[
+			'localhost',
+			'127.0.0.1',
+			'dev.kheina.com',
+			'dev.fuzz.ly',
+		]
+	),
 )
 
 logger = getLogger()
@@ -75,7 +79,7 @@ async def matchMetaTags(uri: str) :
 @app.get('/t.gif')
 def pixel(req: Request) :
 	logger.info(req)
-	return pixel
+	return PixelResponse
 
 
 @app.get('{uri:path}')

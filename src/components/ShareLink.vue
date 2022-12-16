@@ -9,10 +9,11 @@
 </template>
 
 <script>
+import { environment } from '@/config/constants';
 import { ref } from 'vue';
 
 export default {
-	name: 'CopyText',
+	name: 'ShareLink',
 	setup() {
 		const popup = ref(null);
 		return {
@@ -24,8 +25,9 @@ export default {
 	},
 	methods: {
 		copy() {
+			const root = environment === 'prod' ? 'https://fuzz.ly' : 'https://dev.fuzz.ly';
 			const element = document.createElement('textarea');
-			element.value = this.content;
+			element.value = root + this.content;
 			document.body.appendChild(element);
 			element.select();
 			document.execCommand('copy');

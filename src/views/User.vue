@@ -365,27 +365,19 @@ export default {
 		}
 		else
 		{
-			khatch(`${usersHost}/v1/fetch_user/${this.handle}`)
-			.then(response => {
+			khatch(
+				`${usersHost}/v1/fetch_user/${this.handle}`,
+				{ handleError: true },
+			).then(response => {
 				response.json().then(r => {
-					if (response.status < 300)
-					{
-						this.user = r;
-						setTitle(this.user.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
-						const route = this.$route.fullPath.replace(this.handle, this.user?.handle);
-						saveToHistory({ user: r })
-						this.$router.replace(route);
-					}
-					else if (response.status < 500)
-					{ this.$store.commit('error', r.error); }
-					else
-					{ this.$store.commit('error', apiErrorMessage, r); }
+					this.user = r;
+					setTitle(this.user.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
+					const route = this.$route.fullPath.replace(this.handle, this.user.handle);
+					saveToHistory({ user: r })
+					this.$router.replace(route);
 				});
 			})
-			.catch(error => {
-				this.$store.commit('error', apiErrorMessage, error);
-				console.error(error);
-			});
+			.catch(() => { });
 		}
 	},
 	mounted() {

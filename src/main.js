@@ -34,15 +34,18 @@ Router.afterEach((to, from) => {
 
 	// If a route with a title was found, set the document (page) title to that value.
 	meta.title = (typeof meta.title === 'function' ? meta.title(to, from) : meta.title);
-	document.title = meta.title;
 
 	// Remove any stale meta tags from the document using the key attribute we set below.
 	Array.from(document.querySelectorAll(`meta[${routerMetaTag}]`)).forEach(e => e.parentNode.removeChild(e));
 
-	setMeta({
-		property: 'og:title',
-		content: meta.title,
-	});
+	if (meta.title)
+	{
+		document.title = meta.title;
+		setMeta({
+			property: 'og:title',
+			content: meta.title,
+		});
+	}
 	// Turn the meta tag definitions into actual elements in the head.
 	for (const [name, tag] of Object.entries(meta.metaTags))
 	{ setMeta(Object.assign({ name, }, typeof tag === 'function' ? tag(to, from) : tag)); }

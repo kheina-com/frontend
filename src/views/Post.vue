@@ -62,7 +62,7 @@
 					<Report :data='{ post: postId }' v-if='!isLoading'/>
 					<RepostButton :postId='postId' v-model:count='post.reposts'/>
 					<FavoriteButton :postId='postId' v-model:count='post.favorites'/>
-					<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+					<ShareLink :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 					<DropDown :options="[
 						{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
 						{ html: `Block @${post?.user?.handle}`, action: () => { } },
@@ -156,7 +156,7 @@
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
 						<RepostButton :postId='postId' v-model:count='post.reposts'/>
 						<FavoriteButton :postId='postId' v-model:count='post.favorites'/>
-						<ShareLink :content='`https://${environment === "prod" ? "kheina.com" : "dev.kheina.com"}/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+						<ShareLink :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 						<DropDown :options="[
 							{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
 							{ html: `Block @${post?.user?.handle}`, action: () => { } },
