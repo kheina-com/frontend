@@ -1,8 +1,10 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
+	
 	<div v-if='parent' class='parent'>
-		<router-link :to='`/p/${parent.postId}`' class='inner'>
+		<Reply :postId='parent?.post_id' v-bind='parent' nested/>
+		<router-link :to='`/p/${parent.postId}`' class='inner' v-show='false'>
 			<div class='parent-thumbnail'>
 				<Thumbnail :post='post.parent' v-show='parent?.media_type' :width='parent?.size?.width' :height='parent?.size?.height'/>
 			</div>
@@ -15,6 +17,7 @@
 			</div>
 		</router-link>
 	</div>
+
 	<div class='container' v-if='!isMobile'>
 		<Sidebar :tags='tags' :post='post' class='sidebar'/>
 		<div class='content'>
@@ -300,17 +303,16 @@ export default {
 
 		if (this.$store.state.postCache?.post_id === this.postId)
 		{
-			const r = this.$store.state.postCache;
+			this.post = this.$store.state.postCache;
 
-			r.favorites = 0;
-			r.reposts = 0;
-			this.post = r;
-			this.width = r.size?.width;
-			this.height = r.size?.height;
-			if (r.parent)
+			this.post.favorites = 0;
+			this.post.reposts = 0;
+			this.width = this.post.size?.width;
+			this.height = this.post.size?.height;
+			if (this.post.parent)
 			{
 				this.parent = false;
-				this.fetchParent(r.parent);
+				this.fetchParent(this.post.parent);
 			}
 		}
 		else
@@ -846,55 +848,8 @@ ol p {
 
 .parent {
 	margin-bottom: 25px;
-	padding: 0.25em 25px;
+	padding: 1em 25px;
 	background: var(--bg1color);
-	text-align: center;
-}
-.parent .thumbnail {
-	max-height: 100%;
-	width: 100%;
-	height: 100%;
-}
-.parent .inner {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--border-radius);
-	background: #0000;
-	-webkit-transition: var(--transition) var(--fadetime);
-	-moz-transition: var(--transition) var(--fadetime);
-	-o-transition: var(--transition) var(--fadetime);
-	transition: var(--transition) var(--fadetime);
-	padding: 0.25em 0.5em 0.25em 0.25em;
-	margin: 0.25em 0;
-	text-align: left;
-}
-.parent .inner:hover {
-	background: var(--bg2color);
-}
-.parent .parent-title {
-	font-size: 1.2em;
-	border-bottom: var(--border-size) solid var(--bordercolor);
-	padding-bottom: 0.1em;
-}
-.parent .inner p {
-	font-size: 1.2em;
-	padding: 0 0.5em;
-}
-.parent-thumbnail {
-	border-radius: var(--border-radius);
-	overflow: hidden;
-}
-.parent-thumbnail, .parent-thumbnail img {
-	margin-right: 0.5em;
-	max-width: 5em;
-	height: 5em;
-}
-.parent-contents h3 {
-	margin: 0 0 0 0.5em;
-}
-.parent-contents .parent-description {
-	margin-top: 0.75em;
 }
 
 .post-buttons {
