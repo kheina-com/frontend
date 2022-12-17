@@ -29,7 +29,7 @@
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 		</div>
-		<div class='screen-cover' @click='closeMenu'></div>
+		<div class='screen-cover' @click='closeMenu'/>
 		<div class='menu'>
 			<router-link to='/create' :class='($store.state.auth ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
 				<div class='icon'>
@@ -39,134 +39,140 @@
 					Upload
 				</p>
 			</router-link>
-			<div class='menu-border'></div>
-			<ol class='inner'>
-				<li v-if='environment == "local"'>
-					<a :href='`https://dev.fuzz.ly${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
-				</li>
-				<li v-else-if='environment == "dev"'>
-					<a :href='`http://localhost:3000${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Localhost</a>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link to='/?#'><i class='material-icons-round'>home</i>Home</router-link>
-					</span>
-				</li>
-				<li v-if='$store.state.auth'>
-					<span @click='closeMenu'>
-						<router-link to='/notifications'>
-							<div class='notifications'>
-								<i class='material-icons-round'>notifications</i>
-								<div class='counter' v-show='$store.state.notifications'>
-									<span>{{$store.state.notifications}}</span>
+			<div class='menu-border'/>
+			<div class='inner'>
+				<ol>
+					<li v-if='environment == "local"'>
+						<a :href='`https://dev.fuzz.ly${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Dev</a>
+					</li>
+					<li v-else-if='environment == "dev"'>
+						<a :href='`http://localhost:3000${$route.fullPath}`'><i class='material-icons-round'>open_in_new</i>Localhost</a>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/?#'><i class='material-icons-round'>home</i>Home</router-link>
+						</span>
+					</li>
+					<li v-if='$store.state.auth'>
+						<span @click='closeMenu'>
+							<router-link to='/notifications'>
+								<div class='notifications'>
+									<i class='material-icons-round'>notifications</i>
+									<div class='counter' v-show='$store.state.notifications'>
+										<span>{{$store.state.notifications}}</span>
+									</div>
 								</div>
-							</div>
-							Notifications
-						</router-link>
-					</span>
-				</li>
-				<li v-if='$store.state.auth'>
-					<span @click='closeMenu'>
-						<router-link to='/timeline'>
-							<i class='material-icons'>timeline</i>
-							Timeline
-						</router-link>
-					</span>
-				</li>
-				<li v-if='$store.state.auth?.isMod'>
-					<span @click='closeMenu'>
-						<router-link to='/mod/queue'><i class='material-icons'>security</i>Moderate</router-link>
-					</span>
-				</li>
-				<li v-if='$store.state.auth?.isAdmin'>
-					<ol>
-						<li>
-							<span @click='closeMenu'>
-								<button><i class='material-icons'>add_moderator</i>Add Mod</button>
-							</span>
-						</li>
-						<li>
-							<span @click='closeMenu'>
-								<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
-							</span>
-						</li>
-						<li>
-							<span @click='closeMenu'>
-								<router-link to='/users'><i class='material-icons-round'>people</i>All Users</router-link>
-							</span>
-						</li>
-					</ol>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
-					</span>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link to='/tags'><i class='material-icons-round'>tag</i>Tags</router-link>
-					</span>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
-					</span>
-				</li>
-				<li v-if='$store.state.auth'>
-					<span @click='closeMenu'>
-						<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
-					</span>
-				</li>
-				<li v-if='$store.state.auth'>
-					<ol>
-						<li>
-							<span @click='closeMenu'>
-								<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
-							</span>
-						</li>
-					</ol>
-				</li>
-				<li v-if='$store.state.auth'>
-					<span @click='closeMenu'>
-						<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
-					</span>
-				</li>
-				<li v-if='$store.state.auth'>
-					<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
-				</li>
-				<li v-if='!$store.state.auth'>
-					<span @click='closeMenu'>
-						<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
-					</span>
-				</li>
-				<li v-if='!$store.state.auth'>
-					<span @click='closeMenu'>
-						<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
-					</span>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
-					</span>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
-					</span>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link :to='`/bug?url=${route}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
-					</span>
-				</li>
-				<li>
-					<span @click='closeMenu'>
-						<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
-					</span>
-				</li>
-				<ThemeSelector class='theme-menu'/>
-				<p class='commit'>version: <router-link to='/version'><code>{{shortCommit}}</code></router-link></p>
-			</ol>
+								Notifications
+							</router-link>
+						</span>
+					</li>
+					<li v-if='$store.state.auth'>
+						<span @click='closeMenu'>
+							<router-link to='/timeline'>
+								<i class='material-icons'>timeline</i>
+								Timeline
+							</router-link>
+						</span>
+					</li>
+					<li v-if='$store.state.auth?.isMod'>
+						<span @click='closeMenu'>
+							<router-link to='/mod/queue'><i class='material-icons'>security</i>Moderate</router-link>
+						</span>
+					</li>
+					<li v-if='$store.state.auth?.isAdmin'>
+						<ol>
+							<li>
+								<span @click='closeMenu'>
+									<button><i class='material-icons'>add_moderator</i>Add Mod</button>
+								</span>
+							</li>
+							<li>
+								<span @click='closeMenu'>
+									<button><i class='material-icons'>remove_moderator</i>Remove Mod</button>
+								</span>
+							</li>
+							<li>
+								<span @click='closeMenu'>
+									<router-link to='/users'><i class='material-icons-round'>people</i>All Users</router-link>
+								</span>
+							</li>
+						</ol>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/tags'><i class='material-icons-round'>tag</i>Tags</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
+						</span>
+					</li>
+					<li v-if='$store.state.auth'>
+						<span @click='closeMenu'>
+							<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
+						</span>
+					</li>
+					<li v-if='$store.state.auth'>
+						<ol>
+							<li>
+								<span @click='closeMenu'>
+									<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
+								</span>
+							</li>
+						</ol>
+					</li>
+					<li v-if='$store.state.auth'>
+						<span @click='closeMenu'>
+							<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
+						</span>
+					</li>
+					<li v-if='$store.state.auth'>
+						<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
+					</li>
+					<li v-if='!$store.state.auth'>
+						<span @click='closeMenu'>
+							<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
+						</span>
+					</li>
+					<li v-if='!$store.state.auth'>
+						<span @click='closeMenu'>
+							<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link :to='`/bug?url=${route}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
+						</span>
+					</li>
+					<ThemeSelector class='theme-menu'/>
+				</ol>
+				<div class='menu-footer'>
+					<!-- TODO: replace this with an svg once one gets made -->
+					<img src='https://cdn.fuzz.ly/splash.png'>
+					<p class='commit'>version: <router-link to='/version'><code>{{shortCommit}}</code></router-link></p>
+				</div>
+			</div>	
 		</div>
 		<div class='menu-button' v-if='isMobile'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
@@ -389,8 +395,16 @@ html.mobile .menu-open .menu, .menu-open .menu {
 
 .menu .inner {
 	padding: 0.5em 25px 0;
-	margin: 0 0 25px;
+	margin: 0;
 	overflow: auto;
+	height: 80%;
+	height: calc(100% - 2.5rem);
+	display: flex;
+	flex-flow: column;
+	justify-content: space-between;
+}
+.mobile .menu .inner {
+	height: calc(100% - 4rem);
 }
 .menu button {
 	font-size: 1em;
@@ -439,7 +453,7 @@ html.mobile .menu-open .menu, .menu-open .menu {
 	font-size: 1.5em;
 }
 .markdown {
-	padding: 1.25em 0 25px;
+	padding: 20px 0 25px;
 	position: relative;
 	background: var(--bg1color);
 }
@@ -499,8 +513,6 @@ ol {
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	height: 80%;
-	height: calc(100% - 2.5rem - 0.5em - 25px);
 }
 ol li {
 	margin: 0 0 0.5em;
@@ -652,9 +664,6 @@ html.mobile .menu-open .create p, .menu-open .create p {
 	left: 4rem;
 }
 
-.mobile ol {
-	height: calc(100% - 4rem - 0.5em - 25px);
-}
 .mobile .create {
 	margin-left: 8rem;
 	height: 4rem;
@@ -669,21 +678,21 @@ html.mobile .menu-open .create p, .menu-open .create p {
 	left: 4rem;
 }
 
-.commit {
+.menu-footer {
+	margin-top: 25px;
+}
+.menu-footer img {
+	opacity: 25%;
+	width: 100%;
+}
+.menu-footer p {
 	margin: 0;
 	font-size: 0.75rem;
 	color: var(--subtle);
+	position: relative;
+	bottom: 1.25em;
 }
-.commit a {
+.menu-footer a {
 	color: var(--subtle);
-}
-
-.mobile .commit {
-	margin-top: 25px;
-}
-.desktop .commit {
-	position: absolute;
-	bottom: 1em;
-	width: calc(100% - 50px);
 }
 </style>

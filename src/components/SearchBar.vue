@@ -2,7 +2,7 @@
 	<div class='search-bar'>
 		<div class='search-input'>
 			<input v-model='value' @input='$emit(`update:value`, $event.target.value)' placeholder='Search' class='interactable text' @keydown.enter='func'>
-			<div class='cover'></div>
+			<div class='cover'/>
 			<button @click='func'><i class='material-icons-round'>search</i></button>
 		</div>
 		<div class='search-help'>
@@ -36,6 +36,12 @@ export default {
 	min-width: 350px;
 	width: 30vw;
 }
+.mobile .search-bar input:focus {
+	width: 80vw;
+	width: calc(100vw - 16rem);
+	position: relative;
+	z-index: 1000;
+}
 .icon {
 	display: flex;
 	justify-content: center;
@@ -47,8 +53,7 @@ i {
 	font-size: 1.2em;
 	display: block;
 }
-.search-bar button
-{
+.search-bar button {
 	font-size: 1.2em;
 	position: absolute;
 	right: 0;
