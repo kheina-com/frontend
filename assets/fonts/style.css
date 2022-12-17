@@ -37,6 +37,18 @@
 		url('/assets/fonts/material-icons-round.otf?LDItao') format('opentype');
 }
 
+@font-face {
+	font-family: 'Material Symbols Outline';
+	font-style: normal;
+	font-weight: 400;
+	font-variation-settings:
+		'FILL' 0;
+	src:
+		/* add woff, eot here too */
+		url('/assets/fonts/material-symbols.woff2?flUhRq') format('woff2'),
+		url('/assets/fonts/material-symbols.ttf?flUhRq') format('truetype');
+}
+
 /* use !important to prevent issues with browser extensions that change fonts */
 .material-icons {
 	font-family: 'Material Icons' !important;
@@ -48,8 +60,11 @@
 	/* https://icomoon.io/app/#/projects */
 	font-family: 'kheina-icons' !important;
 }
+.material-icons-outline {
+	font-family: 'Material Symbols Outline' !important;
+}
 
-.kheina-icons, .material-icons, .material-icons-round {
+.kheina-icons, .material-icons, .material-icons-round, .material-icons-outline {
 	speak: never;
 	font-style: normal;
 	font-weight: normal;

@@ -11,9 +11,10 @@
 				name='action-type'
 				v-model:value='action'
 				:data="[
+					{ content: 'Force Update', value: 'force-update' },
+					{ content: 'Remove Post', value: 'remove-post' },
 					{ content: 'Account Ban', value: 'ban' },
 					{ content: 'IP Ban', value: 'ip-ban' },
-					{ content: 'Remove Post', value: 'remove-post' },
 				]"
 			/>
 		</div>
@@ -21,6 +22,24 @@
 			<p v-if='action === "ban"'>Locks the user's account, preventing them from posting again. Prevents other users from viewing their account or its contents.</p>
 			<p v-else-if='action === "ip-ban"'>Locks the user's current IP address and the IP address they initially logged in from. Prevents anyone from that IP from creating a new account or logging in.</p>
 			<p v-else-if='action === "remove-post"'>Prevents the post from being modified or viewed by non-mods and non-admins. The user can still view the post.</p>
+			<p v-else-if='action === "force-update"'>Locks the post from being viewed by non-mods and non-admins until the user updates a specific field.</p>
+		</div>
+		<div class='container force-update' v-if='action === "force-update"'>
+			<span>Field and change that must be applied to the post before it is unlocked</span>
+			<div v-for='i in fieldUpdates.length' class='field-updates'>
+				<select name='post-field' v-model='fieldUpdates[i-1].field' @change='setFields' placeholder='field' class='interactable'>
+					<option value='rating'>Rating</option>
+					<option value='title'>Title</option>
+					<option value='description'>Description</option>
+					<option value='privacy'>Privacy</option>
+					<option value='tags'>Tags</option>
+				</select>
+				<input name='post-field-value' v-model='fieldUpdates[i-1].value' @change='setFields' placeholder='value to add' autocomplete='off' class='interactable'>
+				<button class='interactable' @click='fieldUpdates.splice(i-1, 1); setFields()'><i class='material-icons-outline'>delete</i>Remove</button>
+			</div>
+			<div class='buttons'>
+				<button class='interactable' @click='fieldUpdates.push({ }); setFields()'><i class='material-icons'>add</i>Add Field</button>
+			</div>
 		</div>
 		<div class='container'>
 			<span>Data included from the report</span>
@@ -28,7 +47,7 @@
 		</div>
 		<div class='container'>
 			<span>Message that will be sent to the user regarding the above action</span>
-			<textarea class='interactable text' v-model='message'></textarea>
+			<textarea class='interactable text' v-model='data.message'></textarea>
 			<div class='buttons'>
 				<button class='interactable' @click='takeAction'>Submit »</button>
 			</div>
@@ -54,6 +73,7 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import Post from '@/components/Post.vue';
+import DropDown from '@/components/DropDown.vue';
 
 
 export default {
@@ -63,13 +83,14 @@ export default {
 		Title,
 		RadioButtons,
 		Post,
+		DropDown,
 	},
 	data() {
 		return {
 			data: this.$route.query,
 			action: null,
 			post: null,
-			message: null,
+			fieldUpdates: [{ }],
 		};
 	},
 	created() {
@@ -94,11 +115,28 @@ export default {
 			createToast({
 				title: "This feature doesn't exist yet, sorry!",
 				description: "yes, I know this is a very important feature. it's currently being worked on",
-				dump: Object.assign(this.data, {
-					action: this.action,
-					message: this.message,
-				}),
 			});
+		},
+		setFields(value) {
+			if (this.action === 'force-update') {
+				this.data.field_updates = { };
+				this.fieldUpdates.forEach(entry => this.data.field_updates[entry.field] = entry.value);
+			}
+			else {
+				delete this.data.field_updates;
+			}
+		},
+	},
+	watch: {
+		action(value) {
+			this.data.action = value;
+			if (value === 'force-update') {
+				this.data.field_updates = { };
+				this.fieldUpdates.forEach(entry => this.data.field_updates[entry.field] = entry.value);
+			}
+			else {
+				delete this.data.field_updates;
+			}
 		},
 	},
 }
@@ -109,6 +147,22 @@ main {
 	background: var(--bg1color);
 	position: relative;
 	padding: 25px;
+}
+
+input {
+	display: block;
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
+	background: var(--bg2color);
+	color: var(--textcolor);
+	font-size: 1em;
+	width: 100%;
+}
+input:hover {
+	color: var(--icolor);
+}
+input:active, input:focus {
+	color: var(--textcolor);
 }
 
 .not-mod {
@@ -124,16 +178,18 @@ main {
 }
 
 .container, .action-description {
-	width: 50vw;
+	width: 60vw;
 	min-width: 600px;
-	margin: 25px auto 0;
 }
 .mobile .container, .mobile .action-description {
 	width: 100%;
 }
+.container {
+	margin: 25px auto 0;
+}
 .action-description {
 	text-align: center;
-	margin-bottom: 25px;
+	margin: 0.5em auto 25px;
 }
 
 textarea {
@@ -160,7 +216,7 @@ pre code {
 }
 
 .action-select {
-	margin-bottom: 25px;
+	margin-bottom: 0.5em;
 }
 
 .radio-buttons {
@@ -174,5 +230,33 @@ span {
 .buttons {
 	margin-top: 25px;
 	text-align: right;
+}
+
+.field-updates {
+	display: flex;
+	margin-bottom: 1em;
+}
+.force-update .buttons {
+	margin-top: 0;
+}
+input {
+	margin: 0 25px;
+	width: 100%;
+}
+
+button {
+	white-space: nowrap;
+	display: inline-flex;
+	align-items: center;
+}
+button i {
+	margin-right: 0.25em;
+}
+
+
+@media only screen and (max-width: 1000px) {
+	.container, .action-description {
+		width: auto;
+	}
 }
 </style>
