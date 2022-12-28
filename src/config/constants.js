@@ -18,9 +18,6 @@ switch (window.location.hostname.toLowerCase())
 		break;
 
 	case 'localhost' :
-		env = 'local';
-		break;
-
 	case '127.0.0.1' :
 		env = 'local';
 		break;
@@ -39,30 +36,30 @@ let usrHost = null;
 switch (environment)
 {
 	case 'prod' :
-		pHost = 'https://posts.kheina.com';
-		tHost = 'https://tags.kheina.com';
-		aHost = 'https://account.kheina.com';
-		uHost = 'https://upload.kheina.com';
-		cHost = 'https://config.kheina.com';
-		usrHost = 'https://users.kheina.com';
+		pHost = 'https://posts.fuzz.ly';
+		tHost = 'https://tags.fuzz.ly';
+		aHost = 'https://account.fuzz.ly';
+		uHost = 'https://upload.fuzz.ly';
+		cHost = 'https://config.fuzz.ly';
+		usrHost = 'https://users.fuzz.ly';
 		break;
 
 	case 'dev' :
-		pHost = 'https://dev.kheina.com/posts';
-		tHost = 'https://dev.kheina.com/tags';
-		aHost = 'https://dev.kheina.com/acct';
-		uHost = 'https://dev.kheina.com/upload';
-		cHost = 'https://dev.kheina.com/config';
-		usrHost = 'https://dev.kheina.com/users';
+		pHost = 'https://posts-dev.fuzz.ly';
+		tHost = 'https://tags-dev.fuzz.ly';
+		aHost = 'https://account-dev.fuzz.ly';
+		uHost = 'https://upload-dev.fuzz.ly';
+		cHost = 'https://config-dev.fuzz.ly';
+		usrHost = 'https://users-dev.fuzz.ly';
 		break;
 
 	case 'local' :
-		pHost = 'https://dev.kheina.com/posts';
-		tHost = 'https://dev.kheina.com/tags';
-		aHost = 'https://dev.kheina.com/acct';
-		uHost = 'https://dev.kheina.com/upload';
-		cHost = 'https://dev.kheina.com/config';
-		usrHost = 'https://dev.kheina.com/users';
+		pHost = 'https://posts-dev.fuzz.ly';
+		tHost = 'https://tags-dev.fuzz.ly';
+		aHost = 'https://account-dev.fuzz.ly';
+		uHost = 'https://upload-dev.fuzz.ly';
+		cHost = 'https://config-dev.fuzz.ly';
+		usrHost = 'https://users-dev.fuzz.ly';
 		break;
 }
 
@@ -73,7 +70,7 @@ export const uploadHost = uHost;
 export const configHost = cHost;
 export const usersHost = usrHost;
 
-export const cdnHost = 'https://cdn.fuzz.ly'
+export const cdnHost = 'https://cdn.fuzz.ly';
 
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
 
@@ -154,11 +151,11 @@ However, this does not include the [additional features](#additional-features) b
 
 
 ## Link Examples
-|            Markdown             |           Rendered            |
-|:-------------------------------:|:-----------------------------:|
-|      \`https://example.com\`      |      https://example.com      |
-| \`[a link](https://kheina.com)\`  | [a link](https://kheina.com)  |
-|     \`![an image](${image})\`     |     ![an image](${image})     |
+|          Markdown           |         Rendered          |
+|:---------------------------:|:-------------------------:|
+|    \`https://example.com\`    |    https://example.com    |
+| \`[a link](https://fuzz.ly)\` | [a link](https://fuzz.ly) |
+|   \`![an image](${image})\`   |   ![an image](${image})   |
 
 
 ## Code Examples
@@ -203,7 +200,7 @@ initial and trailing | pipes (\`\\|\`) can be omitted, | if you so choose
 
 
 # Additional Features
-These are features unique to kheina.com's implementation of markdown.
+These are features unique to fuzz.ly's implementation of markdown.
 
 ## User Linking
 to link to a user, you can simply precede the user's handle with an \`@\` character: @dani

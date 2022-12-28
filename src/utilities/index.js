@@ -137,7 +137,7 @@ export async function khatch(url, options={ })
 	const errorHandlers = options?.errorHandlers || { };
 	options.headers = options?.headers || { };
 
-	if (url.match(/^(?:https:\/\/(?:\w+\.)?kheina.com\/|http:\/\/localhost(?:\:\d{2,4})?\/|https:\/\/(?:\w+\.)?fuzz.ly\/)/))
+	if (url.match(/^(?:https:\/\/(?:[a-z0-9-_]+\.)?kheina\.com\/|http:\/\/localhost(?:\:\d{2,4})?\/|https:\/\/(?:[a-z0-9-_]+\.)?fuzz\.ly\/)/i))
 	{
 		options.credentials = 'include';
 		const auth = store.state.auth?.token;
