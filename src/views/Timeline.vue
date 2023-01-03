@@ -33,7 +33,6 @@ import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
-import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
@@ -71,7 +70,6 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Media,
 		Post,
 		DropDown,
 		ResultsNavigation,

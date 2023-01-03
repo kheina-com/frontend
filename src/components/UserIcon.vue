@@ -8,7 +8,7 @@ import { getIconUrl, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
 import { defaultUserIcon } from '@/config/constants';
 
 export default {
-	name: 'Media',
+	name: 'UserIcon',
 	props: {
 		isLoading: Boolean,
 		handle: String,

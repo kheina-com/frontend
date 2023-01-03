@@ -21,6 +21,7 @@ import BugReport from './views/BugReport.vue';
 import Notifications from './views/Notifications.vue';
 import Version from './views/Version.vue';
 import Content from './views/Content.vue';
+import Terms from './views/Terms.vue';
 import ModQueue from './views/ModQueue.vue';
 import Moderate from './views/Moderate.vue';
 
@@ -225,6 +226,14 @@ const routes = [
 		},
 	},
 	{
+		path: '/terms',
+		name: 'terms',
+		component: Terms,
+		meta: {
+			title: 'Terms of Service | fuzz.ly',
+		},
+	},
+	{
 		path: '/bug',
 		name: 'bug',
 		props: true,
@@ -250,15 +259,6 @@ const routes = [
 			title: 'Moderation Queue | fuzz.ly',
 		},
 	},
-	// {
-	// 	path: '/cookies',
-	// 	name: 'cookies',
-	// 	props: true,
-	// 	component: BugReport,
-	// 	meta: {
-	// 		title: 'Cookies | fuzz.ly',
-	// 	},
-	// },
 	{
 		path: '/version',
 		name: 'version',

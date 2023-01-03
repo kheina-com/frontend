@@ -10,7 +10,7 @@ import { getMediaThumbnailUrl, lazyObserver } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 
 export default {
-	name: 'Media',
+	name: 'Thumbnail',
 	components: {
 		Loading,
 	},

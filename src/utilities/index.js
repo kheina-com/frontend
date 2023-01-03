@@ -129,6 +129,7 @@ export function saveToHistory(data) {
 	history.replaceState(Object.assign(window.history.state, data), '');
 }
 
+const AuthRegex = /^(?:https:\/\/(?:[a-z0-9-_]+\.)*kheina\.com\/|http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)*fuzz\.ly\/)/i;
 export async function khatch(url, options={ })
 {
 	const attempts = options?.attempts || 1;
@@ -137,7 +138,7 @@ export async function khatch(url, options={ })
 	const errorHandlers = options?.errorHandlers || { };
 	options.headers = options?.headers || { };
 
-	if (url.match(/^(?:https:\/\/(?:[a-z0-9-_]+\.)?kheina\.com\/|http:\/\/localhost(?:\:\d{2,4})?\/|https:\/\/(?:[a-z0-9-_]+\.)?fuzz\.ly\/)/i))
+	if (url.match(AuthRegex))
 	{
 		options.credentials = 'include';
 		const auth = store.state.auth?.token;
@@ -184,12 +185,13 @@ export async function khatch(url, options={ })
 	{
 		if (handleError)
 		{
-			if (error)
+			if (!response)
 			{
-				console.log(JSON.stringify(options));
-				console.error(error);
+				console.log(error)
+				if (error.toString() === 'TypeError: NetworkError when attempting to fetch resource.')
+				{ error = 'An unexpected error occurred during an API call. (Are you connected to the internet?)'; }
 				store.commit('createToast', {
-					title: apiErrorMessageToast,
+					title: errorMessage,
 					description: error,
 				});
 			}
@@ -199,7 +201,7 @@ export async function khatch(url, options={ })
 				{ errorHandlers[response.status](response); }
 			}
 			else if (response.status < 400)
-			{ return response; }
+			{ return response; } // unreachable?
 			else if (response.status < 500)
 			{
 				store.commit('createToast', {
@@ -216,7 +218,7 @@ export async function khatch(url, options={ })
 				});
 			}
 
-			throw Error('Request Failed (handled).');
+			return new Promise((_, reject) => reject());
 		}
 		else
 		{ throw error; }

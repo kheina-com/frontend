@@ -147,11 +147,6 @@
 					</li>
 					<li>
 						<span @click='closeMenu'>
-							<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
-						</span>
-					</li>
-					<li>
-						<span @click='closeMenu'>
 							<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
 						</span>
 					</li>
@@ -163,6 +158,16 @@
 					<li>
 						<span @click='closeMenu'>
 							<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
+						</span>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link to='/terms'><i class='material-icons'>gavel</i>Terms of Service</router-link>
 						</span>
 					</li>
 					<ThemeSelector class='theme-menu'/>
@@ -243,20 +248,18 @@ export default {
 		};
 	},
 	mounted() {
-		khatch(`${configHost}/v1/banner`)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{ this.message = r.banner; }
-					else
-					{ console.error(error); }
-					this.isMessageLoading = false;
-					setTimeout(this.onResize, 0);
-				});
-			})
-			.catch(error => {
-				console.error(error);
+		khatch(`${configHost}/v1/banner`, {
+			errorMessage: 'Error Occurred While Fetching Banner',
+		}).then(response => {
+			response.json().then(r => {
+				if (response.status < 300)
+				{ this.message = r.banner; }
+				else
+				{ console.error(error); }
+				this.isMessageLoading = false;
+				setTimeout(this.onResize, 0);
 			});
+		});
 
 		this.$watch(
 			() => this.$route.path,

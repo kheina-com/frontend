@@ -1,6 +1,7 @@
 <template>
 	<footer class='footer'>
-		<!-- <ThemeButton/> -->
+		<ProgressBar :fill='funding' :target='target' fillColor='var(--funding)' link='https://www.patreon.com/kheina'>funding</ProgressBar>
+		<ThemeButton/>
 		<div class='anchor'>
 			<a href='https://www.patreon.com/kheina' target='_blank' class='left'>
 				<svg xmlns='http://www.w3.org/2000/svg' viewBox='7.846 7.798 47.363 47.34' class='external-logo patreon'>
@@ -20,12 +21,38 @@
 <script>
 import ThemeButton from '@/components/ThemeButton.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
+import { configHost } from '@/config/constants';
+import { khatch } from '@/utilities';
 
 export default {
 	name: 'Footer',
 	components: {
 		ThemeButton,
 		ProgressBar,
+	},
+	data() {
+		return {
+			funding: 0,
+			target: "Loading",
+		}
+	},
+	created() {
+		this.updateLoop();
+	},
+	methods: {
+		updateLoop() {
+			khatch(`${configHost}/v1/funding`, {
+				errorMessage: 'Error Occurred While Fetching Banner',
+			}).then(response => {
+				response.json().then(r => {
+					this.funding = r.funds / r.costs * 100;
+					const funds = r.funds.toString();
+					const costs = r.costs.toString();
+					this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
+				});
+			});
+			setTimeout(this.updateLoop, 300000);
+		},
 	},
 }
 </script>
@@ -44,12 +71,11 @@ export default {
 
 .footer
 {
-	width: 100%;
 	min-height: 1.5em;
 	margin: 4px 0 0;
 	font-size: 0.9rem;
 	white-space: nowrap;
-	padding: 0 0 25px;
+	padding: 0 25px 25px;
 	text-align: center;
 }
 .footer .anchor

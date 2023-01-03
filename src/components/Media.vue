@@ -8,6 +8,7 @@
 
 <script>
 import { ref } from 'vue';
+import { createToast } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 
 export default {
@@ -31,10 +32,6 @@ export default {
 		controls: {
 			type: Boolean,
 			default: true,
-		},
-		load: {
-			type: Function,
-			default: () => { },
 		},
 		style: {
 			type: String,
@@ -82,26 +79,21 @@ export default {
 			return this.style;
 		},
 	},
-	mounted() {
-		this.$refs.media.addEventListener('fetch', e => console.log(e));
-		this.load();
-	},
 	methods: {
 		onLoad() {
 			this.isLoading = false;
 			this.$emit(`update:width`, this.$refs.media.naturalWidth);
 			this.$emit(`update:height`, this.$refs.media.naturalHeight);
-			// don't ask me why the timeout is necessary, I don't know.
-			setTimeout(this.load, 0);
 		},
 		onError(event) {
 			if (!this.mime || !this.src)
 			{ return; }
-			console.log(event);
 			this.isLoading = false;
 			this.isError = true;
-			// don't ask me why the timeout is necessary, I don't know.
-			setTimeout(this.load, 0);
+			createToast({
+				title: 'Failed To Load Media',
+				dump: this.src,
+			})
 		},
 	},
 }

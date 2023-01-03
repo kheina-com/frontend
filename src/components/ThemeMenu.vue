@@ -3,7 +3,7 @@
 		<input id='themecheck' type='checkbox' name='themes'>
 		<ThemeSelector class='theme-menu'/>
 	</div>
-	<label class='themebutton' for='themecheck'><a>theme</a></label>
+	<!-- <label class='themebutton' for='themecheck'><a>theme</a></label> -->
 </template>
 
 <script>

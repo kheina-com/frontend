@@ -458,6 +458,8 @@ html
 	--cyan: darkcyan;
 	--violet: #9451d7;
 
+	--funding: forestgreen;
+
 	--notification-text: #eee;
 	--notification-bg: var(--red);
 }
@@ -612,11 +614,26 @@ html.solarized-dark {
 	--bg2color: #002b36;
 	--bg3color: var(--bg1color);
 	--textcolor: #93a1a1;
-	--bordercolor: #586e75;
 	--subtle: #657b83;
 	--shadowcolor: #002b36;
 	--activeshadowcolor: #2aa19820;
 	--screen-cover: #002b3680;
+}
+
+html.solarized-light {
+	--icolor: #cb4b16;
+	--bg0color: #fdf6e3;
+	--bg1color: #eee8d5;
+	--bg2color: #fdf6e3;
+	--textcolor: #586e75;
+	--subtle: #839496;
+	--shadowcolor: #93a1a1;
+	--activeshadowcolor: #dc322f40;
+	--screen-cover: #fdf6e380;
+}
+
+html.solarized-light, html.solarized-dark {
+	--bordercolor: #586e75;
 
 	--yellow:    #b58900;
 	--orange:    #cb4b16;
@@ -627,6 +644,8 @@ html.solarized-dark {
 	--cyan:      #2aa198;
 	--green:     #859900;
 
+	--funding: var(--green);
+
 	--error: var(--red);
 	--warning: var(--orange);
 	--valid: var(--green);
@@ -634,30 +653,6 @@ html.solarized-dark {
 	--general: var(--green);
 	--mature: var(--cyan);
 	--explicit: var(--red);
-}
-
-html.solarized-light {
-	--icolor: #cb4b16;
-	--bg0color: #fdf6e3;
-	--bg1color: #eee8d5;
-	--bg2color: #fdf6e3;
-	--textcolor: #586e75;
-	--bordercolor: #586e75;
-	--subtle: #839496;
-	--shadowcolor: #93a1a1;
-	--activeshadowcolor: #dc322f40;
-	--screen-cover: #fdf6e380;
-
-	--error: #dc322f;
-	--warning: #cb4b16;
-	--valid: #859900;
-
-	--pink: #d33682;
-	--green: #859900;
-	--blue: #268bd2;
-	--orange: #cb4b16;
-	--cyan: #2aa198;
-	--violet: #6c71c4;
 }
 
 html.furaffinity {

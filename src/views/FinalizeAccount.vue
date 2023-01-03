@@ -55,7 +55,6 @@ import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
-import Media from '@/components/Media.vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Button from '@/components/Button.vue';
 
@@ -96,7 +95,6 @@ export default {
 		Sidebar,
 		Subtitle,
 		Title,
-		Media,
 	},
 	created() {
 		this.tokenProvided = this.$route.query.token ? true : false;

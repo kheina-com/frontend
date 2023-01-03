@@ -103,10 +103,9 @@ export default createStore({
 					else
 					{ setCookie('kh-auth', auth.token, maxage); }
 					state.auth = authCookie();
-					khatch(
-						`${usersHost}/v1/fetch_self`,
-						{ errorMessage: 'An Error Occurred While Fetching Self' },
-					).then(response => {
+					khatch(`${usersHost}/v1/fetch_self`, {
+						errorMessage: 'Error Occurred While Fetching Self'
+					}).then(response => {
 						response.json().then(r => {
 							r.created = new Date(r.created);
 							state.user = r;

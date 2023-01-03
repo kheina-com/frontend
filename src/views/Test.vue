@@ -16,7 +16,7 @@
 					</Button>
 				</div>
 				<div>
-					<Button @click="$store.commit('createToast', {
+					<Button @click="createToast({
 						title: 'You just created an error toast',
 						description: 'If you submit a bug report, please include the data below.',
 						dump: {
@@ -37,6 +37,7 @@
 				<p>note: signature is not checked</p>
 			</div>
 		</div>
+		<ThemeMenu/>
 	</main>
 </template>
 
@@ -46,7 +47,7 @@ import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
-import { authCookie } from '@/utilities';
+import { authCookie, createToast } from '@/utilities';
 import epoch from '@/config/constants';
 import { environment } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
@@ -72,6 +73,7 @@ export default {
 		}
 	},
 	methods: {
+		createToast,
 		uuid() {
 			let uuid = '';
 			for (let i = 0; i < 32; i++)
