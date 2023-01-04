@@ -293,7 +293,6 @@ export default {
 	},
 	computed: {
 		emojiPlaceholder() {
-
 			return ':' +
 				(this.update.title || this.title || this.postId)
 					.toLowerCase()

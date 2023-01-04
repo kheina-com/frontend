@@ -56,22 +56,20 @@ export default {
 			{ vote = 0; }
 
 			khatch(`${postsHost}/v1/vote`, {
-					handleError: true,
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						vote,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						this.setElementVote(vote);
-						this.score.user_vote = vote;
-						this.score.up = r.up;
-						this.score.down = r.down;
-					});
-				})
-				.catch(() => { });
+				handleError: true,
+				method: 'POST',
+				body: {
+					post_id: this.postId,
+					vote,
+				},
+			}).then(response => {
+				response.json().then(r => {
+					this.setElementVote(vote);
+					this.score.user_vote = vote;
+					this.score.up = r.up;
+					this.score.down = r.down;
+				});
+			});
 		},
 	},
 	watch: {
@@ -94,6 +92,9 @@ export default {
 }
 button {
 	pointer-events: all;
+}
+.disabled button {
+	pointer-events: none;
 }
 button b {
 	display: block;
