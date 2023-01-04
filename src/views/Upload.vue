@@ -612,18 +612,18 @@ export default {
 							this.privacy = this.update.privacy = r.privacy;
 							this.rating = this.update.rating = r.rating;
 							this.mime = r.media_type?.mime_type;
-						if (r.filename)
-						{
-							this.uploadDone = true;	
-							this.filename = r.filename;
-							this.mediaUrl = getMediaUrl(this.postId, this.filename);
-						}
-						else
-						{
-							this.uploadDone = false;	
-							this.filename = null;
-							this.mediaUrl = null;
-						}
+							if (r.filename)
+							{
+								this.uploadDone = true;	
+								this.filename = r.filename;
+								this.mediaUrl = getMediaUrl(this.postId, this.filename);
+							}
+							else
+							{
+								this.uploadDone = false;	
+								this.filename = null;
+								this.mediaUrl = null;
+							}
 							// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
 							// { this.uploadUnavailable = true; }
 						});

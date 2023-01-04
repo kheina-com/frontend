@@ -65,19 +65,32 @@ export function commafy(x)
 	return parts.join('.');
 }
 
-export function getMediaUrl(postId, filename)
+let _getMediaUrl;
+let _getMediaThumbnailUrl;
+
+if (environment === 'local')
 {
-	return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`;
+	_getMediaUrl = function(postId, filename)
+	{ return `${cdnHost}/${postId}/${encodeURIComponent(filename)}?authorization=${store.state.auth?.token}`; }
+
+	_getMediaThumbnailUrl = function(postId, resolution=800, extension='webp')
+	{ return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}?authorization=${store.state.auth?.token}`; }
 }
+else
+{
+	_getMediaUrl = function(postId, filename)
+	{ return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`; }
+
+	_getMediaThumbnailUrl = function(postId, resolution=800, extension='webp')
+	{ return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`; }
+}
+
+export const getMediaUrl = _getMediaUrl;
+export const getMediaThumbnailUrl = _getMediaThumbnailUrl;
 
 export function getEmojiUrl(emojiName)
 {
 	return `${cdnHost}/emoji/${encodeURIComponent(emojiName)}.webp`;
-}
-
-export function getMediaThumbnailUrl(postId, resolution=800, extension='webp')
-{
-	return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`;
 }
 
 export function getIconUrl(postId, handle, extension='webp')
