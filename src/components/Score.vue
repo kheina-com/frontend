@@ -29,6 +29,11 @@ export default {
 		};
 	},
 	mounted() {
+		if (this.score === undefined || this.score === null)
+		{ this.$refs.scoreElement.classList.add('disabled'); }
+		else
+		{ this.$refs.scoreElement.classList.remove('disabled'); }
+
 		this.setElementVote(this.score?.user_vote);
 	},
 	computed: {
@@ -74,8 +79,10 @@ export default {
 	},
 	watch: {
 		score(value) {
-			if (value === null)
+			if (this.score === undefined || this.score === null)
 			{ this.$refs.scoreElement.classList.add('disabled'); }
+			else
+			{ this.$refs.scoreElement.classList.remove('disabled'); }
 			this.setElementVote(value?.user_vote);
 		},
 	},

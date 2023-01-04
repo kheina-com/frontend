@@ -1,5 +1,5 @@
 <template>
-	<div v-if='!lazy' ref='content'>
+	<div v-if='type === "block"' ref='content'>
 		<slot name='default'/>
 		<div class='loadingicon' v-show='isLoading'>
 			<img src='/assets/loading.webp' alt='Loading...'/>
@@ -28,9 +28,9 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		lazy: {
-			type: Boolean,
-			default: true,
+		type: {
+			type: String,
+			default: 'wave',
 		},
 	},
 	setup() {
@@ -39,16 +39,33 @@ export default {
 			content,
 		};
 	},
-	methods: {
-		setLoadingClass(value) {
-			if (value)
-			{ this.$refs.content.classList.add('loading', this.lazy ? 'wave' : 'block') }
-			else
-			{ this.$refs.content.classList.remove('loading', this.lazy ? 'wave' : 'block') }
-		},
-	},
 	mounted() {
 		this.setLoadingClass(this.isLoading);
+	},
+	methods: {
+		setLoadingClass(value) {
+			switch (this.type) {
+				case 'block':
+					if (value)
+					{ this.$refs.content.classList.add('loading', 'block'); }
+					else
+					{ this.$refs.content.classList.remove('loading', 'block'); }
+					break;
+				case 'stripes':
+					if (value)
+					{ this.$refs.content.classList.add('loading', 'stripes'); }
+					else
+					{ this.$refs.content.classList.remove('loading', 'stripes'); }
+					break;
+				case 'wave':
+				default:
+					if (value)
+					{ this.$refs.content.classList.add('loading', 'wave'); }
+					else
+					{ this.$refs.content.classList.remove('loading', 'wave'); }
+					break;
+			}
+		},
 	},
 	watch: {
 		isLoading(value) {
@@ -94,10 +111,11 @@ span {
 	opacity: 100%;
 }
 
-.loading.wave * {
+.loading.wave *, .loading.stripes * {
 	opacity: 0% !important;
 }
-.loading.wave, .loading.wave *, .loading.wave *:hover, .loading.wave *:focus, .loading.wave *:active {
+.loading.wave, .loading.wave *, .loading.wave *:hover, .loading.wave *:focus, .loading.wave *:active,
+.loading.stripes, .loading.stripes *, .loading.stripes *:hover, .loading.stripes *:focus, .loading.stripes *:active {
 	color: #00000000 !important;
 }
 
@@ -118,14 +136,27 @@ span {
 	animation: wave 2s infinite linear forwards;
 	-webkit-animation: wave 2s infinite linear forwards;
 	background: var(--bg2color);
-	background: linear-gradient(100deg, var(--bg2color) 40vw, var(--bordercolor) 50vw, var(--bg2color) 60vw);
+	background: linear-gradient(100deg, var(--bg2color) 40vw, var(--wave-color) 50vw, var(--bg2color) 60vw);
+	background-size: 100vw 100%;
+}
+.nested .loading.wave {
+	background: var(--bg1color);
+	background: linear-gradient(100deg, var(--bg1color) 40vw, var(--wave-color) 50vw, var(--bg1color) 60vw);
 	background-size: 100vw 100%;
 }
 
-.nested .loading.wave {
+.loading.stripes {
+	border-radius: var(--border-radius);
+	animation: stripes 1s infinite linear forwards;
+	-webkit-animation: stripes 1s infinite linear forwards;
 	background: var(--bg2color);
-	background: linear-gradient(100deg, var(--bg1color) 40vw, var(--bordercolor) 50vw, var(--bg1color) 60vw);
-	background-size: 100vw 100%;
+	background: linear-gradient(120deg, var(--bg2color) 1.1em, var(--stripe-color) 1.1em, var(--stripe-color) 2.3em, var(--bg2color) 2.3em);
+	background-size: 2.9em 100%;
+}
+.nested .loading.stripes {
+	background: var(--bg1color);
+	background: linear-gradient(120deg, var(--bg1color) 1.1em, var(--stripe-color) 1.1em, var(--stripe-color) 2.3em, var(--bg1color) 2.3em);
+	background-size: 2.9em 100%;
 }
 
 @keyframes wave {
@@ -136,7 +167,6 @@ span {
 		background-position: 100vw 0
 	}
 }
-
 @-webkit-keyframes wave {
 	0%{
 		background-position: 0 0
@@ -145,6 +175,24 @@ span {
 		background-position: 100vw 0
 	}
 }
+
+@keyframes stripes {
+	0% {
+		background-position: 2.9em 0
+	}
+	100% {
+		background-position: 0 0
+	}
+}
+@-webkit-keyframes stripes {
+	0%{
+		background-position: 2.9em 0
+	}
+	100%{
+		background-position: 0 0
+	}
+}
+
 
 html.solarized-dark div.loadingicon img {
 	filter: sepia(100%) saturate(232%) hue-rotate(1deg) brightness(99.5%);

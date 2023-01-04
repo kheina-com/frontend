@@ -219,7 +219,7 @@
 	<div class='image-uploader' v-if='isUploadBanner || isUploadIcon' @mousedown='disableUploads'>
 		<div class='cropper' @mousedown.stop v-if='uploadPostId'>
 			<div class='image-uploader' v-if='uploadLoading'>
-				<Loading :lazy='false'/>
+				<Loading type='block'/>
 			</div>
 			<Cropper
 				ref='cropper'
@@ -236,7 +236,7 @@
 		</div>
 		<div class='upload-window' @mousedown.stop v-else>
 			<div class='image-uploader' v-if='uploadLoading'>
-				<Loading :lazy='false'/>
+				<Loading type='block'/>
 			</div>
 			<div v-if='!uploadablePosts' style='margin-top: 25px; text-align: center'>
 				Select an existing post to set as your {{isUploadIcon ? 'profile picture' : 'banner image'}}.

@@ -253,19 +253,7 @@ export default {
 		};
 	},
 	mounted() {
-		khatch(`${configHost}/v1/banner`, {
-			errorMessage: 'Error Occurred While Fetching Banner',
-		}).then(response => {
-			response.json().then(r => {
-				if (response.status < 300)
-				{ this.message = r.banner; }
-				else
-				{ console.error(error); }
-				this.isMessageLoading = false;
-				setTimeout(this.onResize, 0);
-			});
-		});
-
+		this.updateLoop();
 		this.$watch(
 			() => this.$route.path,
 			this.setQuery,
@@ -278,6 +266,18 @@ export default {
 	},
 	methods: {
 		getMediaThumbnailUrl,
+		updateLoop() {
+			khatch(`${configHost}/v1/banner`, {
+				errorMessage: 'Error Occurred While Fetching Banner',
+			}).then(response => {
+				response.json().then(r => {
+					this.message = r.banner;
+					this.isMessageLoading = false;
+					setTimeout(this.onResize, 0);
+				});
+			});
+			setTimeout(this.updateLoop, 300000);
+		},
 		setQuery() {
 			if (this.$route.path.match(/^\/[qt]\//))
 			{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
@@ -694,7 +694,7 @@ html.mobile .menu-open .create p, .menu-open .create p {
 	margin-top: 25px;
 }
 .menu-footer img {
-	opacity: 25%;
+	opacity: 33.333%;
 	width: 100%;
 }
 .menu-footer p {

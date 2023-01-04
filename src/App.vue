@@ -425,8 +425,7 @@ h3#percent
 .source span
 { padding: 0; }
 
-html
-{
+html {
 	--transition: none;
 	--fadetime: 0.15s;
 	--warning: yellow;
@@ -451,6 +450,8 @@ html
 	--screen-cover: #00000080;
 	--border-size: 1px;
 	--border-radius: 3px;
+	--wave-color: var(--bordercolor);
+	--stripe-color: var(--subtle);
 
 	--pink: #cc35cc;
 	--yellow: #c8c80f;
@@ -471,11 +472,14 @@ html.mobile {
 	--border-radius: 5px;
 }
 
+html.kheina {
+	--stripe-color: #222430;
+}
+
 div.loadingicon img
 { filter: sepia(100%) saturate(382%) hue-rotate(-2.8deg) brightness(113.5%); }
 
-html.light
-{
+html.light {
 	--icolor: #F28817;
 	--bg0color: #C3C4CE;
 	--bg1color: #E0E4E8;
@@ -485,6 +489,8 @@ html.light
 	--subtle: #00000080;
 	--shadowcolor: #6D718680;
 	--activeshadowcolor: #6D7186B3;
+	--wave-color: #b4b9c4;
+	--stripe-color: #b4b9c4;
 }
 
 html.midnight

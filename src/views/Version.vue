@@ -22,6 +22,7 @@
 				</tr>
 			</table>
 		</div>
+		<ThemeMenu/>
 	</main>
 </template>
 

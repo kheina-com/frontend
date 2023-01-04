@@ -4,7 +4,7 @@
 		<button class='interactable edit-button' @click='editToggle' v-if='editable'>
 			<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
 		</button>
-		<Loading v-if='editing' class='editing' :lazy='false' :isLoading='pendingUpdate'>
+		<Loading v-if='editing' class='editing' type='block' :isLoading='pendingUpdate'>
 			<div class='tag'>
 				<div>
 					<h2>Tag</h2>

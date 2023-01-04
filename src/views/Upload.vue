@@ -14,7 +14,7 @@
 		<Title static='center'>New Post</Title>
 		<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
 		<div class='form'>
-			<Loading :lazy='false' :isLoading='isUploading' v-if='!uploadUnavailable'>
+			<Loading type='block' :isLoading='isUploading' v-if='!uploadUnavailable'>
 				<div class='field'>
 					<div>
 						<span>File</span>
@@ -192,9 +192,9 @@
 			</div>
 			<div class='actions'>
 				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
-				<Button @click='markDraft' v-show='privacy === "unpublished"'><i class='material-icons'>note_add</i>Mark Draft</Button>
-				<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
-				<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
+				<Button @click='markDraft' :isLoading='saving' v-show='privacy === "unpublished"'><i class='material-icons'>note_add</i>Mark Draft</Button>
+				<Button @click='savePost' :isLoading='saving'><i class='material-icons'>save</i>Save</Button>
+				<Button @click='publishPost' :isLoading='saving' green><i class='material-icons'>publish</i>Publish</Button>
 			</div>
 		</div>
 		<ThemeMenu/>
@@ -270,6 +270,8 @@ export default {
 			update: { },
 			mediaUrl: null,
 
+			saving: false,
+
 			// request fields
 			postId: null,
 			description: null,
@@ -330,8 +332,9 @@ export default {
 			this.$refs.draftsPanel.classList.remove('open');
 		},
 		markDraft() {
+			this.saving = true;
 			this.uploadFile()
-			.then(this.savePost)
+			.then(this.saveData)
 			.then(() => {
 				khatch(`${uploadHost}/v1/update_privacy`, {
 					handleError: true,
@@ -341,6 +344,7 @@ export default {
 						privacy: 'draft',
 					},
 				}).then(response => {
+					this.saving = false;
 					this.privacy = 'draft';
 					createToast({
 						icon: 'done',
@@ -349,7 +353,43 @@ export default {
 						time: 5,
 					});
 				});
-			});
+			})
+			.catch(() => this.saving = false);
+		},
+		savePost() {
+			this.saving = true;
+			this.uploadFile()
+			.then(this.saveData)
+			.then(() => this.saving = false)
+			.catch(() => this.saving = false);
+		},
+		publishPost() {
+			console.log(this.update.privacy);
+			if (true)
+			{
+				createToast({
+					title: 'Privacy Not Set!',
+					time: 5,
+				});
+				return;
+			}
+			this.saving = true;
+			this.uploadFile()
+			.then(this.saveData)
+			.then(() => {
+				khatch(`${uploadHost}/v1/update_privacy`, {
+					handleError: true,
+					method: 'POST',
+					body: {
+						post_id: this.postId,
+						privacy: this.update.privacy,
+					},
+				}).then(response => {
+					this.privacy = this.update.privacy;
+					this.$router.push(`/p/${this.postId}`);
+				});
+			})
+			.catch(() => this.saving = false);
 		},
 		addTag(tag) {
 			this.$refs.tagDiv.textContent += ' ' + tag;
@@ -423,7 +463,7 @@ export default {
 				ajax.send(formdata);
 			});
 		},
-		savePost() {
+		saveData() {
 			return new Promise((resolve, reject) => {
 				this.showData();
 
@@ -555,24 +595,6 @@ export default {
 				})));
 
 				this.savedTags = activeTags;
-			});
-		},
-		publishPost() {
-			this.uploadFile()
-			.then(this.savePost)
-			.then(() => {
-				this.privacy = this.update.privacy;
-
-				khatch(`${uploadHost}/v1/update_privacy`, {
-					handleError: true,
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						privacy: this.privacy,
-					},
-				}).then(response => {
-					this.$router.push(`/p/${this.postId}`);
-				});
 			});
 		},
 		postWatcher(value) {
@@ -819,7 +841,7 @@ main {
 	list-style-type: none;
 	margin: 0;
 	padding: 0.5em 25px 0;
-	overflow: scroll;
+	overflow: auto;
 	max-height: calc(100% - 25px - 2em);
 }
 .drafts-panel ol li {

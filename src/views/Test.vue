@@ -11,7 +11,7 @@
 			</div>
 			<div class='buttons'>
 				<div>
-					<Button @click='audio.play()'>
+					<Button @click='playAudio' :isLoading='audioLoading'>
 						play me
 					</Button>
 				</div>
@@ -38,6 +38,12 @@
 			</div>
 		</div>
 		<ThemeMenu/>
+		<Button :isLoading='true'>
+			<div style='width: 100%'>
+				aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+			</div>
+		</Button>
+		<Post nested/>
 	</main>
 </template>
 
@@ -51,6 +57,7 @@ import { authCookie, createToast } from '@/utilities';
 import epoch from '@/config/constants';
 import { environment } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
+import Post from '@/components/Post.vue';
 
 
 export default {
@@ -61,6 +68,7 @@ export default {
 		Timestamp,
 		Button,
 		Markdown,
+		Post,
 	},
 	data() {
 		return {
@@ -69,6 +77,7 @@ export default {
 			datetime: new Date(Date.now()).toString(),
 			audio: new Audio(notify),
 			content: authCookie()?.token,
+			audioLoading: false,
 			environment,
 		}
 	},
@@ -79,6 +88,11 @@ export default {
 			for (let i = 0; i < 32; i++)
 			{ uuid += Math.floor(Math.random() * 16).toString(16); }
 			return uuid;
+		},
+		playAudio() {
+			this.audioLoading = true;
+			this.audio.play();
+			setTimeout(() => this.audioLoading = false, this.audio.duration * 1000);
 		},
 	},
 	computed: {
@@ -170,7 +184,7 @@ i {
 .token {
 	display: grid;
 	grid-template-columns: [editor-start] 1fr [editor-end] 25px [preview-start] 1fr [preview-end];
-	margin: 0 auto;
+	margin: 0 auto 25px;
 	min-width: 1000px;
 	position: relative;
 }

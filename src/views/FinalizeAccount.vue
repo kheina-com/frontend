@@ -1,6 +1,6 @@
 <template>
 	<main>
-		<Loading :lazy='false' :isLoading='isLoading' v-if='tokenProvided'>
+		<Loading type='block' :isLoading='isLoading' v-if='tokenProvided'>
 			<Title static='center'>Create Account</Title>
 			<div class='form'>
 				<div class='field'>

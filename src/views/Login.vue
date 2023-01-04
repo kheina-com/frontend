@@ -1,6 +1,6 @@
 <template>
 	<main>
-		<Loading :lazy='false' :isLoading='isLoading'>
+		<Loading type='block' :isLoading='isLoading'>
 			<Title static='center'>Login<template v-slot:super><router-link to='/account/create'>Create</router-link></template></Title>
 			<div class='form'>
 				<div class='field'>

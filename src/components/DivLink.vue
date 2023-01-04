@@ -1,5 +1,8 @@
 <template>
-	<a :href='link' v-if='link'>
+	<a :href='link' target='_blank' v-if='newTab'>
+		<slot/>
+	</a>
+	<a :href='link' v-else-if='link'>
 		<slot/>
 	</a>
 	<div v-else>
@@ -14,6 +17,10 @@ export default {
 		link: {
 			type: String,
 			default: null,
+		},
+		newTab: {
+			type: Boolean,
+			default: false,
 		},
 	}
 }

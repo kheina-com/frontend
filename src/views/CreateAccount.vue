@@ -1,6 +1,6 @@
 <template>
 	<main>
-		<Loading :lazy='false' :isLoading='isLoading'>
+		<Loading type='block' :isLoading='isLoading'>
 			<Title static='center'>Create Account</Title>
 			<div class='form'>
 				<div class='field'>

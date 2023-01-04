@@ -1,6 +1,6 @@
 <template>
 	<footer class='footer'>
-		<ProgressBar :fill='funding' :target='target' fillColor='var(--funding)' link='https://www.patreon.com/kheina'>funding</ProgressBar>
+		<ProgressBar :fill='funding' :target='target' fillColor='var(--funding)' link='https://www.patreon.com/kheina' newTab>funding</ProgressBar>
 		<ThemeButton/>
 		<div class='anchor'>
 			<a href='https://www.patreon.com/kheina' target='_blank' class='left'>
@@ -33,7 +33,7 @@ export default {
 	data() {
 		return {
 			funding: 0,
-			target: "Loading",
+			target: "Loading...",
 		}
 	},
 	created() {
@@ -42,13 +42,17 @@ export default {
 	methods: {
 		updateLoop() {
 			khatch(`${configHost}/v1/funding`, {
-				errorMessage: 'Error Occurred While Fetching Banner',
+				errorMessage: 'Error Occurred While Fetching Funding',
 			}).then(response => {
 				response.json().then(r => {
 					this.funding = r.funds / r.costs * 100;
-					const funds = r.funds.toString();
-					const costs = r.costs.toString();
-					this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
+
+					// if for some fucking reason, our costs/funds exceed 52 bits of float precision, we can uncomment this.
+					// const funds = r.funds.toString();
+					// const costs = r.costs.toString();
+					// this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
+
+					this.target = `$${(r.funds / 100).toFixed(2)} / $${(r.costs / 100).toFixed(2)}`;
 				});
 			});
 			setTimeout(this.updateLoop, 300000);

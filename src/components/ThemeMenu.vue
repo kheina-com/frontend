@@ -44,6 +44,7 @@ export default {
 	height: 120px;
 	pointer-events: none;
 	height: calc(4em + 50px);
+	margin: 0;
 }
 .themes input
 { display: none; }

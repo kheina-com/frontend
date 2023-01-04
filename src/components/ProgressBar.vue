@@ -1,5 +1,5 @@
 <template>
-	<DivLink class='progressbar' :style='barColors' :link='link'>
+	<DivLink class='progressbar' :style='barColors' :link='link' :newTab='newTab'>
 		<span :style='spanFill'>
 			<div>{{target ? target : fill.toFixed(2) + '%'}}</div>
 		</span>
@@ -32,6 +32,10 @@ export default {
 		link: {
 			type: String,
 			default: null,
+		},
+		newTab: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	computed: {
