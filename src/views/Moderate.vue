@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<main v-if='$store.state.auth?.isMod'>
-		<Post :postId='post?.post_id' :nested='true' v-bind='post' hideButtons v-if='post'/>
+		<Post :postId='post?.post_id' :nested='true' v-bind='post' hideButtons labels v-if='post'/>
 		<Title v-else>Moderate Content</Title>
 		<div class='container'>
 			<span>Select an action to perform below</span>

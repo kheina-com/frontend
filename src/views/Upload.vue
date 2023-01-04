@@ -67,7 +67,7 @@
 						{{tagsField}}
 					</div>
 					<div class='frequently-used' v-if='tagSuggestions'>
-						<span style='margin-top: 25px'>Frequently Used Tags <button @click='showSuggestions = !showSuggestions'><i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
+						<span style='margin-top: 25px'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
 						<div class='frequently-used-border'/>
 						<div v-show='showSuggestions'>
 							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
@@ -878,8 +878,9 @@ li {
 	flex-direction: column;
 }
 
-.frequently-used > span {
+.frequently-used button {
 	display: inline-flex;
+	align-items: center;
 }
 
 .frequently-used .group-title {

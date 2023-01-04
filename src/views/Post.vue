@@ -55,14 +55,14 @@
 				</div>
 				<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
 				<Loading :isLoading='isLoading'>
-					<Subtitle static='left' v-if='isUpdated'>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
-					<Subtitle static='left' v-else>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
+					<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
+					<Subtitle static='left' v-else>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
 				</Loading>
 				<div class='post-buttons' v-if='!isLoading'>
 					<Report :data='{ post: postId }' v-if='!isLoading'/>
 					<RepostButton :postId='postId' v-model:count='post.reposts'/>
 					<FavoriteButton :postId='postId' v-model:count='post.favorites'/>
-					<ShareLink :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+					<ShareLink :content='`/p/${postId}`' v-if='!unpublishedPrivacy.has(post?.privacy)'/>
 					<DropDown :options="[
 						{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
 						{ html: `Block @${post?.user?.handle}`, action: () => { } },
@@ -149,14 +149,14 @@
 					</div>
 					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
 					<Loading :isLoading='isLoading'>
-						<Subtitle static='left' v-if='isUpdated'>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
-						<Subtitle static='left' v-else>{{post?.privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
+						<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
+						<Subtitle static='left' v-else>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
 					</Loading>
 					<div class='post-buttons' v-if='!isLoading'>
 						<Report :data='{ post: postId }' v-if='!isLoading'/>
 						<RepostButton :postId='postId' v-model:count='post.reposts'/>
 						<FavoriteButton :postId='postId' v-model:count='post.favorites'/>
-						<ShareLink :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+						<ShareLink :content='`/p/${postId}`' v-if='!unpublishedPrivacy.has(post?.privacy)'/>
 						<DropDown :options="[
 							{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
 							{ html: `Block @${post?.user?.handle}`, action: () => { } },
@@ -250,6 +250,13 @@ export default {
 		ShareLink,
 		FavoriteButton,
 		RepostButton,
+	},
+	setup() {
+		const unpublishedPrivacy = new Set(['unpublished', 'draft']);
+
+		return {
+			unpublishedPrivacy,
+		};
 	},
 	data() {
 		return {
