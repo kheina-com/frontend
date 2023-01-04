@@ -6,7 +6,7 @@
 			<div class='menu-border'/>
 			<ol class='results'>
 				<p v-show='drafts?.length === 0' style='text-align: center'>No drafts found</p>
-				<li v-for='post in drafts || 3'>
+				<li v-for='post in drafts || 3' @click='closeDrafts'>
 					<Post :postId='post?.post_id' :to='`/create?post=${post.post_id}`' v-bind='post' hideButtons/>
 				</li>
 			</ol>
@@ -315,8 +315,6 @@ export default {
 			else
 			{ this.$refs.draftsPanel.classList.remove('open'); }
 
-			console.log(this.drafts);
-
 			if (this.drafts === null)
 			{
 				khatch(`${postsHost}/v1/fetch_drafts`, {
@@ -327,6 +325,10 @@ export default {
 					});
 				});
 			}
+		},
+		closeDrafts() {
+			this.showDrafts = false;
+			this.$refs.draftsPanel.classList.remove('open');
 		},
 		markDraft() {
 			this.uploadFile()
@@ -763,6 +765,9 @@ main {
 .drafts-button i {
 	width: 25px;
 }
+.mobile .drafts-button i {
+	width: auto;
+}
 
 .menu-border {
 	border-bottom: var(--border-size) solid var(--bordercolor);
@@ -787,6 +792,11 @@ main {
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
+}
+.mobile .drafts-panel {
+	width: 100%;
+	left: -100%;
+	left: calc(min(-100%, -18em) - 6px);
 }
 .drafts-panel.open {
 	left: 0;

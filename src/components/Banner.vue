@@ -276,6 +276,8 @@ export default {
 		setQuery() {
 			if (this.$route.path.match(/^\/[qt]\//))
 			{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
+			else if (this.$route.path == '/')
+			{ this.searchValue = null; }
 		},
 		runSearchQuery() {
 			if (!this.searchValue)

@@ -1,11 +1,11 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
-	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self' v-if='!blocked'>
+	<div :class='divClass' ref='self' v-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
-		<a :href='target' class='background-link' @click.prevent.stop='nav' v-show='!isLoading && link'/>
+		<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && link'/>
 		<div class='labels' v-show='!isLoading'>
-			<DropDown class='more-button' :options="[
+			<DropDown class='more-button' v-show='!hideButtons' :options="[
 				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
 				{ html: `Block @${user?.handle}`, action: missingFeature },
 				{ html: `Report @${user?.handle}`, action: missingFeature },
