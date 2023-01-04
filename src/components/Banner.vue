@@ -332,7 +332,9 @@ export default {
 					method: 'POST',
 					body: {
 						config: 'banner',
-						value: this.message,
+						value: {
+							banner: this.message,
+						},
 					},
 				})
 				.then(response => {

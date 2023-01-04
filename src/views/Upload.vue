@@ -921,6 +921,11 @@ li {
 	border-bottom: solid var(--bordercolor) var(--border-size);
 }
 
+/* THEME OVERRIDES */
+html.e621 main {
+	overflow: hidden;
+}
+
 @media only screen and (max-width: 1000px) {
 	.form {
 		width: auto;

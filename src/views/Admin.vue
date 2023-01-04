@@ -41,13 +41,15 @@ export default {
 	},
 	methods: {
 		setMonthlyCost() {
-			const monthlyCost = this.monthlyCost.trim();
+			const monthlyCost = parseInt(this.monthlyCost.trim());
 			khatch(`${configHost}/v1/update_config`, {
 				handleError: true,
 				method: 'POST',
 				body: {
 					config: 'costs',
-					value: monthlyCost,
+					value: {
+						costs: monthlyCost
+					},
 				},
 			}).then(response => {
 				createToast({
