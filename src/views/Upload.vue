@@ -590,13 +590,13 @@ export default {
 					this.mime = r.media_type?.mime_type;
 					if (r.filename)
 					{
-						this.uploadDone = true;	
+						this.uploadDone = true;
 						this.filename = r.filename;
 						this.mediaUrl = getMediaUrl(this.postId, this.filename);
 					}
 					else
 					{
-						this.uploadDone = false;	
+						this.uploadDone = false;
 						this.filename = null;
 						this.mediaUrl = null;
 					}
