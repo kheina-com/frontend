@@ -332,8 +332,6 @@ export default {
 			this.uploadFile()
 			.then(this.savePost)
 			.then(() => {
-				this.privacy = this.update.privacy;
-
 				khatch(`${uploadHost}/v1/update_privacy`, {
 					handleError: true,
 					method: 'POST',
@@ -342,6 +340,7 @@ export default {
 						privacy: 'draft',
 					},
 				}).then(response => {
+					this.privacy = 'draft';
 					createToast({
 						icon: 'done',
 						title: 'Saved as Draft!',
