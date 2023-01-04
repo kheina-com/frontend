@@ -1,7 +1,7 @@
 from re import compile as re_compile
 
 
-header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}">'
+header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}"><title>{0}</title>'
 header_image = '<meta property="og:image" content="{0}"><meta property="twitter:image" content="{0}">'
 header_description = '<meta name="description" property="og:description" content="{0}"><meta property="twitter:description" content="{0}">'
 header_card_large = '<meta property="twitter:site" content="@kheinacom"><meta property="twitter:card" content="summary_large_image">'
