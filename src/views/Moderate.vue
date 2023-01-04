@@ -106,8 +106,7 @@ export default {
 					r.reposts = 0;
 					this.post = r;
 				});
-			})
-			.catch(() => { });
+			});
 		}
 	},
 	methods: {
@@ -157,6 +156,10 @@ input {
 	color: var(--textcolor);
 	font-size: 1em;
 	width: 100%;
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 input:hover {
 	color: var(--icolor);

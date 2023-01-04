@@ -24,6 +24,7 @@ import Content from './views/Content.vue';
 import Terms from './views/Terms.vue';
 import ModQueue from './views/ModQueue.vue';
 import Moderate from './views/Moderate.vue';
+import Admin from './views/Admin.vue';
 
 import Test from './views/Test.vue';
 
@@ -257,6 +258,14 @@ const routes = [
 		component: ModQueue,
 		meta: {
 			title: 'Moderation Queue | fuzz.ly',
+		},
+	},
+	{
+		path: '/admin',
+		name: 'admin',
+		component: Admin,
+		meta: {
+			title: 'Admin Shit | fuzz.ly',
 		},
 	},
 	{

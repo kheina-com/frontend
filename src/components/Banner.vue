@@ -53,7 +53,7 @@
 							<router-link to='/?#'><i class='material-icons-round'>home</i>Home</router-link>
 						</span>
 					</li>
-					<li v-if='$store.state.auth'>
+					<li v-show='$store.state.auth'>
 						<span @click='closeMenu'>
 							<router-link to='/notifications'>
 								<div class='notifications'>
@@ -66,7 +66,7 @@
 							</router-link>
 						</span>
 					</li>
-					<li v-if='$store.state.auth'>
+					<li v-show='$store.state.auth'>
 						<span @click='closeMenu'>
 							<router-link to='/timeline'>
 								<i class='material-icons'>timeline</i>
@@ -74,13 +74,18 @@
 							</router-link>
 						</span>
 					</li>
-					<li v-if='$store.state.auth?.isMod'>
+					<li v-show='$store.state.auth?.isMod'>
 						<span @click='closeMenu'>
 							<router-link to='/mod/queue'><i class='material-icons'>security</i>Moderate</router-link>
 						</span>
 					</li>
-					<li v-if='$store.state.auth?.isAdmin'>
+					<li v-show='$store.state.auth?.isAdmin'>
 						<ol>
+							<li>
+								<span @click='closeMenu'>
+									<router-link to='/admin'><i class='kheina-icons'>sword</i>Admin Shit</router-link>
+								</span>
+							</li>
 							<li>
 								<span @click='closeMenu'>
 									<button><i class='material-icons'>add_moderator</i>Add Mod</button>
@@ -113,12 +118,12 @@
 							<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
 						</span>
 					</li>
-					<li v-if='$store.state.auth'>
+					<li v-show='$store.state.auth'>
 						<span @click='closeMenu'>
 							<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
 						</span>
 					</li>
-					<li v-if='$store.state.auth'>
+					<li v-show='$store.state.auth'>
 						<ol>
 							<li>
 								<span @click='closeMenu'>
@@ -127,20 +132,20 @@
 							</li>
 						</ol>
 					</li>
-					<li v-if='$store.state.auth'>
+					<li v-show='$store.state.auth'>
 						<span @click='closeMenu'>
 							<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
 						</span>
 					</li>
-					<li v-if='$store.state.auth'>
+					<li v-show='$store.state.auth'>
 						<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
 					</li>
-					<li v-if='!$store.state.auth'>
+					<li v-show='!$store.state.auth'>
 						<span @click='closeMenu'>
 							<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
 						</span>
 					</li>
-					<li v-if='!$store.state.auth'>
+					<li v-show='!$store.state.auth'>
 						<span @click='closeMenu'>
 							<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
 						</span>
