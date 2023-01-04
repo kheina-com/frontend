@@ -1,4 +1,4 @@
-from asyncio import ensure_future, Task
+from asyncio import Task, ensure_future
 from html import escape
 from re import compile as re_compile
 from typing import List
@@ -8,7 +8,7 @@ from kh_common.config.constants import posts_host, tags_host
 from kh_common.gateway import Gateway
 from kh_common.logging import getLogger
 
-from headers.models import Post, TagGroups, Tag
+from headers.models import Post, Tag, TagGroups
 from utilities import concise, default_image, demarkdown, header_card_large, header_card_summary, header_description, header_image, header_title
 
 
@@ -86,7 +86,7 @@ async def postMetaTags(match) :
 	headers: List[str] = [header_title.format(title)]
 
 	if post.description :
-		headers.append(header_description.format(escape(concise(post.description))))
+		headers.append(header_description.format(escape(demarkdown(concise(post.description)))))
 
 
 	if post.media_type :

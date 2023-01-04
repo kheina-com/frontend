@@ -8,7 +8,7 @@ from kh_common.gateway import Gateway
 from kh_common.logging import getLogger
 
 from headers.models import Tag
-from utilities import api_timeout, concise, default_image, header_card_summary, header_description, header_image, header_title
+from utilities import api_timeout, concise, default_image, demarkdown, header_card_summary, header_description, header_image, header_title
 
 
 TagService: Gateway = Gateway(tags_host + '/v1/tag/{tag}', Tag)
@@ -50,9 +50,18 @@ async def tagMetaTags(match) :
 		else :
 			raise
 
-	return ''.join([
-		header_title.format(f'{tag.tag}, {tag.group.name} tag'),
-		header_image.format(f'https://cdn.fuzz.ly/{tag.owner.icon}/icons/{tag.owner.handle}.jpg') if tag.owner and tag.owner.icon else default_image,
-		header_description.format(escape(concise(tag.description))) if tag.description else '',
-		header_card_summary,
-	])
+	if tag.owner :
+		return ''.join([
+			header_title.format(f'{tag.tag}, {tag.group.name} tag from {escape(demarkdown(tag.owner.name))} (@{tag.owner.handle})' if tag.owner.name else f'{tag.tag}, {tag.group.name} tag from @{tag.owner.handle}'),
+			header_image.format(f'https://cdn.fuzz.ly/{tag.owner.icon}/icons/{tag.owner.handle}.jpg'),
+			header_description.format(escape(concise(tag.description))) if tag.description else '',
+			header_card_summary,
+		])
+
+	else :
+		return ''.join([
+			header_title.format(f'{tag.tag}, {tag.group.name} tag'),
+			default_image,
+			header_description.format(escape(concise(tag.description))) if tag.description else '',
+			header_card_summary,
+		])
