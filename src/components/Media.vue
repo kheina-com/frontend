@@ -96,6 +96,11 @@ export default {
 			})
 		},
 	},
+	watch: {
+		src() {
+			this.isLoading = true;
+		},
+	},
 }
 </script>
 
