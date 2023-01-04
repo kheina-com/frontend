@@ -238,13 +238,16 @@ body {
 	overflow-x: hidden;
 }
 body, html {
-	text-rendering: optimizelegibility;
 	margin: 0;
 	padding: 0;
 	color: var(--textcolor);
+}
+html, html * {
+	text-rendering: optimizelegibility;
 	scrollbar-color: var(--subtle) var(--bg2color);
 	scrollbar-width: thin;
 }
+
 a, input, label, textarea
 {
 	cursor: pointer;

@@ -27,24 +27,13 @@ export default {
 </script>
 
 <style scoped>
-p
-{
+p {
 	color: var(--subtle);
 	text-align: center;
 	margin: 0;
 }
-.subtitle
-{
+.subtitle {
 	text-align: left;
 	font-size: 1em;
-}
-@media only screen and (max-width: 1000px)
-{
-	.subtitle
-	{
-		text-align: center;
-		position: relative;
-		max-width: 100%;
-	}
 }
 </style>

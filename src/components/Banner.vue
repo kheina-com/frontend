@@ -31,7 +31,7 @@
 		</div>
 		<div class='screen-cover' @click='closeMenu'/>
 		<div class='menu'>
-			<router-link to='/create' :class='($store.state.auth ? ["create"] : ["create", "logged-out"]).join(" ")' title='Create new post'>
+			<router-link to='/create' :class='$store.state.auth ? "create" : "create logged-out"' title='Create new post'>
 				<div class='icon'>
 					<i class='material-icons'>upload</i>
 				</div>
@@ -175,7 +175,7 @@
 				<div class='menu-footer'>
 					<!-- TODO: replace this with an svg once one gets made -->
 					<img src='https://cdn.fuzz.ly/splash.png'>
-					<p class='commit'>version: <router-link to='/version'><code>{{shortCommit}}</code></router-link></p>
+					<p class='commit'>version: <code @click='closeMenu'><router-link to='/version'>{{shortCommit}}</router-link></code></p>
 				</div>
 			</div>	
 		</div>

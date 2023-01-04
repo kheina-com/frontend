@@ -1,6 +1,16 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<main>
+		<button @click='toggleDrafts' class='drafts-button'><i class='material-icons'>{{showDrafts ? 'chevron_left' : 'chevron_right'}}</i>Drafts</button>
+		<div ref='draftsPanel' class='drafts-panel'>
+			<div class='menu-border'/>
+			<ol class='results'>
+				<p v-show='drafts?.length === 0' style='text-align: center'>No drafts found</p>
+				<li v-for='post in drafts || 3'>
+					<Post :postId='post?.post_id' :to='`/create?post=${post.post_id}`' v-bind='post' hideButtons/>
+				</li>
+			</ol>
+		</div>
 		<Title static='center'>New Post</Title>
 		<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
 		<div class='form'>
@@ -182,7 +192,7 @@
 			</div>
 			<div class='actions'>
 				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
-				<Button @click='saveDraft'><i class='material-icons'>note_add</i>Mark Draft</Button>
+				<Button @click='markDraft' v-show='privacy === "unpublished"'><i class='material-icons'>note_add</i>Mark Draft</Button>
 				<Button @click='savePost'><i class='material-icons'>save</i>Save</Button>
 				<Button @click='publishPost' green><i class='material-icons'>publish</i>Publish</Button>
 			</div>
@@ -208,6 +218,7 @@ import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
 import CopyText from '@/components/CopyText.vue';
 import CheckBox from '@/components/CheckBox.vue';
+import Post from '@/components/Post.vue';
 
 export default {
 	name: 'Upload',
@@ -225,13 +236,17 @@ export default {
 		CopyText,
 		MarkdownEditor,
 		CheckBox,
+		Post,
 	},
 	setup() {
 		const tagRecommendations = ref(null);
 		const tagDiv = ref(null);
+		const draftsPanel = ref(null);
+
 		return {
 			tagRecommendations,
 			tagDiv,
+			draftsPanel,
 		};
 	},
 	data() {
@@ -262,24 +277,19 @@ export default {
 			tagsField: null,
 			privacy: null,
 			rating: null,
+
+			// drafts
+			drafts: null,
+			showDrafts: false,
 		};
 	},
 	mounted() {
-		if (this.$route.query?.post)
-		{ this.postId = this.$route.query.post; }
-		else
-		{
-			khatch(`${uploadHost}/v1/create_post`, {
-				method: 'POST',
-				errorMessage: 'Unable To Create New Post Draft!',
-				body: { },
-			}).then(response => {
-				response.json().then(r => {
-					history.replaceState(null, "", this.$route.path + '?post=' + r.post_id);
-					this.postId = r.post_id;
-				});
-			});
-		}
+		this.postWatcher(this.$route.query?.post);
+
+		this.$watch(
+			() => this.$route.query?.post,
+			this.postWatcher,
+		);
 	},
 	computed: {
 		emojiPlaceholder() {
@@ -298,6 +308,49 @@ export default {
 	},
 	methods: {
 		sortTagGroups,
+		toggleDrafts() {
+			this.showDrafts = !this.showDrafts;
+			if (this.showDrafts)
+			{ this.$refs.draftsPanel.classList.add('open'); }
+			else
+			{ this.$refs.draftsPanel.classList.remove('open'); }
+
+			console.log(this.drafts);
+
+			if (this.drafts === null)
+			{
+				khatch(`${postsHost}/v1/fetch_drafts`, {
+					handleError: true,
+				}).then(response => {
+					response.json().then(r => {
+						this.drafts = r;
+					});
+				});
+			}
+		},
+		markDraft() {
+			this.uploadFile()
+			.then(this.savePost)
+			.then(() => {
+				this.privacy = this.update.privacy;
+
+				khatch(`${uploadHost}/v1/update_privacy`, {
+					handleError: true,
+					method: 'POST',
+					body: {
+						post_id: this.postId,
+						privacy: 'draft',
+					},
+				}).then(response => {
+					createToast({
+						icon: 'done',
+						title: 'Saved as Draft!',
+						color: 'green',
+						time: 5,
+					});
+				});
+			});
+		},
 		addTag(tag) {
 			this.$refs.tagDiv.textContent += ' ' + tag;
 		},
@@ -324,78 +377,82 @@ export default {
 			});
 		},
 		uploadFile() {
-			if (this.isUploading || this.uploadUnavailable || !this.file)
-			{ return; }
+			return new Promise((resolve, reject) => {
+				if (this.isUploading || this.uploadUnavailable || !this.file)
+				{ return resolve(); }
 
-			this.isUploading = true;
+				this.isUploading = true;
 
-			let formdata = new FormData();
-			formdata.append('file', this.file);
-			formdata.append('post_id', this.postId);
+				let formdata = new FormData();
+				formdata.append('file', this.file);
+				formdata.append('post_id', this.postId);
 
-			if (this.update.webResize)
-			{ formdata.append('web_resize', this.update.webResize); }
+				if (this.update.webResize)
+				{ formdata.append('web_resize', this.update.webResize); }
 
-			const errorHandler = (event) => {
-				this.$store.commit('createToast', {
-					title: 'Something broke during upload',
-					description: 'If you submit a bug report, please include the data below.',
-					dump: event?.target?.responseText ?? event,
-				});
-				console.error('error:', event);
-			};
+				const errorHandler = (event) => {
+					this.$store.commit('createToast', {
+						title: 'Something broke during upload',
+						description: 'If you submit a bug report, please include the data below.',
+						dump: event?.target?.responseText ?? event,
+					});
+					console.error('error:', event);
+				};
 
-			const ajax = new XMLHttpRequest();
+				const ajax = new XMLHttpRequest();
 
-			ajax.upload.addEventListener('progress', (event) => this.uploadProgress = (event.loaded / event.total) * 100, false);
-			ajax.addEventListener('load', (event) => {
-				if (event.target.status >= 400)
-				{ return errorHandler(event); }
-				const response = JSON.parse(event.target.responseText);
-				this.mediaUrl = `${cdnHost}/${encodeURIComponent(response.url)}`;
-				this.mime = this.file.type;
-				this.uploadDone = true;
-				this.isUploading = false;
-				this.file = null;
-				this.uploadProgress = 0;
-			}, false);
-			ajax.addEventListener('error', errorHandler, false);
+				ajax.upload.addEventListener('progress', event => this.uploadProgress = (event.loaded / event.total) * 100, false);
+				ajax.addEventListener('load', (event) => {
+					if (event.target.status >= 400)
+					{ return reject(errorHandler(event)); }
+					const response = JSON.parse(event.target.responseText);
+					this.mediaUrl = `${cdnHost}/${encodeURIComponent(response.url)}`;
+					this.mime = this.file.type;
+					this.uploadDone = true;
+					this.isUploading = false;
+					this.file = null;
+					this.uploadProgress = 0;
+					resolve();
+				}, false);
+				ajax.addEventListener('error', e => reject(errorHandler(e)), false);
 
-			const auth = getCookie('kh-auth');
-			ajax.open('POST', `${uploadHost}/v1/upload_image`);
-			ajax.setRequestHeader('authorization', auth);
+				const auth = getCookie('kh-auth');
+				ajax.open('POST', `${uploadHost}/v1/upload_image`);
+				ajax.setRequestHeader('authorization', auth);
 
-			ajax.send(formdata);
+				ajax.send(formdata);
+			});
 		},
 		savePost() {
-			this.showData();
+			return new Promise((resolve, reject) => {
+				this.showData();
 
-			let sendUpdate = false;
-			let requiredSuccesses = 0;
-			let successes = 0;
+				let sendUpdate = false;
+				let requiredSuccesses = 0;
+				let successes = 0;
 
-			if (this.title !== this.update.title)
-			{
-				sendUpdate = true;
-				this.title = this.update.title;
-			}
+				if (this.title !== this.update.title)
+				{
+					sendUpdate = true;
+					this.title = this.update.title;
+				}
 
-			if (this.description !== this.update.description)
-			{
-				sendUpdate = true;
-				this.description = this.update.description;
-			}
+				if (this.description !== this.update.description)
+				{
+					sendUpdate = true;
+					this.description = this.update.description;
+				}
 
-			if (this.rating !== this.update.rating)
-			{
-				sendUpdate = true;
-				this.rating = this.update.rating;
-			}
+				if (this.rating !== this.update.rating)
+				{
+					sendUpdate = true;
+					this.rating = this.update.rating;
+				}
 
-			if (sendUpdate)
-			{
-				requiredSuccesses++;
-				khatch(`${uploadHost}/v1/update_post`, {
+				if (sendUpdate)
+				{
+					requiredSuccesses++;
+					khatch(`${uploadHost}/v1/update_post`, {
 						method: 'POST',
 						errorMessage: 'failed to update post!',
 						body: {
@@ -404,9 +461,8 @@ export default {
 							description: this.description ?? null,
 							rating: this.rating,
 						},
-					})
-					.then(() => {
-						successes++
+					}).then(() => {
+						successes++;
 						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
 						{
 							createToast({
@@ -415,32 +471,31 @@ export default {
 								color: 'green',
 								time: 5,
 							});
+							resolve();
 						}
-					})
-					.catch(() => { });
-			}
+					});
+				}
 
-			let activeTags = tagSplit(this.$refs.tagDiv.textContent);
+				let activeTags = tagSplit(this.$refs.tagDiv.textContent);
 
-			let removedTags = [];
-			this.savedTags.forEach(tag => {
-				if (!activeTags.includes(tag))
-				{ removedTags.push(tag); }
-			});
+				let removedTags = [];
+				this.savedTags.forEach(tag => {
+					if (!activeTags.includes(tag))
+					{ removedTags.push(tag); }
+				});
 
-			if (removedTags.length > 0)
-			{
-				requiredSuccesses++;
-				khatch(`${tagsHost}/v1/remove_tags`, {
+				if (removedTags.length > 0)
+				{
+					requiredSuccesses++;
+					khatch(`${tagsHost}/v1/remove_tags`, {
 						errorMessage: 'failed to remove tags!',
 						method: 'POST',
 						body: {
 							post_id: this.postId,
 							tags: removedTags,
 						},
-					})
-					.then(() => {
-						successes++
+					}).then(() => {
+						successes++;
 						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
 						{
 							createToast({
@@ -449,34 +504,33 @@ export default {
 								color: 'green',
 								time: 5,
 							});
+							resolve();
 						}
-					})
-					.catch(() => { });
-			}
+					});
+				}
 
-			let newTags = [];
-			activeTags.forEach(tag => {
-				if (!this.savedTags.includes(tag))
-				{ newTags.push(tag); }
-			});
+				let newTags = [];
+				activeTags.forEach(tag => {
+					if (!this.savedTags.includes(tag))
+					{ newTags.push(tag); }
+				});
 
-			if (newTags.length > 0)
-			{
-				requiredSuccesses++;
-				khatch(`${tagsHost}/v1/add_tags`, {
+				if (newTags.length > 0)
+				{
+					requiredSuccesses++;
+					khatch(`${tagsHost}/v1/add_tags`, {
 						errorMessage: 'failed to add tags!',
 						method: 'POST',
 						body: {
 							post_id: this.postId,
 							tags: newTags,
 						},
-					})
-					.then(response => {
+					}).then(response => {
 						response.json().then(r => {
 							console.log(r);
 							this.tagsField = Object.values(activeTags).flat().join(' ');
 						});
-						successes++
+						successes++;
 						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
 						{
 							createToast({
@@ -485,45 +539,50 @@ export default {
 								color: 'green',
 								time: 5,
 							});
+							resolve();
 						}
-					})
-					.catch(() => { });
-			}
+					});
+				}
 
-			console.log(JSON.parse(JSON.stringify({
-				activeTags,
-				newTags,
-				removedTags,
-				savedTags: this.savedTags,
-			})));
+				if (requiredSuccesses === 0)
+				{ resolve(); }
 
-			this.savedTags = activeTags;
-		},
-		publishPost() {
-			this.uploadFile();
-			this.savePost();
+				console.log(JSON.parse(JSON.stringify({
+					activeTags,
+					newTags,
+					removedTags,
+					savedTags: this.savedTags,
+				})));
 
-			this.privacy = this.update.privacy;
-
-			khatch(`${uploadHost}/v1/update_privacy`, {
-				method: 'POST',
-				body: {
-					post_id: this.postId,
-					privacy: this.privacy,
-				},
-			})
-			.then(response => {
-				if (response.status < 400)
-				{ this.$router.push(`/p/${this.postId}`); }
+				this.savedTags = activeTags;
 			});
 		},
-	},
-	watch: {
-		postId(){
-			khatch(`${postsHost}/v1/post/${this.postId}`, {
-				errorMessage: 'Unable To Retrieve Post Data!',
-			}).then(response => {
-				response.json().then(r => {
+		publishPost() {
+			this.uploadFile()
+			.then(this.savePost)
+			.then(() => {
+				this.privacy = this.update.privacy;
+
+				khatch(`${uploadHost}/v1/update_privacy`, {
+					handleError: true,
+					method: 'POST',
+					body: {
+						post_id: this.postId,
+						privacy: this.privacy,
+					},
+				}).then(response => {
+					this.$router.push(`/p/${this.postId}`);
+				});
+			});
+		},
+		postWatcher(value) {
+			this.postId = value;
+
+			if (this.postId)
+			{
+				if (this.$store.state.postCache?.post_id === this.postId)
+				{
+					const r = this.$store.state.postCache;
 					this.description = this.update.description = r.description;
 					this.title = this.update.title = r.title;
 					this.privacy = this.update.privacy = r.privacy;
@@ -534,28 +593,60 @@ export default {
 						this.filename = r.filename;
 						this.mediaUrl = getMediaUrl(this.postId, this.filename);
 					}
-					// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
-					// { this.uploadUnavailable = true; }
-				});
-			});
+				}
+				else
+				{
+					khatch(`${postsHost}/v1/post/${this.postId}`, {
+						errorMessage: 'Unable To Retrieve Post Data!',
+					}).then(response => {
+						response.json().then(r => {
+							this.description = this.update.description = r.description;
+							this.title = this.update.title = r.title;
+							this.privacy = this.update.privacy = r.privacy;
+							this.rating = this.update.rating = r.rating;
+							this.mime = r.media_type?.mime_type;
+							if (r.filename) {
+								this.uploadDone = true;	
+								this.filename = r.filename;
+								this.mediaUrl = getMediaUrl(this.postId, this.filename);
+							}
+							// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+							// { this.uploadUnavailable = true; }
+						});
+					});
+				}
 
-			khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
-				errorMessage: 'Unable To Retrieve Post Tags!',
-			}).then(response => {
-				response.json().then(r => {
-					this.savedTags = Object.values(r).flat();
-					this.tagsField = this.savedTags.join(' ');
+				khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
+					errorMessage: 'Unable To Retrieve Post Tags!',
+				}).then(response => {
+					response.json().then(r => {
+						this.savedTags = Object.values(r).flat();
+						this.tagsField = this.savedTags.join(' ');
+					});
 				});
-			}).catch(() => { });
 
-			khatch(`${tagsHost}/v1/frequently_used`, {
-				errorMessage: 'Unable To Retrieve Your Recommended Tags!',
-				errorHandlers: { 404: () => { } },
-			}).then(response => {
-				response.json().then(r => {
-					this.tagSuggestions = r;
+				khatch(`${tagsHost}/v1/frequently_used`, {
+					errorMessage: 'Unable To Retrieve Your Recommended Tags!',
+					errorHandlers: { 404: () => { } },
+				}).then(response => {
+					response.json().then(r => {
+						this.tagSuggestions = r;
+					});
 				});
-			}).catch(() => { });
+			}
+			else
+			{
+				khatch(`${uploadHost}/v1/create_post`, {
+					method: 'POST',
+					errorMessage: 'Unable To Create New Post Draft!',
+					body: { },
+				}).then(response => {
+					response.json().then(r => {
+						history.replaceState(null, "", this.$route.path + '?post=' + r.post_id);
+						this.postWatcher(r.post_id); // why is this needed?
+					});
+				});
+			}
 		},
 	},
 }
@@ -661,10 +752,58 @@ main {
 	margin: 0;
 }
 
-p {
-	padding: 0 0 2px 30px;
-	margin: 0 -5px;
+.drafts-button {
+	z-index: 2;
+	top: 25px;
+	left: 0;
+	position: absolute;
+	display: flex;
+	align-items: center;
+	padding-right: 0.25em;
 }
+.drafts-button i {
+	width: 25px;
+}
+
+.menu-border {
+	border-bottom: var(--border-size) solid var(--bordercolor);
+	padding: 3.0625em 25px 0;
+	padding: calc(1.5em + 25px) 25px 0;
+	margin: 0 20px;
+}
+
+.drafts-panel {
+	z-index: 1;
+	position: absolute;
+	background: var(--bg2color);
+	top: 0;
+	height: 100%;
+	width: 30%;
+	min-width: 18em;
+	left: -50%;
+	left: calc(min(-30%, -18em) - 6px);
+	border-right: var(--border-size) solid var(--bordercolor);
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
+}
+.drafts-panel.open {
+	left: 0;
+}
+
+.drafts-panel ol {
+	list-style-type: none;
+	margin: 0;
+	padding: 0.5em 25px 0;
+	overflow: scroll;
+	max-height: calc(100% - 25px - 2em);
+}
+.drafts-panel ol li {
+	margin: 0 0 25px;
+}
+
 h4 {
 	margin: 0;
 }

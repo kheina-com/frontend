@@ -3,7 +3,7 @@
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
 	<div :class='divClass' @click='isLoading || !link ? null : navigateToPost(postId)' ref='self' v-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
-		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='link'/>
+		<a :href='target' class='background-link' @click.prevent.stop='nav' v-show='!isLoading && link'/>
 		<div class='labels' v-show='!isLoading'>
 			<DropDown class='more-button' :options="[
 				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
@@ -44,10 +44,10 @@
 			</button>
 		</router-link>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
-			<Subtitle static='left' v-if='isUpdated'>{{privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
-			<Subtitle static='left' v-else>{{privacy === 'unpublished' ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
+			<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
+			<Subtitle static='left' v-else>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
 		</Loading>
-		<div class='buttons' v-if='!isLoading'>
+		<div class='buttons' v-if='!isLoading' v-show='!hideButtons'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
 			<RepostButton :postId='postId' v-model:count='reposts'/>
 			<FavoriteButton :postId='postId' v-model:count='favorites'/>
@@ -207,15 +207,25 @@ export default {
 			type: Number,
 			default: 0, // this value needs to be updated to null when api is updated
 		},
+		hideButtons: {
+			type: Boolean,
+			default: false,
+		},
+		to: {
+			type: String,
+			default: null,
+		},
 	},
 	emits: [
 		'loaded',
 	],
 	setup() {
+		const unpublishedPrivacy = new Set(['unpublished', 'draft']);
 		const guide = ref(null);
 		const self = ref(null);
 
 		return {
+			unpublishedPrivacy,
 			guide,
 			self,
 		};
@@ -252,6 +262,8 @@ export default {
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
 		{ return this.post !== null ? this.created !== this.updated : false; },
+		target()
+		{ return this.to || '/p/' + this.postId; },
 	},
 	methods: {
 		getMediaThumbnailUrl,
@@ -309,7 +321,7 @@ export default {
 				favorites: this.favorites,
 				reposts: this.reposts,
 			};
-			this.$router.push('/p/' + this.postId);
+			this.$router.push(this.target);
 		},
 		followUser() {
 			khatch(`${usersHost}/v1/${this.user.following ? 'unfollow_user' : 'follow_user'}`, {
