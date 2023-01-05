@@ -1152,7 +1152,15 @@ ul.tags > :last-child {
 	align-items: center;
 }
 .add-image-button i {
+	color: var(--bright);
 	font-size: 70px;
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
+}
+.add-image-button:hover i {
+	color: var(--icolor);
 }
 .image-uploader {
 	background: var(--screen-cover);

@@ -462,6 +462,8 @@ html {
 	--cyan: darkcyan;
 	--violet: #9451d7;
 
+	--bright: #DDD;
+
 	--funding: forestgreen;
 
 	--notification-text: #eee;
