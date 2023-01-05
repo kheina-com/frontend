@@ -151,11 +151,13 @@ span {
 	-webkit-animation: stripes 1s infinite linear forwards;
 	background: var(--bg2color);
 	background: linear-gradient(120deg, var(--bg2color) 1.1em, var(--stripe-color) 1.1em, var(--stripe-color) 2.3em, var(--bg2color) 2.3em);
+	background: linear-gradient(120deg, var(--bg2color) calc(1.1em - 0.5px), var(--stripe-color) calc(1.1em + 0.5px), var(--stripe-color) calc(2.3em - 0.5px), var(--bg2color) calc(2.3em + 0.5px));
 	background-size: 2.9em 100%;
 }
 .nested .loading.stripes {
 	background: var(--bg1color);
 	background: linear-gradient(120deg, var(--bg1color) 1.1em, var(--stripe-color) 1.1em, var(--stripe-color) 2.3em, var(--bg1color) 2.3em);
+	background: linear-gradient(120deg, var(--bg1color) calc(1.1em - 0.5px), var(--stripe-color) calc(1.1em + 0.5px), var(--stripe-color) calc(2.3em - 0.5px), var(--bg1color) calc(2.3em + 0.5px));
 	background-size: 2.9em 100%;
 }
 
