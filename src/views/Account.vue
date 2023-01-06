@@ -21,6 +21,26 @@
 					warning: changing the site font may cause some elements to render incorrectly
 				</p>
 			</li>
+			<li>
+				<span>Blocking Behavior</span>
+				<RadioButtons
+					name='block-behavior'
+					v-model:value='localConfig.blocking_behavior'
+					@change='save'
+					:data="[
+						{ content: 'hide post content', value: 'hide' },
+						{ content: 'omit from results', value: 'omit' },
+					]"
+				/>
+			</li>
+			<li>
+				<span>Blocked Tags</span>
+				<textarea class='interactable text' v-model='localConfig.blocked_tags' @change='save' placeholder='enter blocked tag combinations in the same format as a search&#10;each combination should be on its own line'/>
+			</li>
+			<li>
+				<span>Wallpaper Post Id</span>
+				<input class='interactable text' v-model='localConfig.wallpaper' @change='save' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'>
+			</li>
 		</ul>
 
 		<h2>Performance</h2>
@@ -42,26 +62,6 @@
 						v-model:checked='$store.state.animatedAccents'
 					>Animated Accents</CheckBox>
 				</div>
-			</li>
-			<li>
-				<span>Blocking Behavior</span>
-				<RadioButtons
-					name='block-behavior'
-					v-model:value='localConfig.blocking_behavior'
-					@change='save'
-					:data="[
-						{ content: 'hide post content', value: 'hide' },
-						{ content: 'omit from results', value: 'omit' },
-					]"
-				/>
-			</li>
-			<li>
-				<span>Blocked Tags</span>
-				<textarea class='interactable text' v-model='localConfig.blocked_tags' @change='save' placeholder='enter blocked tag combinations in the same format as a search&#10;each combination should be on its own line'/>
-			</li>
-			<li>
-				<span>Wallpaper Post Id</span>
-				<textarea class='interactable text' v-model='localConfig.wallpaper' @change='save' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'/>
 			</li>
 		</ul>
 
@@ -244,6 +244,7 @@ input, textarea {
 }
 textarea {
 	resize: vertical;
+	height: 10em;
 }
 span {
 	position: relative;
