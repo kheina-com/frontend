@@ -22,7 +22,7 @@ function userConfig(state, config) {
 	{
 		document.documentElement.style.backgroundImage = `url(${getMediaUrl(config.wallpaper.post_id, config.wallpaper.filename)})`;
 		document.documentElement.style.backgroundAttachment = 'fixed';
-		document.documentElement.style.backgroundPosition = 'cover';
+		document.documentElement.style.backgroundPosition = 'top center';
 		document.documentElement.style.backgroundRepeat = 'no-repeat';
 		document.documentElement.style.backgroundSize = 'cover';
 		document.body.style.backgroundImage = 'none';
