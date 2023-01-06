@@ -12,8 +12,8 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, getCookie, isDarkMode, isMobile, setCookie, setMeta } from '@/utilities';
-import { ratingMap } from '@/config/constants';
+import { authCookie, getCookie, isDarkMode, isMobile, khatch, setCookie, setMeta } from '@/utilities';
+import { configHost, ratingMap } from '@/config/constants';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -64,6 +64,17 @@ export default {
 		if (auth)
 		{ this.$store.commit('setAuth', auth); }
 		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
+
+		khatch(`${configHost}/v1/user`, {
+			errorMessage: 'Could Not Retrieve User Config!',
+			errorHandlers: {
+				// do nothing, we don't care
+				401: () => { },
+				404: () => { },
+			},
+		}).then(response => response.json().then(r => {
+			this.$store.commit('userConfig', r);
+		}));
 
 		const fontFamily = document.getElementById('font-family');
 		const customFont = getCookie('font-family');
@@ -229,12 +240,11 @@ code, code *, .code, .code *, textarea, pre
 { font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace; }
 html {
 	background: var(--bg0color);	
+	background-size: cover;
 }
 body {
 	min-height: 100vh;
 	display: block;
-	background-size: cover;
-	background-position: center;
 	overflow-x: hidden;
 }
 body, html {
@@ -452,6 +462,7 @@ html {
 	--border-radius: 3px;
 	--wave-color: var(--bordercolor);
 	--stripe-color: var(--subtle);
+	--main: var(--bg1color);
 
 	--pink: #cc35cc;
 	--yellow: #c8c80f;
@@ -474,8 +485,9 @@ html.mobile {
 	--border-radius: 5px;
 }
 
-html.kheina {
+html.kheina, html.gay {
 	--stripe-color: #222430;
+	--main: #25262ecc;
 }
 
 div.loadingicon img
@@ -493,6 +505,7 @@ html.light {
 	--activeshadowcolor: #6D7186B3;
 	--wave-color: #b4b9c4;
 	--stripe-color: #b4b9c4;
+	--main: #e7eceecc;
 }
 
 html.midnight
@@ -503,6 +516,7 @@ html.midnight
 	--bg2color: #151416;
 	/* --bg2color: #1b1a1c; */
 	--bg3color: #000000;
+	--main: #1a191bcc;
 }
 
 
@@ -522,6 +536,7 @@ html.e621
 	--subtle: #B4C7D9;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
+	--main: #19365fcc;
 
 	--pink: #f2ac08;
 	--green: #0a0;
@@ -534,7 +549,7 @@ html.e621
 	--mature: #ffe666;
 	--explicit: #e45f5f;
 
-	background: url(/assets/themes/stripe.png) var(--bg0color);
+	background-image: url(/assets/themes/stripe.png) var(--bg0color);
 	background-repeat: repeat;
 	background-position: center top;
 	background-size: auto;
@@ -547,6 +562,15 @@ html.e621 main
 }
 html.e621 div.themes
 { border-bottom-right-radius: 6px; }
+html.e621 .source
+{
+	padding: 0 0 8px;
+	border: none;
+}
+html.e621 .top .source h2
+{ margin-top: 8px; }
+html.e621 .more .source .left
+{ margin-bottom: 8px; }
 
 html.youtube
 {
@@ -560,6 +584,7 @@ html.youtube
 	--subtle: #909090;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
+	--main: #2c2c2ccc;
 }
 
 html.wikipedia
@@ -574,6 +599,7 @@ html.wikipedia
 	--subtle: #54595D;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
+	--main: #ffffffcc;
 }
 html.wikipedia body
 { background-image: linear-gradient(#FFF 2.5em,#F6F6F6 5em); }
@@ -584,15 +610,6 @@ html.wikipedia main {
 html.wikipedia .nav-backdrop {
 	border-bottom: var(--border-size) solid var(--bordercolor);
 }
-html.e621 .source
-{
-	padding: 0 0 8px;
-	border: none;
-}
-html.e621 .top .source h2
-{ margin-top: 8px; }
-html.e621 .more .source .left
-{ margin-bottom: 8px; }
 
 html.terminal {
 	--icolor: #008000;
@@ -605,6 +622,7 @@ html.terminal {
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
 	filter: sepia(100%) saturate(550%) hue-rotate(90deg);
+	--main: #000000cc
 }
 
 html.high-contrast-dark {
@@ -629,6 +647,7 @@ html.solarized-dark {
 	--shadowcolor: #002b36;
 	--activeshadowcolor: #2aa19820;
 	--screen-cover: #002b3680;
+	--main: #083845cc;
 }
 
 html.solarized-light {
@@ -641,6 +660,7 @@ html.solarized-light {
 	--shadowcolor: #93a1a1;
 	--activeshadowcolor: #dc322f40;
 	--screen-cover: #fdf6e380;
+	--main: #eae4d1cc;
 }
 
 html.solarized-light, html.solarized-dark {
@@ -676,6 +696,7 @@ html.furaffinity {
 	--subtle: #CFCFCF;
 	--shadowcolor: #0000;
 	--activeshadowcolor: #0000;
+	--main: #2e3b41cc;
 }
 html.furaffinity main {
 	border-top: var(--border-size) solid var(--bordercolor);
@@ -693,6 +714,7 @@ html.discord {
 	--subtle: #72767D;
 	--shadowcolor: #202225;
 	--activeshadowcolor: #202225;
+	--main: #32343acc;
 }
 
 html.xfire {
@@ -706,6 +728,7 @@ html.xfire {
 	--subtle: #ABC6E3A0;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
+	--main: #16324ecc;
 }
 html.xfire div.loadingicon img
 { filter: sepia(100%) saturate(2000%) hue-rotate(201deg) brightness(83%) }

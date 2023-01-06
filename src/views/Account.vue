@@ -3,7 +3,7 @@
 		<h2 style='margin-top: 0'>Settings</h2>
 		<ul class='settings'>
 			<li>
-				<span>maximum rating for autoloading thumbnails</span>
+				<span>Maximum Rating for Autoloading Thumbnails</span>
 				<RadioButtons
 					name='rating'
 					v-model:value='maxRating'
@@ -15,7 +15,7 @@
 				/>
 			</li>
 			<li>
-				<span>custom font-family</span>
+				<span>Custom Font-Family</span>
 				<input class='interactable text' placeholder='font family' v-model='fontFamily'>
 				<p v-show='fontFamily' class='warn'>
 					warning: changing the site font may cause some elements to render incorrectly
@@ -26,7 +26,7 @@
 		<h2>Performance</h2>
 		<ul class='settings performance'>
 			<li>
-				<span>animations</span>
+				<span>Animations</span>
 				<div class='checkboxes'>
 					<CheckBox
 						class='checkbox'
@@ -51,31 +51,35 @@
 		</p>
 		<ul class='settings'>
 			<li>
-				<span>query used to retrieve posts on your profile page</span>
+				<span>Query Used to Retrieve Posts on Your Profile Page</span>
 				<input class='interactable text' :placeholder='`@${$store.state.user?.handle} sort:new`'>
 			</li>
 			<li>
-				<span>change your @handle</span>
+				<span>Change Your @handle</span>
 				<input class='interactable text' :placeholder='`${$store.state.user?.handle}`'>
 			</li>
 			<li>
-				<span>blocking behavior</span>
+				<span>Blocking Behavior</span>
 				<RadioButtons
 					name='block-behavior'
-					v-model:value='blockBehavior'
+					v-model:value='localConfig.blocking_behavior'
 					:data="[
-						{ content: 'hide post content' },
-						{ content: 'omit from results' },
+						{ content: 'hide post content', value: 'hide' },
+						{ content: 'omit from results', value: 'omit' },
 					]"
 				/>
 			</li>
 			<li>
-				<span>blocked tags</span>
-				<textarea class='interactable text' placeholder='enter blocked tags, separated by commas'/>
+				<span>Blocked Tags</span>
+				<textarea class='interactable text' v-model='localConfig.blocked_tags' placeholder='enter blocked tags, separated by commas'/>
 			</li>
 			<li>
-				<span>blocked users</span>
-				<textarea class='interactable text' placeholder='enter blocked users, separated by commas (without the @)'/>
+				<span>Blocked Users</span>
+				<textarea class='interactable text' v-model='localConfig.blocked_users' placeholder='enter blocked users, separated by commas (without the @)'/>
+			</li>
+			<li>
+				<span>Wallpaper Post Id</span>
+				<textarea class='interactable text' v-model='localConfig.wallpaper' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'/>
 			</li>
 		</ul>
 
@@ -122,9 +126,9 @@
 </template>
 
 <script>
-import { getCookie, setCookie, createToast } from '@/utilities';
+import { getCookie, khatch, setCookie, createToast } from '@/utilities';
 import { cookieFailedError } from '@/global';
-import { ratingMap } from '@/config/constants';
+import { configHost, ratingMap } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import CheckBox from '@/components/CheckBox.vue';
@@ -145,7 +149,36 @@ export default {
 			mediaQuality: getCookie('media-quality'),
 			animatedEmoji: Boolean(getCookie('animated-emoji', true)),
 			CssTransitions: this.$store.state.cssTransitions,
+			isLoading: true,
+			localConfig: { },
 		};
+	},
+	mounted() {
+		khatch(`${configHost}/v1/user`, {
+			errorMessage: 'Could Not Retrieve User Config!',
+			errorHandlers: {
+				// do nothing, we don't care
+				401: () => { },
+				404: () => { },
+			},
+		}).then(response => response.json().then(r => {
+			this.$store.commit('userConfig', r);
+			this.localConfig = {
+				...r,
+				wallpaper: r.wallpaper?.post_id,
+			};
+			this.isLoading = false;
+		}));
+	},
+	methods: {
+		save() {
+			createToast({
+				icon: 'done',
+				title: 'Saved Config!',
+				color: 'green',
+				time: 5,
+			});
+		},
 	},
 	watch: {
 		maxRating(value) {
@@ -176,7 +209,7 @@ export default {
 
 <style scoped>
 main {
-	background: var(--bg1color);
+	background: var(--main);
 	position: relative;
 	padding: 25px;
 }

@@ -417,6 +417,7 @@ export default {
 			});
 		},
 		uploadFile() {
+			this.saving = true;
 			return new Promise((resolve, reject) => {
 				if (this.isUploading || this.uploadUnavailable || !this.file)
 				{ return resolve(); }
@@ -431,7 +432,7 @@ export default {
 				{ formdata.append('web_resize', this.update.webResize); }
 
 				const errorHandler = (event) => {
-					this.$store.commit('createToast', {
+					createToast({
 						title: 'Something broke during upload',
 						description: 'If you submit a bug report, please include the data below.',
 						dump: event?.target?.responseText ?? event,
@@ -690,7 +691,7 @@ export default {
 
 <style scoped>
 main {
-	background: var(--bg1color);
+	background: var(--main);
 	position: relative;
 	padding: 25px;
 }

@@ -1,6 +1,6 @@
 import { createStore } from 'vuex';
-import { authCookie, khatch, setCookie } from '@/utilities';
-import { environment, ratingMap, usersHost } from '@/config/constants';
+import { authCookie, getMediaUrl, khatch, setCookie } from '@/utilities';
+import { configHost, ratingMap, usersHost } from '@/config/constants';
 
 
 let toastCounter = 0;
@@ -15,6 +15,27 @@ function createToast(state, options) {
 		icon: options?.icon || 'warning',
 	};
 	setTimeout(() => delete state.toasts[id], (options?.time || 15) * 1000);
+}
+function userConfig(state, config) {
+	state.userConfig = config;
+	if (config.wallpaper)
+	{
+		document.documentElement.style.backgroundImage = `url(${getMediaUrl(config.wallpaper.post_id, config.wallpaper.filename)})`;
+		document.documentElement.style.backgroundAttachment = 'fixed';
+		document.documentElement.style.backgroundPosition = 'cover';
+		document.documentElement.style.backgroundRepeat = 'no-repeat';
+		document.documentElement.style.backgroundSize = 'cover';
+		document.body.style.backgroundImage = 'none';
+	}
+	else
+	{
+		document.documentElement.style.backgroundImage = null;
+		document.documentElement.style.backgroundAttachment = null;
+		document.documentElement.style.backgroundPosition = null;
+		document.documentElement.style.backgroundRepeat =null;
+		document.documentElement.style.backgroundSize = null;
+		document.body.style.backgroundImage = null;
+	}
 }
 export const cookieFailedError = 'This setting will work until you close the tab. To persist between sessions, hit the "coolio" button on the cookies popup';
 
@@ -33,9 +54,11 @@ export default createStore({
 		maxRating: 'general',
 		notifications: 0,
 		postCache: null,
+		userConfig: null,
 	},
 	mutations: {
 		createToast,
+		userConfig,
 		cookiesAllowed(state, cookies) {
 			state.cookiesAllowed = cookies;
 			setCookie('cookies', true, 31536000);
@@ -112,6 +135,17 @@ export default createStore({
 						});
 					})
 					.catch(() => { });
+
+					khatch(`${configHost}/v1/user`, {
+						errorMessage: 'Could Not Retrieve User Config!',
+						errorHandlers: {
+							// do nothing, we don't care
+							401: () => { },
+							404: () => { },
+						},
+					}).then(response => response.json().then(r => {
+						userConfig(state, r);
+					}));
 				}
 			}
 			else 

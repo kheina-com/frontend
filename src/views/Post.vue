@@ -653,7 +653,7 @@ export default {
 	grid-template-rows: [sidebar-start main-start] auto [sidebar-end main-end];
 }
 main {
-	background: var(--bg1color);
+	background: var(--main);
 	border-radius: var(--border-radius) 0 0 3px;
 	display: flex;
 	flex-direction: column;

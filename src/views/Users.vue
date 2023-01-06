@@ -75,7 +75,7 @@ export default {
 
 <style scoped>
 main {
-	background: var(--bg1color);
+	background: var(--main);
 	position: relative;
 	padding: 25px;
 	display: block;
