@@ -112,9 +112,7 @@ export function round(num, precision)
 export const isMobile = navigator.userAgent.toLowerCase().includes('mobile');
 
 export function tagSplit(tags)
-{
-	return tags.split(/[,\s]/).filter(x => x).map(x => x.trim());
-}
+{ return tags.split(/[,\s]/).filter(x => x).map(x => x.trim()); }
 
 import { tagGroups } from '@/config/constants'
 export function sortTagGroups(tags) {

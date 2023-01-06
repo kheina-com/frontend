@@ -63,6 +63,7 @@
 				<RadioButtons
 					name='block-behavior'
 					v-model:value='localConfig.blocking_behavior'
+					@change='save'
 					:data="[
 						{ content: 'hide post content', value: 'hide' },
 						{ content: 'omit from results', value: 'omit' },
@@ -71,15 +72,15 @@
 			</li>
 			<li>
 				<span>Blocked Tags</span>
-				<textarea class='interactable text' v-model='localConfig.blocked_tags' placeholder='enter blocked tags, separated by commas'/>
+				<textarea class='interactable text' v-model='localConfig.blocked_tags' @change='save' placeholder='enter blocked tags, separated by commas'/>
 			</li>
 			<li>
 				<span>Blocked Users</span>
-				<textarea class='interactable text' v-model='localConfig.blocked_users' placeholder='enter blocked users, separated by commas (without the @)'/>
+				<textarea class='interactable text' v-model='localConfig.blocked_users' @change='save' placeholder='enter blocked users, separated by commas (without the @)'/>
 			</li>
 			<li>
 				<span>Wallpaper Post Id</span>
-				<textarea class='interactable text' v-model='localConfig.wallpaper' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'/>
+				<textarea class='interactable text' v-model='localConfig.wallpaper' @change='save' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'/>
 			</li>
 		</ul>
 
@@ -126,7 +127,7 @@
 </template>
 
 <script>
-import { getCookie, khatch, setCookie, createToast } from '@/utilities';
+import { getCookie, khatch, setCookie, createToast, tagSplit } from '@/utilities';
 import { cookieFailedError } from '@/global';
 import { configHost, ratingMap } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -149,35 +150,53 @@ export default {
 			mediaQuality: getCookie('media-quality'),
 			animatedEmoji: Boolean(getCookie('animated-emoji', true)),
 			CssTransitions: this.$store.state.cssTransitions,
+			saveTimeout: null,
 			isLoading: true,
 			localConfig: { },
 		};
 	},
 	mounted() {
-		khatch(`${configHost}/v1/user`, {
-			errorMessage: 'Could Not Retrieve User Config!',
-			errorHandlers: {
-				// do nothing, we don't care
-				401: () => { },
-				404: () => { },
-			},
-		}).then(response => response.json().then(r => {
-			this.$store.commit('userConfig', r);
-			this.localConfig = {
-				...r,
-				wallpaper: r.wallpaper?.post_id,
-			};
-			this.isLoading = false;
-		}));
+		this.retrieve();
 	},
 	methods: {
+		retrieve() {
+			return khatch(`${configHost}/v1/user`, {
+				errorMessage: 'Could Not Retrieve User Config!',
+				errorHandlers: {
+					// do nothing, we don't care
+					401: () => { },
+				},
+			}).then(response => response.json().then(r => {
+				this.$store.commit('userConfig', r);
+				this.localConfig = {
+					...r,
+					wallpaper: r.wallpaper?.post_id,
+				};
+				this.isLoading = false;
+			}));
+		},
 		save() {
-			createToast({
-				icon: 'done',
-				title: 'Saved Config!',
-				color: 'green',
-				time: 5,
-			});
+			clearTimeout(this.saveTimeout);
+			this.saveTimeout = setTimeout(() => {
+				khatch(`${configHost}/v1/update_user_config`, {
+					errorMessage: 'Could Not Save User Config!',
+					body: {
+						blocking_behavior: this.localConfig?.blocking_behavior,
+						blocked_tags: this.localConfig?.blocked_tags ? this.localConfig.blocked_tags.split('\n').map(tagSplit) : null,
+						blocked_users: this.localConfig?.blocked_users ? tagSplit(this.localConfig.blocked_users) : null,
+						wallpaper: this.localConfig?.wallpaper ? this.localConfig.wallpaper.trim() : null,
+					},
+				})
+				.then(this.retrieve)
+				.then(() => {
+					createToast({
+						icon: 'done',
+						title: 'Saved Config!',
+						color: 'green',
+						time: 5,
+					});
+				});
+			}, 1000);
 		},
 	},
 	watch: {

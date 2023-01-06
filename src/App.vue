@@ -70,7 +70,6 @@ export default {
 			errorHandlers: {
 				// do nothing, we don't care
 				401: () => { },
-				404: () => { },
 			},
 		}).then(response => response.json().then(r => {
 			this.$store.commit('userConfig', r);

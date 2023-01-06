@@ -141,7 +141,6 @@ export default createStore({
 						errorHandlers: {
 							// do nothing, we don't care
 							401: () => { },
-							404: () => { },
 						},
 					}).then(response => response.json().then(r => {
 						userConfig(state, r);
