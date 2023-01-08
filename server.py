@@ -69,7 +69,7 @@ async def post_route(post_id: constr(regex=r'^[a-zA-Z0-9_-]{8}$'), force_norich:
 	if force_norich :
 		return HTMLResponse(vueIndex(), headers=Headers)
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + await postMetaTags(post_id)), headers=Headers)
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await postMetaTags(post_id) or await homeMetaTags())), headers=Headers)
 
 
 @app.get('/t/{tag}')
@@ -77,7 +77,7 @@ async def tag_route(tag: str, force_norich: Optional[str] = None) :
 	if force_norich :
 		return HTMLResponse(vueIndex(), headers=Headers)
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + await tagMetaTags(tag)), headers=Headers)
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await tagMetaTags(tag) or await homeMetaTags())), headers=Headers)
 
 
 @app.get('{uri:path}')
