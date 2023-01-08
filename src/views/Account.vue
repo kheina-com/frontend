@@ -39,7 +39,7 @@
 			</li>
 			<li>
 				<span>Wallpaper Post Id</span>
-				<input class='interactable text' v-model='localConfig.wallpaper' @change='save' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'>
+				<input class='interactable text code' v-model='localConfig.wallpaper' @change='save' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'>
 			</li>
 		</ul>
 
@@ -81,6 +81,10 @@
 			<li>
 				<span>Blocked Users</span>
 				<textarea class='interactable text' v-model='localConfig.blocked_users' @change='save' placeholder='enter blocked users, separated by commas (without the @)'/>
+			</li>
+			<li>
+				<span>Custom Theme</span>
+				<textarea class='interactable text' v-model='localConfig.colors' @change='save' placeholder='enter blocked users, separated by commas (without the @)'/>
 			</li>
 		</ul>
 

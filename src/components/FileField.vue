@@ -1,7 +1,7 @@
 <template>
 	<form>
 		<input ref='file' @input='fileAdded' :id='id' type='file' size='50' autocomplete='off'>
-		<label @drop.prevent='onDrop' @dragenter.prevent @dragover.prevent :for='id' class='interactable upload'>
+		<label @drop.prevent='onDrop' @dragenter.prevent @dragover.prevent @click.right.stop='rightClick' :for='id' class='interactable upload'>
 			<slot v-if='hasSlot && showSlot'/>
 			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' type='block' style='border-radius: var(--border-radius); margin: auto'/>
 			<div v-else>
@@ -62,6 +62,9 @@ export default {
 		},
 		onDrop(event) {
 			this.addFile(event.dataTransfer.files[0]);
+		},
+		rightClick(event) {
+			console.log('test', event)
 		},
 	},
 	computed: {

@@ -1,4 +1,5 @@
 from html import escape
+from re import Match
 from re import compile as re_compile
 
 from aiohttp import ClientResponseError
@@ -15,15 +16,19 @@ user_regex = re_compile(r'^\/([^\/]+)\/?$')
 logger = getLogger()
 
 
-async def userMetaTags(match) :
-	user = None
+async def userMetaTags(uri: str) -> str :
+	match: Match[str] = user_regex.match(uri)
+	if not match :
+		return
+
+	user: User = None
 
 	try :
 		user = await UsersService(handle=match[1])
 
 	except ClientResponseError as e :
 		if e.status == 404 :
-			return None
+			return
 
 		else :
 			raise

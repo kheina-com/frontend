@@ -14,10 +14,14 @@ function createToast(state, options) {
 		color: options?.color || 'textcolor',
 		icon: options?.icon || 'warning',
 	};
-	setTimeout(() => delete state.toasts[id], (options?.time || 15) * 1000);
+	return setTimeout(() => delete state.toasts[id], (options?.time || 15) * 1000);
 }
 function userConfig(state, config) {
-	state.userConfig = config;
+	state.userConfig = {
+		...config,
+		blockingBehavior: config.blocking_behavior,
+		wallpaper: config.wallpaper,
+	};
 	if (config.wallpaper)
 	{
 		document.documentElement.style.backgroundImage = `url(${getMediaUrl(config.wallpaper.post_id, config.wallpaper.filename)})`;

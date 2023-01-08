@@ -107,6 +107,11 @@ export default {
 
 			document.head.appendChild(link);
 		});
+
+		const link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = `${configHost}/v1/theme.css`;
+		document.head.appendChild(link);
 	},
 	mounted() {
 		this.banner = document.getElementsByClassName('banner')[0];

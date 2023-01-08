@@ -1,7 +1,10 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
-	<div :class='divClass' ref='self' v-if='!blocked'>
+	<div :class='divClass' ref='self' v-if='$store.state.userConfig?.block_behavior === "hide" && blocked'>
+		butts
+	</div>
+	<div :class='divClass' ref='self' v-else-if='!blocked'>
 		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
 		<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && link'/>
 		<div class='labels' v-show='!isLoading'>
@@ -236,19 +239,19 @@ export default {
 			isMobile,
 			editing: false,
 			guideHeight: null,
-			parentElement: null,
+			// parentElement: null,
 			// childTrigger: null,
 			replying: null,
 			replyMessage: null,
 			acceptedMature: false,
 		};
 	},
-	mounted() {
-		let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
-		if (parentElement.classList.contains('reply'))
-		{ this.parentElement = parentElement; }
-		this.onLoad();
-	},
+	// mounted() {
+	// 	let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
+	// 	if (parentElement.classList.contains('reply'))
+	// 	{ this.parentElement = parentElement; }
+	// 	this.onLoad();
+	// },
 	computed: {
 		mediaUrl()
 		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
@@ -416,15 +419,15 @@ export default {
 		editToggle() {
 			this.editing = !this.editing;
 		},
-		onLoad() {
-			if (this.parentElement)
-			{
-				let self = this.$refs.self.getBoundingClientRect();
-				this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
-			}
-			this.$emit('loaded');
-			// this.childTrigger = !this.childTrigger;
-		},
+		// onLoad() {
+		// 	if (this.parentElement)
+		// 	{
+		// 		let self = this.$refs.self.getBoundingClientRect();
+		// 		this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
+		// 	}
+		// 	this.$emit('loaded');
+		// 	// this.childTrigger = !this.childTrigger;
+		// },
 		updatePost() {
 			// actually update the post
 		},

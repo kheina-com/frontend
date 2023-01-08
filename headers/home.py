@@ -10,7 +10,7 @@ home_regex = re_compile(r'^\/?$')
 
 
 @SimpleCache(float('inf'))
-def homeMetaTags(match = None) :
+async def homeMetaTags(match = None) -> str :
 	return ''.join([
 		header_title.format('fuzz.ly'),
 		default_image,

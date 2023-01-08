@@ -220,6 +220,8 @@ import CopyText from '@/components/CopyText.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import Post from '@/components/Post.vue';
 
+const PublishedPrivacies = new Set(['public', 'unlisted', 'private']);
+
 export default {
 	name: 'Upload',
 	components: {
@@ -365,7 +367,7 @@ export default {
 		},
 		publishPost() {
 			console.log(this.update.privacy);
-			if (true)
+			if (!PublishedPrivacies.has(this.update.privacy))
 			{
 				createToast({
 					title: 'Privacy Not Set!',

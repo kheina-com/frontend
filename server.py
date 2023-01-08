@@ -1,5 +1,6 @@
-from asyncio import ensure_future
+from asyncio import Task, ensure_future
 from os import path
+from re import Match
 from typing import Optional
 
 from fastapi.responses import FileResponse, HTMLResponse
@@ -7,6 +8,7 @@ from kh_common.caching import ArgsCache, SimpleCache
 from kh_common.config.constants import environment
 from kh_common.logging import getLogger
 from kh_common.server import Request, Response, ServerApp
+from pydantic import constr
 
 from headers.home import homeMetaTags
 from headers.post import post_regex, postMetaTags
@@ -50,36 +52,32 @@ app = ServerApp(
 
 logger = getLogger()
 
-uri_map = {
-	post_regex: postMetaTags,
-	user_regex: userMetaTags,
-	tag_regex: tagMetaTags,
-}
-
 
 @SimpleCache(float('inf') if environment.is_prod() else 60)
 def vueIndex() :
 	return open('dist/index.html').read()
 
 
-@ArgsCache(60)
-async def matchMetaTags(uri: str) :
-	metaTags = None
-
-	for regex, handler in uri_map.items() :
-		match = regex.match(uri)
-
-		if match :
-			metaTags = await handler(match)
-			break
-
-	return metaTags
-
-
 @app.get('/t.gif')
 def pixel(req: Request) :
 	logger.info(req)
 	return PixelResponse
+
+
+@app.get('/p/{post_id}')
+async def post_route(post_id: constr(regex=r'^[a-zA-Z0-9_-]{8}$'), force_norich: Optional[str] = None) :
+	if force_norich :
+		return HTMLResponse(vueIndex(), headers=Headers)
+
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + await postMetaTags(post_id)), headers=Headers)
+
+
+@app.get('/t/{tag}')
+async def tag_route(tag: str, force_norich: Optional[str] = None) :
+	if force_norich :
+		return HTMLResponse(vueIndex(), headers=Headers)
+
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + await tagMetaTags(tag)), headers=Headers)
 
 
 @app.get('{uri:path}')
@@ -92,10 +90,7 @@ async def all_routes(uri: str, force_norich: Optional[str] = None) :
 	if force_norich :
 		return HTMLResponse(vueIndex(), headers=Headers)
 
-	metaTags = ensure_future(matchMetaTags(uri))
-	metaTags = (await metaTags) or homeMetaTags()
-
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + metaTags), headers=Headers)
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await userMetaTags(uri) or await homeMetaTags())), headers=Headers)
 
 
 if __name__ == '__main__' :

@@ -37,22 +37,22 @@ async def fetchTagData(tag) :
 		logger.exception('error while fetching user data from frontend server.')
 
 
-async def tagMetaTags(match) :
+async def tagMetaTags(tag_str: str) -> str :
 	tag: Tag = None
 
 	try :
-		tag = await TagService(tag=match[1])
+		tag = await TagService(tag=tag_str)
 
 	except ClientResponseError as e :
 		if e.status == 404 :
-			return None
+			return
 
 		else :
 			raise
 
 	if tag.owner :
 		return ''.join([
-			header_title.format(f'{tag.tag}, {tag.group.name} tag from {escape(demarkdown(tag.owner.name))} (@{tag.owner.handle})' if tag.owner.name else f'{tag.tag}, {tag.group.name} tag from @{tag.owner.handle}'),
+			header_title.format(f'{tag.tag}, {tag.group.name} tag from {escape(demarkdown(tag.owner.name))} (@{tag.owner.handle}) | fuzz.ly' if tag.owner.name else f'{tag.tag}, {tag.group.name} tag from @{tag.owner.handle} | fuzz.ly'),
 			header_image.format(f'https://cdn.fuzz.ly/{tag.owner.icon}/icons/{tag.owner.handle}.jpg'),
 			header_description.format(escape(concise(tag.description))) if tag.description else '',
 			header_card_summary,
@@ -60,7 +60,7 @@ async def tagMetaTags(match) :
 
 	else :
 		return ''.join([
-			header_title.format(f'{tag.tag}, {tag.group.name} tag'),
+			header_title.format(f'{tag.tag}, {tag.group.name} tag | fuzz.ly'),
 			default_image,
 			header_description.format(escape(concise(tag.description))) if tag.description else '',
 			header_card_summary,

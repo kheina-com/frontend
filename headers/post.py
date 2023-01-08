@@ -55,12 +55,11 @@ async def buildTagString(tags: List[str], tag_group: str) :
 	return tag_string
 
 
-async def postMetaTags(match) :
-	post_id = match[1]
+async def postMetaTags(post_id: str) -> str :
 	post = tags = title = None
 
 	if len(post_id) != 8 :
-		return
+		return ''
 
 	try :
 		tags = ensure_future(TagsService(post_id=post_id))
@@ -83,7 +82,7 @@ async def postMetaTags(match) :
 	if tags.subject :
 		title += ' featuring ' + await buildTagString(tags.subject, 'subject')
 
-	headers: List[str] = [header_title.format(title)]
+	headers: List[str] = [header_title.format(title + ' | fuzz.ly')]
 
 	if post.description :
 		headers.append(header_description.format(escape(demarkdown(concise(post.description)))))
