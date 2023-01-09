@@ -1,6 +1,6 @@
 import { createStore } from 'vuex';
 import { authCookie, getMediaUrl, khatch, setCookie } from '@/utilities';
-import { configHost, ratingMap, usersHost } from '@/config/constants';
+import { configHost, ratingMap, postsHost, usersHost } from '@/config/constants';
 
 
 let toastCounter = 0;
@@ -24,12 +24,16 @@ function userConfig(state, config) {
 	};
 	if (config.wallpaper)
 	{
-		document.documentElement.style.backgroundImage = `url(${getMediaUrl(config.wallpaper.post_id, config.wallpaper.filename)})`;
-		document.documentElement.style.backgroundAttachment = 'fixed';
-		document.documentElement.style.backgroundPosition = 'top center';
-		document.documentElement.style.backgroundRepeat = 'no-repeat';
-		document.documentElement.style.backgroundSize = 'cover';
-		document.body.style.backgroundImage = 'none';
+		khatch(`${postsHost}/v1/post/${config.wallpaper}`, {
+			errorMessage: 'Failed to Retrieve User Wallpaper!',
+		}).then(r => r.json()).then(r => {
+			document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.filename)})`;
+			document.documentElement.style.backgroundAttachment = 'fixed';
+			document.documentElement.style.backgroundPosition = 'top center';
+			document.documentElement.style.backgroundRepeat = 'no-repeat';
+			document.documentElement.style.backgroundSize = 'cover';
+			document.body.style.backgroundImage = 'none';
+		});
 	}
 	else
 	{
