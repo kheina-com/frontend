@@ -29,7 +29,7 @@
 									name='resize-for-web'
 									v-model:checked='update.webResize'
 								>Resize For Web</CheckBox>
-								<Button @click='uploadFile' green><i class='material-icons'>upload</i>Upload</Button>
+								<Button @click='uploadFile(true)' green><i class='material-icons'>upload</i>Upload</Button>
 							</div>
 							<ul style='padding: 0; text-align: right'>
 								<li v-if='update?.webResize'>Resize your post to 1500px on its longest side</li>
@@ -418,7 +418,7 @@ export default {
 				},
 			});
 		},
-		uploadFile() {
+		uploadFile(finish=false) {
 			this.saving = true;
 			return new Promise((resolve, reject) => {
 				if (this.isUploading || this.uploadUnavailable || !this.file)
@@ -455,6 +455,8 @@ export default {
 					this.isUploading = false;
 					this.file = null;
 					this.uploadProgress = 0;
+					if (finish)
+					{ this.saving = false; }
 					resolve();
 				}, false);
 				ajax.addEventListener('error', e => reject(errorHandler(e)), false);

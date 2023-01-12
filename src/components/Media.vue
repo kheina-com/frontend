@@ -113,6 +113,8 @@ export default {
 	max-height: 100%;
 	margin: 0 auto;
 	display: block;
+	/* add a background to transparent images */
+	background: var(--bg0color) url(/assets/lightnoise.png);
 }
 .media p {
 	align-self: center;
