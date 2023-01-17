@@ -1,5 +1,5 @@
 <template>
-	<Loading class='media' :style='parentStyle' :isLoading='isLoading && lazy'>
+	<Loading :class='mediaClass' :style='parentStyle' :isLoading='isLoading && lazy'>
 		<p v-if='isError'>Could not load media.</p>
 		<video ref='media' :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
 		<img ref='media' :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
@@ -49,6 +49,10 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+		bg: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	setup() {
 		const media = ref(null);
@@ -70,13 +74,19 @@ export default {
 		parentStyle() {
 			return this.isLoading && this.width ? `aspect-ratio: ${this.width}/${this.height};` : null;
 		},
-		linkStyle()
-		{
+		linkStyle() {
 			if (this.isLoading && this.lazy)
 			{ return `width: ${this.width || '30vw'}px; padding-top: ${this.width ? this.height / this.width * 100 : '30vh'}%;`; }
 			else if (this.isError)
 			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width || '30vw'}px; height: ${this.height || '30vh'};`; }
 			return this.style;
+		},
+		mediaClass() {
+			let cls = 'media';
+			if (this.bg) {
+				cls += ' bg';
+			}
+			return cls;
 		},
 	},
 	methods: {
@@ -114,7 +124,9 @@ export default {
 	margin: 0 auto;
 	display: block;
 	/* add a background to transparent images */
-	background: var(--bg0color) url(/assets/lightnoise.png);
+}
+.media.bg img, .media.bg video {
+	background: var(--bg0color) url(/assets/lightnoise.png) repeat center;
 }
 .media p {
 	align-self: center;

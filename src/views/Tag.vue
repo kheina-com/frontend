@@ -172,7 +172,7 @@ export default {
 	created() {
 		this.fetchPosts();
 
-		khatch(`${tagsHost}/v1/tag/${this.tag}`)
+		khatch(`${tagsHost}/v1/tag/${encodeURIComponent(this.tag)}`)
 			.then(response => {
 				response.json().then(r => {
 					if (response.status < 300)

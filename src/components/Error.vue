@@ -24,7 +24,7 @@ import CopyText from '@/components/CopyText.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
 export default {
-	name: 'ProgressBar',
+	name: 'Error',
 	components: {
 		Subtitle,
 		Title,

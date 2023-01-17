@@ -210,7 +210,8 @@ for example, twitter can be linked to like so: t@Twitter. there are many website
 |       Example       |     Rendered      |       Website       |                Formatted                 |
 |:-------------------:|:-----------------:|:-------------------:|:----------------------------------------:|
 |   \`@kheina\`         |      @kheina      |       fuzz.ly       | https://fuzz.ly/kheina                   |
-| \`${iconShortcode}@kheina\` | ${iconShortcode}@kheina | fuzz.ly | https://fuzz.ly/kheina                   |
+|     \`[@]kheina\`     |     [@]kheina     |       fuzz.ly       | https://fuzz.ly/kheina                   |
+|    \`${iconShortcode}@kheina\`    |    ${iconShortcode}@kheina    |       fuzz.ly       | https://fuzz.ly/kheina                   |
 | \`t@username\`        |    t@username     |     twitter.com     | https://twitter.com/username             |
 | \`f@username\`        |    f@username     |     facebook.com    | https://facebook.com/username            |
 | \`ig@theounderstars\` | ig@theounderstars |    instagram.com    | https://www.instagram.com/theounderstars |

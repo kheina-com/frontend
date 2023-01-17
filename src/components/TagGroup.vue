@@ -4,7 +4,7 @@
 	<Loading :isLoading='tags === null'><h4>{{group.substr(0, 1).toUpperCase()}}{{group.substr(1).toLowerCase()}}</h4></Loading>
 	<ol :class='group'>
 		<li v-if='tags !== null' :class='tag' v-for='tag in tags'>
-			<router-link :to='`/t/${tag}`'>
+			<router-link :to='`/t/${encodeURIComponent(tag)}`'>
 				{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
 			</router-link>
 		</li>

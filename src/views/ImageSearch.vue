@@ -120,7 +120,7 @@ export default {
 			// this.responseHandler(undefined);
 			// return;
 
-			ajax.upload.addEventListener('progress', event => this.uploadProgress = (event.loaded / event.total) * 100, false);
+			ajax.upload.addEventListener('progress', event => this.uploadProgress = (event.loaded / event.total), false);
 			ajax.addEventListener('load', this.responseHandler, false);
 			ajax.addEventListener('error', this.errorHandler, false);
 			// ajax.addEventListener('abort', abortHandler, false);

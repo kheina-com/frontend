@@ -12,7 +12,7 @@
 			</ol>
 		</div>
 		<Title static='center'>New Post</Title>
-		<Subtitle static='center'>Your post {{privacy === 'unpublished' ? 'will be' : 'is'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
+		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
 		<div class='form'>
 			<Loading type='block' :isLoading='isUploading' v-if='!uploadUnavailable'>
 				<div class='field'>
@@ -27,14 +27,18 @@
 									class='checkbox'
 									id='resize-for-web'
 									name='resize-for-web'
-									v-model:checked='update.webResize'
+									v-model:checked='showResize'
+									@click='update.webResize = "1500"'
 								>Resize For Web</CheckBox>
 								<Button @click='uploadFile(true)' green><i class='material-icons'>upload</i>Upload</Button>
 							</div>
-							<ul style='padding: 0; text-align: right'>
-								<li v-if='update?.webResize'>Resize your post to 1500px on its longest side</li>
-							</ul>
 						</div>
+					</div>
+				</div>
+				<div class='field' v-if='showResize'>
+					<div>
+						<span>Longest Side in Pixels to Resize</span>
+						<input class='interactable text' v-model='update.webResize'>
 					</div>
 				</div>
 				<template v-slot:onLoad>
@@ -45,7 +49,7 @@
 			<div class='field'>
 				<div>
 					<span>Title</span>
-					<input class='interactable text' style='display: block; width: 100%' v-model='update.title'>
+					<input class='interactable text' v-model='update.title'>
 					<Markdown class='title-render' :content='update.title' inline/>
 				</div>
 			</div>
@@ -256,12 +260,14 @@ export default {
 			isMobile,
 			environment,
 			tagGroups,
+			PublishedPrivacies,
 			serverTags: null,
 			savedTags: [],
 			tagSuggestions: null,
 			showSuggestions: true,
 
 			showUpload: false,
+			showResize: false,
 			isUploading: false,
 			uploadProgress: 0,
 			uploadUnavailable: false,
@@ -431,7 +437,7 @@ export default {
 				formdata.append('post_id', this.postId);
 
 				if (this.update.webResize)
-				{ formdata.append('web_resize', this.update.webResize); }
+				{ formdata.append('web_resize', parseInt(this.update.webResize.trim())); }
 
 				const errorHandler = (event) => {
 					createToast({
@@ -444,7 +450,7 @@ export default {
 
 				const ajax = new XMLHttpRequest();
 
-				ajax.upload.addEventListener('progress', event => this.uploadProgress = (event.loaded / event.total) * 100, false);
+				ajax.upload.addEventListener('progress', event => this.uploadProgress = (event.loaded / event.total), false);
 				ajax.addEventListener('load', (event) => {
 					if (event.target.status >= 400)
 					{ return reject(errorHandler(event)); }
@@ -859,6 +865,11 @@ h4 {
 
 li {
 	list-style: none;
+}
+
+input {
+	display: block;
+	width: 100%;
 }
 
 .media {

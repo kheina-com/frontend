@@ -1,10 +1,10 @@
 <template>
-	<router-link :to='`/t/${tag}`' :class='divClass'>
+	<router-link :to='`/t/${encodeURIComponent(tag)}`' :class='divClass'>
 		<h2>{{tag}}</h2>
 		<Profile v-bind='owner' v-if='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p :class='group'>{{group}}</p>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
-		<p>Inherited Tags: {{inheritedTags}}</p>
+		<p>Inherited Tags: {{inheritedTags.length === 0 ? 'None' : inheritedTags.join(', ')}}</p>
 		<Markdown :content='description'/>
 	</router-link>
 </template>

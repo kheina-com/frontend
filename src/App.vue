@@ -276,7 +276,7 @@ input, textarea, select {
 	font-size: 0.9em;
 	color: var(--textcolor);
 }
-*::placeholder {
+*::placeholder, *::-webkit-input-placeholder {
 	color: var(--subtle);
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);

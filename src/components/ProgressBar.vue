@@ -1,7 +1,7 @@
 <template>
 	<DivLink class='progressbar' :style='barColors' :link='link' :newTab='newTab'>
 		<span :style='spanFill'>
-			<div>{{target ? target : fill.toFixed(2) + '%'}}</div>
+			<div>{{target ? target : (fill * 100).toFixed(2) + '%'}}</div>
 		</span>
 		<p :class='pClass'><slot/></p>
 	</DivLink>
@@ -40,12 +40,12 @@ export default {
 	},
 	computed: {
 		spanFill() {
-			return 'width:' + this.fill.toString() + '%;';
+			return 'width:' + (this.fill * 100).toString() + '%;';
 		},
 		pClass() {
-			if (this.fill >= 100)
+			if (this.fill >= 1)
 			{ return 'center'; }
-			else if (this.fill > 50)
+			else if (this.fill > 0.5)
 			{ return 'left'; }
 			else
 			{ return 'right'; }
