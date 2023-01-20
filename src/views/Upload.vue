@@ -18,11 +18,16 @@
 				<div class='field'>
 					<div>
 						<span>File</span>
-						<FileField v-model:file='file' :showSlot='uploadDone && file === null'>
+						<FileField v-model:file='file' :showSlot='uploadDone && file === null' v-model:width='width' v-model:height='height'>
 							<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh'/>
 						</FileField>
-						<div class='field' v-if='file !== null'>
-							<div class='actions' v-if='file !== null'>
+						<div class='field flex' v-if='file !== null'>
+							<div>
+								width: {{width ? commafy(width) : '...'}}px height: {{height ? commafy(height) : '...'}}px
+								<br>
+								size: {{abbreviate(file.size)}}B
+							</div>
+							<div class='actions'>
 								<CheckBox
 									class='checkbox'
 									id='resize-for-web'
@@ -207,7 +212,7 @@
 
 <script>
 import { ref } from 'vue';
-import { createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile, sortTagGroups } from '@/utilities';
+import { abbreviate, commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile, sortTagGroups } from '@/utilities';
 import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
@@ -275,6 +280,8 @@ export default {
 			mime: null,
 			filename: null,
 			file: null,
+			width: null,
+			height: null,
 			update: { },
 			mediaUrl: null,
 
@@ -316,6 +323,8 @@ export default {
 		},
 	},
 	methods: {
+		abbreviate,
+		commafy,
 		sortTagGroups,
 		toggleDrafts() {
 			this.showDrafts = !this.showDrafts;
@@ -712,6 +721,11 @@ main {
 }
 .form .field {
 	margin: 25px 0;
+}
+.form .flex {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 .form .multi-field {
 	display: flex;

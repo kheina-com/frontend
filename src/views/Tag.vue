@@ -208,7 +208,7 @@ export default {
 			if (this.tagData === null || !this.tagData.description)
 			{ return null; }
 
-			const newline = this.tagData.description.indexOf('\n');
+			const newline = this.tagData.description.indexOf('\n', 2);
 			if (newline >= 0)
 			{
 				this.showMore = true;

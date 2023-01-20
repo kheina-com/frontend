@@ -62,9 +62,9 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						if (response.status < 400 && r.token_data.token.length > 10)
+						if (response.status < 400 && r.token.token.length > 10)
 						{
-							this.$store.commit('setAuth', r.token_data);
+							this.$store.commit('setAuth', r.token);
 							this.$router.push(this.$route.query?.path ? this.$route.query.path : '/');
 						}
 						else if (response.status === 400)

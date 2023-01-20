@@ -250,7 +250,7 @@ export function abbreviate(value) {
 	if (value >= 1000000)
 	{ return `${Math.round(value / 100000) / 10}M`; }
 	if (value >= 1000)
-	{ return `${Math.round(value / 100) / 10}k`; }
+	{ return `${Math.round(value / 100) / 10}K`; }
 	return `${value}`;
 }
 
