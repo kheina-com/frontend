@@ -6,6 +6,13 @@
 				pretty much everything is allowed with exception to the following:
 				<ul>
 					<li>NSFW underage content</li>
+					<li>EXPLICIT real-world content</li>
+					<p>This does not include the following content</p>
+					<ul>
+						<li>photographs of depicting nudity or genitals, so long as genitals are not the main focus (i.e. post must be tagged 'mature', not 'explicit')</li>
+						<li>photographs of paintings or artwork containing NSFW content</li>
+						<li>photographs of statues depicting NSFW content</li>
+					</ul>
 				</ul>
 			</p>
 		</div>

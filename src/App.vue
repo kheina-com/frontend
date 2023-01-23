@@ -485,7 +485,7 @@ html {
 	--notification-bg: var(--red);
 }
 html.mobile {
-	--border-size: 2px;
+	--border-size: 2px;	
 	--border-radius: 5px;
 }
 
@@ -497,7 +497,7 @@ html.kheina, html.gay {
 div.loadingicon img
 { filter: sepia(100%) saturate(382%) hue-rotate(-2.8deg) brightness(113.5%); }
 
-html.light {
+html.light, .high-contrast-light {
 	--icolor: #F28817;
 	--bg0color: #C3C4CE;
 	--bg1color: #E0E4E8;
@@ -629,15 +629,42 @@ html.terminal {
 	--main: #000000cc
 }
 
+html.high-contrast-dark *, html.high-contrast-light * {
+	font-family: Atkinson Hyperlegible;
+}
 html.high-contrast-dark {
-	--textcolor: #ffffff;
-	--subtle: #cccccc;
-	--bordercolor: #aaa;
-	--icolor: #00ff00;
-	--screen-cover: #000000d0;
-	--bg1color: #000000;
-	--bg2color: #1e1f25;
-	--bg3color: #000000;
+	--icolor: #efe006;
+	--bg3color: #2D333A;
+	--blockquote: var(--bg3color);
+	--textcolor: #FFFFFF;
+	--bordercolor: #7f848a;
+	--subtle: #FFFFFFC0;
+
+	--pink: #cc35cc;
+	--yellow: #c8c80f;
+	--green: forestgreen;
+	--blue: steelblue;
+	--orange: #c44f3b;
+	--red: #d7242d;
+	--cyan: darkcyan;
+	--violet: #9451d7;
+}
+
+html.high-contrast-light {
+	--icolor: #253b89;
+	--textcolor: #000000;
+	--subtle: #000000C0;
+
+	--pink: #c03d7e;
+	--yellow: #9e8900;
+	--green: #083a12;
+	--blue: #0a2188;
+	--orange: #8d1214;
+	--red: #b0051b; /* #491a1d #800210 */
+	--cyan: darkcyan;
+	--violet: #5a0d76;
+
+	--funding: #48b409;
 }
 
 html.solarized-dark {

@@ -176,7 +176,6 @@ export default {
 					...r,
 					blocked_tags: r.blocked_tags ? r.blocked_tags.map(x => x.join(' ')).join('\n') : null,
 					blocked_users: r.blocked_users ? r.blocked_users.join(' ') : null,
-					wallpaper: r.wallpaper?.post_id,
 				};
 				this.isLoading = false;
 			}));

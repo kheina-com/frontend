@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<div v-if='parent' class='parent'>
-		<Reply :postId='parent?.post_id' v-bind='parent' nested/>
+		<Reply :postId='parent?.post_id' v-bind='parent' nested labels/>
 	</div>
 
 	<div class='container' v-if='!isMobile'>
@@ -843,7 +843,7 @@ ol p {
 .parent {
 	margin-bottom: 25px;
 	padding: 1em 25px;
-	background: var(--bg1color);
+	background: var(--main);
 }
 
 .post-buttons {

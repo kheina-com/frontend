@@ -37,13 +37,25 @@
 				<p>note: signature is not checked</p>
 			</div>
 		</div>
-		<ThemeMenu/>
-		<Button :isLoading='true'>
-			<div style='width: 100%'>
-				aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+		<div class='color-text'>
+			<div v-for='color in colors' :style='"color: " + color'>
+				<p>{{color}} text</p>
+				<p style='font-weight: bold'>bold {{color}} text</p>
 			</div>
-		</Button>
-		<Post nested/>
+		</div>
+		<div class='color-comparer'>
+			<div v-for='i in colors.length' :style='"background: " + colors[i-1]'>
+				<p style='color: white'>white text</p>
+				<p style='color: black'>black text</p>
+				<input claceholder='color' class='interactable' v-model='colors[i-1]'/>
+				<Button @click='colors.splice(i-1, 1);'><i class='material-icons-outline'>delete</i>Remove</Button>
+			</div>
+		</div>
+		<div class='color-bar'>
+			<div v-for='i in colors.length' :style='"background: " + colors[colors.length-i]'/>
+		</div>
+		<Button @click='colors.push("")'><i class='material-icons'>add</i>Add Color</Button>
+		<ThemeMenu/>
 	</main>
 </template>
 
@@ -57,7 +69,6 @@ import { authCookie, createToast } from '@/utilities';
 import epoch from '@/config/constants';
 import { environment } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
-import Post from '@/components/Post.vue';
 
 
 export default {
@@ -68,7 +79,6 @@ export default {
 		Timestamp,
 		Button,
 		Markdown,
-		Post,
 	},
 	data() {
 		return {
@@ -79,6 +89,7 @@ export default {
 			content: authCookie()?.token,
 			audioLoading: false,
 			environment,
+			colors: [],
 		}
 	},
 	methods: {
@@ -195,5 +206,27 @@ i {
 }
 .token div {
 	grid-area: preview;
+}
+.color-comparer, .color-bar, .color-text {
+	display: flex;
+}
+.color-comparer, .color-comparer div, .color-bar, .color-bar div, .color-text, .color-text div {
+	width: 100%;
+	margin: 0;
+}
+.color-comparer input {
+	margin-right: 25px;
+}
+.color-comparer div {
+	padding: 5em 25px;
+}
+.color-comparer div > * {
+	margin: 1em 0;
+}
+.color-bar div {
+	height: 50px;
+}
+.color-bar, .color-text {
+	margin-bottom: 25px;
 }
 </style>

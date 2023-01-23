@@ -111,7 +111,12 @@
 						<Loading span v-else>username</Loading>
 						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user?.handle}'s account is private`">lock</i>
 					</h2>
-					<p><Loading :isLoading='!user' span>@{{user?.handle || 'handle'}}</Loading></p>
+					<p>
+						<Loading :isLoading='!user' class='handle' span>
+							<span>@{{user?.handle || 'handle'}}</span>
+							<ShareLink :content='`/${user?.handle}`' v-if='user?.privacy !== "private"'/>
+						</Loading>
+					</p>
 				</div>
 			</div>
 			<MarkdownEditor v-model:value='update.description' class='description' resize='vertical' v-if='isEditing'/>
@@ -277,6 +282,7 @@ import SearchBar from '@/components/SearchBar.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
 import DropDown from '@/components/DropDown.vue';
 import CheckBox from '@/components/CheckBox.vue';
+import ShareLink from '@/components/ShareLink.vue';
 
 
 export default {
@@ -307,6 +313,7 @@ export default {
 		ResultsNavigation,
 		DropDown,
 		CheckBox,
+		ShareLink,
 	},
 	setup() {
 		const main = ref(null);
@@ -908,6 +915,16 @@ main {
 }
 .mobile .banner-missing {
 	height: calc(4em + 28px);
+}
+
+
+.handle {
+	display: flex;
+	align-items: center;
+}
+
+.handle span {
+	margin-right: 0.25em;
 }
 
 .edit-profile-button {

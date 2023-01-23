@@ -25,7 +25,7 @@
 							<div>
 								width: {{width ? commafy(width) : '...'}}px height: {{height ? commafy(height) : '...'}}px
 								<br>
-								size: {{abbreviate(file.size)}}B
+								size: {{abbreviate(file.size)}}
 							</div>
 							<div class='actions'>
 								<CheckBox
@@ -212,7 +212,7 @@
 
 <script>
 import { ref } from 'vue';
-import { abbreviate, commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile, sortTagGroups } from '@/utilities';
+import { commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile, sortTagGroups } from '@/utilities';
 import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
@@ -323,9 +323,19 @@ export default {
 		},
 	},
 	methods: {
-		abbreviate,
 		commafy,
 		sortTagGroups,
+		abbreviate(bytes) {
+			const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+			let count = 0;
+			while (bytes > 1024) {
+				bytes /= 1024;
+				count += 1;
+			}
+			if (bytes < 100)
+			{ return `${Math.round(bytes * 100) / 100}${units[count]}`; }
+			return `${Math.round(bytes * 10) / 10}${units[count]}`;
+		},
 		toggleDrafts() {
 			this.showDrafts = !this.showDrafts;
 			if (this.showDrafts)

@@ -53,6 +53,7 @@ export default {
 				['wikipedia', 'wikipedia'],
 				['terminal', 'terminal'],
 				['high-contrast-dark', 'high contrast dark'],
+				['high-contrast-light', 'high contrast light'],
 				['solarized-dark', 'solarized dark'],
 				['solarized-light', 'solarized light'],
 				['furaffinity', 'fur affinity'],
