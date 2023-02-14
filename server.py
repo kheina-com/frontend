@@ -2,14 +2,18 @@ from os import path
 from typing import Dict, Optional
 
 import requests
-from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from kh_common.caching import SimpleCache
 from kh_common.config.constants import account_host, auth_host, config_host, environment, posts_host, tags_host, upload_host, users_host
+from kh_common.exceptions import jsonErrorHandler
+from kh_common.exceptions.base_error import BaseError
 from kh_common.logging import getLogger
-from kh_common.server import Request, Response, ServerApp
-from kh_common.server.middleware import HeadersToSet
+from kh_common.server.middleware import CustomHeaderMiddleware, HeadersToSet
+from kh_common.server.middleware.cors import KhCorsMiddleware
 from pydantic import constr
+from starlette.middleware.exceptions import ExceptionMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from headers.home import homeMetaTags
 from headers.post import postMetaTags
@@ -30,24 +34,63 @@ PixelResponse = Response(
 	},
 )
 
-app = ServerApp(
-	auth = False,
-	allowed_hosts = (
-		['fuzz.ly']
-		if environment.is_prod() else
-		[
-			'localhost',
-			'127.0.0.1',
-			'*.fuzz.ly',
-		]
-	),
-	allowed_origins = (
+app = FastAPI(docs_url=None)
+app.add_middleware(ExceptionMiddleware, handlers={ Exception: jsonErrorHandler }, debug=False)
+app.add_exception_handler(BaseError, jsonErrorHandler)
+app.middleware('http')(CustomHeaderMiddleware)
+app.add_middleware(
+	KhCorsMiddleware,
+	allowed_origins = set(
 		['fuzz.ly']
 		if environment.is_prod() else
 		[
 			'localhost',
 			'127.0.0.1',
 			'dev.fuzz.ly',
+		]
+	),
+	allowed_protocols = set(['http', 'https'] if environment.is_local() else ['https']),
+	allowed_headers = {
+		'accept',
+		'accept-language',
+		'authorization',
+		'cache-control',
+		'content-encoding',
+		'content-language',
+		'content-length',
+		'content-security-policy',
+		'content-type',
+		'cookie',
+		'host',
+		'location',
+		'referer',
+		'referrer-policy',
+		'set-cookie',
+		'user-agent',
+		'www-authenticate',
+		'x-frame-options',
+		'x-xss-protection',
+	},
+	allowed_methods = { 'GET' },
+	exposed_headers = set(list(HeadersToSet.keys()) + [
+		'authorization',
+		'cache-control',
+		'content-type',
+		'cookie',
+		'set-cookie',
+		'www-authenticate',
+	]),
+	max_age = 86400,
+)
+app.add_middleware(
+	TrustedHostMiddleware,
+	allowed_hosts=set(
+		['fuzz.ly']
+		if environment.is_prod() else
+		[
+			'localhost',
+			'127.0.0.1',
+			'*.fuzz.ly',
 		]
 	),
 )
