@@ -112,16 +112,17 @@ def openapi() :
 app.openapi = openapi
 
 
-@app.get("/docs", include_in_schema=False)
 @SimpleCache(float('inf') if environment.is_prod() else 60)
+async def swaggerHtml():
+	if not path.isfile('dist/swagger.html') :
+		raise ValueError('dist/swagger.html was not found! did you forget to run `npm run build`?')
+
+	return open('dist/swagger.html').read()
+
+
+@app.get('/docs', include_in_schema=False)
 async def custom_swagger_ui_html():
-	return get_swagger_ui_html(
-		openapi_url=app.openapi_url,
-		title=app.title + ' - Swagger UI',
-		oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-		swagger_js_url='/swagger-ui-bundle.js',
-		swagger_css_url='/swagger-ui.css',
-	)
+	return HTMLResponse(swaggerHtml())
 
 
 @SimpleCache(float('inf') if environment.is_prod() else 60)
