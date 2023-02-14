@@ -164,7 +164,7 @@ ol > :last-child {
 	color: var(--textcolor);
 }
 .user-field span button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 i {
 	margin: 0 0.25em 0 0;

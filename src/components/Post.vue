@@ -448,7 +448,7 @@ export default {
 	transition: var(--transition) var(--fadetime);
 }
 .post.link:hover .title {
-	color: var(--icolor);
+	color: var(--interact);
 }
 </style>
 
@@ -481,7 +481,7 @@ export default {
 	cursor: pointer;
 }
 .post.link:hover {
-	border-color: var(--icolor);
+	border-color: var(--interact);
 }
 .post.link {
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
@@ -641,7 +641,7 @@ ol > :last-child, ol > :last-child .post {
 	transition: var(--transition) var(--fadetime);
 }
 .buttons button:hover div, .reply-button:hover i {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg2color);
 }
 .nested .buttons button:hover div, .nested .reply-button:hover i {
@@ -695,7 +695,7 @@ ol > :last-child, ol > :last-child .post {
 	transition: var(--transition) var(--fadetime);
 }
 .more-button:hover i {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg2color);
 }
 .nested .more-button:hover i {

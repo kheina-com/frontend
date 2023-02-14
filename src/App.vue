@@ -241,7 +241,7 @@ html.transitions {
 }
 
 code, code *, .code, .code *, textarea, pre
-{ font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace; }
+{ font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace !important; }
 html {
 	background: var(--bg0color);	
 	background-size: cover;
@@ -284,13 +284,13 @@ input, textarea, select {
 	transition: var(--transition) var(--fadetime);
 }
 input:hover::placeholder {
-	color: var(--icolor);
+	color: var(--interact);
 }
 a:link, a:visited
 { color: var(--textcolor); }
 a:hover
 {
-	color: var(--icolor) !important;
+	color: var(--interact) !important;
 	opacity: 1 !important;
 }
 button
@@ -307,7 +307,7 @@ button
 	cursor: pointer;
 }
 button:hover /*, button:active, button:focus */
-{ color: var(--icolor); }
+{ color: var(--interact); }
 textarea {
 	margin: 0;
 	background: var(--bg2color);
@@ -331,7 +331,7 @@ textarea {
 	border: 2px solid var(--bg2color);
 }
 ::-webkit-scrollbar-thumb:hover
-{ background: var(--icolor); }
+{ background: var(--interact); }
 ::-webkit-scrollbar-corner
 { background: var(--bg0color); }
 form, p
@@ -361,15 +361,15 @@ form, p
 .interactable:hover /*, .interactable:active, .interactable:focus */
 {
 	border-color: var(--borderhover);
-	color: var(--icolor);
+	color: var(--interact);
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 .interactable.text:hover
-{ color: var(--icolor); }
+{ color: var(--interact); }
 .interactable.text:active, .interactable.text:focus
 {
 	color: var(--textcolor);
-	border-color: var(--icolor);
+	border-color: var(--interact);
 }
 .header
 { text-align: right; }
@@ -448,7 +448,7 @@ html {
 	--general: #70ca16;
 	--mature: #009DA6;
 	--explicit: #A32121;
-	--icolor: #F29B17; /* F1B636 */
+	--interact: #F29B17;
 	--bg0color: #000000;
 	--bg1color: #1e1f25;
 	--bg2color: #151416;
@@ -457,7 +457,7 @@ html {
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;
 	--linecolor: var(--bordercolor);
-	--borderhover: var(--icolor);
+	--borderhover: var(--interact);
 	--subtle: #EEEEEE80;
 	--shadowcolor: #00000080;
 	--activeshadowcolor: #000000B3;
@@ -498,7 +498,7 @@ div.loadingicon img
 { filter: sepia(100%) saturate(382%) hue-rotate(-2.8deg) brightness(113.5%); }
 
 html.light, .high-contrast-light {
-	--icolor: #F28817;
+	--interact: #F28817;
 	--bg0color: #C3C4CE;
 	--bg1color: #E0E4E8;
 	--bg2color: #D8D9E0;
@@ -514,7 +514,7 @@ html.light, .high-contrast-light {
 
 html.midnight
 {
-	--icolor: #2676D5;
+	--interact: #2676D5;
 	--bg0color: #000000;
 	--bg1color: #151416;
 	--bg2color: #151416;
@@ -526,16 +526,16 @@ html.midnight
 
 html.e621
 {
-	--icolor: #2E76B4;
+	--interact: #2E76B4;
 	--bg0color: #031131;
 	--bg1color: #152F56;
 	--bg2color: #213A5F;
-	--bg3color: hsla(0,0%,100%,.05);
+	--bg3color: hsla(0, 0%, 100%, 0.05);
 	--textcolor: #EEE;
 	--bordercolor: var(--subtle);
 	--border-size: 0;
 	--linecolor: var(--subtle);
-	--borderhover: var(--icolor);
+	--borderhover: var(--interact);
 	--blockquote: var(--subtle);
 	--subtle: #B4C7D9;
 	--shadowcolor: #0000;
@@ -578,7 +578,7 @@ html.e621 .more .source .left
 
 html.youtube
 {
-	--icolor: #FFF;
+	--interact: #FFF;
 	--bg0color: #121212;
 	--bg1color: #272727;
 	--bg2color: #383838;
@@ -593,7 +593,7 @@ html.youtube
 
 html.wikipedia
 {
-	--icolor: #0645AD;
+	--interact: #0645AD;
 	--bg0color: #F6F6F6;
 	--bg1color: #FFF;
 	--bg2color: #F8F9FA;
@@ -616,7 +616,7 @@ html.wikipedia .nav-backdrop {
 }
 
 html.terminal {
-	--icolor: #008000;
+	--interact: #008000;
 	--bg0color: #000000;
 	--bg1color: #000000;
 	--bg2color: #000000;
@@ -632,43 +632,53 @@ html.terminal {
 html.high-contrast-dark *, html.high-contrast-light * {
 	font-family: Atkinson Hyperlegible;
 }
+html.high-contrast-dark, html.high-contrast-light {
+	font-size: 1.1em;
+}
+
 html.high-contrast-dark {
-	--icolor: #efe006;
+	--interact: #F1B636; /* #d9a216 / #efe006 */
 	--bg3color: #2D333A;
 	--blockquote: var(--bg3color);
 	--textcolor: #FFFFFF;
 	--bordercolor: #7f848a;
 	--subtle: #FFFFFFC0;
 
-	--pink: #cc35cc;
-	--yellow: #c8c80f;
-	--green: forestgreen;
-	--blue: steelblue;
-	--orange: #c44f3b;
+	--pink: #e6b7b6;
+	--yellow: #e8ec6b;
+	--green: #1ff160; /* #abd017 */
+	--blue: steelblue; /* #14bbde */
+	--orange: #e19c69;
 	--red: #d7242d;
-	--cyan: darkcyan;
-	--violet: #9451d7;
+	--cyan: #81d9e3; /* #bbfdf8 / #47f4cf / #2396a1 */
+	--violet: #d3aae2; /* #d1bae7 / #e2c7fc */
+
+	--funding: #044721;
 }
 
 html.high-contrast-light {
-	--icolor: #253b89;
+	--interact: #5c098a; /* #5906c4 */
 	--textcolor: #000000;
 	--subtle: #000000C0;
 
-	--pink: #c03d7e;
+	--pink: #800960; /* #c03d7e */
 	--yellow: #9e8900;
-	--green: #083a12;
-	--blue: #0a2188;
-	--orange: #8d1214;
-	--red: #b0051b; /* #491a1d #800210 */
-	--cyan: darkcyan;
-	--violet: #5a0d76;
+	--green: #083a12; /* 0f4948 #0f4948 #294328 #155027 #1e4119 */
+	--blue: #0a2188; /* #162946 5b06bd #160979 #213d84 #1d166b #23366f */
+	--orange: #8d1214; /* #b50615 */
+	--red: #880f22; /* #6f1e20 */
+	--cyan: darkcyan;  /* #075f91 #2d4668 #24386f */
+	--violet: #5b0b8d; /* #5a0d76 #8d06a0 #480f77 #561977 */
 
-	--funding: #48b409;
+	--general:  #3e9e49; /* TODO */
+	--mature:   #ffe666; /* TODO */
+	--explicit: #800210;
+
+	--funding: #78c535;
 }
 
 html.solarized-dark {
-	--icolor: #b58900;
+	--interact: #b58900;
 	--bg0color: #002b36;
 	--bg1color: #073642;
 	--bg2color: #002b36;
@@ -682,7 +692,7 @@ html.solarized-dark {
 }
 
 html.solarized-light {
-	--icolor: #cb4b16;
+	--interact: #cb4b16;
 	--bg0color: #fdf6e3;
 	--bg1color: #eee8d5;
 	--bg2color: #fdf6e3;
@@ -697,14 +707,14 @@ html.solarized-light {
 html.solarized-light, html.solarized-dark {
 	--bordercolor: #586e75;
 
-	--yellow:    #b58900;
-	--orange:    #cb4b16;
-	--red:       #dc322f;
+	--yellow: #b58900;
+	--orange: #cb4b16;
+	--red:    #dc322f;
 	--pink:   #d33682;
-	--violet:    #6c71c4;
-	--blue:      #268bd2;
-	--cyan:      #2aa198;
-	--green:     #859900;
+	--violet: #6c71c4;
+	--blue:   #268bd2;
+	--cyan:   #2aa198;
+	--green:  #859900;
 
 	--funding: var(--green);
 
@@ -718,7 +728,7 @@ html.solarized-light, html.solarized-dark {
 }
 
 html.furaffinity {
-	--icolor: #AFAFAF;
+	--interact: #AFAFAF;
 	--bg0color: #2E3B41;
 	--bg1color: #2E3B41;
 	--bg2color: #6A7283;
@@ -735,7 +745,7 @@ html.furaffinity main {
 }
 
 html.discord {
-	--icolor: #7289DA;
+	--interact: #7289DA;
 	--bg0color: #202225;
 	--bg1color: #2F3136;
 	--bg2color: #26272B;
@@ -749,7 +759,7 @@ html.discord {
 }
 
 html.xfire {
-	--icolor: #3D73D7;
+	--interact: #3D73D7;
 	--bg0color: #000000;
 	--bg1color: #12283F;
 	--bg2color: #1D1C22;

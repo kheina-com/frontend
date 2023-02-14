@@ -79,7 +79,7 @@ span {
 label:hover, label:active, label:focus
 {
 	border-color: var(--borderhover);
-	color: var(--icolor);
+	color: var(--interact);
 }
 label:hover
 { box-shadow: 0 0 10px 3px var(--activeshadowcolor); }
@@ -125,7 +125,7 @@ label div.radio div
 }
 input:checked + label div.radio div
 {
-	border-color: var(--icolor);
+	border-color: var(--interact);
 	border-width: 0.3em;
 	width: 0;
 	height: 0;

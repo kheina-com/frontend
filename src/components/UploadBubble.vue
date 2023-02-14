@@ -27,8 +27,8 @@ html.solarized-dark .upload-bubble, html.solarized-light .upload-bubble, html.mi
 }
 .upload-bubble:hover {
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
-	border-color: var(--icolor);
-	color: var(--icolor);
+	border-color: var(--interact);
+	color: var(--interact);
 }
 .upload-bubble i {
 	display: block;

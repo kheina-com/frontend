@@ -37,24 +37,29 @@
 				<p>note: signature is not checked</p>
 			</div>
 		</div>
-		<div class='color-text'>
+		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
 				<p>{{color}} text</p>
 				<p style='font-weight: bold'>bold {{color}} text</p>
+				<p v-for='i in [0, 1, 2]'>bg<code>{{i}}</code> contrast: {{contrastWithBg(color, i).toFixed(2)}}</p>
 			</div>
 		</div>
-		<div class='color-comparer'>
+		<div class='color-comparer' v-show='colors.length'>
 			<div v-for='i in colors.length' :style='"background: " + colors[i-1]'>
-				<p style='color: white'>white text</p>
-				<p style='color: black'>black text</p>
-				<input claceholder='color' class='interactable' v-model='colors[i-1]'/>
+				<p style='color: white'>white text: {{contrast(textToColor(colors[i-1]), textToColor('#fff')).toFixed(2)}}</p>
+				<p style='color: black'>black text: {{contrast(textToColor(colors[i-1]), textToColor('#000')).toFixed(2)}}</p>
+				<input placeholder='color' class='interactable' v-model='colors[i-1]'/>
 				<Button @click='colors.splice(i-1, 1);'><i class='material-icons-outline'>delete</i>Remove</Button>
 			</div>
 		</div>
-		<div class='color-bar'>
+		<div class='color-bar' v-show='colors.length'>
 			<div v-for='i in colors.length' :style='"background: " + colors[colors.length-i]'/>
 		</div>
-		<Button @click='colors.push("")'><i class='material-icons'>add</i>Add Color</Button>
+		<Button @click='colors.push("#" + uuid(6))'><i class='material-icons'>add</i>Add Color</Button>
+		<Button @click='toggleGray'>Toggle Grayscale</Button>
+		<Button @click='generateColors'>Generate!</Button>
+		<input placeholder='contrast cutoff' class='interactable' v-model='cutoff'/>
+		{{colors}}
 		<ThemeMenu/>
 	</main>
 </template>
@@ -90,13 +95,14 @@ export default {
 			audioLoading: false,
 			environment,
 			colors: [],
+			cutoff: null,
 		}
 	},
 	methods: {
 		createToast,
-		uuid() {
+		uuid(len=32) {
 			let uuid = '';
-			for (let i = 0; i < 32; i++)
+			for (let i = 0; i < len; i++)
 			{ uuid += Math.floor(Math.random() * 16).toString(16); }
 			return uuid;
 		},
@@ -104,6 +110,77 @@ export default {
 			this.audioLoading = true;
 			this.audio.play();
 			setTimeout(() => this.audioLoading = false, this.audio.duration * 1000);
+		},
+		textToColor(string) {
+			if (string.startsWith('#'))
+			{
+				if (string.length === 7)
+				{
+					return {
+						R: parseInt(string.substr(1, 2), 16),
+						G: parseInt(string.substr(3, 2), 16),
+						B: parseInt(string.substr(5, 2), 16),
+					};
+				}
+
+				if (string.length === 4)
+				{
+					return {
+						R: parseInt(string.substr(1, 1) + string.substr(1, 1), 16),
+						G: parseInt(string.substr(2, 1) + string.substr(2, 1), 16),
+						B: parseInt(string.substr(3, 1) + string.substr(3, 1), 16),
+					};
+				}
+			}
+
+			if (string.toLowerCase().startsWith('rgb'))
+			{
+				const match = string.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*/i);
+				return {
+					R: parseInt(match[1]),
+					G: parseInt(match[2]),
+					B: parseInt(match[3]),
+				};
+			}
+		},
+		lum(c) {
+			const RsRGB = c.R / 255;
+			const GsRGB = c.G / 255;
+			const BsRGB = c.B / 255;
+
+			const R = RsRGB <= 0.03928 ? RsRGB / 12.92 : ((RsRGB + 0.055) / 1.055) ** 2.4;
+			const G = GsRGB <= 0.03928 ? GsRGB / 12.92 : ((GsRGB + 0.055) / 1.055) ** 2.4;
+			const B = BsRGB <= 0.03928 ? BsRGB / 12.92 : ((BsRGB + 0.055) / 1.055) ** 2.4;
+
+			return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+		},
+		contrast(c1, c2) {
+			const l1 = this.lum(c1);
+			const l2 = this.lum(c2);
+			return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
+		},
+		contrastWithBg(color, bg) {
+			return this.contrast(this.textToColor(color), this.textToColor(getComputedStyle(document.documentElement).getPropertyValue(`--bg${bg}color`)));
+		},
+		toggleGray() {
+			document.documentElement.style.filter ? document.documentElement.style.filter = null : document.documentElement.style.filter = "grayscale(1)";
+		},
+		generateColors() {
+			if (!this.cutoff)
+			{
+				return createToast({
+					title: 'failed to generate color palette',
+					description: 'no cutoff was specified',
+					time: 5,
+				});
+			}
+			this.colors.length = 0;
+			while (this.colors.length < 10) {
+				const newColor = '#' + this.uuid(6);
+				const cutoff = parseInt(this.cutoff);
+				if (this.contrastWithBg(newColor, 0) >= cutoff || this.contrastWithBg(newColor, 1) >= cutoff)
+				{ this.colors.push(newColor); }
+			}
 		},
 	},
 	computed: {
@@ -172,7 +249,7 @@ ol > :last-child {
 	color: var(--textcolor);
 }
 .user-field span button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 i {
 	margin: 0 0.25em 0 0;
@@ -199,10 +276,20 @@ i {
 	min-width: 1000px;
 	position: relative;
 }
+.mobile .token {
+	display: flex;
+	flex-direction: column;
+	min-width: initial;
+}
 .token textarea {
 	grid-area: editor;
+	width: 100%;
 	resize: vertical;
 	line-height: 1.5;
+}
+.mobile .token textarea {
+	height: 15em;
+	margin-bottom: 25px;
 }
 .token div {
 	grid-area: preview;
@@ -215,7 +302,7 @@ i {
 	margin: 0;
 }
 .color-comparer input {
-	margin-right: 25px;
+	width: 7em;
 }
 .color-comparer div {
 	padding: 5em 25px;

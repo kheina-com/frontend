@@ -121,7 +121,7 @@ export default {
 	fill: #ff5900;
 }
 a:hover .external-logo {
-	fill: var(--icolor);
+	fill: var(--interact);
 }
 
 /* THEME OVERRIDES */

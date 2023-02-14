@@ -102,7 +102,7 @@ button {
 	text-decoration-line: underline;
 }
 button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 i {
 	font-size: 1.2em;

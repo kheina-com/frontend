@@ -60,7 +60,7 @@ export default {
 <style scoped>
 .progressbar
 {
-	--barfillcolor: var(--icolor);
+	--barfillcolor: var(--interact);
 	--bartextcolor: var(--textcolor);
 	display: block;
 	position: relative;

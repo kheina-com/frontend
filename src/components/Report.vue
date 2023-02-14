@@ -43,11 +43,11 @@ export default {
 	border-radius: var(--border-radius);
 }
 .desktop .report:hover {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg1color);
 }
 .mobile .report:hover i, .tile .report:hover i {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg1color);
 }
 i {

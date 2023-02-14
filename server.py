@@ -1,21 +1,24 @@
-from asyncio import Task, ensure_future
 from os import path
-from re import Match
-from typing import Optional
+from typing import Dict, Optional
 
+import requests
 from fastapi.responses import FileResponse, HTMLResponse
-from kh_common.caching import ArgsCache, SimpleCache
-from kh_common.config.constants import environment
+from kh_common.caching import SimpleCache
+from kh_common.config.constants import account_host, auth_host, config_host, environment, posts_host, tags_host, upload_host, users_host
 from kh_common.logging import getLogger
 from kh_common.server import Request, Response, ServerApp
+from kh_common.server.middleware import HeadersToSet
 from pydantic import constr
 
 from headers.home import homeMetaTags
-from headers.post import post_regex, postMetaTags
+from headers.post import postMetaTags
 from headers.static import Headers
-from headers.tag import tag_regex, tagMetaTags
-from headers.user import user_regex, userMetaTags
+from headers.tag import tagMetaTags
+from headers.user import userMetaTags
 
+
+# update the headers injected by the custom headers middleware to include the ones for frontend
+HeadersToSet.update(Headers)
 
 PixelResponse = Response(
 	b'GIF89a\x01\x00\x01\x00p\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;',
@@ -34,7 +37,6 @@ app = ServerApp(
 		[
 			'localhost',
 			'127.0.0.1',
-			'*.kheina.com',
 			'*.fuzz.ly',
 		]
 	),
@@ -44,7 +46,6 @@ app = ServerApp(
 		[
 			'localhost',
 			'127.0.0.1',
-			'dev.kheina.com',
 			'dev.fuzz.ly',
 		]
 	),
@@ -52,9 +53,69 @@ app = ServerApp(
 
 logger = getLogger()
 
+services: Dict[str, str] = {
+	'upload': upload_host,
+	'posts': posts_host,
+	'users': users_host,
+	'tags': tags_host,
+	'account': account_host,
+	'config': config_host,
+	'auth': auth_host,
+}
+
+
+"""
+We override the built-in version of openapi so that we can get the *real* api docs from all of the individual services and return those, rather than the ones that don't really matter on the frontend.
+"""
+def openapi() :
+	openapi_json = {
+		'info': {
+			'title': app.title,
+			'version': app.version,
+		},
+		'paths': { },
+		'components': {
+			'schemas': { },
+		},
+	}
+
+	for name, host in services().items() :
+		try :
+			r = requests.get(f'{host}/openapi.json')
+
+		except :
+			continue
+
+		if not r.ok :
+			continue
+
+		service_openapi_json = r.json()
+		openapi_version = service_openapi_json.get('openapi')
+
+		if not openapi_version :
+			continue
+
+		paths: Dict[str, dict] = { }  # this is a dictionary of url: documentation
+		for path, doc in service_openapi_json['paths'].items() :
+			for endpoint in doc.values() :
+				endpoint['tags'] = [path]
+
+			paths[f'{host}/{path}'] = doc
+
+		openapi_json['paths'].update(paths)
+		openapi_json['openapi'] = openapi_version
+		openapi_json['components']['schemas'].update(service_openapi_json['components']['schemas'])
+
+	return openapi_json
+
+app.openapi = openapi
+
 
 @SimpleCache(float('inf') if environment.is_prod() else 60)
 def vueIndex() :
+	if not path.isfile('dist/index.html') :
+		raise ValueError('dist/index.html was not found! did you forget to run `npm run build`?')
+
 	return open('dist/index.html').read()
 
 
@@ -67,17 +128,17 @@ def pixel(req: Request) :
 @app.get('/p/{post_id}')
 async def post_route(post_id: constr(regex=r'^[a-zA-Z0-9_-]{8}$'), force_norich: Optional[str] = None) :
 	if force_norich :
-		return HTMLResponse(vueIndex(), headers=Headers)
+		return HTMLResponse(vueIndex())
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await postMetaTags(post_id) or await homeMetaTags())), headers=Headers)
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await postMetaTags(post_id) or await homeMetaTags())))
 
 
 @app.get('/t/{tag}')
 async def tag_route(tag: str, force_norich: Optional[str] = None) :
 	if force_norich :
-		return HTMLResponse(vueIndex(), headers=Headers)
+		return HTMLResponse(vueIndex())
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await tagMetaTags(tag) or await homeMetaTags())), headers=Headers)
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await tagMetaTags(tag) or await homeMetaTags())))
 
 
 @app.get('{uri:path}')
@@ -85,12 +146,12 @@ async def all_routes(uri: str, force_norich: Optional[str] = None) :
 	local_uri = 'dist/' + uri.strip('\./')
 
 	if path.isfile(local_uri) :
-		return FileResponse(local_uri, headers=Headers)
+		return FileResponse(local_uri)
 
 	if force_norich :
-		return HTMLResponse(vueIndex(), headers=Headers)
+		return HTMLResponse(vueIndex())
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await userMetaTags(uri) or await homeMetaTags())), headers=Headers)
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await userMetaTags(uri) or await homeMetaTags())))
 
 
 if __name__ == '__main__' :

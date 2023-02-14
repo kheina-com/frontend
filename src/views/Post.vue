@@ -833,7 +833,7 @@ ol p {
 	color: var(--subtle);
 }
 .reply-label button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 .report:hover {
 	background: var(--bg2color) !important;
@@ -863,7 +863,7 @@ ol p {
 	transition: var(--transition) var(--fadetime);
 }
 .more-button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg2color);
 }
 .more-button {
@@ -887,7 +887,7 @@ ol p {
 	margin-right: 0.25em;
 }
 .sort-by:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 
 /* theme overrides */

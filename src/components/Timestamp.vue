@@ -117,6 +117,6 @@ button {
 	position: relative;
 }
 button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 </style>

@@ -53,7 +53,7 @@ export default {
 	background: var(--bg2color);
 }
 .tag:hover {
-	border-color: var(--icolor);
+	border-color: var(--interact);
 }
 h2 {
 	margin: 0;

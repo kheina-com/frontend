@@ -102,7 +102,7 @@ button.loading {
 	margin: -0.1em -0.25em !important;
 }
 .inline:hover {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg1color);
 }
 </style>

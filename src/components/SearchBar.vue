@@ -70,7 +70,7 @@ i {
 	cursor: pointer;
 }
 button:hover /*, button:active, button:focus */
-{ color: var(--icolor); }
+{ color: var(--interact); }
 .search-input {
 	position: relative;
 }

@@ -110,7 +110,7 @@ span {
 	margin-right: 0;
 }
 label:hover, label:active, label:focus {
-	color: var(--icolor);
+	color: var(--interact);
 }
 
 label.border {
@@ -157,7 +157,7 @@ label div.checkmark div {
 }
 
 input:checked + label div.checkmark div, label.checked div.checkmark div {
-	border-color: var(--icolor);
+	border-color: var(--interact);
 	border-width: 0 0.1875em 0.1875em 0;
 	-webkit-transform: rotate(45deg);
 	-ms-transform: rotate(45deg);

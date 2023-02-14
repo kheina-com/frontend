@@ -491,7 +491,7 @@ ol > :last-child {
 	margin-right: 25px;
 }
 .buttons button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 .sort-by {
 	display: flex;
@@ -506,7 +506,7 @@ ol > :last-child {
 	margin-right: 0.25em;
 }
 .sort-by:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 
 .checkbox {

@@ -69,7 +69,7 @@ button {
 	display: none;
 }
 button:hover div {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg2color);
 }
 .nested button:hover div {

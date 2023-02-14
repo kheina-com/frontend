@@ -49,15 +49,7 @@ export default {
 			if (!this.handle)
 			{ return; }
 
-			if (this.webp && this.post)
-			{
-				this.webp = false;
-				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
-			}
-			else if (this.handle)
-			{ this.$refs.media.src = getMediaThumbnailUrl(defaultUserIcon, 400); }
-			else
-			{ this.$emit('update:isLoading', false); }
+			this.$emit('update:isLoading', false);
 		},
 	},
 	watch: {

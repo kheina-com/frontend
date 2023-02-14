@@ -360,7 +360,7 @@ export default {
 	cursor: pointer;
 }
 .post.link:hover {
-	border-color: var(--icolor);
+	border-color: var(--interact);
 }
 .post.nested {
 	background: var(--bg2color);
@@ -421,7 +421,7 @@ export default {
 	display: block;
 }
 .more-button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg2color);
 }
 .nested .more-button:hover {

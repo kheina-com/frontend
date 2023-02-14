@@ -6,7 +6,7 @@ Headers: Dict[str, str] = {
 		"script-src 'self';"
 		"font-src 'self';"
 		"connect-src 'self' *.fuzz.ly api.pwnedpasswords.com;"
-		"img-src 'self' cdn.fuzz.ly data:;" # data: is required for uploads
+		"img-src 'self' cdn.fuzz.ly data:;"  # data: is required for uploader
 		"style-src 'self' *.fuzz.ly 'unsafe-inline';"
 		"style-src 'self' 'unsafe-inline';"
 		"media-src 'self' cdn.fuzz.ly data:;"

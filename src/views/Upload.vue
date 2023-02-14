@@ -40,10 +40,18 @@
 						</div>
 					</div>
 				</div>
-				<div class='field' v-if='showResize'>
+				<div class='field resize-field' v-if='showResize'>
 					<div>
 						<span>Longest Side in Pixels to Resize</span>
 						<input class='interactable text' v-model='update.webResize'>
+					</div>
+					<div>
+						<span>Resized Dimensions</span>
+						<div v-show='resized'>
+							width: {{resized ? commafy(resized?.width) : '...'}}px height: {{resized ? commafy(resized?.height) : '...'}}px
+							<br>
+							size: {{resized.scale.toFixed(2)}}%
+						</div>
 					</div>
 				</div>
 				<template v-slot:onLoad>
@@ -273,6 +281,7 @@ export default {
 
 			showUpload: false,
 			showResize: false,
+			resized: null,
 			isUploading: false,
 			uploadProgress: 0,
 			uploadUnavailable: false,
@@ -307,6 +316,16 @@ export default {
 			() => this.$route.query?.post,
 			this.postWatcher,
 		);
+
+		this.$watch(
+			() => this.update?.webResize,
+			this.calcResize,
+		);
+
+		this.$watch(
+			() => this.width * this.height,
+			this.calcResize,
+		);
 	},
 	computed: {
 		emojiPlaceholder() {
@@ -325,6 +344,29 @@ export default {
 	methods: {
 		commafy,
 		sortTagGroups,
+		calcResize() {
+			if (!this.update.webResize)
+			{ this.resized = null; }
+
+			if (this.width > this.height)
+			{
+				const size = Math.min(parseInt(this.update.webResize), this.width);
+				this.resized = {
+					width: size,
+					height: Math.round((this.height / this.width) * size),
+					scale: size / this.width * 100,
+				};
+			}
+			else
+			{
+				const size = Math.min(parseInt(this.update.webResize), this.height);
+				this.resized = {
+					height: size,
+					width: Math.round((this.width / this.height) * size),
+					scale: size / this.height * 100,
+				};
+			}
+		},
 		abbreviate(bytes) {
 			const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 			let count = 0;
@@ -821,6 +863,24 @@ main {
 }
 .tag-field ol > :last-child {
 	margin: 0;
+}
+.resize-field {
+	display: grid;
+	grid-template-columns: [input-start] 1fr [input-end] 25px [data-start] 1fr [data-end];
+}
+.resize-field > :first-child {
+	grid-area: input;
+}
+.resize-field > :last-child {
+	grid-area: data;
+	text-align: right;
+}
+.resize-field > :last-child span {
+	left: initial;
+	right: 25px;
+}
+.resize-field > :last-child div {
+	border-top: 1px solid var(--bordercolor);
 }
 
 .drafts-button {

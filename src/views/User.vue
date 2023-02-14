@@ -835,7 +835,7 @@ main {
 	color: var(--textcolor);
 }
 .user-field span button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 .user-field.website {
 	word-break: break-all;
@@ -1115,7 +1115,7 @@ ul, ol {
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
-	border-bottom: solid 0 var(--icolor);
+	border-bottom: solid 0 var(--interact);
 }
 
 .user-info {
@@ -1177,7 +1177,7 @@ ul.tags > :last-child {
 	transition: var(--transition) var(--fadetime);
 }
 .add-image-button:hover i {
-	color: var(--icolor);
+	color: var(--interact);
 }
 .image-uploader {
 	background: var(--screen-cover);
@@ -1370,6 +1370,6 @@ html.mobile.winter .active-tab {
 	margin-right: 25px;
 }
 .result-buttons button:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 </style>

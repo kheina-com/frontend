@@ -57,7 +57,7 @@ button {
 	position: relative;
 }
 button:hover i {
-	color: var(--icolor);
+	color: var(--interact);
 	background: var(--bg2color);
 }
 .nested button:hover i {

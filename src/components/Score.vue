@@ -116,7 +116,7 @@ button:hover b {
 	background: var(--bg2color);
 }
 .vote {
-	color: var(--icolor);
+	color: var(--interact);
 }
 .mobile button {
 	padding: 0.25em 0.5em;

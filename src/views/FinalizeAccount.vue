@@ -360,7 +360,7 @@ input {
 	width: 100%;
 }
 input:hover {
-	color: var(--icolor);
+	color: var(--interact);
 }
 input:active, input:focus {
 	color: var(--textcolor);
