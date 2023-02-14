@@ -156,7 +156,7 @@ app.openapi = openapi
 
 
 @SimpleCache(float('inf') if environment.is_prod() else 60)
-async def swaggerHtml():
+def swaggerHtml():
 	if not path.isfile('dist/swagger.html') :
 		raise ValueError('dist/swagger.html was not found! did you forget to run `npm run build`?')
 
