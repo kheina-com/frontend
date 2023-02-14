@@ -2,6 +2,7 @@ from os import path
 from typing import Dict, Optional
 
 import requests
+from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse, HTMLResponse
 from kh_common.caching import SimpleCache
 from kh_common.config.constants import account_host, auth_host, config_host, environment, posts_host, tags_host, upload_host, users_host
@@ -109,6 +110,18 @@ def openapi() :
 	return openapi_json
 
 app.openapi = openapi
+
+
+@app.get("/docs", include_in_schema=False)
+@SimpleCache(float('inf') if environment.is_prod() else 60)
+async def custom_swagger_ui_html():
+	return get_swagger_ui_html(
+		openapi_url=app.openapi_url,
+		title=app.title + ' - Swagger UI',
+		oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+		swagger_js_url='/swagger-ui-bundle.js',
+		swagger_css_url='/swagger-ui.css',
+	)
 
 
 @SimpleCache(float('inf') if environment.is_prod() else 60)

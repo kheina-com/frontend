@@ -38,4 +38,7 @@ export default {
 			'$': path.resolve(__dirname, './assets'),
 		},
 	},
+	assetsInclude: [
+		'src/swagger.html',
+	],
 }
