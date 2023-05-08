@@ -37,7 +37,7 @@
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
 		</ol>
-		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>
+		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts'/>
 		<ThemeMenu/>
 	</main>
 </template>
@@ -90,6 +90,7 @@ export default {
 			count: null,
 			sort: null,
 			tiles: this.$store.state.searchResultsTiles,
+			total_results: 0,
 		}
 	},
 	setup() {
@@ -106,27 +107,6 @@ export default {
 			() => this.$route.query,
 			this.fetchPosts,
 		);
-	},
-	computed: {
-		pagesBeforeCurrent() {
-			if (this.posts === null)
-			{ return null; }
-
-			if (this.page - 2 > 0)
-			{ return [this.page - 2, this.page - 1]; }
-
-			if (this.page - 1 > 0)
-			{ return [this.page - 1]; }
-
-			return [];
-		},
-		pagesAfterCurrent() {
-			if (this.posts === null)
-			{ return null; }
-
-			if (this.posts.length >= this.count)
-			{ return [this.page + 1, this.page + 2]; }
-		},
 	},
 	methods: {
 		defaultSearch() {
@@ -151,12 +131,13 @@ export default {
 			if (window.history.state.posts)
 			{
 				this.posts = window.history.state.posts;
+				this.total_results = window.history.state.total;
 				return;
 			}
 
 			this.posts = null;
 
-			khatch(`${postsHost}/v1/fetch_posts`, {
+			khatch(`${postsHost}/v1/posts`, {
 					method: 'POST',
 					body: {
 						sort: this.sort,
@@ -171,8 +152,9 @@ export default {
 						// if (this.$route.hash)
 						// {}
 						// console.log(this.$route)
-						saveToHistory({ posts: r })
-						this.posts = r;
+						saveToHistory(r)
+						this.posts = r.posts;
+						this.total_results = r.total;
 					});
 				})
 				.catch(() => { });

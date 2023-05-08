@@ -39,19 +39,26 @@ export default {
 	},
 	computed: {
 		pagesBeforeCurrent() {
-			if (this.activePage - 2 > 0)
-			{ return [this.activePage - 2, this.activePage - 1]; }
-
-			if (this.activePage - 1 > 0)
-			{ return [this.activePage - 1]; }
-
-			return [];
+			const pages = [];
+			for (let i = 1; i <= this.pagesToShow; i++) {
+				const page = this.activePage - i;
+				if (page > 0)
+				{ pages.push(page); }
+				else
+				{ break; }
+			}
+			return pages;
 		},
 		pagesAfterCurrent() {
-			if (this.activePage < this.totalPages)
-			{ return [this.activePage + 1, this.activePage + 2]; }
-
-			return [];
+			const pages = [];
+			for (let i = 1; i <= this.pagesToShow; i++) {
+				const page = this.activePage + i;
+				if (page <= this.totalPages)
+				{ pages.push(page); }
+				else
+				{ break; }
+			}
+			return pages;
 		},
 	},
 }

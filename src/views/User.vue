@@ -194,7 +194,7 @@
 							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
-					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>
+					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts'/>
 				</div>
 				<div v-show='tab === "sets"'>
 					<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
@@ -251,7 +251,7 @@
 					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels @click='uploadPostId = post.post_id'/>
 				</li>
 			</ol>
-			<ResultsNavigation :navigate='runSearchQuery' :activePage='uploadablePage' :totalPages='uploadablePosts?.length >= 64 ? 10000 : 0' v-if='uploadablePosts'/>
+			<ResultsNavigation :navigate='runSearchQuery' :activePage='uploadablePage' :totalPages='uploadablePosts?.length ? Math.ceil(total_results / count) : 0' v-if='uploadablePosts'/>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 			<a @click.prevent.stop='disableUploads' class='search-close'><i class='material-icons'>close</i></a>
 		</div>
@@ -354,6 +354,7 @@ export default {
 			bannerWebpFailed: null,
 			availableBadges: null,
 			tiles: this.$store.state.searchResultsTiles,
+			total_results: 0,
 		};
 	},
 	created() {
@@ -479,12 +480,14 @@ export default {
 
 			switch (this.tab) {
 				case 'posts' :
+					this.total_results = 0;
 					this.page = parseInt(this.$route.query?.page) || 1;
 					this.count = parseInt(this.$route.query?.count) || 64;
 
 					if (window.history.state.posts)
 					{
 						this.posts = window.history.state.posts;
+						this.total_results = window.history.state.total;
 						return;
 					}
 
@@ -492,20 +495,21 @@ export default {
 
 					khatch(`${postsHost}/v1/fetch_posts`, {
 						handleError: true,
-							method: 'POST',
-							body: {
-								page: this.page,
-								count: this.count,
-								sort: 'new',
-								tags: [`@${this.handle}`]
-							},
-						})
-						.then(response => {
-							response.json().then(r => {
-							saveToHistory({ posts: r })
-								this.posts = r;
-							});
-						})
+						method: 'POST',
+						body: {
+							page: this.page,
+							count: this.count,
+							sort: 'new',
+							tags: [`@${this.handle}`]
+						},
+					})
+					.then(response => {
+						response.json().then(r => {
+							saveToHistory(r);
+							this.total_results = r.total;
+							this.posts = r.posts;
+						});
+					})
 					.catch(() => { });
 					break;
 
@@ -712,6 +716,7 @@ export default {
 			.catch(this.disableUploads);
 		},
 		runSearchQuery(page=null) {
+			this.uploadablePosts = 0;
 			this.uploadLoading = true;
 			this.uploadablePage = page || 1;
 			if (this.searchValue)
@@ -728,7 +733,8 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						this.uploadablePosts = r;
+						this.total_results = r.total;
+						this.uploadablePosts = r.posts;
 						this.uploadLoading = null;
 					});
 				})
@@ -747,7 +753,8 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						this.uploadablePosts = r;
+						this.total_results = r.total;
+						this.uploadablePosts = r.posts;
 						this.uploadLoading = null;
 					});
 				})

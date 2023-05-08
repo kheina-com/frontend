@@ -12,7 +12,7 @@
 				</div>
 				<div>
 					<h2>Class</h2>
-					<input class='interactable text' v-model='updateBody.tag_class'>
+					<input class='interactable text' v-model='updateBody.group'>
 				</div>
 				<div>
 					<h2>Inherited Tags</h2>
@@ -106,13 +106,12 @@
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
 		</ol>
-		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length >= count ? 10000 : 0' v-if='posts'/>
+		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts'/>
 		<ThemeMenu/>
 	</main>
 </template>
 
 <script>
-import { ref } from 'vue';
 import { khatch, saveToHistory, setTitle } from '@/utilities';
 import { apiErrorMessage, postsHost, tagsHost, usersHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -167,6 +166,7 @@ export default {
 			tiles: this.$store.state.searchResultsTiles,
 			showMore: false,
 			showingMore: false,
+			total_results: 0,
 		}
 	},
 	created() {
@@ -233,12 +233,13 @@ export default {
 			if (window.history.state.posts)
 			{
 				this.posts = window.history.state.posts;
+				this.total_results = window.history.state.total;
 				return;
 			}
 
 			this.posts = null;
 
-			khatch(`${postsHost}/v1/fetch_posts`, {
+			khatch(`${postsHost}/v1/posts`, {
 					method: 'POST',
 					body: {
 						sort: this.sort,
@@ -251,8 +252,9 @@ export default {
 					response.json().then(r => {
 						if (response.status < 300)
 						{
-							saveToHistory({ posts: r })
-							this.posts = r;
+							saveToHistory(r)
+							this.posts = r.posts;
+							this.total_results = r.total;
 						}
 						else if (response.status === 400)
 						{ this.$store.commit('error', r.error); }
@@ -275,7 +277,7 @@ export default {
 			if (this.editing)
 			{
 				this.updateBody.name = this.tag;
-				this.updateBody.tag_class = this.tagData.group;
+				this.updateBody.group = this.tagData.group;
 				this.updateBody.description = this.tagData.description;
 				this.updateBody.owner = this.tagData.owner?.handle;
 			}
@@ -302,8 +304,8 @@ export default {
 			if (this.updateBody?.name && this.updateBody.name !== this.tag)
 			{ body.name = this.updateBody.name; }
 
-			if (this.updateBody?.tag_class && this.updateBody.tag_class !== this.tagData?.group)
-			{ body.tag_class = this.updateBody.tag_class; }
+			if (this.updateBody?.group && this.updateBody.group !== this.tagData?.group)
+			{ body.group = this.updateBody.group; }
 
 			if (this.updateBody?.owner && this.updateBody.owner !== this.tagData?.owner?.handle)
 			{ body.owner = this.updateBody.owner; }
@@ -311,8 +313,8 @@ export default {
 			if (this.updateBody?.description && this.updateBody.description !== this.tagData?.description)
 			{ body.description = this.updateBody.description; }
 
-			khatch(`${tagsHost}/v1/update_tag`, {
-					method: 'POST',
+			khatch(`${tagsHost}/v1/tag/${this.tag}`, {
+					method: 'PATCH',
 					body,
 				})
 				.then(response => {
@@ -323,7 +325,7 @@ export default {
 							this.$router.push('/t/' + body.name);
 							return;
 						}
-						this.tagData.group = body?.tag_class ?? this.tagData?.group;
+						this.tagData.group = body?.group ?? this.tagData?.group;
 						this.tagData.description = body?.description ?? this.tagData?.description;
 
 						if (body.hasOwnProperty('owner'))
