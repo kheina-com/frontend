@@ -127,6 +127,7 @@ import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
 
 
+const path = '/t/';
 export default {
 	name: 'Tag',
 	props: {
@@ -226,6 +227,9 @@ export default {
 	},
 	methods: {
 		fetchPosts() {
+			if (!this.$route.path.startsWith(path))
+			{ return; }
+
 			this.page = parseInt(this.$route.query?.page) || 1;
 			this.count = parseInt(this.$route.query?.count) || 64;
 			this.sort = this.$route.query?.sort || 'hot';
@@ -575,7 +579,7 @@ ul {
 	width: 100%;
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1200px) {
 	.tag {
 		margin: 0 0 25px;
 		width: auto;

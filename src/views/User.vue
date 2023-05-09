@@ -347,7 +347,7 @@ export default {
 			uploadLoading: null,
 			userTags: null,
 			tabElement: null,
-			tab: 'posts',
+			tab: null,
 			update: null,
 			count: null,
 			page: null,
@@ -358,6 +358,7 @@ export default {
 		};
 	},
 	created() {
+		this.path = this.$route.path;
 		if (tabs.has(this.$route.query?.tab))
 		{ this.tab = this.$route.query.tab; }
 		else
@@ -470,7 +471,12 @@ export default {
 			}).catch(() => { });
 		},
 		fetchData(query = null) {
+			if (this.$route.path !== this.path)
+			{ return; }
+
 			this.tab = query?.tab || this.tab;
+			if (!this.tab)
+			{ return; }
 
 			if (this.tabElement)
 			{ this.tabElement.lastChild.style.borderBottomWidth = '0'; }
@@ -493,7 +499,7 @@ export default {
 
 					this.posts = null;
 
-					khatch(`${postsHost}/v1/fetch_posts`, {
+					khatch(`${postsHost}/v1/posts`, {
 						handleError: true,
 						method: 'POST',
 						body: {
@@ -721,7 +727,7 @@ export default {
 			this.uploadablePage = page || 1;
 			if (this.searchValue)
 			{
-				khatch(`${postsHost}/v1/fetch_posts`, {
+				khatch(`${postsHost}/v1/posts`, {
 					errorMessage: 'Failed to fetch posts for profile.',
 					method: 'POST',
 					body: {
@@ -1144,7 +1150,7 @@ ul, ol {
 	width: auto;
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1200px) {
 	.user, .description, .user-info, .header-bar .inner {
 		width: auto;
 	}

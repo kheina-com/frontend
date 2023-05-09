@@ -63,7 +63,7 @@
 				<div>
 					<span>Title</span>
 					<input class='interactable text' v-model='update.title'>
-					<Markdown class='title-render' :content='update.title' inline/>
+					<Markdown class='title-render' :content='update.title' v-show='update.title' inline/>
 				</div>
 			</div>
 			<div class='field'>
@@ -239,6 +239,7 @@ import Post from '@/components/Post.vue';
 
 const PublishedPrivacies = new Set(['public', 'unlisted', 'private']);
 
+const path = '/create';
 export default {
 	name: 'Upload',
 	components: {
@@ -670,6 +671,9 @@ export default {
 			});
 		},
 		postWatcher(value) {
+			if (this.$route.path !== path)
+			{ return; }
+
 			this.postId = value;
 
 			if (this.postId)
@@ -1048,7 +1052,7 @@ html.e621 main {
 	overflow: hidden;
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1200px) {
 	.form {
 		width: auto;
 	}

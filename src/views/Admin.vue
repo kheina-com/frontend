@@ -137,7 +137,7 @@ button {
 	margin-right: 0.25em;
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1200px) {
 	.container {
 		width: auto;
 	}

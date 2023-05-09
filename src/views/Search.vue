@@ -58,6 +58,7 @@ import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
 
 
+const path = '/q/';
 const routes = new Set(['home', 'search']);
 
 
@@ -120,6 +121,9 @@ export default {
 			}
 		},
 		fetchPosts() {
+			if (this.$route.path.length > 1 && !this.$route.path.startsWith(path))
+			{ return; }
+
 			if (this.posts === null || !routes.has(this.$route.name))
 			{ return; }
 

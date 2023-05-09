@@ -109,6 +109,7 @@ const userLinks = {
 	cm: ['https://commiss.io/', 'commissio'],
 	ig: ['https://www.instagram.com/', 'instagram'],
 	tm: ['https://www.tumblr.com/', 'tumblr'],
+	vk: ['https://vk.com/', 'vk'],
 };
 
 const mdMaxId = 0xffffffff;
@@ -227,6 +228,10 @@ export const mdRenderer = {
 		{
 			setTimeout(() => {
 				const element = document.getElementById(id);
+
+				if (!element)
+				{ return; }
+
 				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(href); });
 			}, 0);
 		}
@@ -234,13 +239,16 @@ export const mdRenderer = {
 		{
 			setTimeout(() => {
 				const element = document.getElementById(id);
+
+				if (!element)
+				{ return; }
+
+				element.target = '_blank';
 				element.addEventListener('click', e => e.stopPropagation());
 			}, 0);
 		}
 
-		if (title)
-		{ return `<a href="${htmlEscape(href)}" id="${id}" title="${title}">${text || href}</a>`; }
-		return `<a href="${htmlEscape(href)}" id="${id}">${text || href}</a>`;
+		return `<a href="${htmlEscape(href)}" id="${id}" title="${title || href}">${text || href}</a>`;
 	},
 };
 
@@ -330,6 +338,8 @@ export const mdExtensions = [
 			{
 				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
+					if (!element)
+					{ return; }
 					if (r)
 					{ element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); }) }
 					else
@@ -342,6 +352,8 @@ export const mdExtensions = [
 			{
 				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
+					if (!element)
+					{ return; }
 					if (r)
 					{
 						element.innerHTML = `<img src="${r.icon ? getIconUrl(r.icon, r.handle.toLowerCase()) : getMediaThumbnailUrl(defaultUserIcon, 400)}" class="profile-user-icon loading wave">`;
@@ -361,6 +373,10 @@ export const mdExtensions = [
 				setTimeout(() => {
 					const element = document.getElementById(id);
 					const imgElement = document.getElementById(imgId);
+
+					if (!element || !imgElement)
+					{ return; }
+
 					element.addEventListener('click', e => e.stopPropagation());
 					imgElement.addEventListener('load', e => e.target.classList = 'emoji');
 					imgElement.src = token.icon;
@@ -421,7 +437,10 @@ export const mdExtensions = [
 
 			setTimeout(() => {
 				const element = document.getElementById(id);
-				element.addEventListener("load", e => e.target.classList = 'emoji');
+				if (!element)
+				{ return; }
+				element.addEventListener('error', e => e.target.src = getEmojiUrl('cross-mark'));
+				element.addEventListener('load', e => e.target.classList = 'emoji');
 				element.src = token.href;
 			}, 0);
 
@@ -491,6 +510,8 @@ export const mdExtensions = [
 
 			setTimeout(() => {
 				const element = document.getElementById(id);
+				if (!element)
+				{ return; }
 				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
 			}, 0);
 
@@ -548,7 +569,10 @@ export const mdExtensions = [
 
 					setTimeout(() => {
 						const element = document.getElementById(id);
-						element.addEventListener("load", e => e.target.classList = null);
+						if (!element)
+						{ return; }
+						element.addEventListener('error', e => e.target.src = getEmojiUrl('cross-mark'));
+						element.addEventListener('load', e => e.target.classList = null);
 						element.src = t.href;
 					}, 0);
 

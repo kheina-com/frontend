@@ -28,7 +28,7 @@
 
 <script>
 import { khatch, saveToHistory } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost } from '@/config/constants';
+import { postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
@@ -42,8 +42,9 @@ import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
 
 
+const path = '/timeline';
 export default {
-	name: 'Search',
+	name: 'Timeline',
 	data() {
 		return {
 			// undefined for on pageload stuff
@@ -99,6 +100,9 @@ export default {
 	},
 	methods: {
 		fetchPosts() {
+			if (this.$route.path !== path)
+			{ return; }
+
 			this.page = parseInt(this.$route.query?.page) || 1;
 			this.count = parseInt(this.$route.query?.count) || 64;
 

@@ -257,7 +257,7 @@ button i {
 }
 
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1200px) {
 	.container, .action-description {
 		width: auto;
 	}
