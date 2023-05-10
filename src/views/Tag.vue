@@ -42,7 +42,7 @@
 				<p>warning: this will add the new inherited tag to every post containing "{{tag.replace(/_/g, ' ')}}"</p>
 				<div>
 					<input class='interactable text' placeholder='inherited tag' v-model='newInheritedTag'>
-					<Button @click='inheritTag'><i class='material-icons'>add</i>Add Tag</Button>
+					<Button @click='inheritTag' :isLoading='newInheritLoading'><i class='material-icons'>add</i>Add Tag</Button>
 				</div>
 			</div>
 			<router-link style='position: relative; right: 25px; font-size: 0.9em; text-decoration: none; display: block; text-align: right' to='/md'>markdown guide</router-link>
@@ -176,6 +176,7 @@ export default {
 			editing: null,
 			updateBody: { },
 			newInheritedTag: null,
+			newInheritLoading: null,
 			pendingUpdate: false,
 			sort: null,
 			page: null,
@@ -303,19 +304,22 @@ export default {
 			}
 		},
 		inheritTag() {
-			khatch(`${tagsHost}/v1/inherit_tag`, {
-				method: 'POST',
-				errorMessage: 'Could not create inheritance.',
-				body: {
-					parent_tag: this.tag,
-					child_tag: this.newInheritedTag,
-				},
-			})
-			.then(_ => {
-				this.tagData.inherited_tags.push(this.newInheritedTag);
-				this.newInheritedTag = null;
-			})
-			.catch(() => { });
+			if (this.newInheritedTag) {
+				this.newInheritLoading = true;
+				khatch(`${tagsHost}/v1/inherit_tag`, {
+					method: 'POST',
+					errorMessage: 'Could not create inheritance.',
+					body: {
+						parent_tag: this.tag,
+						child_tag: this.newInheritedTag,
+					},
+				})
+				.then(_ => {
+					this.tagData.inherited_tags.push(this.newInheritedTag);
+					this.newInheritLoading = this.newInheritedTag = null;
+				})
+				.catch(_ => this.newInheritLoading = null);
+			}
 		},
 		removeInheritance(tag_to_remove) {
 			khatch(`${tagsHost}/v1/remove_inheritance`, {
