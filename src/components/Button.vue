@@ -1,16 +1,11 @@
 <template>
 	<router-link :class='buttonClass' :to='href' v-if='href'><slot/></router-link>
-	<button :class='buttonClass' v-else><Loading :isLoading='isLoading' :nested='!unnested' type='stripes' span><slot/></Loading></button>
+	<button :class='buttonClass' v-else><slot/></button>
 </template>
 
 <script>
-import Loading from '@/components/Loading.vue';
-
 export default {
 	name: 'Button',
-	components: {
-		Loading,
-	},
 	props: {
 		href: {
 			type: String,
@@ -39,11 +34,11 @@ export default {
 	},
 	computed: {
 		buttonClass() {
-			let buttonClass = 'interactable button';
+			let buttonClass = 'interactable';
 			if (!this.nested)
 			{ buttonClass += ' unnested'; }
 			if (this.isLoading)
-			{ buttonClass += ' loading'; }
+			{ buttonClass += ' loading stripes'; }
 			if (this.red)
 			{ return buttonClass + ' red'; }
 			else if (this.yellow)
@@ -63,26 +58,21 @@ export default {
 </script>
 
 <style scoped>
-a, button, button > span {
-	display: flex;
-	align-items: center;
-	padding: 0.5em 1em;
-	overflow: hidden;
-	white-space: pre-wrap;
-	word-break: break-word;
+button {
+	background: var(--bg2color);
 }
-button > span {
-	margin: -0.5em -1em;
-	border-radius: 0;
-}
-button > span.loading {
-	border-radius: 0;
+button.unnested.interactable, button.unnested {
+	background: var(--bg1color);
 }
 button.loading {
 	pointer-events: none;
 }
-.button.unnested.interactable, .button.unnested {
-	background: var(--bg1color);
+a, button {
+	display: flex;
+	align-items: center;
+	padding: 0.5em 1em;
+	white-space: nowrap;
+	/* word-break: break-word; */
 }
 .green:hover {
 	color: var(--valid);
@@ -103,19 +93,5 @@ button.loading {
 }
 .inline:hover {
 	color: var(--interact);
-	background: var(--bg1color);
 }
-</style>
-
-<style>
-.button.interactable i {
-	margin: 0 0.25em 0 0;
-	font-size: 1.2em;
-}
-/* button.interactable > :last-child {
-	margin-right: 0;
-}
-button.interactable > :first-child {
-	margin-left: 0;
-} */
 </style>

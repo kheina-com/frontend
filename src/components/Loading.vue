@@ -113,10 +113,18 @@ span {
 
 .loading.wave *, .loading.stripes * {
 	opacity: 0% !important;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
 }
 .loading.wave, .loading.wave *, .loading.wave *:hover, .loading.wave *:focus, .loading.wave *:active,
 .loading.stripes, .loading.stripes *, .loading.stripes *:hover, .loading.stripes *:focus, .loading.stripes *:active {
 	color: #00000000 !important;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
 }
 
 .emoji.loading.wave {
@@ -135,12 +143,10 @@ span {
 	border-radius: var(--border-radius);
 	animation: wave 2s infinite linear forwards;
 	-webkit-animation: wave 2s infinite linear forwards;
-	background: var(--bg2color);
 	background: linear-gradient(100deg, var(--bg2color) 40vw, var(--wave-color) 50vw, var(--bg2color) 60vw);
 	background-size: 100vw 100%;
 }
 .nested .loading.wave {
-	background: var(--bg1color);
 	background: linear-gradient(100deg, var(--bg1color) 40vw, var(--wave-color) 50vw, var(--bg1color) 60vw);
 	background-size: 100vw 100%;
 }
@@ -149,13 +155,11 @@ span {
 	border-radius: var(--border-radius);
 	animation: stripes 1s infinite linear forwards;
 	-webkit-animation: stripes 1s infinite linear forwards;
-	background: var(--bg2color);
 	background: linear-gradient(120deg, var(--bg2color) 1.1em, var(--stripe-color) 1.1em, var(--stripe-color) 2.3em, var(--bg2color) 2.3em);
 	background: linear-gradient(120deg, var(--bg2color) calc(1.1em - 0.5px), var(--stripe-color) calc(1.1em + 0.5px), var(--stripe-color) calc(2.3em - 0.5px), var(--bg2color) calc(2.3em + 0.5px));
 	background-size: 2.8em 100%;
 }
 .nested .loading.stripes {
-	background: var(--bg1color);
 	background: linear-gradient(120deg, var(--bg1color) 1.1em, var(--stripe-color) 1.1em, var(--stripe-color) 2.3em, var(--bg1color) 2.3em);
 	background: linear-gradient(120deg, var(--bg1color) calc(1.1em - 0.5px), var(--stripe-color) calc(1.1em + 0.5px), var(--stripe-color) calc(2.3em - 0.5px), var(--bg1color) calc(2.3em + 0.5px));
 	background-size: 2.8em 100%;

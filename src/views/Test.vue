@@ -142,6 +142,12 @@ export default {
 					B: parseInt(match[3]),
 				};
 			}
+
+			return {
+				R: 0,
+				G: 0,
+				B: 0,
+			};
 		},
 		lum(c) {
 			const RsRGB = c.R / 255;

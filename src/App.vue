@@ -12,8 +12,8 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, getCookie, isDarkMode, isMobile, khatch, setCookie, setMeta } from '@/utilities';
-import { configHost, ratingMap } from '@/config/constants';
+import { authCookie, getCookie, isDarkMode, isMobile, khatch } from '@/utilities';
+import { configHost } from '@/config/constants';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -299,7 +299,7 @@ button
 	padding: 0;
 	border: none;
 	background: none;
-	color: var(--textcolor);
+	color: inherit;
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);

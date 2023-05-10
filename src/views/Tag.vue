@@ -12,7 +12,14 @@
 				</div>
 				<div>
 					<h2>Class</h2>
-					<input class='interactable text' v-model='updateBody.group'>
+					<select name='tag-class' v-model='updateBody.group' placeholder='class' class='interactable'>
+						<option value='artist'>artist</option>
+						<option value='subject'>subject</option>
+						<option value='subject'>subject</option>
+						<option value='species'>species</option>
+						<option value='gender'>gender</option>
+						<option value='misc'>misc</option>
+					</select>
 				</div>
 				<div>
 					<h2>Inherited Tags</h2>
@@ -28,6 +35,14 @@
 				<div>
 					<h2>Owner</h2>
 					<input class='interactable text' v-model='updateBody.owner'>
+				</div>
+			</div>
+			<div class='add-inherited-tag'>
+				<h2>Add Inherited Tag</h2>
+				<p>warning: this will add the new inherited tag to every post containing "{{tag.replace(/_/g, ' ')}}"</p>
+				<div>
+					<input class='interactable text' placeholder='inherited tag' v-model='newInheritedTag'>
+					<Button @click='inheritTag'><i class='material-icons'>add</i>Add Tag</Button>
 				</div>
 			</div>
 			<router-link style='position: relative; right: 25px; font-size: 0.9em; text-decoration: none; display: block; text-align: right' to='/md'>markdown guide</router-link>
@@ -160,6 +175,7 @@ export default {
 			posts: null,
 			editing: null,
 			updateBody: { },
+			newInheritedTag: null,
 			pendingUpdate: false,
 			sort: null,
 			page: null,
@@ -286,6 +302,21 @@ export default {
 				this.updateBody.owner = this.tagData.owner?.handle;
 			}
 		},
+		inheritTag() {
+			khatch(`${tagsHost}/v1/inherit_tag`, {
+				method: 'POST',
+				errorMessage: 'Could not create inheritance.',
+				body: {
+					parent_tag: this.tag,
+					child_tag: this.newInheritedTag,
+				},
+			})
+			.then(_ => {
+				this.tagData.inherited_tags.push(this.newInheritedTag);
+				this.newInheritedTag = null;
+			})
+			.catch(() => { });
+		},
 		removeInheritance(tag_to_remove) {
 			khatch(`${tagsHost}/v1/remove_inheritance`, {
 				method: 'POST',
@@ -295,7 +326,7 @@ export default {
 					child_tag: tag_to_remove,
 				},
 			})
-			.then(response => {
+			.then(_ => {
 				this.tagData.inherited_tags.splice(this.tagData.inherited_tags.indexOf(tag_to_remove), 1);
 			})
 			.catch(() => { });
@@ -413,7 +444,7 @@ main {
 	padding: 25px;
 	display: block;
 }
-h2 {
+h2, .add-inherited-tag p {
 	margin: 0 0 10px;
 }
 .profile {
@@ -432,6 +463,20 @@ ul {
 	display: flex;
 	justify-content: space-between;
 }
+.add-inherited-tag {
+	width: 70vw;
+	margin: 0 auto 25px;
+}
+.add-inherited-tag h2 {
+	margin: 0;
+}
+.add-inherited-tag input {
+	width: 100%;
+	margin-right: 25px;
+}
+.add-inherited-tag div {
+	display: flex;
+}
 .markdown-block {
 	width: 70vw;
 	margin: 0 auto 25px;
@@ -440,7 +485,7 @@ ul {
 	background: var(--bg2color);
 	margin-bottom: 25px;
 }
-.mobile .markdown-block, .mobile .tag {
+.mobile .markdown-block, .mobile .tag, .mobile .add-inherited-tag {
 	width: auto;
 }
 .show-more {
@@ -580,7 +625,7 @@ ul {
 }
 
 @media only screen and (max-width: 1200px) {
-	.tag {
+	.tag, .add-inherited-tag {
 		margin: 0 0 25px;
 		width: auto;
 	}

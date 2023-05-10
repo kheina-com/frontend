@@ -182,7 +182,7 @@ export default {
 		isLoading()
 		{ return this.postId === null; },
 		divClass()
-		{ return 'post tile' + (!this.isLoading ? ' link' : '') + (this.nested ? ' nested' : ''); },
+		{ return 'post tile ' + (this.isLoading ? 'loading' : 'link') + (this.nested ? ' nested' : ''); },
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
@@ -341,7 +341,7 @@ export default {
 .thumbnail, .show-mature {
 	max-width: 20em;
 }
-.text {
+.text, .loading {
 	overflow: hidden;
 	max-width: 10em;
 }
