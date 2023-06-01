@@ -12,6 +12,7 @@ import Report from './views/Report.vue';
 import Account from './views/Account.vue';
 import User from './views/User.vue';
 import Tag from './views/Tag.vue';
+import Set from './views/Set.vue';
 import Tags from './views/Tags.vue';
 import Users from './views/Users.vue';
 import SearchHelp from './views/SearchHelp.vue';
@@ -139,7 +140,7 @@ const routes = [
 				description: (to) => {
 					return {
 						property: 'og:description',
-						content: `Search results for ${to.params.query} | fuzz.ly`,
+						content: `Search results for ${to.params.query}`,
 					};
 				},
 			},
@@ -157,6 +158,23 @@ const routes = [
 					return {
 						property: 'og:description',
 						content: `Search results for ${to.params.tag}`,
+					};
+				},
+			},
+		},
+	},
+	{
+		path: '/s/:setId',
+		name: 'set',
+		props: true,
+		component: Set,
+		meta: {
+			title: (to) => `${to.params.setId}, set | fuzz.ly`,
+			metaTags: {
+				description: (to) => {
+					return {
+						property: 'og:description',
+						content: `Search results for set: ${to.params.setId}`,
 					};
 				},
 			},

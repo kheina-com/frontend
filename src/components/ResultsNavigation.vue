@@ -40,23 +40,17 @@ export default {
 	computed: {
 		pagesBeforeCurrent() {
 			const pages = [];
-			for (let i = 1; i <= this.pagesToShow; i++) {
-				const page = this.activePage - i;
-				if (page > 0)
-				{ pages.push(page); }
-				else
-				{ break; }
+			const min = Math.max(this.activePage - this.pagesToShow, 1);
+			for (let i = min; i < this.activePage; i++) {
+				pages.push(i);
 			}
 			return pages;
 		},
 		pagesAfterCurrent() {
 			const pages = [];
-			for (let i = 1; i <= this.pagesToShow; i++) {
-				const page = this.activePage + i;
-				if (page <= this.totalPages)
-				{ pages.push(page); }
-				else
-				{ break; }
+			const max = Math.min(this.activePage + this.pagesToShow, this.totalPages);
+			for (let i = this.activePage + 1; i <= max; i++) {
+				pages.push(i);
 			}
 			return pages;
 		},

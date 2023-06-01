@@ -1,5 +1,5 @@
 <template>
-	<main v-if='!isError'>
+	<main>
 		<ol class='results'>
 			<p v-if='users?.length === 0' style='text-align: center'>No users found!</p>
 			<li v-for='user in users' v-else>
@@ -17,10 +17,6 @@
 				</router-link>
 			</li>
 		</ol>
-		<ThemeMenu/>
-	</main>
-	<main v-else>
-		<Error v-model:dump='errorDump' v-model:message='errorMessage'/>
 		<ThemeMenu/>
 	</main>
 </template>

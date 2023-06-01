@@ -10,21 +10,15 @@
 		<div class='content'>
 			<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
 				<Media class='media' v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
-				<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
+				<div class='set-controls' v-for='set in sets'>
 					<p>
-						<a><i class='material-icons'>first_page</i></a>
-						<a><i class='material-icons'>navigate_before</i></a>
-						<a>1</a>
-						<a>2</a>
-						<a>3</a>
+						<a class='disabled'><i class='material-icons'>first_page</i></a>
+						<router-link v-for='(p, index) in set.neighbors.before' :to='`/p/${p.post_id}`' :title='p.title || `page ${set.neighbors.index - index - 1}`'><span v-if='index'>{{ set.neighbors.index - index - 1 }}</span><i class='material-icons' v-else>navigate_before</i></router-link>
 					</p>
-					<a :href='`/s/${set.id}`'>{{set.title}}</a>
+					<router-link :to='`/s/${set.set_id}`' :title='`${set.title} post ${set.neighbors.index} of ${set.count}`'>{{set.title}}</router-link>
 					<p>
-						<a>5</a>
-						<a>6</a>
-						<a>7</a>
-						<a><i class='material-icons'>navigate_next</i></a>
-						<a><i class='material-icons'>last_page</i></a>
+						<router-link v-for='(p, index) in set.neighbors.after' :to='`/p/${p.post_id}`' :title='p.title || `page ${set.neighbors.index + index + 1}`'><span v-if='index'>{{ set.neighbors.index + index + 1 }}</span><i class='material-icons' v-else>navigate_next</i></router-link>
+						<a class='disabled'><i class='material-icons'>last_page</i></a>
 					</p>
 				</div>
 			</div>
@@ -105,18 +99,12 @@
 	<div class='content' v-else>
 		<div class='media-container' v-show='post'>
 			<Media v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
-			<div class='set-controls' v-for='set in post?.sets || [{ title: "sample set", id: "hd2Ylh" }]'>
-				<a><i class='material-icons'>first_page</i></a>
-				<a><i class='material-icons'>navigate_before</i></a>
-				<a>1</a>
-				<a>2</a>
-				<a>3</a>
-				<a :href='`/s/${set.id}`'>{{set.title}}</a>
-				<a>5</a>
-				<a>6</a>
-				<a>7</a>
-				<a><i class='material-icons'>navigate_next</i></a>
-				<a><i class='material-icons'>last_page</i></a>
+			<div class='set-controls' v-for='set in sets'>
+				<a class='disabled'><i class='material-icons'>first_page</i></a>
+				<router-link v-for='(p, index) in set.neighbors.before' :to='`/p/${p.post_id}`'><span v-if='index'>{{ set.neighbors.index - index - 1 }}</span><i class='material-icons' v-else>navigate_before</i></router-link>
+				<router-link :to='`/s/${set.set_id}`'>{{set.title}}</router-link>
+				<router-link v-for='(p, index) in set.neighbors.after' :to='`/p/${p.post_id}`'><span v-if='index'>{{ set.neighbors.index + index + 1 }}</span><i class='material-icons' v-else>navigate_next</i></router-link>
+				<a class='disabled'><i class='material-icons'>last_page</i></a>
 			</div>
 		</div>
 		<div class='container'>
@@ -201,7 +189,7 @@
 
 <script>
 import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
+import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, setsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -271,27 +259,28 @@ export default {
 			parent: null,
 			width: null,
 			height: null,
+			sets: null,
 			commentSort: 'best',
 		};
 	},
 	created() {
-		khatch(
-			`${tagsHost}/v1/fetch_tags/${this.postId}`,
-			{ errorMessage: apiErrorMessage },
-		).then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{ this.tags = r; }
-					else if (response.status < 500)
-					{ this.$store.commit('error', r.error); }
-					else
-					{ this.$store.commit('error', apiErrorMessage, r); }
+		khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
+			errorMessage: 'Could not retrieve post tags!',
+		}).then(response => {
+			response.json().then(r => {
+				this.tags = r;
+				if (this.post !== null)
+				{ this.setPageTitle(); }
+			});
+		});
 
-					if (this.post !== null)
-					{ this.setPageTitle(); }
-				});
-			})
-			.catch(() => { });
+		khatch(`${setsHost}/v1/post/${this.postId}`, {
+			errorMessage: 'Could not retrieve post sets!',
+		}).then(response => {
+			response.json().then(r => {
+				this.sets = r;
+			});
+		});
 
 		this.fetchComments();
 
@@ -312,10 +301,9 @@ export default {
 		else
 		{
 			// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
-			khatch(
-				`${postsHost}/v1/post/${this.postId}`,
-				{ errorMessage: apiErrorMessage },
-			).then(response => {
+			khatch(`${postsHost}/v1/post/${this.postId}`, {
+				errorMessage: 'Could not retrieve post!',
+			}).then(response => {
 				response.json().then(r => {
 					r.favorites = 0;
 					r.reposts = 0;
@@ -331,8 +319,7 @@ export default {
 					if (this.tags !== null)
 					{ this.setPageTitle(); }
 				});
-			})
-			.catch(() => { });
+			});
 		}
 	},
 	computed: {
@@ -690,7 +677,6 @@ main {
 	margin: 25px 25px 0	;
 	display: flex;
 	justify-content: space-between;
-	display: none;
 }
 .mobile .set-controls {
 	margin: 0 25px 25px;
@@ -710,6 +696,10 @@ main {
 }
 .set-controls p > :first-child {
 	margin-left: 0;
+}
+.disabled {
+	opacity: 50%;
+	pointer-events: none;
 }
 
 html.solarized-dark .media, html.solarized-light .media, html.midnight .media {

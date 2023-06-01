@@ -45,7 +45,6 @@
 					<Button @click='inheritTag' :isLoading='newInheritLoading'><i class='material-icons'>add</i>Add Tag</Button>
 				</div>
 			</div>
-			<router-link style='position: relative; right: 25px; font-size: 0.9em; text-decoration: none; display: block; text-align: right' to='/md'>markdown guide</router-link>
 			<MarkdownEditor class='markdown-editor' resize='vertical' v-model:value='updateBody.description'/>
 		</Loading>
 		<div class='tag' v-else>

@@ -32,6 +32,7 @@ let aHost = null;
 let uHost = null;
 let cHost = null;
 let usrHost = null;
+let sHost = null;
 
 switch (environment)
 {
@@ -42,6 +43,7 @@ switch (environment)
 		uHost = 'https://upload.fuzz.ly';
 		cHost = 'https://config.fuzz.ly';
 		usrHost = 'https://users.fuzz.ly';
+		sHost = 'https://sets.fuzz.ly';
 		break;
 
 	case 'dev' :
@@ -51,6 +53,7 @@ switch (environment)
 		uHost = 'https://upload-dev.fuzz.ly';
 		cHost = 'https://config-dev.fuzz.ly';
 		usrHost = 'https://users-dev.fuzz.ly';
+		sHost = 'https://sets-dev.fuzz.ly';
 		break;
 
 	case 'local' :
@@ -60,6 +63,7 @@ switch (environment)
 		uHost = 'https://upload-dev.fuzz.ly';
 		cHost = 'https://config-dev.fuzz.ly';
 		usrHost = 'https://users-dev.fuzz.ly';
+		sHost = 'https://sets-dev.fuzz.ly';
 		break;
 }
 
@@ -69,6 +73,7 @@ export const accountHost = aHost;
 export const uploadHost = uHost;
 export const configHost = cHost;
 export const usersHost = usrHost;
+export const setsHost = sHost;
 
 export const cdnHost = 'https://cdn.fuzz.ly';
 

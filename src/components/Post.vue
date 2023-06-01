@@ -183,11 +183,11 @@ export default {
 			default: false,
 		},
 		created: {
-			type: String,
+			type: Date,
 			default: null,
 		},
 		updated: {
-			type: String,
+			type: Date,
 			default: null,
 		},
 		filename: {

@@ -197,7 +197,15 @@
 					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts'/>
 				</div>
 				<div v-show='tab === "sets"'>
-					<p style='text-align: center'>hey, this tab doesn't exist yet.</p>
+					<div class='results'>
+						<p v-if='sets === null' style='text-align: center'>loading sets...</p>
+						<p v-else-if='sets.length === 0'>
+							<Markdown :content='user?.name' inline v-if='user?.name'/>
+							<span v-else>@{{handle}}</span>
+							has no sets.
+						</p>
+						<Set v-else v-for='set in sets' :setId='set.set_id' v-bind='set'/>
+					</div>
 				</div>
 				<div v-show='tab === "tags"'>
 					<div class='results'>
@@ -263,7 +271,7 @@ import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, isMobile, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tabs, tagsHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tabs, tagsHost, setsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -283,6 +291,7 @@ import ResultsNavigation from '@/components/ResultsNavigation.vue';
 import DropDown from '@/components/DropDown.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import ShareLink from '@/components/ShareLink.vue';
+import Set from '@/components/Set.vue';
 
 
 export default {
@@ -314,6 +323,7 @@ export default {
 		DropDown,
 		CheckBox,
 		ShareLink,
+		Set,
 	},
 	setup() {
 		const main = ref(null);
@@ -336,6 +346,7 @@ export default {
 			errorDump: null,
 			user: null,
 			posts: null,
+			sets: null,
 			isEditing: false,
 			isUploadIcon: false,
 			isUploadBanner: false,
@@ -520,7 +531,16 @@ export default {
 					break;
 
 				case 'sets' :
-					// nothing, yet
+					if (this.sets !== null)
+					{ return; }
+
+					khatch(`${setsHost}/v1/user/${this.handle}`, {
+							errorMessage: 'Failed to Retrieve User tags!',
+					}).then(response => {
+						response.json().then(r => {
+							this.sets = r;
+						});
+					});
 					break;
 
 				case 'tags' :
@@ -965,6 +985,9 @@ main {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
 }
+.results > * {
+	margin: 0 0 25px;
+}
 .results > :last-child {
 	margin-bottom: 0;
 }
@@ -1163,11 +1186,11 @@ ol > :last-child {
 	margin-bottom: 0;
 }
 
-ul.tags li {
+.tags li {
 	display: block;
 	margin: 0 0 25px;
 }
-ul.tags > :last-child {
+.tags > :last-child {
 	margin-bottom: 0;
 }
 

@@ -70,7 +70,7 @@
 				<div>
 					<span>Description</span>
 					<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
-					<MarkdownEditor v-model:value='update.description' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
+					<MarkdownEditor v-model:value='update.description' :hideGuide='true' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
 					<div class='markdown-editor' v-else>
 						<textarea v-model='update.description' class='interactable text'/>
 						<Markdown :content='update.description || "**Your description is empty.**"'/>

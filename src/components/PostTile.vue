@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div :class='divClass' v-if='link'>
+	<div :class='divClass' v-if='link' :title='title || postId'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='link'/>
 		<div :to='`/p/${postId}`' class='thumbnail' v-if='media_type'>
 			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { khatch } from '@/utilities';
+import { khatch, isMobile } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessageToast, postsHost, ratingMap, usersHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -161,6 +161,7 @@ export default {
 	],
 	data() {
 		return {
+			isMobile,
 			ratingMap,
 			parentData: null,
 			acceptedMature: false,

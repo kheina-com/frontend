@@ -46,6 +46,7 @@ export default {
 		return {
 			isLoading: true,
 			webp: true,
+			isError: false,
 		};
 	},
 	mounted() {

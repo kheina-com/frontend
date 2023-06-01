@@ -382,7 +382,7 @@ export const mdExtensions = [
 					imgElement.src = token.icon;
 				}, 0);
 
-				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle"><img id="${imgId}" class="emoji loading wave">${token.text}</a>`;
+				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle" target="_blank"><img id="${imgId}" class="emoji loading wave">${token.text}</a>`;
 			}
 		},
 	},

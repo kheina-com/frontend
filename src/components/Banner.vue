@@ -2,7 +2,6 @@
 	<div class='banner'>
 		<div class='nav-backdrop'/>
 		<div v-if='editMessage' class='markdown edit-message'>
-			<router-link style='position: absolute; right: calc(15vw + 25px); font-size: 0.9em; top: 0.1em; text-decoration: none' to='/md'>markdown guide</router-link>
 			<MarkdownEditor resize='none' v-model:value='message' style='min-width: 70vw; display: inline-block'/>
 			<p>note: banner is always centered</p>
 			<div style='display: flex'>

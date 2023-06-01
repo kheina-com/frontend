@@ -141,8 +141,7 @@ export function saveToHistory(data) {
 }
 
 const AuthRegex = /^(?:https:\/\/(?:[a-z0-9-_]+\.)*kheina\.com\/|http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)*fuzz\.ly\/)/i;
-export async function khatch(url, options={ })
-{
+export async function khatch(url, options={ }) {
 	const attempts = options?.attempts || 1;
 	const handleError = Boolean(options?.handleError || options?.errorMessage);
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
@@ -192,7 +191,12 @@ export async function khatch(url, options={ })
 		attempt++;
 	}
 
-	if (error)
+	console.debug('[khatch]', url, options, response, error);
+
+	if (response?.status === 401)
+	{ store.commit('setAuth', null); }
+
+	if (error || response.status >= 400)
 	{
 		if (handleError)
 		{
@@ -231,15 +235,12 @@ export async function khatch(url, options={ })
 
 			return new Promise((_, reject) => reject());
 		}
-		else
+		else if (error)
 		{ throw error; }
 	}
 
 	if (response.status < 400)
 	{ return response; }
-
-	if (response.status === 401)
-	{ store.commit('setAuth', null); }
 
 	return response;
 }

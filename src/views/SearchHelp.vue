@@ -20,6 +20,12 @@
 				User searches can be combined with tags, for example <code>@handle solo</code> will return posts made by @handle with the solo tag 
 			</p>
 			<h2>
+				Sets
+			</h2>
+			<p>
+				You can search for posts within sets just like you would with any tag by prefixing the set id with <code>set:</code>. Example: <code>set:abc-123</code>
+			</p>
+			<h2>
 				Sorting
 			</h2>
 			<p>

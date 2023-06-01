@@ -17,6 +17,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from headers.home import homeMetaTags
 from headers.post import postMetaTags
+from headers.set import setMetaTags
 from headers.static import Headers
 from headers.tag import tagMetaTags
 from headers.user import userMetaTags
@@ -183,29 +184,37 @@ def pixel(req: Request) :
 
 
 @app.get('/p/{post_id}')
-async def post_route(post_id: constr(regex=r'^[a-zA-Z0-9_-]{8}$'), force_norich: Optional[str] = None) :
-	if force_norich :
+async def post_route(post_id: constr(regex=r'^[a-zA-Z0-9_-]{8}$'), norich: Optional[str] = None) :
+	if norich :
 		return HTMLResponse(vueIndex())
 
 	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await postMetaTags(post_id) or await homeMetaTags())))
 
 
 @app.get('/t/{tag}')
-async def tag_route(tag: str, force_norich: Optional[str] = None) :
-	if force_norich :
+async def tag_route(tag: str, norich: Optional[str] = None) :
+	if norich :
 		return HTMLResponse(vueIndex())
 
 	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await tagMetaTags(tag) or await homeMetaTags())))
 
 
+@app.get('/s/{set_id}')
+async def tag_route(set_id: str, norich: Optional[str] = None) :
+	if norich :
+		return HTMLResponse(vueIndex())
+
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await setMetaTags(set_id) or await homeMetaTags())))
+
+
 @app.get('{uri:path}')
-async def all_routes(uri: str, force_norich: Optional[str] = None) :
+async def all_routes(uri: str, norich: Optional[str] = None) :
 	local_uri = 'dist/' + uri.strip('\./')
 
 	if path.isfile(local_uri) :
 		return FileResponse(local_uri)
 
-	if force_norich :
+	if norich :
 		return HTMLResponse(vueIndex())
 
 	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await userMetaTags(uri) or await homeMetaTags())))

@@ -1,5 +1,6 @@
 <template>
 	<div>
+		<router-link v-show='!hideGuide' class='guide' to='/md'>markdown guide</router-link>
 		<div v-if='preview' class='markdown-container'>
 			<Markdown :content='value'/>
 		</div>
@@ -40,6 +41,10 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		hideGuide: {
+			type: Boolean,
+			default: false,
+		}
 	},
 	emits: [
 		'update:value',
@@ -89,5 +94,14 @@ button i {
 .markdown {
 	--bg3color: var(--bg0color);
 	--bg2color: var(--bg1color);
+}
+.guide {
+	position: absolute;
+	right: 25px;
+	top: -1.3em;
+	font-size: 0.9em;
+	text-decoration: none;
+	display: block;
+	text-align: right;
 }
 </style>

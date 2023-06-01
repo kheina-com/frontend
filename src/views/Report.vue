@@ -33,7 +33,6 @@
 		</div>
 		<div class='container'>
 			<span>Please describe the reason for your report below, including any offending usernames and post ids</span>
-			<router-link class='md-link' to='/md'>markdown guide</router-link>
 			<MarkdownEditor v-model:value='message'/>
 			<div class='buttons'>
 				<button class='interactable' @click='sendReport'>Submit »</button>

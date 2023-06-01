@@ -61,7 +61,7 @@ h2 {
 a.profile:hover {
 	background: var(--bg1color);
 }
-.post.nested a.profile:hover {
+.tag.nested a.profile:hover {
 	background: var(--bg2color);
 }
 
