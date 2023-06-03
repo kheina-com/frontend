@@ -107,6 +107,8 @@ export default {
 .mobile img {
 	height: 100%;
 	width: 100%;
+	max-width: inherit;
+	max-height: inherit;
 }
 img {
 	object-fit: cover;

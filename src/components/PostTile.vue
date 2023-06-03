@@ -353,6 +353,9 @@ export default {
 	max-height: 10em;
 	margin: auto;
 }
+.mobile .thumbnail, .mobile .text, .mobile .show-mature {
+  max-width: calc(100vw / 3 - 76px - var(--border-size) * 6);
+}
 .title {
 	margin: 0 0 15px;
 }

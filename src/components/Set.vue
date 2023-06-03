@@ -1,5 +1,5 @@
 <template>
-	<router-link :to='`/s/${setId}`' class='set nested'>
+	<router-link :to='`/s/${setId}`' :class='divClass'>
 		<h2>{{title}}</h2>
 		<Profile v-bind='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p>posts: {{ commafy(count) }}</p>
@@ -35,6 +35,10 @@ export default {
 	},
 	methods: {
 		commafy,
+	},
+	computed: {
+		divClass()
+		{ return 'set' + (this.nested ? ' nested' : ''); },
 	},
 }
 </script>
