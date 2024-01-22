@@ -125,7 +125,7 @@ export default {
 			this.$store.commit('animatedAccents', e.target.checked);
 		},
 		onResize() {
-			console.log('resize');
+			console.debug('resize');
 			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true)) {
 				const offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
 				this.$refs.content.style.top = `${offset}px`;

@@ -48,7 +48,32 @@ export default {
 			file,
 		};
 	},
+	created() {
+		document.addEventListener('paste', this.listener);
+	},
+	destroyed() {
+		document.removeEventListener('paste', this.listener);
+	},
 	methods: {
+		listener(e) {
+			if (!e.clipboardData) {
+				return;
+			}
+
+			const items = e.clipboardData.items;
+			if (!items) {
+				return;
+			}
+
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].type.indexOf("image") !== -1) {
+					// image
+					this.addFile(items[i].getAsFile());
+					e.preventDefault();
+					return;
+				}
+			}
+		},
 		readerOnLoad(reader) {
 			this.src = reader.result;
 			this.hasFile = true;
@@ -66,7 +91,7 @@ export default {
 			this.addFile(event.dataTransfer.files[0]);
 		},
 		rightClick(event) {
-			console.log('test', event)
+			console.debug('test', event);
 		},
 	},
 	computed: {
