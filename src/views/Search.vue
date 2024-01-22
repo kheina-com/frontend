@@ -31,7 +31,7 @@
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
 			<li v-for='post in posts || 20' v-else-if='tiles'>
-				<PostTile :postId='post?.post_id' :nested='true' v-bind='post' link/>
+				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
 			<li v-for='post in posts || 3' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
@@ -44,7 +44,7 @@
 
 <script>
 import { khatch, saveToHistory, tagSplit } from '@/utilities';
-import { apiErrorMessage, postsHost } from '@/config/constants';
+import { postsHost } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';

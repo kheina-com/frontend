@@ -6,8 +6,12 @@
 		<div class='clicky-things'>
 			<div class='timers'>
 				<Countdown :endtime='date'/>
-				<div><Timestamp :datetime='datetime' live/></div>
-				<div><Timestamp :datetime='epoch' live/></div>
+				<div>
+					<Timestamp :datetime='datetime' live/>
+				</div>
+				<div>
+					<Timestamp :datetime='epoch' live/>
+				</div>
 			</div>
 			<div class='buttons'>
 				<div>
@@ -33,38 +37,41 @@
 		<div class='token'>
 			<textarea class='interactable text' v-model='content'/>
 			<div>
-				<Markdown :content='cookie'/>
+				<Markdown :content='cookie' />
 				<p>note: signature is not checked</p>
 			</div>
 		</div>
 		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
-				<p>{{color}} text</p>
-				<p style='font-weight: bold'>bold {{color}} text</p>
-				<p v-for='i in [0, 1, 2]'>bg<code>{{i}}</code> contrast: {{contrastWithBg(color, i).toFixed(2)}}</p>
+				<p>{{ color }} text</p>
+				<p style='font-weight: bold'>bold {{ color }} text</p>
+				<p v-for='i in [0, 1, 2]'>bg<code>{{ i }}</code> contrast: {{ contrastWithBg(color, i).toFixed(2) }}</p>
 			</div>
 		</div>
 		<div class='color-comparer' v-show='colors.length'>
-			<div v-for='i in colors.length' :style='"background: " + colors[i-1]'>
-				<p style='color: white'>white text: {{contrast(textToColor(colors[i-1]), textToColor('#fff')).toFixed(2)}}</p>
-				<p style='color: black'>black text: {{contrast(textToColor(colors[i-1]), textToColor('#000')).toFixed(2)}}</p>
-				<input placeholder='color' class='interactable' v-model='colors[i-1]'/>
-				<Button @click='colors.splice(i-1, 1);'><i class='material-icons-outline'>delete</i>Remove</Button>
+			<div v-for='i in colors.length' :style='"background: " + colors[i - 1]'>
+				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor('#fff')).toFixed(2) }}
+				</p>
+				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor('#000')).toFixed(2) }}
+				</p>
+				<input placeholder='color' class='interactable' v-model='colors[i - 1]'/>
+				<Button @click='colors.splice(i - 1, 1);'><i class='material-icons-outline'>delete</i>Remove</Button>
 			</div>
 		</div>
 		<div class='color-bar' v-show='colors.length'>
-			<div v-for='i in colors.length' :style='"background: " + colors[colors.length-i]'/>
+			<div v-for='i in colors.length' :style='"background: " + colors[colors.length - i]'/>
 		</div>
 		<Button @click='colors.push("#" + uuid(6))'><i class='material-icons'>add</i>Add Color</Button>
+		<Button @click='loadTheme'>Load Theme</Button>
 		<Button @click='toggleGray'>Toggle Grayscale</Button>
 		<Button @click='generateColors'>Generate!</Button>
 		<input placeholder='contrast cutoff' class='interactable' v-model='cutoff'/>
-		{{colors}}
+		{{ colors }}
 		<ThemeMenu/>
 	</main>
 </template>
 
-<script>
+<script> 
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -87,7 +94,7 @@ export default {
 	},
 	data() {
 		return {
-			epoch: new Date(epoch).toString()	,
+			epoch: new Date(epoch).toString(),
 			date: new Date(Date.now() + 500000000).toString(),
 			datetime: new Date(Date.now()).toString(),
 			audio: new Audio(notify),
@@ -100,10 +107,9 @@ export default {
 	},
 	methods: {
 		createToast,
-		uuid(len=32) {
+		uuid(len = 32) {
 			let uuid = '';
-			for (let i = 0; i < len; i++)
-			{ uuid += Math.floor(Math.random() * 16).toString(16); }
+			for (let i = 0; i < len; i++) { uuid += Math.floor(Math.random() * 16).toString(16); }
 			return uuid;
 		},
 		playAudio() {
@@ -112,10 +118,8 @@ export default {
 			setTimeout(() => this.audioLoading = false, this.audio.duration * 1000);
 		},
 		textToColor(string) {
-			if (string.startsWith('#'))
-			{
-				if (string.length === 7)
-				{
+			if (string.startsWith('#')) {
+				if (string.length === 7) {
 					return {
 						R: parseInt(string.substr(1, 2), 16),
 						G: parseInt(string.substr(3, 2), 16),
@@ -123,8 +127,7 @@ export default {
 					};
 				}
 
-				if (string.length === 4)
-				{
+				if (string.length === 4) {
 					return {
 						R: parseInt(string.substr(1, 1) + string.substr(1, 1), 16),
 						G: parseInt(string.substr(2, 1) + string.substr(2, 1), 16),
@@ -133,8 +136,7 @@ export default {
 				}
 			}
 
-			if (string.toLowerCase().startsWith('rgb'))
-			{
+			if (string.toLowerCase().startsWith('rgb')) {
 				const match = string.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*/i);
 				return {
 					R: parseInt(match[1]),
@@ -171,35 +173,36 @@ export default {
 		toggleGray() {
 			document.documentElement.style.filter ? document.documentElement.style.filter = null : document.documentElement.style.filter = "grayscale(1)";
 		},
+		loadTheme() {
+			this.colors.length = 0;
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--textcolor`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--interact`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--pink`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--yellow`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--green`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--blue`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--orange`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--red`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--cyan`));
+			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--violet`));
+		},
 		generateColors() {
-			if (!this.cutoff)
-			{
-				return createToast({
-					title: 'failed to generate color palette',
-					description: 'no cutoff was specified',
-					time: 5,
-				});
-			}
+			const cutoff = parseInt(this.cutoff || 0);
 			this.colors.length = 0;
 			while (this.colors.length < 10) {
 				const newColor = '#' + this.uuid(6);
-				const cutoff = parseInt(this.cutoff);
-				if (this.contrastWithBg(newColor, 0) >= cutoff || this.contrastWithBg(newColor, 1) >= cutoff)
-				{ this.colors.push(newColor); }
+				if (this.contrastWithBg(newColor, 0) >= cutoff || this.contrastWithBg(newColor, 1) >= cutoff) { this.colors.push(newColor); }
 			}
 		},
 	},
 	computed: {
 		cookie() {
-			try
-			{
+			try {
 				const c = authCookie(this.content);
-				if (c)
-				{ delete c.token; }
+				if (c) { delete c.token; }
 				return '```json\n' + JSON.stringify(c, null, 4) + '\n```';
 			}
-			catch (e)
-			{
+			catch (e) {
 				console.error(e);
 				return 'could not decode token';
 			}
@@ -215,34 +218,42 @@ main {
 	padding: 25px;
 	display: block;
 }
-main > div {
+
+main>div {
 	margin: 0.5em 0;
 }
-main > :first-child {
+
+main> :first-child {
 	margin-top: 0;
 }
-main > :last-child {
+
+main> :last-child {
 	margin-bottom: 0;
 }
+
 ol {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 }
+
 ol li {
 	margin: 0 0 25px;
 }
+
 ol li a {
 	display: block;
 }
+
 ol li div {
 	display: flex;
 }
+
 ol li div div {
 	flex-direction: column;
 }
 
-ol > :last-child {
+ol> :last-child {
 	margin-bottom: 0;
 }
 
@@ -251,12 +262,15 @@ ol > :last-child {
 	align-items: center;
 	color: var(--textcolor);
 }
+
 .user-field span button {
 	color: var(--textcolor);
 }
+
 .user-field span button:hover {
 	color: var(--interact);
 }
+
 i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
@@ -282,44 +296,63 @@ i {
 	min-width: 1000px;
 	position: relative;
 }
+
 .mobile .token {
 	display: flex;
 	flex-direction: column;
 	min-width: initial;
 }
+
 .token textarea {
 	grid-area: editor;
 	width: 100%;
 	resize: vertical;
 	line-height: 1.5;
 }
+
 .mobile .token textarea {
 	height: 15em;
 	margin-bottom: 25px;
 }
+
 .token div {
 	grid-area: preview;
 }
-.color-comparer, .color-bar, .color-text {
+
+.color-comparer,
+.color-bar,
+.color-text {
 	display: flex;
 }
-.color-comparer, .color-comparer div, .color-bar, .color-bar div, .color-text, .color-text div {
+
+.color-comparer,
+.color-comparer div,
+.color-bar,
+.color-bar div,
+.color-text,
+.color-text div {
 	width: 100%;
 	margin: 0;
 }
+
 .color-comparer input {
 	width: 7em;
 }
+
 .color-comparer div {
 	padding: 5em 25px;
 }
-.color-comparer div > * {
+
+.color-comparer div>* {
 	margin: 1em 0;
 }
+
 .color-bar div {
 	height: 50px;
 }
-.color-bar, .color-text {
+
+.color-bar,
+.color-text {
 	margin-bottom: 25px;
 }
 </style>

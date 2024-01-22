@@ -210,7 +210,7 @@
 
 <script>
 import { getMediaThumbnailUrl, deleteCookie, isMobile, khatch } from '@/utilities';
-import { configHost, environment, ratings } from '@/config/constants.js';
+import { accountHost, configHost, environment, ratings } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -275,7 +275,7 @@ export default {
 					setTimeout(this.onResize, 0);
 				});
 			});
-			setTimeout(this.updateLoop, 300000);
+			setTimeout(this.updateLoop, 300e3);
 		},
 		setQuery() {
 			if (this.$route.path.match(/^\/[qt]\//))
@@ -284,31 +284,39 @@ export default {
 			{ this.searchValue = null; }
 		},
 		runSearchQuery() {
-			if (!this.searchValue)
-			{
+			if (!this.searchValue) {
 				this.$router.push('/');
 				return;
 			}
 
 			const query = this.searchValue.trim();
 
-			if (!query)
-			{
+			if (!query) {
 				this.$router.push('/');
 				return;
 			}
 
-			let route = '/t/';
+			if (query.match(/^set:[A-Za-z0-9_-]{7}$/)) {
+				this.$router.push('/s/' + query.substring(4));
+				return;
+			}
 
-			if (ratings.has(query) || query.startsWith('@') || query.startsWith('-') || query.includes(' ') || query.includes('sort:'))
-			{ route = '/q/'; }
+			let route = '/t/';
+			if (ratings.has(query) || query.startsWith('@') || query.startsWith('-') || query.startsWith('sort:') || query.includes(' ')) {
+				route = '/q/';
+			}
 
 			this.$router.push(route + encodeURIComponent(query));
 		},
 		signOut() {
-			deleteCookie('kh-auth');
-			document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
-			this.$store.commit('setAuth', null);
+			khatch(accountHost+ '/v1/logout', {
+				method: 'DELETE',
+				errorMessage: 'Could not perform logout!',
+			}).then(() => {
+				deleteCookie('kh-auth');
+				document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
+				this.$store.commit('setAuth', null);
+			});
 		},
 		toggleMenu() {
 			this.menuOpen = !this.menuOpen;

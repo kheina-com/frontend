@@ -1,10 +1,10 @@
 <template>
 	<div v-if='type === "block"' ref='content'>
-		<slot name='default'/>
 		<div class='loadingicon' v-show='isLoading'>
 			<img src='/assets/loading.webp' alt='Loading...'/>
 			<slot name='onLoad'/>
 		</div>
+		<slot name='default'/>
 	</div>
 	<span ref='content' v-else-if='span'>
 		<slot name='default'/>

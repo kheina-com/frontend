@@ -342,9 +342,13 @@ export default {
 .thumbnail, .show-mature {
 	max-width: 20em;
 }
+.mobile .thumbnail, .mobile .show-mature {
+	/* all of the magic numbers here are used to calculate 3 columns of tiles when rendering search results on mobile */
+	max-width: calc((100vw - (250px + 6 * var(--border-size))) / 3);
+}
 .text, .loading {
 	overflow: hidden;
-	max-width: 10em;
+	/* max-width: 10em; */
 }
 .description {
 	color: var(--text);

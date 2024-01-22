@@ -68,16 +68,14 @@ export function commafy(x)
 let _getMediaUrl;
 let _getMediaThumbnailUrl;
 
-if (environment === 'local')
-{
+if (environment === 'local') {
 	_getMediaUrl = function(postId, filename)
 	{ return `${cdnHost}/${postId}/${encodeURIComponent(filename)}?authorization=${store.state.auth?.token}`; }
 
 	_getMediaThumbnailUrl = function(postId, resolution=800, extension='webp')
 	{ return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}?authorization=${store.state.auth?.token}`; }
 }
-else
-{
+else {
 	_getMediaUrl = function(postId, filename)
 	{ return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`; }
 

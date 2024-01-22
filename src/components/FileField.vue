@@ -90,8 +90,8 @@ label {
 	width: 100%;
 	padding: 25px;
 	border-radius: var(--border-radius);
-    border-style: dashed;
-    border-width: 2px;
+	border-style: dashed;
+	border-width: 2px;
 }
 label div {
 	display: flex;

@@ -8,7 +8,9 @@
 			<div>
 				<h2>Title</h2>
 				<input class='interactable text' v-model='updateBody.title'>
-				<Markdown :content='updateBody.title' inline v-show='updateBody.title'/>
+				<div class='title'>
+					<Markdown :content='updateBody.title' inline v-show='updateBody.title'/>
+				</div>
 			</div>
 			<div>
 				<h2>Owner</h2>
@@ -24,6 +26,10 @@
 			<div>
 				<h2>Description</h2>
 				<MarkdownEditor class='markdown-editor' resize='vertical' v-model:value='updateBody.description'/>
+			</div>
+			<div class='update-button'>
+				<Button @click='updateSet' green><i class='material-icons-round'>check</i>Update</Button>
+				<Button @click='deleteSet' red><i class='material-icons-outline'>delete</i>Delete</Button>
 			</div>
 		</Loading>
 		<div v-else>
@@ -50,10 +56,9 @@
 					<Profile :isLoading='isLoading' v-bind='setData?.owner'/>
 				</div>
 			</div>
-		</div>
-		<Button @click='updateSet' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
-		<div class='markdown-block' v-else>
-			<Markdown :content='setData?.description'/>
+			<div class='markdown-block'>
+				<Markdown :content='setData?.description'/>
+			</div>
 		</div>
 		<div class='buttons'>
 			<div>
@@ -84,9 +89,9 @@
 			</div>
 		</div>
 		<ol class='results'>
-			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{ setData?.title ?? 'set:' + setId }}</em></p>
-			<li v-for='post in posts || 20' v-else-if='tiles'>
-				<PostTile :postId='post?.post_id' :nested='true' v-bind='post' link/>
+			<p v-if='posts?.length === 0' style='text-align: center'>No posts found in set <em>{{ setData?.title ?? setId }}</em></p>
+			<li v-for='post in posts || sets?.count || 20' v-else-if='tiles'>
+				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
 			<li v-for='post in posts || 3' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
@@ -98,8 +103,8 @@
 </template>
 
 <script>
-import { khatch, saveToHistory, setTitle } from '@/utilities';
-import { apiErrorMessage, postsHost, setsHost, usersHost } from '@/config/constants';
+import { khatch, saveToHistory, setTitle, createToast } from '@/utilities';
+import { postsHost, setsHost, usersHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
 import Post from '@/components/Post.vue';
@@ -263,6 +268,16 @@ export default {
 				body.mask.push('privacy');
 			}
 
+			if (body.mask.length === 0) {
+				this.pendingUpdate = false;
+				this.editing = false;
+				createToast({
+					title: 'Could not update set!',
+					description: 'nothing to update.',
+				});
+				return;
+			}
+
 			khatch(`${setsHost}/v1/set/${this.setId}`, {
 				errorMessage: 'Could not update set!',
 				method: 'PATCH',
@@ -287,6 +302,21 @@ export default {
 					...this.setData,
 					...body,
 				};
+
+				if (body.title)
+				{ setTitle(`Set: ${body.title} | fuzz.ly`); }
+			}).finally(() => {
+				this.pendingUpdate = false;
+				this.editing = false;
+			});
+		},
+		deleteSet() {
+			this.pendingUpdate = true;
+			khatch(`${setsHost}/v1/set/${this.setId}`, {
+				errorMessage: 'Could not delete set!',
+				method: 'DELETE',
+			}).then(() => {
+				this.setData = { };
 			}).finally(() => {
 				this.pendingUpdate = false;
 				this.editing = false;
@@ -304,7 +334,7 @@ export default {
 			if (this.sort !== 'hot')
 			{ query.push(`sort=${this.sort}`); }
 
-			return '/t/' + this.tag + '?' + query.join('&');
+			return path + this.setId + '?' + query.join('&');
 		},
 		setPage(page) {
 			this.page = page;
@@ -313,7 +343,7 @@ export default {
 	},
 	watch: {
 		sort() {
-			if (this.$route.name !== 'tag')
+			if (this.$route.name !== 'set')
 			{ return; }
 			this.$router.push(this.pageLink(this.page));
 		},
@@ -370,7 +400,8 @@ ul {
 .mobile .markdown-block, .mobile .set {
 	width: auto;
 }
-.show-more {
+
+.editing .title {
 	margin-top: 1em;
 }
 
@@ -385,6 +416,17 @@ ul {
 }
 .update-button {
 	margin: 0 auto 25px;
+	display: flex;
+	justify-content: center;
+}
+.update-button > * {
+	margin-right: 25px;
+}
+.update-button > :last-child {
+	margin: 0;
+}
+.update-button button i {
+	margin-right: 0.2em;
 }
 ol {
 	list-style-type: none;
@@ -472,7 +514,7 @@ ul {
 }
 
 @media only screen and (max-width: 1200px) {
-	.set, .editing {
+	.set, .editing, .markdown-block {
 		margin: 0 0 25px;
 		width: auto;
 	}

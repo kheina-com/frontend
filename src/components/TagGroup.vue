@@ -55,7 +55,8 @@ ol {
 	padding: 0;
 }
 ol li {
-	margin: 0 0 0.5em;
+	margin: 0 0 .5em 1em;
+	text-indent: -1em;
 }
 h4 {
 	margin: 0.25em 0;

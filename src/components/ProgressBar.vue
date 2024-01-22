@@ -128,5 +128,4 @@ a.progressbar:hover
 }
 a.progressbar:hover *
 { opacity: 0.5; }
-
 </style>

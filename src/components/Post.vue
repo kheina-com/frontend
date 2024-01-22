@@ -505,6 +505,9 @@ export default {
 	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
 }
+.mobile .thumbnail {
+	margin: 0 auto 0;
+}
 
 .header-block {
 	display: flex;
@@ -709,7 +712,8 @@ ol > :last-child, ol > :last-child .post {
 .mobile .thumbnail {
 	max-height: 150vw;
 	overflow: hidden;
-	width: 100%;
+	/* this is necessary so that we can calc thumbnails sizes off of the max width */
+	max-width: calc(100vw - 100px - 2 * var(--border-size));
 }
 .mobile .thumbnail img {
 	max-height: 100%;
