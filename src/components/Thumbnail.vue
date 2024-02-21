@@ -6,8 +6,10 @@
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, isMobile, lazyObserver } from '@/utilities';
+import { base64ToBytes, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
+import { isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
+import { thumbHashToDataURL } from 'thumbhash';
 
 export default {
 	name: 'Thumbnail',
@@ -35,6 +37,14 @@ export default {
 			type: Number,
 			default: 0,
 		},
+		maxWidth: {
+			type: Number,
+			default: null,
+		},
+		thumbhash: {
+			type: String,
+			default: null,
+		},
 	},
 	setup() {
 		const media = ref(null);
@@ -54,10 +64,17 @@ export default {
 		// this.webp = true;
 		// this.isError = false;
 
+		// if (this.thumbhash) {
+		// 	this.$refs.media.src = thumbHashToDataURL(base64ToBytes(this.thumbhash))
+		// 	this.isLoading = false;
+		// }
+
 		lazyObserver.observe(this.$refs.media);
 
 		const parentStyle = getComputedStyle(this.$refs.media.parentElement);
-		const maxWidth = parentStyle.maxWidth.endsWith('%') ? this.$refs.media.parentElement.parentElement.parentElement.getBoundingClientRect().width - 50 : parseFloat(parentStyle.maxWidth);
+		const maxWidth = this.maxWidth ?? (parentStyle.maxWidth.endsWith('%') ? (
+			this.$refs.media.parentElement.parentElement.parentElement.getBoundingClientRect().width - 50 * (parseFloat(parentStyle.maxWidth) / 100)
+			) : parseFloat(parentStyle.maxWidth));
 
 		if (!this.width || !this.height) {
 			this.$refs.media.style = `width: ${maxWidth / (!isMobile + 1)}px; height: ${parentStyle.maxHeight}`;
@@ -65,7 +82,7 @@ export default {
 		}
 
 		const maxHeight = parseFloat(parentStyle.maxHeight);
-		console.log("maxWidth:", maxWidth, "maxHeight:", maxHeight);
+		// console.log("maxWidth:", maxWidth, "maxHeight:", maxHeight);
 
 		const boundingBox = maxWidth / maxHeight;
 		const aspectRatio = this.width / this.height;
@@ -73,26 +90,28 @@ export default {
 		if (aspectRatio > boundingBox) {
 			// image is wider
 
-			const adjustment = maxWidth / this.width;
-			this.$refs.media.style = `width: ${maxWidth}px; height: ${Math.round(this.height * adjustment)}px`;
+			const ratio = maxWidth / this.width;
+			this.$refs.media.style = `width: ${maxWidth}px; height: ${Math.round(this.height * ratio)}px`;
 		}
 		else {
 			// image is taller
 
-			const adjustment = maxHeight / this.height;
-			this.$refs.media.style = `width: ${Math.round(this.width * adjustment)}px; height: ${parentStyle.maxHeight}`;
+			const ratio = maxHeight / this.height;
+			this.$refs.media.style = `width: ${Math.round(this.width * ratio)}px; height: ${parentStyle.maxHeight}`;
 		}
 	},
 	computed: {
-		isMobile,
 		src() {
 			return this.post ? getMediaThumbnailUrl(this.post, this.size) : null;
 		},
 	},
 	methods: {
 		loaded(event) {
-			this.isLoading = false;
-			this.onLoad(event);
+			if (this.$refs.media) {
+				this.isLoading = false;
+				this.$refs.media.style = null;
+				this.onLoad(event);
+			}
 		},
 		onError(event) {
 			// console.log(event);
@@ -109,15 +128,23 @@ export default {
 	},
 	watch: {
 		post(value) {
-			// console.log("post:", value);
 			// reset state
-			this.isLoading = true;
+			this.isLoading = !this.thumbhash;
 			this.webp = true;
 			this.isError = false;
 
 			if (this.$refs.media.dataset.intersected) {
-				// console.log("update:", value);
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, this.size);
+			}
+		},
+		thumbhash(value) {
+			console.log('thumbhash:', value);
+			if (value) {
+				this.$refs.media.style.opacity = 0;
+				this.$refs.media.classList.add("th");
+				this.$refs.media.parentNode.style.background = "url('" + thumbHashToDataURL(base64ToBytes(value)) + "')";
+				this.$refs.media.parentNode.style.backgroundSize = "cover";
+				this.isLoading = false;
 			}
 		},
 	},
@@ -133,9 +160,19 @@ export default {
 	height: 100%;
 	width: 100%;
 } */
+.th {
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
+}
 img {
-	object-fit: cover;
+	/* object-fit: cover; */
 	display: block;
+	max-height: inherit;
+	max-width: inherit;
+	/* width: 100%;
+	height: 100%; */
 }
 .loading {
 	overflow: hidden;

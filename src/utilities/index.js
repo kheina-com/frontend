@@ -107,8 +107,6 @@ export function round(num, precision)
 	return Math.round(num * multiplier) / multiplier;
 }
 
-export const isMobile = navigator.userAgent.toLowerCase().includes('mobile');
-
 export function tagSplit(tags)
 { return tags.split(/[,\s]/).filter(x => x).map(x => x.trim()); }
 
@@ -328,6 +326,72 @@ export function demarkdown(string) {
 
 export function isDarkMode() {
 	return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/**
+ * Loads an image with progress callback.
+ *
+ * `onprogress` callback will be called by XMLHttpRequest's "onprogress"
+ * event, and will receive the loading progress ratio as a float (0 to 1).
+ * If progress ratio isn't computable, `onprogress` will be called once,
+ * passing `-1` as progress value (this is useful to e.g. set progress bar
+ * animation to indeterminate).
+ *
+ * @param {string} imageUrl The image URL to load
+ * @param {Function} onprogress
+ * @return {Promise}
+ */
+export function loadImage(imageUrl, onprogress) {
+	// https://stackoverflow.com/a/42196770
+	return new Promise((resolve, reject) => {
+		const xhr = new XMLHttpRequest();
+		let notifiedNotComputable = false;
+
+		xhr.open('GET', imageUrl, true);
+		xhr.responseType = 'arraybuffer';
+
+		xhr.onprogress = function(ev) {
+			if (ev.lengthComputable) {
+				onprogress(parseInt((ev.loaded / ev.total) * 100));
+			} else {
+				if (!notifiedNotComputable) {
+					notifiedNotComputable = true;
+					onprogress(-1);
+				}
+			}
+		}
+
+		xhr.onloadend = function() {
+			if (!xhr.status.toString().match(/^2/)) {
+				reject(xhr);
+				
+				return;
+			}
+
+			const options = { }
+			const headers = xhr.getAllResponseHeaders();
+			const m = headers.match(/^Content-Type\:\s*(.*?)$/mi);
+
+			if (m && m[1]) {
+				options.type = m[1];
+			}
+
+			resolve(window.URL.createObjectURL(
+				new Blob([this.response], options)
+			));
+		}
+
+		xhr.send();
+	});
+}
+
+export function base64ToBytes(base64) {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (var i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
 }
 
 export const lazyConfig = {

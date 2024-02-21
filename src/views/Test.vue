@@ -5,15 +5,15 @@
 		</h3>
 		<div class='clicky-things'>
 			<div class='timers'>
-				<Countdown :endtime='date'/>
+				<Countdown :endtime='date' />
 				<div>
-					<Timestamp :datetime='datetime' live/>
+					<Timestamp :datetime='datetime' live />
 				</div>
 				<div>
-					<Timestamp :datetime='epoch' live/>
+					<Timestamp :datetime='epoch' live />
 				</div>
 			</div>
-			<div class='buttons'>
+			<div class=''>
 				<div>
 					<Button @click='playAudio' :isLoading='audioLoading'>
 						play me
@@ -35,10 +35,21 @@
 			</div>
 		</div>
 		<div class='token'>
-			<textarea class='interactable text' v-model='content'/>
+			<textarea class='interactable text' v-model='content' />
 			<div>
 				<Markdown :content='cookie' />
 				<p>note: signature is not checked</p>
+			</div>
+		</div>
+		<div class='post-tiles'>
+			<ol>
+				<li>
+					<PostTile :key='postId' :postId='postId' :nested='true' v-bind='post' :thumbhash='thumbhash'/>
+				</li>
+			</ol>
+			<div class='buttons'>
+				<Button @click='togglePost'>toggle</Button>
+				<Button @click='toggleThumbhash'>thumbhash</Button>
 			</div>
 		</div>
 		<div class='color-text' v-show='colors.length'>
@@ -50,28 +61,32 @@
 		</div>
 		<div class='color-comparer' v-show='colors.length'>
 			<div v-for='i in colors.length' :style='"background: " + colors[i - 1]'>
-				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor('#fff')).toFixed(2) }}
+				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor('#fff')).toFixed(2)
+				}}
 				</p>
-				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor('#000')).toFixed(2) }}
+				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor('#000')).toFixed(2)
+				}}
 				</p>
-				<input placeholder='color' class='interactable' v-model='colors[i - 1]'/>
+				<input placeholder='color' class='interactable' v-model='colors[i - 1]' />
 				<Button @click='colors.splice(i - 1, 1);'><i class='material-icons-outline'>delete</i>Remove</Button>
 			</div>
 		</div>
 		<div class='color-bar' v-show='colors.length'>
-			<div v-for='i in colors.length' :style='"background: " + colors[colors.length - i]'/>
+			<div v-for='i in colors.length' :style='"background: " + colors[colors.length - i]' />
 		</div>
-		<Button @click='colors.push("#" + uuid(6))'><i class='material-icons'>add</i>Add Color</Button>
-		<Button @click='loadTheme'>Load Theme</Button>
-		<Button @click='toggleGray'>Toggle Grayscale</Button>
-		<Button @click='generateColors'>Generate!</Button>
-		<input placeholder='contrast cutoff' class='interactable' v-model='cutoff'/>
+		<div class='buttons'>
+			<Button @click='colors.push("#" + uuid(6))'><i class='material-icons'>add</i>Add Color</Button>
+			<Button @click='loadTheme'>Load Theme</Button>
+			<Button @click='toggleGray'>Toggle Grayscale</Button>
+			<Button @click='generateColors'>Generate!</Button>
+			<input placeholder='contrast cutoff' class='interactable' v-model='cutoff' />
+		</div>
 		{{ colors }}
-		<ThemeMenu/>
+		<ThemeMenu />
 	</main>
 </template>
 
-<script> 
+<script>
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -81,6 +96,7 @@ import { authCookie, createToast } from '@/utilities';
 import epoch from '@/config/constants';
 import { environment } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
+import PostTile from '@/components/PostTile.vue';
 
 
 export default {
@@ -91,6 +107,7 @@ export default {
 		Timestamp,
 		Button,
 		Markdown,
+		PostTile,
 	},
 	data() {
 		return {
@@ -103,7 +120,46 @@ export default {
 			environment,
 			colors: [],
 			cutoff: null,
-		}
+			thumbhash: null,
+			postId: 'ugE_qTJL',
+			post: {
+				"post_id": "ugE_qTJL",
+				"title": "Sleep With the Machine",
+				"description": null,
+				"user": {
+					"name": "dani :trans-flag: :two-hearts:",
+					"handle": "dani",
+					"privacy": "public",
+					"icon": "ceKamUGR",
+					"verified": "admin",
+					"following": true,
+				},
+				"score": {
+					"up": 1,
+					"down": 0,
+					"total": 1,
+					"user_vote": 1,
+				},
+				"rating": "mature",
+				"parent": null,
+				"privacy": "public",
+				"created": "2023-05-09T06:30:53.743075+00:00",
+				"updated": "2023-05-09T06:30:53.743075+00:00",
+				"filename": "1234-web.png",
+				"media_type": {
+					"file_type": "png",
+					"mime_type": "image/png",
+				},
+				"size": {
+					"width": 2805,
+					"height": 3000,
+				},
+				"blocked": false,
+			},
+		};
+	},
+	mounted() {
+		this.toggleThumbhash();
 	},
 	methods: {
 		createToast,
@@ -187,12 +243,19 @@ export default {
 			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--violet`));
 		},
 		generateColors() {
-			const cutoff = parseInt(this.cutoff || 0);
+			const cutoff = Math.min(parseInt(this.cutoff || 0), 20); // don't fucking crash
 			this.colors.length = 0;
 			while (this.colors.length < 10) {
 				const newColor = '#' + this.uuid(6);
 				if (this.contrastWithBg(newColor, 0) >= cutoff || this.contrastWithBg(newColor, 1) >= cutoff) { this.colors.push(newColor); }
 			}
+		},
+		togglePost() {
+			this.postId = this.postId ? null : this.post.post_id;
+			console.log(this.postId);
+		},
+		toggleThumbhash() {
+			this.thumbhash = this.thumbhash ? null : 'ktcJDwQHmWh2dJiFeGeIiHeXlp8HunYA';
 		},
 	},
 	computed: {
@@ -236,25 +299,26 @@ ol {
 	margin: 0;
 	padding: 0;
 }
-
 ol li {
 	margin: 0 0 25px;
 }
-
-ol li a {
-	display: block;
-}
-
-ol li div {
-	display: flex;
-}
-
-ol li div div {
-	flex-direction: column;
-}
-
-ol> :last-child {
+ol > :last-child {
 	margin-bottom: 0;
+}
+
+.post-tiles {
+	margin-bottom: 25px;
+}
+.post-tiles ol {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: center;
+	margin: -12.5px;
+}
+.post-tiles ol li {
+	margin: 12.5px;
 }
 
 .user-field {
@@ -317,6 +381,16 @@ i {
 
 .token div {
 	grid-area: preview;
+}
+
+.buttons {
+	display: flex;
+}
+.buttons > * {
+	margin-right: 25px;
+}
+.buttons > *:last-child {
+	margin-right: 0;
 }
 
 .color-comparer,

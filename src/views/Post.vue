@@ -188,8 +188,8 @@
 </template>
 
 <script>
-import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, setsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
+import { demarkdown, khatch, getMediaUrl, setTitle } from '@/utilities';
+import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, isMobile, postsHost, setsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';

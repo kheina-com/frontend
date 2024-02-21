@@ -14,9 +14,7 @@
 		<div class='nav'>
 			<div class='bg'/>
 			<div class='profile' v-if='$store.state.auth'>
-				<i class='kheina-icons icon' title='You are an admin' v-if='$store.state.auth?.isAdmin'>sword</i>
-				<i class='material-icons icon' title='You are a moderator' v-else-if='$store.state.auth?.isMod'>verified_user</i>
-				<i class='material-icons icon' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='$store.state.user?.verified'>verified</i>
+				<div class='icon' id='user-verification'></div>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${$store.state.user?.handle}`'>
 						<UserIcon :handle='$store.state.user?.handle' :post='$store.state.user?.icon' v-model:isLoading='isIconLoading' v-if='$store.state.user'/>
@@ -179,7 +177,7 @@
 				<div class='menu-footer'>
 					<!-- TODO: replace this with an svg once one gets made -->
 					<img src='https://cdn.fuzz.ly/splash.png'>
-					<p class='commit'>version: <code @click='closeMenu'><router-link to='/version'>{{shortCommit}}</router-link></code></p>
+					<p class='commit'>version: <code @click='closeMenu'><router-link to='/version'>{{commit}}</router-link></code></p>
 				</div>
 			</div>	
 		</div>
@@ -209,8 +207,8 @@
 </template>
 
 <script>
-import { getMediaThumbnailUrl, deleteCookie, isMobile, khatch } from '@/utilities';
-import { accountHost, configHost, environment, ratings } from '@/config/constants.js';
+import { deleteCookie, khatch } from '@/utilities';
+import { accountHost, configHost, environment, isMobile, ratings } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -240,8 +238,7 @@ export default {
 	data() {
 		return {
 			isMobile,
-			fullCommit: __COMMIT_HASH__,
-			shortCommit: __SHORT_COMMIT_HASH__,
+			commit: __SHORT_COMMIT_HASH__,
 			message: null,
 			editMessage: false,
 			menuOpen: false,
@@ -257,6 +254,10 @@ export default {
 			() => this.$route.path,
 			this.setQuery,
 		);
+		this.$watch(
+			() => this.$store.state.user,
+			this.setUser,
+		)
 	},
 	computed: {
 		route() {
@@ -264,7 +265,6 @@ export default {
 		},
 	},
 	methods: {
-		getMediaThumbnailUrl,
 		updateLoop() {
 			khatch(`${configHost}/v1/banner`, {
 				errorMessage: 'Error Occurred While Fetching Banner',
@@ -282,6 +282,16 @@ export default {
 			{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
 			else if (this.$route.path == '/')
 			{ this.searchValue = null; }
+		},
+		setUser(user) {
+			// console.log("user:", user);
+			switch (user?.verified) {
+				case 'admin':
+					return;
+			}
+			// <i class='kheina-icons' title='You are an admin' v-if='$store.state.auth?.isAdmin'>sword</i>
+			// <i class='material-icons' title='You are a moderator' v-else-if='$store.state.auth?.isMod'>verified_user</i>
+			// <i class='material-icons' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='$store.state.user?.verified'>verified</i>
 		},
 		runSearchQuery() {
 			if (!this.searchValue) {

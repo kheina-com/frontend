@@ -12,8 +12,8 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, getCookie, isDarkMode, isMobile, khatch } from '@/utilities';
-import { configHost } from '@/config/constants';
+import { authCookie, getCookie, isDarkMode, khatch } from '@/utilities';
+import { configHost, isMobile } from '@/config/constants';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -125,6 +125,7 @@ export default {
 			this.$store.commit('animatedAccents', e.target.checked);
 		},
 		onResize() {
+			// document.dispatchEvent(new CustomEvent('resize'));
 			console.debug('resize');
 			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true)) {
 				const offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
@@ -156,7 +157,6 @@ export default {
 			setScroll();
 
 			let s = element.getBoundingClientRect();
-
 			let currentWidth = s.width;
 			let currentHeight = s.height;
 

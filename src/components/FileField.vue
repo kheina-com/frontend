@@ -3,7 +3,7 @@
 		<input ref='file' @input='fileAdded' :id='id' type='file' size='50' autocomplete='off'>
 		<label @drop.prevent='onDrop' @dragenter.prevent @dragover.prevent @click.right.stop='rightClick' :for='id' class='interactable upload'>
 			<slot v-if='hasSlot && showSlot'/>
-			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' v-model:width='width' v-model:height='height' type='block' style='border-radius: var(--border-radius); margin: auto'/>
+			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' v-model:width='width' v-model:height='height' type='block'/>
 			<div v-else>
 				<i class='material-icons'>upload_file</i>
 				{{isMobile ? 'Tap' : 'Click or Drag'}} to Upload File
@@ -14,7 +14,7 @@
 
 <script>
 import { ref } from 'vue';
-import { isMobile } from '@/utilities';
+import { isMobile } from '@/config/constants';
 import Media from '@/components/Media.vue';
 
 export default {

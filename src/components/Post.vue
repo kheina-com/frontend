@@ -76,8 +76,8 @@
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, ratingMap, uploadHost, usersHost } from '@/config/constants';
+import { getMediaThumbnailUrl, khatch } from '@/utilities';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';

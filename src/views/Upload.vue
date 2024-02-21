@@ -19,7 +19,7 @@
 					<div>
 						<span>File</span>
 						<FileField v-model:file='file' :showSlot='uploadDone && file === null' v-model:width='width' v-model:height='height'>
-							<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh'/>
+							<Media :key='postId' :mime='mime' :src='mediaUrl' :link='false' v-model:width='width' v-model:height='height'/>
 						</FileField>
 						<div class='field flex' v-if='file !== null'>
 							<div>
@@ -58,7 +58,7 @@
 					<ProgressBar :fill='uploadProgress'/>
 				</template>
 			</Loading>
-			<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else/>
+			<Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: 25px' v-else/>
 			<div class='field'>
 				<div>
 					<span>Title</span>
@@ -220,8 +220,8 @@
 
 <script>
 import { ref } from 'vue';
-import { commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile, sortTagGroups } from '@/utilities';
-import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
+import { commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, sortTagGroups } from '@/utilities';
+import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
 import Title from '@/components/Title.vue';
@@ -349,8 +349,7 @@ export default {
 			if (!this.update.webResize)
 			{ this.resized = null; }
 
-			if (this.width > this.height)
-			{
+			if (this.width > this.height) {
 				const size = Math.min(parseInt(this.update.webResize), this.width);
 				this.resized = {
 					width: size,
@@ -358,8 +357,7 @@ export default {
 					scale: size / this.width * 100,
 				};
 			}
-			else
-			{
+			else {
 				const size = Math.min(parseInt(this.update.webResize), this.height);
 				this.resized = {
 					height: size,
@@ -628,8 +626,7 @@ export default {
 					{ newTags.push(tag); }
 				});
 
-				if (newTags.length > 0)
-				{
+				if (newTags.length > 0) {
 					requiredSuccesses++;
 					khatch(`${tagsHost}/v1/add_tags`, {
 						errorMessage: 'failed to add tags!',
@@ -676,31 +673,29 @@ export default {
 
 			this.postId = value;
 
-			if (this.postId)
-			{
-				if (this.$store.state.postCache?.post_id === this.postId)
-				{
+			if (this.postId) {
+				if (this.$store.state.postCache?.post_id === this.postId) {
 					const r = this.$store.state.postCache;
 					this.description = this.update.description = r.description;
 					this.title = this.update.title = r.title;
 					this.privacy = this.update.privacy = r.privacy;
 					this.rating = this.update.rating = r.rating;
 					this.mime = r.media_type?.mime_type;
-					if (r.filename)
-					{
+					
+					if (r.filename) {
 						this.uploadDone = true;
 						this.filename = r.filename;
 						this.mediaUrl = getMediaUrl(this.postId, this.filename);
+						this.width = r?.size?.width;
+						this.height = r?.size?.height;
 					}
-					else
-					{
+					else {
 						this.uploadDone = false;
 						this.filename = null;
 						this.mediaUrl = null;
 					}
 				}
-				else
-				{
+				else {
 					khatch(`${postsHost}/v1/post/${this.postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
 					}).then(response => {
@@ -710,14 +705,14 @@ export default {
 							this.privacy = this.update.privacy = r.privacy;
 							this.rating = this.update.rating = r.rating;
 							this.mime = r.media_type?.mime_type;
-							if (r.filename)
-							{
+							if (r.filename) {
 								this.uploadDone = true;	
 								this.filename = r.filename;
 								this.mediaUrl = getMediaUrl(this.postId, this.filename);
+								this.width = r?.size?.width;
+								this.height = r?.size?.height;
 							}
-							else
-							{
+							else {
 								this.uploadDone = false;	
 								this.filename = null;
 								this.mediaUrl = null;
@@ -746,8 +741,7 @@ export default {
 					});
 				});
 			}
-			else
-			{
+			else {
 				khatch(`${uploadHost}/v1/create_post`, {
 					method: 'POST',
 					errorMessage: 'Unable To Create New Post Draft!',

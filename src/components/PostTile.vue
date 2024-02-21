@@ -37,7 +37,7 @@
 		</div>
 	</div>
 	<div class='post tile nested link no-buttons' v-else>
-		<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' v-if='media_type'/>
+		<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' :thumbhash='thumbhash' v-if='media_type'/>
 		<div class='text' v-else>
 			<div class='parent' v-if='parent'>
 				<Loading span v-if='parentData === null'>this is an example title</Loading>
@@ -52,8 +52,8 @@
 </template>
 
 <script>
-import { khatch, isMobile } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, postsHost, ratingMap, usersHost } from '@/config/constants';
+import { khatch } from '@/utilities';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, postsHost, ratingMap, usersHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -155,6 +155,10 @@ export default {
 			type: Number,
 			default: 0, // this value needs to be updated to null when api is updated
 		},
+		thumbhash: {
+			type: String,
+			default: null,
+		},
 	},
 	emits: [
 		'loaded',
@@ -247,8 +251,7 @@ export default {
 			this.$router.push('/p/' + this.postId);
 		},
 		onLoad() {
-			if (this.parentElement)
-			{
+			if (this.parentElement) {
 				let self = this.$refs.self.getBoundingClientRect();
 				this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
 			}
