@@ -3,8 +3,7 @@
 	<Loading :class='mediaClass' :style='parentStyle' :isLoading='isLoading'>
 		<p v-if='isError'>Could not load media.</p>
 		<video ref='media' :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
-		<!-- <img ref='media' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else> -->
-		<img ref='media' :src='src' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
+		<img ref='media' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
 	</Loading>
 </template>
 
@@ -93,7 +92,7 @@ export default {
 				xhr.open('GET', this.src, true);
 				xhr.responseType = 'arraybuffer';
 				xhr.onload = () => {
-					console.log("onload <xhr>", new Date().valueOf());
+					console.log("onload <xhr>", new Date().valueOf() / 1000);
 
 					const blob = new Blob([xhr.response]);
 					this.$refs.media.src = window.URL.createObjectURL(blob);
@@ -142,7 +141,7 @@ export default {
 		onLoad() {
 			this.isLoading = false;
 			this.$refs.loader.style = null;
-			console.log("onload <img>", new Date().valueOf());
+			console.log("onload <img>", new Date().valueOf() / 1000);
 			this.$emit(`update:width`, this.$refs.media.naturalWidth);
 			this.$emit(`update:height`, this.$refs.media.naturalHeight);
 		},
