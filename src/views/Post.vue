@@ -188,8 +188,8 @@
 </template>
 
 <script>
-import { demarkdown, khatch, getMediaUrl, isMobile, setTitle } from '@/utilities';
-import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, postsHost, setsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
+import { demarkdown, khatch, getMediaUrl, setTitle } from '@/utilities';
+import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, isMobile, postsHost, setsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -284,22 +284,19 @@ export default {
 
 		this.fetchComments();
 
-		if (this.$store.state.postCache?.post_id === this.postId)
-		{
+		if (this.$store.state.postCache?.post_id === this.postId) {
 			this.post = this.$store.state.postCache;
 
 			this.post.favorites = 0;
 			this.post.reposts = 0;
 			this.width = this.post.size?.width;
 			this.height = this.post.size?.height;
-			if (this.post.parent)
-			{
+			if (this.post.parent) {
 				this.parent = false;
 				this.fetchParent(this.post.parent);
 			}
 		}
-		else
-		{
+		else {
 			// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
 			khatch(`${postsHost}/v1/post/${this.postId}`, {
 				errorMessage: 'Could not retrieve post!',

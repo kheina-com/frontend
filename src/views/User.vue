@@ -188,7 +188,7 @@
 							hasn't made any posts yet.
 						</p>
 						<li v-for='post in posts || 20' v-else-if='tiles'>
-							<PostTile :postId='post?.post_id' :nested='!isMobile' v-bind='post' link/>
+							<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='!isMobile' v-bind='post' link/>
 						</li>
 						<li v-for='post in posts || 3' v-else>
 							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
@@ -270,8 +270,8 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, isMobile, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessage, apiErrorMessageToast, postsHost, uploadHost, usersHost, tabs, tagsHost, setsHost } from '@/config/constants';
+import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, postsHost, uploadHost, usersHost, tabs, tagsHost, setsHost } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';

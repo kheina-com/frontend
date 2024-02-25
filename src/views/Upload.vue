@@ -19,7 +19,7 @@
 					<div>
 						<span>File</span>
 						<FileField v-model:file='file' :showSlot='uploadDone && file === null' v-model:width='width' v-model:height='height'>
-							<Media :mime='mime' :src='mediaUrl' :link='false' loadingStyle='width: 100%; height: 30vh'/>
+							<Media :key='postId' :mime='mime' :src='mediaUrl' :link='false' v-model:width='width' v-model:height='height'/>
 						</FileField>
 						<div class='field flex' v-if='file !== null'>
 							<div>
@@ -58,7 +58,7 @@
 					<ProgressBar :fill='uploadProgress'/>
 				</template>
 			</Loading>
-			<Media :mime='mime' :src='mediaUrl' loadingStyle='width: 100%; height: 30vh; margin-top: 25px' style='width: 100%; margin-top: 25px' v-else/>
+			<Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: 25px' v-else/>
 			<div class='field'>
 				<div>
 					<span>Title</span>
@@ -220,8 +220,8 @@
 
 <script>
 import { ref } from 'vue';
-import { commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, isMobile, sortTagGroups } from '@/utilities';
-import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment } from '@/config/constants';
+import { commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, sortTagGroups } from '@/utilities';
+import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
 import Title from '@/components/Title.vue';
@@ -349,8 +349,7 @@ export default {
 			if (!this.update.webResize)
 			{ this.resized = null; }
 
-			if (this.width > this.height)
-			{
+			if (this.width > this.height) {
 				const size = Math.min(parseInt(this.update.webResize), this.width);
 				this.resized = {
 					width: size,
@@ -358,8 +357,7 @@ export default {
 					scale: size / this.width * 100,
 				};
 			}
-			else
-			{
+			else {
 				const size = Math.min(parseInt(this.update.webResize), this.height);
 				this.resized = {
 					height: size,
@@ -435,8 +433,7 @@ export default {
 		},
 		publishPost() {
 			console.log(this.update.privacy);
-			if (!PublishedPrivacies.has(this.update.privacy))
-			{
+			if (!PublishedPrivacies.has(this.update.privacy)) {
 				createToast({
 					title: 'Privacy Not Set!',
 					time: 5,
@@ -462,7 +459,13 @@ export default {
 			.catch(() => this.saving = false);
 		},
 		addTag(tag) {
-			this.$refs.tagDiv.textContent += ' ' + tag;
+			const tags = new Set(this.$refs.tagDiv.textContent.split(/\s/).filter(x => x));
+			if (tags.has(tag)) {
+				tags.delete(tag);
+				this.$refs.tagDiv.textContent = Array.from(tags).join(" ");
+			} else {
+				this.$refs.tagDiv.textContent += ' ' + tag;
+			}
 		},
 		showData() {
 			console.log({
@@ -501,6 +504,14 @@ export default {
 				if (this.update.webResize)
 				{ formdata.append('web_resize', parseInt(this.update.webResize.trim())); }
 
+				const complete = () => {
+					this.uploadDone = true;
+					this.isUploading = false;
+					this.uploadProgress = 0;
+					if (finish)
+					{ this.saving = false; }
+				};
+
 				const errorHandler = (event) => {
 					createToast({
 						title: 'Something broke during upload',
@@ -508,6 +519,7 @@ export default {
 						dump: event?.target?.responseText ?? event,
 					});
 					console.error('error:', event);
+					complete();
 				};
 
 				const ajax = new XMLHttpRequest();
@@ -519,12 +531,8 @@ export default {
 					const response = JSON.parse(event.target.responseText);
 					this.mediaUrl = `${cdnHost}/${encodeURIComponent(response.url)}`;
 					this.mime = this.file.type;
-					this.uploadDone = true;
-					this.isUploading = false;
 					this.file = null;
-					this.uploadProgress = 0;
-					if (finish)
-					{ this.saving = false; }
+					complete();
 					resolve();
 				}, false);
 				ajax.addEventListener('error', e => reject(errorHandler(e)), false);
@@ -544,26 +552,22 @@ export default {
 				let requiredSuccesses = 0;
 				let successes = 0;
 
-				if (this.title !== this.update.title)
-				{
+				if (this.title !== this.update.title) {
 					sendUpdate = true;
 					this.title = this.update.title;
 				}
 
-				if (this.description !== this.update.description)
-				{
+				if (this.description !== this.update.description) {
 					sendUpdate = true;
 					this.description = this.update.description;
 				}
 
-				if (this.rating !== this.update.rating)
-				{
+				if (this.rating !== this.update.rating) {
 					sendUpdate = true;
 					this.rating = this.update.rating;
 				}
 
-				if (sendUpdate)
-				{
+				if (sendUpdate) {
 					requiredSuccesses++;
 					khatch(`${uploadHost}/v1/update_post`, {
 						method: 'POST',
@@ -597,8 +601,7 @@ export default {
 					{ removedTags.push(tag); }
 				});
 
-				if (removedTags.length > 0)
-				{
+				if (removedTags.length > 0) {
 					requiredSuccesses++;
 					khatch(`${tagsHost}/v1/remove_tags`, {
 						errorMessage: 'failed to remove tags!',
@@ -628,8 +631,7 @@ export default {
 					{ newTags.push(tag); }
 				});
 
-				if (newTags.length > 0)
-				{
+				if (newTags.length > 0) {
 					requiredSuccesses++;
 					khatch(`${tagsHost}/v1/add_tags`, {
 						errorMessage: 'failed to add tags!',
@@ -671,36 +673,40 @@ export default {
 			});
 		},
 		postWatcher(value) {
+			console.log("postWatcher:", value);
 			if (this.$route.path !== path)
 			{ return; }
 
 			this.postId = value;
+			const unset = () => {
+				this.uploadDone = false;
+				this.filename = null;
+				this.mediaUrl = null;
+				this.isUploading = false;
+				this.uploadProgress = 0;
+			};
 
-			if (this.postId)
-			{
-				if (this.$store.state.postCache?.post_id === this.postId)
-				{
+			if (this.postId) {
+				if (this.$store.state.postCache?.post_id === this.postId) {
 					const r = this.$store.state.postCache;
 					this.description = this.update.description = r.description;
 					this.title = this.update.title = r.title;
 					this.privacy = this.update.privacy = r.privacy;
 					this.rating = this.update.rating = r.rating;
 					this.mime = r.media_type?.mime_type;
-					if (r.filename)
-					{
+					
+					if (r.filename) {
 						this.uploadDone = true;
 						this.filename = r.filename;
 						this.mediaUrl = getMediaUrl(this.postId, this.filename);
+						this.width = r?.size?.width;
+						this.height = r?.size?.height;
 					}
-					else
-					{
-						this.uploadDone = false;
-						this.filename = null;
-						this.mediaUrl = null;
+					else {
+						unset();
 					}
 				}
-				else
-				{
+				else {
 					khatch(`${postsHost}/v1/post/${this.postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
 					}).then(response => {
@@ -710,17 +716,15 @@ export default {
 							this.privacy = this.update.privacy = r.privacy;
 							this.rating = this.update.rating = r.rating;
 							this.mime = r.media_type?.mime_type;
-							if (r.filename)
-							{
+							if (r.filename) {
 								this.uploadDone = true;	
 								this.filename = r.filename;
 								this.mediaUrl = getMediaUrl(this.postId, this.filename);
+								this.width = r?.size?.width;
+								this.height = r?.size?.height;
 							}
-							else
-							{
-								this.uploadDone = false;	
-								this.filename = null;
-								this.mediaUrl = null;
+							else {
+								unset();
 							}
 							// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
 							// { this.uploadUnavailable = true; }
@@ -746,8 +750,8 @@ export default {
 					});
 				});
 			}
-			else
-			{
+			else {
+				unset();
 				khatch(`${uploadHost}/v1/create_post`, {
 					method: 'POST',
 					errorMessage: 'Unable To Create New Post Draft!',
@@ -850,6 +854,7 @@ main {
 	display: block;
 	height: 10em;
 	resize: vertical;
+	overflow: scroll;
 }
 .tag-field input {
 	padding: 0.5em;

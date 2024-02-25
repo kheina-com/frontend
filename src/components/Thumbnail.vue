@@ -1,13 +1,15 @@
 <template>
-	<Loading class='thumbnail' :style='parentStyle' :isLoading='isLoading'>
-		<img ref='media' :style='imageStyle' :data-src='src' @load='loaded' @error='onError'>
+	<Loading class='thumbnail' :isLoading='isLoading'>
+		<img ref='media' :data-src='src' @load='loaded' @error='onError'>
 	</Loading>
 </template>
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, lazyObserver } from '@/utilities';
+import { base64ToBytes, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
+import { isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
+import { thumbHashToDataURL } from 'thumbhash';
 
 export default {
 	name: 'Thumbnail',
@@ -35,6 +37,14 @@ export default {
 			type: Number,
 			default: 0,
 		},
+		maxWidth: {
+			type: Number,
+			default: null,
+		},
+		thumbhash: {
+			type: String,
+			default: null,
+		},
 	},
 	setup() {
 		const media = ref(null);
@@ -51,56 +61,98 @@ export default {
 	},
 	mounted() {
 		lazyObserver.observe(this.$refs.media);
+
+		const parentStyle = getComputedStyle(this.$refs.media.parentElement);
+		const maxWidth = this.maxWidth ?? (parentStyle.maxWidth.endsWith('%') ? (
+			this.$refs.media.parentElement.parentElement.parentElement.getBoundingClientRect().width - 50 * (parseFloat(parentStyle.maxWidth) / 100)
+			) : parseFloat(parentStyle.maxWidth));
+
+		if (!this.width || !this.height) {
+			this.$refs.media.style = `width: ${maxWidth / (!isMobile + 1)}px; height: ${parentStyle.maxHeight}`;
+			return;
+		}
+
+		const maxHeight = parseFloat(parentStyle.maxHeight);
+		// console.log("maxWidth:", maxWidth, "maxHeight:", maxHeight);
+
+		const boundingBox = maxWidth / maxHeight;
+		const aspectRatio = this.width / this.height;
+
+		if (aspectRatio > boundingBox) {
+			// image is wider
+
+			const ratio = maxWidth / this.width;
+			this.$refs.media.style = `width: ${maxWidth}px; height: ${Math.round(this.height * ratio)}px`;
+		}
+		else {
+			// image is taller
+
+			const ratio = maxHeight / this.height;
+			this.$refs.media.style = `width: ${Math.round(this.width * ratio)}px; height: ${parentStyle.maxHeight}`;
+		}
+		this.th(this.thumbhash);
 	},
 	computed: {
-		parentStyle() {
-			return this.isLoading && this.width ? `aspect-ratio: ${this.width}/${this.height};` : null;
-		},
-		adjustment() {
-			return this.width ? Math.min(this.size / Math.max(this.width, this.height), 1) : null;
-		},
-		imageStyle() {
-			if (this.isLoading)
-			{ return `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; padding-top: ${this.width ? this.height / this.width * 100 : 100}%;`; }
-			else if (this.isError)
-			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width ? Math.round(this.width * this.adjustment) + 'px' : '30vw'}; height: ${this.height ? Math.round(this.height * this.adjustment) + 'px' : '30vw'};`; }
-		},
 		src() {
 			return this.post ? getMediaThumbnailUrl(this.post, this.size) : null;
 		},
 	},
 	methods: {
 		loaded(event) {
-			this.isLoading = false;
-			this.onLoad(event);
+			if (this.$refs.media) {
+				this.isLoading = false;
+				this.$refs.media.style.opacity = null;
+				this.onLoad(event);
+			}
 		},
 		onError(event) {
 			// console.log(event);
-			if (this.post && this.webp)
-			{
+			if (this.post && this.webp) {
 				this.webp = false;
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
 			}
-			else
-			{
+			else {
 				this.isLoading = false;
 				this.$refs.media.alt = 'failed to load media thumbnail';
 				this.isError = true;
 			}
 		},
+		th(value) {
+			// console.log('thumbhash:', value);
+			if (value) {
+				try {
+					this.$refs.media.style.opacity = 0;
+					this.$refs.media.classList.add("th");
+					this.$refs.media.parentNode.style.background = "url('" + thumbHashToDataURL(base64ToBytes(value)) + "')";
+					this.$refs.media.parentNode.style.backgroundSize = "cover";
+					this.isLoading = false;
+				}
+				catch (e) {
+					console.error(e);
+				}
+			}
+		},
 	},
 	watch: {
 		post(value) {
+			// reset state
+			this.isLoading = !this.thumbhash;
+			this.webp = true;
+			this.isError = false;
+
 			if (this.$refs.media.dataset.intersected) {
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, this.size);
 			}
+		},
+		thumbhash(value) {
+			return this.th(value);
 		},
 	},
 }
 </script>
 
 <style scoped>
-.desktop img {
+/* .desktop img {
 	max-height: inherit;
 	max-width: inherit;
 }
@@ -109,10 +161,20 @@ export default {
 	width: 100%;
 	max-width: inherit;
 	max-height: inherit;
+} */
+.th {
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 img {
-	object-fit: cover;
+	/* object-fit: cover; */
 	display: block;
+	max-height: inherit;
+	max-width: inherit;
+	/* width: 100%;
+	height: 100%; */
 }
 .loading {
 	overflow: hidden;

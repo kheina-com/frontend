@@ -9,7 +9,7 @@ import vClickOutside from 'click-outside-vue3';
 
 
 Router.afterEach((to, from) => {
-	store.commit('error')
+	store.commit('error');
 
 	// This goes through the matched routes from last to first, combining routes metadata.
 	// eg. if we have /some/nested/route, route's metadata will be prioritized, with nested, some, and / being used for fallback

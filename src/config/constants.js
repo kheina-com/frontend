@@ -77,6 +77,8 @@ export const setsHost = sHost;
 
 export const cdnHost = 'https://cdn.fuzz.ly';
 
+export const isMobile = navigator.userAgent.toLowerCase().includes('mobile');
+
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
 
 export const apiErrorMessageToast = 'An error occurred during an API call';

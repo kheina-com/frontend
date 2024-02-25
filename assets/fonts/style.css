@@ -133,6 +133,8 @@
 	/* Better Font Rendering =========== */
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	max-width: 1em;
 }
 
 .report_content:before {

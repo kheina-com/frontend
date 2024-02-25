@@ -3,7 +3,7 @@
 		<input ref='file' @input='fileAdded' :id='id' type='file' size='50' autocomplete='off'>
 		<label @drop.prevent='onDrop' @dragenter.prevent @dragover.prevent @click.right.stop='rightClick' :for='id' class='interactable upload'>
 			<slot v-if='hasSlot && showSlot'/>
-			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' v-model:width='width' v-model:height='height' type='block' style='border-radius: var(--border-radius); margin: auto'/>
+			<Media v-else-if='hasFile' :mime='file.type' :src='src' :link='false' v-model:width='width' v-model:height='height' type='block'/>
 			<div v-else>
 				<i class='material-icons'>upload_file</i>
 				{{isMobile ? 'Tap' : 'Click or Drag'}} to Upload File
@@ -14,7 +14,7 @@
 
 <script>
 import { ref } from 'vue';
-import { isMobile } from '@/utilities';
+import { isMobile } from '@/config/constants';
 import Media from '@/components/Media.vue';
 
 export default {
@@ -48,7 +48,32 @@ export default {
 			file,
 		};
 	},
+	created() {
+		document.addEventListener('paste', this.listener);
+	},
+	destroyed() {
+		document.removeEventListener('paste', this.listener);
+	},
 	methods: {
+		listener(e) {
+			if (!e.clipboardData) {
+				return;
+			}
+
+			const items = e.clipboardData.items;
+			if (!items) {
+				return;
+			}
+
+			for (let i = 0; i < items.length; i++) {
+				if (items[i].type.indexOf("image") !== -1) {
+					// image
+					this.addFile(items[i].getAsFile());
+					e.preventDefault();
+					return;
+				}
+			}
+		},
 		readerOnLoad(reader) {
 			this.src = reader.result;
 			this.hasFile = true;
@@ -66,7 +91,7 @@ export default {
 			this.addFile(event.dataTransfer.files[0]);
 		},
 		rightClick(event) {
-			console.log('test', event)
+			console.debug('test', event);
 		},
 	},
 	computed: {
@@ -90,8 +115,8 @@ label {
 	width: 100%;
 	padding: 25px;
 	border-radius: var(--border-radius);
-    border-style: dashed;
-    border-width: 2px;
+	border-style: dashed;
+	border-width: 2px;
 }
 label div {
 	display: flex;

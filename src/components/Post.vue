@@ -41,7 +41,7 @@
 		</div>
 		<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 		<router-link :to='`/p/${postId}`' class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
+			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
 			</button>
@@ -76,8 +76,8 @@
 
 <script>
 import { ref } from 'vue';
-import { getMediaThumbnailUrl, isMobile, khatch } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, ratingMap, uploadHost, usersHost } from '@/config/constants';
+import { getMediaThumbnailUrl, khatch } from '@/utilities';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, uploadHost, usersHost } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -215,6 +215,10 @@ export default {
 			default: false,
 		},
 		to: {
+			type: String,
+			default: null,
+		},
+		thumbhash: {
 			type: String,
 			default: null,
 		},
@@ -505,6 +509,9 @@ export default {
 	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
 }
+.mobile .thumbnail {
+	margin: 0 auto 0;
+}
 
 .header-block {
 	display: flex;
@@ -709,7 +716,8 @@ ol > :last-child, ol > :last-child .post {
 .mobile .thumbnail {
 	max-height: 150vw;
 	overflow: hidden;
-	width: 100%;
+	/* this is necessary so that we can calc thumbnails sizes off of the max width */
+	max-width: calc(100vw - 100px - 2 * var(--border-size));
 }
 .mobile .thumbnail img {
 	max-height: 100%;

@@ -12,8 +12,8 @@
 
 <script>
 import { ref } from 'vue';
-import { authCookie, getCookie, isDarkMode, isMobile, khatch } from '@/utilities';
-import { configHost } from '@/config/constants';
+import { authCookie, getCookie, isDarkMode, khatch } from '@/utilities';
+import { configHost, isMobile } from '@/config/constants';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -82,15 +82,13 @@ export default {
 
 		// sadly, these must be strings for vite to catch assets
 		const favicons = { };
-		if (isDarkMode())
-		{
+		if (isDarkMode()) {
 			favicons[32] = dark32;
 			favicons[64] = dark64;
 			favicons[128] = dark128;
 			favicons[256] = dark256;
 		}
-		else
-		{
+		else {
 			favicons[32] = light32;
 			favicons[64] = light64;
 			favicons[128] = light128;
@@ -127,8 +125,9 @@ export default {
 			this.$store.commit('animatedAccents', e.target.checked);
 		},
 		onResize() {
-			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true))
-			{
+			// document.dispatchEvent(new CustomEvent('resize'));
+			console.debug('resize');
+			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true)) {
 				const offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
 				this.$refs.content.style.top = `${offset}px`;
 			}
@@ -137,18 +136,18 @@ export default {
 		},
 		ResizeSensor(element, callback)
 		{ // https://stackoverflow.com/a/47965966
-			let expand = document.createElement('div');
+			const expand = document.createElement('div');
 			expand.className = 'expand';
 			expand.appendChild(document.createElement('div'));
 
-			let shrink = document.createElement('div');
+			const shrink = document.createElement('div');
 			shrink.className = 'shrink';
 			shrink.appendChild(document.createElement('div'));
 
 			element.appendChild(expand);
 			element.appendChild(shrink);
 
-			function setScroll() {
+			const setScroll = () => {
 				expand.scrollLeft = 10000000;
 				expand.scrollTop = 10000000;
 
@@ -157,21 +156,16 @@ export default {
 			};
 			setScroll();
 
-			let size = element.getBoundingClientRect();
+			let s = element.getBoundingClientRect();
+			let currentWidth = s.width;
+			let currentHeight = s.height;
 
-			let currentWidth = size.width;
-			let currentHeight = size.height;
+			const onScroll = () => {
+				const size = element.getBoundingClientRect();
 
-			function onScroll() {
-				let size = element.getBoundingClientRect();
-
-				let newWidth = size.width;
-				let newHeight = size.height;
-
-				if(newWidth !== currentWidth || newHeight !== currentHeight)
-				{
-					currentWidth = newWidth;
-					currentHeight = newHeight;
+				if (size.width !== currentWidth || size.height !== currentHeight) {
+					currentWidth = size.width;
+					currentHeight = size.height;
 
 					callback();
 				}
@@ -442,12 +436,6 @@ h3#percent
 html {
 	--transition: none;
 	--fadetime: 0.15s;
-	--warning: yellow;
-	--error: darkred;
-	--valid: green;
-	--general: #70ca16;
-	--mature: #009DA6;
-	--explicit: #A32121;
 	--interact: #F29B17;
 	--bg0color: #000000;
 	--bg1color: #1e1f25;
@@ -477,8 +465,15 @@ html {
 	--cyan: darkcyan;
 	--violet: #9451d7;
 
-	--bright: #DDD;
+	--general: #70ca16;
+	--mature: #009DA6;
+	--explicit: #A32121;
 
+	--warning: yellow;
+	--error: darkred;
+	--valid: green;
+
+	--bright: #DDD;
 	--funding: forestgreen;
 
 	--notification-text: #eee;

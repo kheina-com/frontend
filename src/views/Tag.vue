@@ -15,7 +15,6 @@
 					<select name='tag-class' v-model='updateBody.group' placeholder='class' class='interactable'>
 						<option value='artist'>artist</option>
 						<option value='subject'>subject</option>
-						<option value='subject'>subject</option>
 						<option value='species'>species</option>
 						<option value='gender'>gender</option>
 						<option value='misc'>misc</option>
@@ -114,7 +113,7 @@
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
 			<li v-for='post in posts || 20' v-else-if='tiles'>
-				<PostTile :postId='post?.post_id' :nested='true' v-bind='post' link/>
+				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
 			<li v-for='post in posts || 3' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
