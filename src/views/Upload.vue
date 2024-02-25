@@ -433,8 +433,7 @@ export default {
 		},
 		publishPost() {
 			console.log(this.update.privacy);
-			if (!PublishedPrivacies.has(this.update.privacy))
-			{
+			if (!PublishedPrivacies.has(this.update.privacy)) {
 				createToast({
 					title: 'Privacy Not Set!',
 					time: 5,
@@ -460,7 +459,13 @@ export default {
 			.catch(() => this.saving = false);
 		},
 		addTag(tag) {
-			this.$refs.tagDiv.textContent += ' ' + tag;
+			const tags = new Set(this.$refs.tagDiv.textContent.split(/\s/).filter(x => x));
+			if (tags.has(tag)) {
+				tags.delete(tag);
+				this.$refs.tagDiv.textContent = Array.from(tags).join(" ");
+			} else {
+				this.$refs.tagDiv.textContent += ' ' + tag;
+			}
 		},
 		showData() {
 			console.log({
@@ -499,6 +504,14 @@ export default {
 				if (this.update.webResize)
 				{ formdata.append('web_resize', parseInt(this.update.webResize.trim())); }
 
+				const complete = () => {
+					this.uploadDone = true;
+					this.isUploading = false;
+					this.uploadProgress = 0;
+					if (finish)
+					{ this.saving = false; }
+				};
+
 				const errorHandler = (event) => {
 					createToast({
 						title: 'Something broke during upload',
@@ -506,6 +519,7 @@ export default {
 						dump: event?.target?.responseText ?? event,
 					});
 					console.error('error:', event);
+					complete();
 				};
 
 				const ajax = new XMLHttpRequest();
@@ -517,12 +531,8 @@ export default {
 					const response = JSON.parse(event.target.responseText);
 					this.mediaUrl = `${cdnHost}/${encodeURIComponent(response.url)}`;
 					this.mime = this.file.type;
-					this.uploadDone = true;
-					this.isUploading = false;
 					this.file = null;
-					this.uploadProgress = 0;
-					if (finish)
-					{ this.saving = false; }
+					complete();
 					resolve();
 				}, false);
 				ajax.addEventListener('error', e => reject(errorHandler(e)), false);
@@ -542,26 +552,22 @@ export default {
 				let requiredSuccesses = 0;
 				let successes = 0;
 
-				if (this.title !== this.update.title)
-				{
+				if (this.title !== this.update.title) {
 					sendUpdate = true;
 					this.title = this.update.title;
 				}
 
-				if (this.description !== this.update.description)
-				{
+				if (this.description !== this.update.description) {
 					sendUpdate = true;
 					this.description = this.update.description;
 				}
 
-				if (this.rating !== this.update.rating)
-				{
+				if (this.rating !== this.update.rating) {
 					sendUpdate = true;
 					this.rating = this.update.rating;
 				}
 
-				if (sendUpdate)
-				{
+				if (sendUpdate) {
 					requiredSuccesses++;
 					khatch(`${uploadHost}/v1/update_post`, {
 						method: 'POST',
@@ -595,8 +601,7 @@ export default {
 					{ removedTags.push(tag); }
 				});
 
-				if (removedTags.length > 0)
-				{
+				if (removedTags.length > 0) {
 					requiredSuccesses++;
 					khatch(`${tagsHost}/v1/remove_tags`, {
 						errorMessage: 'failed to remove tags!',
@@ -668,10 +673,18 @@ export default {
 			});
 		},
 		postWatcher(value) {
+			console.log("postWatcher:", value);
 			if (this.$route.path !== path)
 			{ return; }
 
 			this.postId = value;
+			const unset = () => {
+				this.uploadDone = false;
+				this.filename = null;
+				this.mediaUrl = null;
+				this.isUploading = false;
+				this.uploadProgress = 0;
+			};
 
 			if (this.postId) {
 				if (this.$store.state.postCache?.post_id === this.postId) {
@@ -690,9 +703,7 @@ export default {
 						this.height = r?.size?.height;
 					}
 					else {
-						this.uploadDone = false;
-						this.filename = null;
-						this.mediaUrl = null;
+						unset();
 					}
 				}
 				else {
@@ -713,9 +724,7 @@ export default {
 								this.height = r?.size?.height;
 							}
 							else {
-								this.uploadDone = false;	
-								this.filename = null;
-								this.mediaUrl = null;
+								unset();
 							}
 							// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
 							// { this.uploadUnavailable = true; }
@@ -742,6 +751,7 @@ export default {
 				});
 			}
 			else {
+				unset();
 				khatch(`${uploadHost}/v1/create_post`, {
 					method: 'POST',
 					errorMessage: 'Unable To Create New Post Draft!',
@@ -844,6 +854,7 @@ main {
 	display: block;
 	height: 10em;
 	resize: vertical;
+	overflow: scroll;
 }
 .tag-field input {
 	padding: 0.5em;

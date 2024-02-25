@@ -3,7 +3,7 @@
 	<div :class='divClass' v-if='link' :title='title || postId'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='link'/>
 		<div :to='`/p/${postId}`' class='thumbnail' v-if='media_type'>
-			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :width='size?.width' :height='size?.height'/>
+			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${size?.width}/${size?.height}`' v-else>
 				this post is <b>{{rating}}</b>, click to show.
 			</button>

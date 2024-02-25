@@ -60,15 +60,6 @@ export default {
 		};
 	},
 	mounted() {
-		// this.isLoading = true;
-		// this.webp = true;
-		// this.isError = false;
-
-		// if (this.thumbhash) {
-		// 	this.$refs.media.src = thumbHashToDataURL(base64ToBytes(this.thumbhash))
-		// 	this.isLoading = false;
-		// }
-
 		lazyObserver.observe(this.$refs.media);
 
 		const parentStyle = getComputedStyle(this.$refs.media.parentElement);
@@ -99,6 +90,7 @@ export default {
 			const ratio = maxHeight / this.height;
 			this.$refs.media.style = `width: ${Math.round(this.width * ratio)}px; height: ${parentStyle.maxHeight}`;
 		}
+		this.th(this.thumbhash);
 	},
 	computed: {
 		src() {
@@ -109,7 +101,7 @@ export default {
 		loaded(event) {
 			if (this.$refs.media) {
 				this.isLoading = false;
-				this.$refs.media.style = null;
+				this.$refs.media.style.opacity = null;
 				this.onLoad(event);
 			}
 		},
@@ -125,6 +117,21 @@ export default {
 				this.isError = true;
 			}
 		},
+		th(value) {
+			// console.log('thumbhash:', value);
+			if (value) {
+				try {
+					this.$refs.media.style.opacity = 0;
+					this.$refs.media.classList.add("th");
+					this.$refs.media.parentNode.style.background = "url('" + thumbHashToDataURL(base64ToBytes(value)) + "')";
+					this.$refs.media.parentNode.style.backgroundSize = "cover";
+					this.isLoading = false;
+				}
+				catch (e) {
+					console.error(e);
+				}
+			}
+		},
 	},
 	watch: {
 		post(value) {
@@ -138,14 +145,7 @@ export default {
 			}
 		},
 		thumbhash(value) {
-			console.log('thumbhash:', value);
-			if (value) {
-				this.$refs.media.style.opacity = 0;
-				this.$refs.media.classList.add("th");
-				this.$refs.media.parentNode.style.background = "url('" + thumbHashToDataURL(base64ToBytes(value)) + "')";
-				this.$refs.media.parentNode.style.backgroundSize = "cover";
-				this.isLoading = false;
-			}
+			return this.th(value);
 		},
 	},
 }

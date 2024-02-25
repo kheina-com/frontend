@@ -386,7 +386,7 @@ export function loadImage(imageUrl, onprogress) {
 }
 
 export function base64ToBytes(base64) {
-    const binaryString = atob(base64);
+    const binaryString = atob(base64.replace('-', '+').replace('_', '/'));
     const bytes = new Uint8Array(binaryString.length);
     for (var i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);

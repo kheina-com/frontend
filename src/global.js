@@ -22,8 +22,7 @@ function userConfig(state, config) {
 		blockingBehavior: config.blocking_behavior,
 		wallpaper: config.wallpaper,
 	};
-	if (config.wallpaper)
-	{
+	if (config.wallpaper) {
 		khatch(`${postsHost}/v1/post/${config.wallpaper}`, {
 			errorMessage: 'Failed to Retrieve User Wallpaper!',
 		}).then(r => r.json()).then(r => {
@@ -35,8 +34,7 @@ function userConfig(state, config) {
 			document.body.style.backgroundImage = 'none';
 		});
 	}
-	else
-	{
+	else {
 		document.documentElement.style.backgroundImage = null;
 		document.documentElement.style.backgroundAttachment = null;
 		document.documentElement.style.backgroundPosition = null;
@@ -81,8 +79,7 @@ export default createStore({
 				bg1color: getComputedStyle(document.body).getPropertyValue('--bg1color'),
 			};
 
-			if (!state.cookiesAllowed && !state.init)
-			{
+			if (!state.cookiesAllowed && !state.init) {
 				createToast(state, {
 					title: 'Could not set theme cookie',
 					description: cookieFailedError,
@@ -96,8 +93,7 @@ export default createStore({
 			document.documentElement.classList.add(accent);
 			state.accent = accent;
 
-			if (!state.cookiesAllowed && !state.init)
-			{
+			if (!state.cookiesAllowed && !state.init) {
 				createToast(state, {
 					title: 'Could not set accent cookie',
 					description: cookieFailedError,
@@ -108,8 +104,7 @@ export default createStore({
 			state.maxRating = ratingMap[rating];
 			setCookie('max-rating', rating, 3155695200);
 
-			if (!state.cookiesAllowed && !state.init)
-			{
+			if (!state.cookiesAllowed && !state.init) {
 				createToast(state, {
 					title: 'Could not set max rating cookie',
 					description: cookieFailedError,
@@ -117,17 +112,14 @@ export default createStore({
 			}
 		},
 		setAuth(state, auth) {
-			if (auth && auth.token.length > 10)
-			{
-				if (!state.cookiesAllowed)
-				{
+			if (auth && auth.token.length > 10) {
+				if (!state.cookiesAllowed) {
 					createToast(state, {
 						title: 'Could not complete login',
 						description: 'Logins require the use of browser cookies. To login, hit the "coolio" button on the cookies popup',
 					});
 				}
-				else
-				{
+				else {
 					const maxage = Math.round(auth.expires - new Date().valueOf() / 1000);
 					if (window.location.hostname.toLowerCase().includes('fuzz.ly')) // specifically open this cookie to subdomains so that cdn works
 					{ document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=strict; domain=.fuzz.ly; path=/; secure`; }
@@ -166,8 +158,7 @@ export default createStore({
 			else
 			{ document.documentElement.classList.remove('animated'); }
 
-			if (!state.cookiesAllowed && !state.init)
-			{
+			if (!state.cookiesAllowed && !state.init) {
 				createToast(state, {
 					title: 'Could not set animated accents cookie',
 					description: cookieFailedError,
@@ -182,8 +173,7 @@ export default createStore({
 			else
 			{ document.documentElement.classList.remove('transitions'); }
 
-			if (!state.cookiesAllowed && !state.init)
-			{
+			if (!state.cookiesAllowed && !state.init) {
 				createToast(state, {
 					title: 'Could not set css transitions cookie',
 					description: cookieFailedError,
@@ -198,8 +188,7 @@ export default createStore({
 			else
 			{ document.documentElement.classList.remove('tiles'); }
 
-			if (!state.cookiesAllowed && !state.init)
-			{
+			if (!state.cookiesAllowed && !state.init) {
 				createToast(state, {
 					title: 'Could not set post tiles cookie',
 					description: cookieFailedError,

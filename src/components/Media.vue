@@ -84,6 +84,12 @@ export default {
 		};
 	},
 	mounted() {
+		if (this.src.substring(0, 5) === "data:") {
+			// image is a local file, skip
+			this.$refs.media.src = this.src;
+			return;
+		}
+
 		if (this.isImage) {
 			const show = setTimeout(() => this.$refs.loader.style.display = "flex", 3000);
 			// Image.prototype.load = function(url, callback) {
@@ -92,8 +98,6 @@ export default {
 				xhr.open('GET', this.src, true);
 				xhr.responseType = 'arraybuffer';
 				xhr.onload = () => {
-					console.log("onload <xhr>", new Date().valueOf() / 1000);
-
 					const blob = new Blob([xhr.response]);
 					this.$refs.media.src = window.URL.createObjectURL(blob);
 					clearTimeout(show);
@@ -141,7 +145,6 @@ export default {
 		onLoad() {
 			this.isLoading = false;
 			this.$refs.loader.style = null;
-			console.log("onload <img>", new Date().valueOf() / 1000);
 			this.$emit(`update:width`, this.$refs.media.naturalWidth);
 			this.$emit(`update:height`, this.$refs.media.naturalHeight);
 		},
@@ -153,7 +156,7 @@ export default {
 			createToast({
 				title: 'Failed To Load Media',
 				dump: this.src,
-			})
+			});
 		},
 		onProgress(e) {
 			this.$refs.loaderContent.innerHTML = `${(e.loaded / e.total * 100).toFixed(1)}%<br>${abbreviate(e.loaded)} / ${abbreviate(e.total)}`;

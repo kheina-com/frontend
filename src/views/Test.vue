@@ -50,6 +50,7 @@
 			<div class='buttons'>
 				<Button @click='togglePost'>toggle</Button>
 				<Button @click='toggleThumbhash'>thumbhash</Button>
+				<input placeholder='thumbhash' class='interactable' v-model='thumbhash' />
 			</div>
 		</div>
 		<div class='color-text' v-show='colors.length'>
@@ -256,6 +257,9 @@ export default {
 		},
 		toggleThumbhash() {
 			this.thumbhash = this.thumbhash ? null : 'ktcJDwQHmWh2dJiFeGeIiHeXlp8HunYA';
+			if (this.thumbhash === null) {
+				document.getElementsByClassName("thumbnail")[0].firstElementChild.style = null;
+			}
 		},
 	},
 	computed: {
