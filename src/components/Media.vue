@@ -96,11 +96,19 @@ export default {
 				// const img = this;
 				const xhr = new XMLHttpRequest();
 				xhr.open('GET', this.src, true);
+
+				if (this.src.match(authRegex)) {
+					const auth = getCookie('kh-auth');
+					if (auth) {
+						xhr.setRequestHeader('authorization', 'bearer ' + auth);
+					}
+				}
+
 				xhr.responseType = 'arraybuffer';
 				xhr.onload = () => {
+					clearTimeout(show);
 					const blob = new Blob([xhr.response]);
 					this.$refs.media.src = window.URL.createObjectURL(blob);
-					clearTimeout(show);
 				};
 				xhr.onprogress = this.onProgress
 				xhr.send();

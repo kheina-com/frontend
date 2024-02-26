@@ -77,6 +77,8 @@ export const setsHost = sHost;
 
 export const cdnHost = 'https://cdn.fuzz.ly';
 
+export const authRegex = /^(?:https:\/\/(?:[a-z0-9-_]+\.)*kheina\.com\/|http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)*fuzz\.ly\/)/i;
+
 export const isMobile = navigator.userAgent.toLowerCase().includes('mobile');
 
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
@@ -94,6 +96,7 @@ export const routerMetaTag = 'data-v-router';
 export const tabs = new Set(['posts', 'sets', 'tags', 'favs', 'uploads']);
 
 export const defaultUserIcon = '_V-EGBtH';
+
 export const iconShortcode = 'icon';
 
 export const ratingMap = {

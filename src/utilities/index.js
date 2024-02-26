@@ -1,4 +1,4 @@
-import { apiErrorDescriptionToast, apiErrorMessageToast } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, authRegex } from '@/config/constants';
 import { v4 as uuid4 } from 'uuid';
 import store from '@/global';
 
@@ -136,7 +136,6 @@ export function saveToHistory(data) {
 	history.replaceState(Object.assign(window.history.state, data), '');
 }
 
-const AuthRegex = /^(?:https:\/\/(?:[a-z0-9-_]+\.)*kheina\.com\/|http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)*fuzz\.ly\/)/i;
 export async function khatch(url, options={ }) {
 	const attempts = options?.attempts || 1;
 	const handleError = Boolean(options?.handleError || options?.errorMessage);
@@ -144,8 +143,7 @@ export async function khatch(url, options={ }) {
 	const errorHandlers = options?.errorHandlers || { };
 	options.headers = options?.headers || { };
 
-	if (url.match(AuthRegex))
-	{
+	if (url.match(authRegex)) {
 		options.credentials = 'include';
 		const auth = store.state.auth?.token;
 		if (auth)
@@ -154,8 +152,7 @@ export async function khatch(url, options={ }) {
 
 	// options.headers['kh-trace'] = options.headers['kh-trace'] || options?.trace || uuid4();
 
-	if (options.hasOwnProperty('body') && typeof(options.body) != 'string')
-	{
+	if (options.hasOwnProperty('body') && typeof(options.body) != 'string') {
 		if (!options.hasOwnProperty('headers'))
 		{ options.headers = { }; }
 		options.headers['content-type'] = 'application/json';
@@ -169,8 +166,7 @@ export async function khatch(url, options={ }) {
 	let response = null;
 	let error = null;
 
-	while (attempt <= attempts)
-	{
+	while (attempt <= attempts) {
 		try {
 			response = await fetch(url, options);
 		}
@@ -192,12 +188,9 @@ export async function khatch(url, options={ }) {
 	if (response?.status === 401)
 	{ store.commit('setAuth', null); }
 
-	if (error || response.status >= 400)
-	{
-		if (handleError)
-		{
-			if (!response)
-			{
+	if (error || response.status >= 400) {
+		if (handleError) {
+			if (!response) {
 				console.log(error)
 				if (error.toString() === 'TypeError: NetworkError when attempting to fetch resource.')
 				{ error = 'An unexpected error occurred during an API call. (Are you connected to the internet?)'; }
@@ -206,22 +199,19 @@ export async function khatch(url, options={ }) {
 					description: error,
 				});
 			}
-			else if (errorHandlers.hasOwnProperty(response.status))
-			{
+			else if (errorHandlers.hasOwnProperty(response.status)) {
 				if (errorHandlers[response.status])
 				{ errorHandlers[response.status](response); }
 			}
 			else if (response.status < 400)
 			{ return response; } // unreachable?
-			else if (response.status < 500)
-			{
+			else if (response.status < 500) {
 				store.commit('createToast', {
 					title: errorMessage,
 					description: (await response.json()).error,
 				});
 			}
-			else
-			{
+			else {
 				store.commit('createToast', {
 					title: errorMessage,
 					description: apiErrorDescriptionToast,
@@ -326,63 +316,6 @@ export function demarkdown(string) {
 
 export function isDarkMode() {
 	return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-/**
- * Loads an image with progress callback.
- *
- * `onprogress` callback will be called by XMLHttpRequest's "onprogress"
- * event, and will receive the loading progress ratio as a float (0 to 1).
- * If progress ratio isn't computable, `onprogress` will be called once,
- * passing `-1` as progress value (this is useful to e.g. set progress bar
- * animation to indeterminate).
- *
- * @param {string} imageUrl The image URL to load
- * @param {Function} onprogress
- * @return {Promise}
- */
-export function loadImage(imageUrl, onprogress) {
-	// https://stackoverflow.com/a/42196770
-	return new Promise((resolve, reject) => {
-		const xhr = new XMLHttpRequest();
-		let notifiedNotComputable = false;
-
-		xhr.open('GET', imageUrl, true);
-		xhr.responseType = 'arraybuffer';
-
-		xhr.onprogress = function(ev) {
-			if (ev.lengthComputable) {
-				onprogress(parseInt((ev.loaded / ev.total) * 100));
-			} else {
-				if (!notifiedNotComputable) {
-					notifiedNotComputable = true;
-					onprogress(-1);
-				}
-			}
-		}
-
-		xhr.onloadend = function() {
-			if (!xhr.status.toString().match(/^2/)) {
-				reject(xhr);
-				
-				return;
-			}
-
-			const options = { }
-			const headers = xhr.getAllResponseHeaders();
-			const m = headers.match(/^Content-Type\:\s*(.*?)$/mi);
-
-			if (m && m[1]) {
-				options.type = m[1];
-			}
-
-			resolve(window.URL.createObjectURL(
-				new Blob([this.response], options)
-			));
-		}
-
-		xhr.send();
-	});
 }
 
 export function base64ToBytes(base64) {

@@ -539,7 +539,7 @@ export default {
 
 				const auth = getCookie('kh-auth');
 				ajax.open('POST', `${uploadHost}/v1/upload_image`);
-				ajax.setRequestHeader('authorization', auth);
+				ajax.setRequestHeader('authorization', 'bearer ' + auth);
 
 				ajax.send(formdata);
 			});
