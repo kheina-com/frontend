@@ -537,7 +537,7 @@ export default {
 				}, false);
 				ajax.addEventListener('error', e => reject(errorHandler(e)), false);
 
-				const auth = getCookie('kh-auth');
+				const auth = this.$store.state.auth?.token;
 				ajax.open('POST', `${uploadHost}/v1/upload_image`);
 				ajax.setRequestHeader('authorization', 'bearer ' + auth);
 

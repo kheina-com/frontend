@@ -99,7 +99,7 @@ export default {
 				xhr.open('GET', this.src, true);
 
 				if (this.src.match(authRegex)) {
-					const auth = getCookie('kh-auth');
+					const auth = this.$store.state.auth?.token;
 					if (auth) {
 						xhr.setRequestHeader('authorization', 'bearer ' + auth);
 					}
