@@ -9,6 +9,7 @@
 
 <script>
 import { ref } from 'vue';
+import { authRegex } from '@/config/constants';
 import { createToast } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 
