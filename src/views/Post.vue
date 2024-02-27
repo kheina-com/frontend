@@ -9,7 +9,7 @@
 		<Sidebar :tags='tags' :post='post' class='sidebar'/>
 		<div class='content'>
 			<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
-				<Media class='media' v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
+				<Media class='media' v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :thumbhash='post?.thumbhash' v-model:width='width' v-model:height='height' bg/>
 				<div class='set-controls' v-for='set in sets'>
 					<p>
 						<a class='disabled'><i class='material-icons'>first_page</i></a>
@@ -307,8 +307,7 @@ export default {
 					this.post = r;
 					this.width = r.size?.width;
 					this.height = r.size?.height;
-					if (r.parent)
-					{
+					if (r.parent) {
 						this.parent = false;
 						this.fetchParent(r.parent);
 					}

@@ -14,14 +14,14 @@
 		"thumbhash": "^0.1.1",
 		"update": "^0.7.4",
 		"uuid": "^8.3.2",
-		"vue": "^3.0.11",
+		"vue": "^3.4.20",
 		"vue-advanced-cropper": "^2.2.1",
-		"vue-router": "^4.0.5",
+		"vue-router": "^4.3.0",
 		"vuex": "^4.0.0"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-vue": "^1.2.1",
 		"@vue/compiler-sfc": "^3.0.11",
-		"vite": "2.1.5"
+		"vite": "2.5.10"
 	}
 }

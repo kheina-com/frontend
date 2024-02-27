@@ -24,8 +24,7 @@ Router.afterEach((to, from) => {
 		},
 	};
 	to.matched.slice().forEach(route => {
-		if (route.meta)
-		{
+		if (route.meta) {
 			if (route.meta.metaTags)
 			{ meta.metaTags = Object.assign(meta.metaTags, route.meta.metaTags); }
 			meta.title = route.meta.title || meta.title;
@@ -38,8 +37,7 @@ Router.afterEach((to, from) => {
 	// Remove any stale meta tags from the document using the key attribute we set below.
 	Array.from(document.querySelectorAll(`meta[${routerMetaTag}]`)).forEach(e => e.parentNode.removeChild(e));
 
-	if (meta.title)
-	{
+	if (meta.title) {
 		document.title = meta.title;
 		setMeta({
 			property: 'og:title',

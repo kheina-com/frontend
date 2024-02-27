@@ -220,7 +220,7 @@
 
 <script>
 import { ref } from 'vue';
-import { commafy, createToast, khatch, tagSplit, getCookie, getMediaUrl, sortTagGroups } from '@/utilities';
+import { commafy, createToast, khatch, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
 import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
@@ -312,6 +312,7 @@ export default {
 	},
 	mounted() {
 		this.postWatcher(this.$route.query?.post);
+		document.addEventListener("router-event", this.queryListener);
 
 		this.$watch(
 			() => this.$route.query?.post,
@@ -327,6 +328,9 @@ export default {
 			() => this.width * this.height,
 			this.calcResize,
 		);
+	},
+	unmounted() {
+		document.removeEventListener("router-event", this.queryListener);
 	},
 	computed: {
 		emojiPlaceholder() {
@@ -672,10 +676,22 @@ export default {
 				this.savedTags = activeTags;
 			});
 		},
+		queryListener(event) {
+			const query = event?.detail?.query;
+			if (this.postId === query?.post) {
+				return;
+			}
+			let path = this.$route.path;
+			if (query) {
+				path += "?" + Object.entries(query).map(e => e[0] + "=" + encodeURIComponent(e[1])).join("&");
+			}
+			history.replaceState(null, "", path);
+			return this.postWatcher(query?.post);
+		},
 		postWatcher(value) {
-			console.log("postWatcher:", value);
-			if (this.$route.path !== path)
+			if (this.$route.path !== path || this.postId === value)
 			{ return; }
+			console.log("postWatcher:", value);
 
 			this.postId = value;
 			const unset = () => {
@@ -686,7 +702,7 @@ export default {
 				this.uploadProgress = 0;
 			};
 
-			if (this.postId) {
+			if (this.postId?.length === 8) {
 				if (this.$store.state.postCache?.post_id === this.postId) {
 					const r = this.$store.state.postCache;
 					this.description = this.update.description = r.description;
@@ -758,8 +774,7 @@ export default {
 					body: { },
 				}).then(response => {
 					response.json().then(r => {
-						history.replaceState(null, "", this.$route.path + '?post=' + r.post_id);
-						this.postWatcher(r.post_id); // why is this needed?
+						document.dispatchEvent(new CustomEvent("router-event", { detail: { query: { post: r.post_id } } }));
 					});
 				});
 			}

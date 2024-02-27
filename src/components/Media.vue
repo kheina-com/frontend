@@ -1,6 +1,6 @@
 <template>
-	<div ref='loader' class='loader'><div ref='loaderContent'/></div>
-	<Loading :class='mediaClass' :style='parentStyle' :isLoading='isLoading'>
+	<!-- <div ref='loader' class='loader'><div ref='loaderContent'/></div> -->
+	<Loading class='media' :style='parentStyle' :isLoading='isLoading'>
 		<p v-if='isError'>Could not load media.</p>
 		<video ref='media' :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
 		<img ref='media' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
@@ -10,8 +10,9 @@
 <script>
 import { ref } from 'vue';
 import { authRegex } from '@/config/constants';
-import { createToast } from '@/utilities';
+import { base64ToBytes, createToast } from '@/utilities';
 import Loading from '@/components/Loading.vue';
+import { thumbHashToDataURL } from 'thumbhash';
 
 function abbreviate(value) {
 	if (value >= 995e7)
@@ -67,59 +68,66 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		thumbhash: {
+			type: String,
+			default: null,
+		},
 	},
 	setup() {
 		const media = ref(null);
-		const loader = ref(null);
+		// const loader = ref(null);
 		const loaderContent = ref(null);
 		return {
 			media,
-			loader,
+			// loader,
 			loaderContent,
 		};
 	},
 	data() {
 		return {
-			isLoading: true,
+			isLoading: !this.thumbhash,
 			isError: false,
 		};
 	},
 	mounted() {
-		if (this.src.substring(0, 5) === "data:") {
-			// image is a local file, skip
-			this.$refs.media.src = this.src;
-			return;
-		}
+		this.th(this.thumbhash);
+		this.$refs.media.src = this.src;
 
-		if (this.isImage) {
-			const show = setTimeout(() => this.$refs.loader.style.display = "flex", 3000);
-			// Image.prototype.load = function(url, callback) {
-				// const img = this;
-				const xhr = new XMLHttpRequest();
-				xhr.open('GET', this.src, true);
+		// if (this.src.substring(0, 5) === "data:") {
+		// 	// image is a local file, skip
+		// 	this.$refs.media.src = this.src;
+		// 	return;
+		// }
 
-				if (this.src.match(authRegex)) {
-					const auth = this.$store.state.auth?.token;
-					if (auth) {
-						xhr.setRequestHeader('authorization', 'bearer ' + auth);
-					}
-				}
+		// if (this.isImage) {
+		// 	const show = setTimeout(() => this.$refs.loader.style.display = "flex", 3000);
+		// 	// Image.prototype.load = function(url, callback) {
+		// 		// const img = this;
+		// 		const xhr = new XMLHttpRequest();
+		// 		xhr.open('GET', this.src, true);
 
-				xhr.responseType = 'arraybuffer';
-				xhr.onload = () => {
-					clearTimeout(show);
-					const blob = new Blob([xhr.response]);
-					this.$refs.media.src = window.URL.createObjectURL(blob);
-				};
-				xhr.onprogress = this.onProgress
-				xhr.send();
-			// };
+		// 		if (this.src.match(authRegex)) {
+		// 			const auth = this.$store.state.auth?.token;
+		// 			if (auth) {
+		// 				xhr.setRequestHeader('authorization', 'bearer ' + auth);
+		// 			}
+		// 		}
 
-			// const i = new Image();
-			// i.load(this.src, this.onProgress);
-			// this.$refs.media.parentNode.replaceChild(i, this.$refs.media);
-			// this.$refs.media = i;
-		}
+		// 		xhr.responseType = 'arraybuffer';
+		// 		xhr.onload = () => {
+		// 			clearTimeout(show);
+		// 			const blob = new Blob([xhr.response]);
+		// 			this.$refs.media.src = window.URL.createObjectURL(blob);
+		// 		};
+		// 		xhr.onprogress = this.onProgress
+		// 		xhr.send();
+		// 	// };
+
+		// 	// const i = new Image();
+		// 	// i.load(this.src, this.onProgress);
+		// 	// this.$refs.media.parentNode.replaceChild(i, this.$refs.media);
+		// 	// this.$refs.media = i;
+		// }
 		// else if (this.isVideo) {
 
 		// }
@@ -133,27 +141,23 @@ export default {
 		isVideo()
 		{ return this.mime && this.mime.startsWith('video'); },
 		parentStyle() {
-			return this.isLoading && this.width ? `aspect-ratio: ${this.width}/${this.height}; max-width: ${this.width}px` : null;
+			return this.width ? `aspect-ratio: ${this.width}/${this.height}; max-width: ${this.width}px` : null;
 		},
 		linkStyle() {
-			if (this.isLoading)
-			{ return `width: ${this.width || '30vw'}px; padding-top: ${this.width ? this.height / this.width * 100 : '100'}%;`; }
+			if (this.width)
+			{ return `width: ${this.width}px;`; }
 			else if (this.isError)
 			{ return 'background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); ' + `width: ${this.width || '30vw'}px; height: ${this.height || '30vh'};`; }
 			return this.style;
-		},
-		mediaClass() {
-			let cls = 'media';
-			if (this.bg) {
-				cls += ' bg';
-			}
-			return cls;
 		},
 	},
 	methods: {
 		onLoad() {
 			this.isLoading = false;
-			this.$refs.loader.style = null;
+			// this.$refs.loader.style = null;
+			if (this.bg) {
+				this.$refs.media.parentNode.classList.add('bg');
+			}
 			this.$emit(`update:width`, this.$refs.media.naturalWidth);
 			this.$emit(`update:height`, this.$refs.media.naturalHeight);
 		},
@@ -167,13 +171,31 @@ export default {
 				dump: this.src,
 			});
 		},
-		onProgress(e) {
-			this.$refs.loaderContent.innerHTML = `${(e.loaded / e.total * 100).toFixed(1)}%<br>${abbreviate(e.loaded)} / ${abbreviate(e.total)}`;
+		// onProgress(e) {
+		// 	this.$refs.loaderContent.innerHTML = `${(e.loaded / e.total * 100).toFixed(1)}%<br>${abbreviate(e.loaded)} / ${abbreviate(e.total)}`;
+		// },
+		th(value) {
+			// console.log('thumbhash:', value);
+			if (value) {
+				try {
+					// this.$refs.media.style.opacity = 0;
+					this.$refs.media.classList.add("th");
+					this.$refs.media.parentNode.style.background = "url('" + thumbHashToDataURL(base64ToBytes(value)) + "')";
+					this.$refs.media.parentNode.style.backgroundSize = "cover";
+					// this.isLoading = false;
+				}
+				catch (e) {
+					console.error(e);
+				}
+			}
 		},
 	},
 	watch: {
 		src() {
-			this.isLoading = true;
+			this.isLoading = !this.thumbhash;
+		},
+		thumbhash(value) {
+			return this.th(value);
 		},
 	},
 }

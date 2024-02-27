@@ -32,28 +32,28 @@
 			</div>
 		</div>
 		<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-		<div v-else-if='editing' style='width: 100%'>
+		<!-- <div v-else-if='editing' style='width: 100%'>
 			<MarkdownEditor v-model:value='description' height='10em' resize='vertical' class='bottom-margin'/>
 			<div class='update-button'>
 				<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
 				<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
 			</div>
-		</div>
+		</div> -->
 		<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
-		<router-link :to='`/p/${postId}`' class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
+		<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
 			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
 				this post contains <b>{{rating}}</b> content, click here to show it anyway.
 			</button>
-		</router-link>
+		</div>
 		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 			<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 			<Subtitle static='left' v-else>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
 		</Loading>
 		<div class='buttons' v-if='!isLoading' v-show='!hideButtons'>
 			<Report :data='{ post: postId }' v-if='!isLoading'/>
-			<RepostButton :postId='postId' v-model:count='reposts'/>
-			<FavoriteButton :postId='postId' v-model:count='favorites'/>
+			<RepostButton :postId='postId' v-bind:count='reposts'/>
+			<FavoriteButton :postId='postId' v-bind:count='favorites'/>
 			<ShareLink class='post-buttons' :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
 			<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
 				<i class='material-icons'>reply</i>
@@ -286,13 +286,13 @@ export default {
 					"privacy": "public",
 					"icon": "string",
 					"verified": "artist",
-					"following": true
+					"following": true,
 				},
 				"score": {
 					"up": 0,
 					"down": 0,
 					"total": 0,
-					"user_vote": 0
+					"user_vote": 0,
 				},
 				"rating": "general",
 				"parent": "string",
@@ -302,13 +302,14 @@ export default {
 				"filename": "string",
 				"media_type": {
 					"file_type": "string",
-					"mime_type": "string"
+					"mime_type": "string",
 				},
 				"size": {
 					"width": 0,
-					"height": 0
+					"height": 0,
 				},
-				"blocked": true
+				"thumbhash": "string",
+				"blocked": true,
 			}*/
 			this.$store.state.postCache = {
 				post_id: this.postId,
@@ -327,6 +328,7 @@ export default {
 				blocked: this.blocked,
 				favorites: this.favorites,
 				reposts: this.reposts,
+				thumbhash: this.thumbhash,
 			};
 			this.$router.push(this.target);
 		},

@@ -28,14 +28,14 @@
 		</div>
 		<div class='screen-cover' @click='closeMenu'/>
 		<div class='menu'>
-			<router-link to='/create' :class='$store.state.auth ? "create" : "create logged-out"' title='Create new post'>
+			<a href='/create' @click.stop.prevent='navCreate' :class='$store.state.auth ? "create" : "create logged-out"' title='Create new post'>
 				<div class='icon'>
 					<i class='material-icons'>upload</i>
 				</div>
 				<p>
 					Upload
 				</p>
-			</router-link>
+			</a>
 			<div class='menu-border'/>
 			<div class='inner'>
 				<ol>
@@ -265,6 +265,10 @@ export default {
 		},
 	},
 	methods: {
+		navCreate() {
+			this.$router.push("/create");
+			document.dispatchEvent(new CustomEvent("router-event"));
+		},
 		updateLoop() {
 			khatch(`${configHost}/v1/banner`, {
 				errorMessage: 'Error Occurred While Fetching Banner',
