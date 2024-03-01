@@ -22,6 +22,8 @@
 		</ol>
 		<h3 style='padding-top: 2em'>Info</h3>
 		<div class='post-data' v-if='post'>
+			post id: <code>{{post.post_id ?? post.postId}}</code>
+			<br>
 			size: {{post.size ? `${post.size.width}x${post.size.height}px` : 'none'}}
 			<br>
 			file type: {{post.media_type ? post.media_type.file_type : 'none'}}

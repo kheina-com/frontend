@@ -4,7 +4,7 @@
 		<div v-if='preview' class='markdown-container'>
 			<Markdown :content='value'/>
 		</div>
-		<textarea ref='mdTextArea' class='interactable text' v-show='!preview' v-bind='value' @input='$emit(`update:value`, $event.target.value)'></textarea>
+		<textarea ref='mdTextArea' class='interactable text' v-show='!preview' :value='value' @input='$emit(`update:value`, $event.target.value)'></textarea>
 		<button @click='togglePreview' :title='preview ? `Disable preview` : `Show preview`'><i class='material-icons-round'>{{preview ? 'visibility_off' : 'visibility'}}</i></button>
 	</div>
 </template>

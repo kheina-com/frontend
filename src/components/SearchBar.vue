@@ -1,7 +1,7 @@
 <template>
 	<div class='search-bar'>
 		<div class='search-input'>
-			<input v-bind='value' @input='$emit(`update:value`, $event.target.value)' placeholder='Search' class='interactable text' @keydown.enter='func'>
+			<input :value='value' @input='$emit(`update:value`, $event.target.value)' placeholder='Search' class='interactable text' @keydown.enter='func'>
 			<div class='cover'/>
 			<button @click='func'><i class='material-icons-round'>search</i></button>
 		</div>

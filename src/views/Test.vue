@@ -222,7 +222,7 @@ export default {
 		contrast(c1, c2) {
 			const l1 = this.lum(c1);
 			const l2 = this.lum(c2);
-			return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
+			return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 		},
 		contrastWithBg(color, bg) {
 			return this.contrast(this.textToColor(color), this.textToColor(getComputedStyle(document.documentElement).getPropertyValue(`--bg${bg}color`)));

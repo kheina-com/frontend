@@ -8,7 +8,6 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import { abbreviate } from '@/utilities';
 
 export default {

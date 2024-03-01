@@ -710,7 +710,7 @@ export default {
 					this.privacy = this.update.privacy = r.privacy;
 					this.rating = this.update.rating = r.rating;
 					this.mime = r.media_type?.mime_type;
-					
+
 					if (r.filename) {
 						this.uploadDone = true;
 						this.filename = r.filename;

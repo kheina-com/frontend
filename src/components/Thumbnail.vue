@@ -101,7 +101,6 @@ export default {
 		loaded(event) {
 			if (this.$refs.media) {
 				this.isLoading = false;
-				this.$refs.media.style.opacity = null;
 				this.onLoad(event);
 			}
 		},
@@ -121,10 +120,23 @@ export default {
 			// console.log('thumbhash:', value);
 			if (value) {
 				try {
+					const th = document.createElement("img");
+					th.src = thumbHashToDataURL(base64ToBytes(value));
+					th.style.width = this.$refs.media.style.width;
+					th.style.height = this.$refs.media.style.height;
+					th.classList = "th-hash";
+					this.$refs.media.parentNode.prepend(th);
+
 					this.$refs.media.style.opacity = 0;
 					this.$refs.media.classList.add("th");
-					this.$refs.media.parentNode.style.background = "url('" + thumbHashToDataURL(base64ToBytes(value)) + "')";
-					this.$refs.media.parentNode.style.backgroundSize = "cover";
+					this.$refs.media.addEventListener("load", () => {
+						this.$refs.media.style.opacity = null;
+						setTimeout(() => {
+							th.style.opacity = 0;
+							setTimeout(() => this.$refs.media.parentNode.removeChild(th), 500);
+						}, 50);
+					});
+
 					this.isLoading = false;
 				}
 				catch (e) {
@@ -152,21 +164,23 @@ export default {
 </script>
 
 <style scoped>
-/* .desktop img {
-	max-height: inherit;
-	max-width: inherit;
+.thumbnail {
+	position: relative;
+	pointer-events: none;
 }
-.mobile img {
-	height: 100%;
-	width: 100%;
-	max-width: inherit;
-	max-height: inherit;
-} */
 .th {
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
+	position: relative;
+}
+.hash {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }
 img {
 	/* object-fit: cover; */
@@ -180,3 +194,17 @@ img {
 	overflow: hidden;
 }
 </style>
+<style>
+.th-hash {
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+</style>
+<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && link'/>

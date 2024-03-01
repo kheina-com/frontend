@@ -206,13 +206,13 @@ export default {
 					"privacy": "public",
 					"icon": "string",
 					"verified": "artist",
-					"following": true
+					"following": true,
 				},
 				"score": {
 					"up": 0,
 					"down": 0,
 					"total": 0,
-					"user_vote": 0
+					"user_vote": 0,
 				},
 				"rating": "general",
 				"parent": "string",
@@ -222,13 +222,14 @@ export default {
 				"filename": "string",
 				"media_type": {
 					"file_type": "string",
-					"mime_type": "string"
+					"mime_type": "string",
 				},
 				"size": {
 					"width": 0,
-					"height": 0
+					"height": 0,
 				},
-				"blocked": true
+				"thumbhash": "string",
+				"blocked": true,
 			}*/
 			this.$store.state.postCache = {
 				post_id: this.postId,
@@ -247,6 +248,7 @@ export default {
 				blocked: this.blocked,
 				favorites: this.favorites,
 				reposts: this.reposts,
+				thumbhash: this.thumbhash,
 			};
 			this.$router.push('/p/' + this.postId);
 		},
@@ -266,8 +268,7 @@ export default {
 				},
 			})
 			.then(response => {
-				if (response.status < 300)
-				{
+				if (response.status < 300) {
 					this.user.following = !this.user.following;
 					this.$store.commit('createToast', {
 						icon: this.user.following ? 'person_add_alt' : 'person_remove',
@@ -275,8 +276,7 @@ export default {
 						time: 5,
 					});
 				}
-				else if (response.status < 500)
-				{
+				else if (response.status < 500) {
 					response.json().then(r => {
 						this.$store.commit('createToast', {
 							title: apiErrorMessageToast,
@@ -284,8 +284,7 @@ export default {
 						});
 					});
 				}
-				else
-				{
+				else {
 					response.json().then(r => {
 						this.$store.commit('createToast', {
 							title: apiErrorMessageToast,
