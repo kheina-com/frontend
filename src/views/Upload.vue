@@ -407,33 +407,30 @@ export default {
 			this.saving = true;
 			this.uploadFile()
 			.then(this.saveData)
-			.then(() => {
-				khatch(`${uploadHost}/v1/update_privacy`, {
-					handleError: true,
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						privacy: 'draft',
-					},
-				}).then(response => {
-					this.saving = false;
-					this.privacy = 'draft';
-					createToast({
-						icon: 'done',
-						title: 'Saved as Draft!',
-						color: 'green',
-						time: 5,
-					});
+			.then(() => khatch(`${uploadHost}/v1/update_privacy`, {
+				handleError: true,
+				method: 'POST',
+				body: {
+					post_id: this.postId,
+					privacy: 'draft',
+				},
+			}))
+			.then(r => {
+				this.privacy = 'draft';
+				createToast({
+					icon: 'done',
+					title: 'Saved as Draft!',
+					color: 'green',
+					time: 5,
 				});
 			})
-			.catch(() => this.saving = false);
+			.finally(() => this.saving = false);
 		},
 		savePost() {
 			this.saving = true;
 			this.uploadFile()
 			.then(this.saveData)
-			.then(() => this.saving = false)
-			.catch(() => this.saving = false);
+			.finally(() => this.saving = false);
 		},
 		publishPost() {
 			console.log(this.update.privacy);
@@ -584,8 +581,7 @@ export default {
 						},
 					}).then(() => {
 						successes++;
-						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
-						{
+						if (requiredSuccesses > 0 && successes >= requiredSuccesses) {
 							createToast({
 								icon: 'done',
 								title: 'Post Updated!',
@@ -594,7 +590,7 @@ export default {
 							});
 							resolve();
 						}
-					});
+					}).catch(reject);
 				}
 
 				let activeTags = tagSplit(this.$refs.tagDiv.textContent);
@@ -616,8 +612,7 @@ export default {
 						},
 					}).then(() => {
 						successes++;
-						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
-						{
+						if (requiredSuccesses > 0 && successes >= requiredSuccesses) {
 							createToast({
 								icon: 'done',
 								title: 'Post Updated!',
@@ -626,7 +621,7 @@ export default {
 							});
 							resolve();
 						}
-					});
+					}).catch(reject);
 				}
 
 				let newTags = [];
@@ -650,8 +645,7 @@ export default {
 							this.tagsField = Object.values(activeTags).flat().join(' ');
 						});
 						successes++;
-						if (requiredSuccesses > 0 && successes >= requiredSuccesses)
-						{
+						if (requiredSuccesses > 0 && successes >= requiredSuccesses) {
 							createToast({
 								icon: 'done',
 								title: 'Post Updated!',
@@ -660,7 +654,7 @@ export default {
 							});
 							resolve();
 						}
-					});
+					}).catch(reject);
 				}
 
 				if (requiredSuccesses === 0)
