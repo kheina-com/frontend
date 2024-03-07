@@ -4,7 +4,7 @@
 		<div v-if='preview' class='markdown-container'>
 			<Markdown :content='value'/>
 		</div>
-		<textarea ref='mdTextArea' class='interactable text' v-show='!preview' :value='value' @input='$emit(`update:value`, $event.target.value)'></textarea>
+		<textarea ref='mdTextArea' class='interactable text' v-show='!preview' :value='value' @input='$emit(`update:value`, $event.target.value)' @keydown.tab.prevent='tab'></textarea>
 		<button @click='togglePreview' :title='preview ? `Disable preview` : `Show preview`'><i class='material-icons-round'>{{preview ? 'visibility_off' : 'visibility'}}</i></button>
 	</div>
 </template>
@@ -61,6 +61,13 @@ export default {
 		togglePreview() {
 			this.preview = !this.preview;
 		},
+		tab(e) {
+			const start = e.target.selectionStart;
+			e.target.value = e.target.value.substring(0, e.target.selectionStart) + "\t" + e.target.value.substring(e.target.selectionEnd);
+			e.target.selectionStart = e.target.selectionEnd = start + 1;
+			// e.target.focus();
+			return "\t";
+		}
 	},
 }
 </script>

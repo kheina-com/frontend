@@ -259,8 +259,8 @@ const mdRules = {
 		rule: /^(\n)?([ ]+)/,
 	},
 	handle: {
-		start: /(^|\s*)\w*@\w/,
-		rule: /^(\w*)@(\w+)/,
+		start: /(^|\s*)\w*@[\w_-]/,
+		rule: /^(\w*)@([\w_-]+)/,
 	},
 	icon: {
 		start: /(^|\s*)\[@\]\w/,

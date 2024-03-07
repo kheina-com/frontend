@@ -50,7 +50,7 @@
 			<div class='buttons'>
 				<Button @click='togglePost'>toggle</Button>
 				<Button @click='toggleThumbhash'>thumbhash</Button>
-				<input placeholder='thumbhash' class='interactable' v-model='thumbhash' />
+				<input placeholder='post' class='interactable' v-model='postId'/>
 			</div>
 		</div>
 		<div class='color-text' v-show='colors.length'>
@@ -93,9 +93,9 @@ import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
-import { authCookie, createToast } from '@/utilities';
+import { authCookie, createToast, khatch } from '@/utilities';
 import epoch from '@/config/constants';
-import { environment } from '@/config/constants';
+import { environment, postsHost } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
 
@@ -123,40 +123,7 @@ export default {
 			cutoff: null,
 			thumbhash: null,
 			postId: 'ugE_qTJL',
-			post: {
-				"post_id": "ugE_qTJL",
-				"title": "Sleep With the Machine",
-				"description": null,
-				"user": {
-					"name": "dani :trans-flag: :two-hearts:",
-					"handle": "dani",
-					"privacy": "public",
-					"icon": "ceKamUGR",
-					"verified": "admin",
-					"following": true,
-				},
-				"score": {
-					"up": 1,
-					"down": 0,
-					"total": 1,
-					"user_vote": 1,
-				},
-				"rating": "mature",
-				"parent": null,
-				"privacy": "public",
-				"created": "2023-05-09T06:30:53.743075+00:00",
-				"updated": "2023-05-09T06:30:53.743075+00:00",
-				"filename": "1234-web.png",
-				"media_type": {
-					"file_type": "png",
-					"mime_type": "image/png",
-				},
-				"size": {
-					"width": 2805,
-					"height": 3000,
-				},
-				"blocked": false,
-			},
+			post: null,
 		};
 	},
 	mounted() {
@@ -256,7 +223,7 @@ export default {
 			console.log(this.postId);
 		},
 		toggleThumbhash() {
-			this.thumbhash = this.thumbhash ? null : 'ktcJDwQHmWh2dJiFeGeIiHeXlp8HunYA';
+			this.thumbhash = this.thumbhash ? null : this.post?.thumbhash;
 			if (this.thumbhash === null) {
 				document.getElementsByClassName("thumbnail")[0].firstElementChild.style = null;
 			}
@@ -272,6 +239,23 @@ export default {
 			catch (e) {
 				console.error(e);
 				return 'could not decode token';
+			}
+		},
+	},
+	watch: {
+		postId(value) {
+			console.log(value);
+			if (value && value.length === 8) {
+					khatch(`${postsHost}/v1/post/${value}`, {
+					errorMessage: 'Could not retrieve post!',
+				}).then(response => {
+					response.json().then(r => {
+						r.favorites = 0;
+						r.reposts = 0;
+						this.post = r;
+						this.thumbhash = r.thumbhash;
+					});
+				});
 			}
 		},
 	},
