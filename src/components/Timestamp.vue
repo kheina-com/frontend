@@ -16,11 +16,12 @@ export default {
 	data() {
 		return {
 			displayAbsolute: false,
+			loop: null,
 		}
 	},
 	mounted() {
 		if (this.live)
-		{ setTimeout(this.updateSelf, this.timeout()); }
+		{ this.setLoop(); }
 	},
 	computed: {
 		date() {
@@ -36,63 +37,77 @@ export default {
 		},
 	},
 	methods: {
+		setLoop(t=0) {
+			if (this.loop) {
+				clearTimeout(this.loop);
+			}
+			if (t > 0x7fffffff) {
+				// setTimeout breaks above the 32bit int max value
+				return;
+			}
+			// console.log("t:", t);
+			this.loop = setTimeout(this.updateSelf, t);
+		},
 		updateSelf() {
+			// console.log("updateSelf");
+			if (!this.loop) {
+				return;
+			}
+			this.loop = null;
+
 			if (this.displayAbsolute)
 			{ return; }
+
 			this.$forceUpdate();
-			setTimeout(this.updateSelf, this.timeout());
+			this.setLoop(this.timeout());
 		},
 		relativeTime()
 		{ return this.prettyTime((Date.now() - this.date.valueOf()) / 1000, 0) + ' ago'; },
 		toggleDisplayType() {
 			this.displayAbsolute = !this.displayAbsolute;
 			if (!this.displayAbsolute && this.live)
-			{ setTimeout(this.updateSelf); }
+			{ this.setLoop(); }
+			else
+			{ clearTimeout(this.loop); }
 		},
 		timeout() {
-			let conversion = 1000 / this.conversion((Date.now() - this.date.valueOf()) / 1000).conversion;
-			return (this.date.valueOf() - Date.now()) % conversion;
+			const conversion = 1000 / this.conversion((Date.now() - this.date.valueOf()) / 1000).conversion;
+			const t = conversion - (Date.now() - this.date.valueOf()) % conversion;
+			// console.log("t:", t, "c:", conversion, "r:", Date.now() - this.date.valueOf());
+			return t;
 		},
 		conversion(time) {
 			let conversion = 1;
 			let unit = 'second';
-			if (time > 31556952)
-			{
+			if (time > 31556952) {
 				conversion = 1 / 31556952;
 				unit = 'year';
 			}
-			else if (time > 2592000)
-			{
+			else if (time > 2592000) {
 				conversion = 1 / 2592000;
 				unit = 'month';
 			}
-			else if (time > 86400)
-			{
+			else if (time > 86400) {
 				conversion = 1 / 86400;
 				unit = 'day';
 			}
-			else if (time > 3600)
-			{
+			else if (time > 3600) {
 				conversion = 1 / 3600;
 				unit = 'hour';
 			}
-			else if (time > 60)
-			{
+			else if (time > 60) {
 				conversion = 1 / 60;
 				unit = 'minute';
 			}
-			else if (time < 0.000001)
-			{
+			else if (time < 0.000001) {
 				conversion = 1000000000;
 				unit = 'nanosecond';
 			}
-			else if (time < 0.001)
-			{
+			else if (time < 0.001) {
 				conversion = 1000000;
 				unit = 'microsecond';
 			}
-			else if (time < 1)
-			{
+			else if (time < 1) {
 				conversion = 1000;
 				unit = 'millisecond';
 			}
