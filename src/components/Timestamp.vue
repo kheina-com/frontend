@@ -23,6 +23,11 @@ export default {
 		if (this.live)
 		{ this.setLoop(); }
 	},
+	unmounted() {
+		if (this.loop) {
+			clearTimeout(this.loop);
+		}
+	},
 	computed: {
 		date() {
 			return new Date(this.datetime);
@@ -72,9 +77,8 @@ export default {
 		},
 		timeout() {
 			const conversion = 1000 / this.conversion((Date.now() - this.date.valueOf()) / 1000).conversion;
-			const t = conversion - (Date.now() - this.date.valueOf()) % conversion;
+			return conversion - (Date.now() - this.date.valueOf()) % conversion;
 			// console.log("t:", t, "c:", conversion, "r:", Date.now() - this.date.valueOf());
-			return t;
 		},
 		conversion(time) {
 			let conversion = 1;
