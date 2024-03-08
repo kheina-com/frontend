@@ -14,7 +14,7 @@
 		<Title static='center'>New Post</Title>
 		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
 		<div class='form'>
-			<Loading type='block' :isLoading='isUploading' v-if='!uploadUnavailable'>
+			<Loading type='block' :isLoading='isUploading'>
 				<div class='field'>
 					<div>
 						<span>File</span>
@@ -58,7 +58,7 @@
 					<ProgressBar :fill='uploadProgress'/>
 				</template>
 			</Loading>
-			<Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: 25px' v-else/>
+			<!-- <Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: 25px' v-else/> -->
 			<div class='field'>
 				<div>
 					<span>Title</span>
@@ -285,7 +285,7 @@ export default {
 			resized: null,
 			isUploading: false,
 			uploadProgress: 0,
-			uploadUnavailable: false,
+			// uploadUnavailable: false,
 			uploadDone: false,
 			mime: null,
 			filename: null,
@@ -485,7 +485,7 @@ export default {
 					showUpload: this.showUpload,
 					isUploading: this.isUploading,
 					uploadProgress: this.uploadProgress,
-					uploadUnavailable: this.uploadUnavailable,
+					// uploadUnavailable: this.uploadUnavailable,
 					uploadDone: this.uploadDone,
 				},
 			});
@@ -493,7 +493,7 @@ export default {
 		uploadFile(finish=false) {
 			this.saving = true;
 			return new Promise((resolve, reject) => {
-				if (this.isUploading || this.uploadUnavailable || !this.file)
+				if (this.isUploading || !this.file) // || this.uploadUnavailable
 				{ return resolve(); }
 
 				this.isUploading = true;
