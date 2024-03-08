@@ -5,7 +5,7 @@
 	</main>
 	<main id='feature' v-else>
 		<div class='guide'>
-			<textarea class='interactable text' resize='vertical' v-model='content'/>
+			<textarea class='interactable text' resize='vertical' @keydown.tab.prevent='tab' v-model='content'/>
 			<Markdown :content='content'/>
 		</div>
 	</main>
@@ -13,6 +13,7 @@
 
 <script>
 import { isMobile, mdGuide } from '@/config/constants';
+import { tab } from '@/utilities';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
 
@@ -34,6 +35,9 @@ export default {
 
 		if (this.$route.hash)
 		{ setTimeout(() => document.getElementById(this.$route.hash.substring(1)).scrollIntoView(), 0); }
+	},
+	methods: {
+		tab,
 	},
 }
 </script>

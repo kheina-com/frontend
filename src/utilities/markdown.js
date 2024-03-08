@@ -161,16 +161,15 @@ const mdMakeRequest = (url, silent=false) => {
 	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit)
 	{ delete mdRequestCache[Object.keys(mdRequestCache)[0]]; }
 
-	const promise = new Promise(resolve => {
-
+	return new Promise(resolve => {
 		if (mdRequestCache.hasOwnProperty(url)) {
-			resolve(mdRequestCache[url]);
-			return;
+			return resolve(mdRequestCache[url]);
 		}
 
 		khatch(url).then(response => {
-			if (response.status === 204)
-			{ resolve(); return; }
+			if (response.status === 204) {
+				return resolve();
+			}
 
 			response.json().then(r => {
 				if (response.status < 300) {
@@ -179,8 +178,7 @@ const mdMakeRequest = (url, silent=false) => {
 					if (r.hasOwnProperty('description'))
 					{ delete r.description; }
 					mdRequestCache[url] = r;
-					resolve(r);
-					return;
+					return resolve(r);
 				}
 				else if (silent)
 				{ }
@@ -209,8 +207,6 @@ const mdMakeRequest = (url, silent=false) => {
 			resolve();
 		});
 	});
-
-	return promise;
 };
 
 
@@ -269,7 +265,7 @@ const mdRules = {
 		single: /^(:([a-z0-9\-]+):)(\s*)/,
 	},
 	alignment: {
-		start: /^[><]/,
+		start: /(?:^|\n)[><]/,
 		rule: /^(>|<) ?([^\n]+) ?(>|<)((?:\n(?:(?![><])|\1) ?(?:[^\n]*[^><\n]|$) ?(?:(?![><])|\3)(?=\n|$))*)(?:$|\n)/,
 		center: /> ?([^\n]+) ?<|([^\n]+)(?=$|\n)/g,
 		right: /(>?) ?([^\n]+?) ?\1(?=$|\n)/g,
@@ -562,7 +558,7 @@ export const mdExtensions = [
 	{
 		name: 'alignment',
 		level: 'block',
-		start: (src) => mdRules.alignment.start.exec(src)?.index,
+		start: src => mdRules.alignment.start.exec(src)?.index,
 		tokenizer(src) {
 			const match = mdRules.alignment.rule.exec(src);
 
@@ -570,9 +566,11 @@ export const mdExtensions = [
 			{ return; }
 
 			let text = match[2].trim();
-			const align = match[1] === '>' ? (			
+			const align = match[1] === '>' ? (
+				// > text ?
 				match[3] === '<' ? 'center' : 'right'
 			) : (
+				// < text ?
 				match[3] === '>' ? null : 'left'
 			);
 

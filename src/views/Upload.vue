@@ -72,7 +72,7 @@
 					<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
 					<MarkdownEditor v-model:value='update.description' :hideGuide='true' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
 					<div class='markdown-editor' v-else>
-						<textarea v-model='update.description' class='interactable text'/>
+						<textarea v-model='update.description' @keydown.tab.prevent='tab' class='interactable text'/>
 						<Markdown :content='update.description || "**Your description is empty.**"'/>
 					</div>
 				</div>
@@ -220,7 +220,7 @@
 
 <script>
 import { ref } from 'vue';
-import { commafy, createToast, khatch, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
+import { commafy, createToast, khatch, tab, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
 import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
@@ -348,6 +348,7 @@ export default {
 	},
 	methods: {
 		commafy,
+		tab,
 		sortTagGroups,
 		calcResize() {
 			if (!this.update.webResize)

@@ -231,6 +231,16 @@ export async function khatch(url, options={ }) {
 	return response;
 }
 
+export function tab(e) {
+	e.target.focus();
+	if (!document.execCommand || !document.execCommand("insertText", false, "\t")) {
+		const start = e.target.selectionStart;
+		e.target.value = e.target.value.substring(0, e.target.selectionStart) + "\t" + e.target.value.substring(e.target.selectionEnd);
+		e.target.selectionStart = e.target.selectionEnd = start + 1;
+		return "\t";
+	}
+}
+
 export function abbreviate(value) {
 	if (value >= 1000000000)
 	{ return `${Math.round(value / 100000000) / 10}B`; }

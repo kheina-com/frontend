@@ -10,10 +10,9 @@
 </template>
 
 <script>
+import { tab } from '@/utilities';
 import { ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
-
-const t = "\t";
 
 export default {
 	name: 'MarkdownEditor',
@@ -60,18 +59,10 @@ export default {
 		this.$refs.mdTextArea.style=`height: ${this.height}; resize: ${this.resize}`;
 	},
 	methods: {
+		tab,
 		togglePreview() {
 			this.preview = !this.preview;
 		},
-		tab(e) {
-			e.target.focus();
-			if (!document.execCommand || !document.execCommand("insertText", false, t)) {
-				const start = e.target.selectionStart;
-				e.target.value = e.target.value.substring(0, e.target.selectionStart) + t + e.target.value.substring(e.target.selectionEnd);
-				e.target.selectionStart = e.target.selectionEnd = start + 1;
-				return t;
-			}
-		}
 	},
 }
 </script>
