@@ -13,6 +13,8 @@
 import { ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 
+const t = "\t";
+
 export default {
 	name: 'MarkdownEditor',
 	components: {
@@ -62,11 +64,13 @@ export default {
 			this.preview = !this.preview;
 		},
 		tab(e) {
-			const start = e.target.selectionStart;
-			e.target.value = e.target.value.substring(0, e.target.selectionStart) + "\t" + e.target.value.substring(e.target.selectionEnd);
-			e.target.selectionStart = e.target.selectionEnd = start + 1;
-			// e.target.focus();
-			return "\t";
+			e.target.focus();
+			if (!document.execCommand || !document.execCommand("insertText", false, t)) {
+				const start = e.target.selectionStart;
+				e.target.value = e.target.value.substring(0, e.target.selectionStart) + t + e.target.value.substring(e.target.selectionEnd);
+				e.target.selectionStart = e.target.selectionEnd = start + 1;
+				return t;
+			}
 		}
 	},
 }

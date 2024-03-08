@@ -388,8 +388,7 @@ export default {
 			else
 			{ this.$refs.draftsPanel.classList.remove('open'); }
 
-			if (this.drafts === null)
-			{
+			if (this.drafts === null) {
 				khatch(`${postsHost}/v1/fetch_drafts`, {
 					handleError: true,
 				}).then(response => {
@@ -715,6 +714,7 @@ export default {
 					else {
 						unset();
 					}
+					this.$store.state.postCache = null;
 				}
 				else {
 					khatch(`${postsHost}/v1/post/${this.postId}`, {

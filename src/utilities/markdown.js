@@ -87,15 +87,15 @@ const userLinks = {
 	// links get formatted as url + username
 	'': ['/', null], // default
 	[iconShortcode]: ['/', null],  // unique case, this loads icons
-	t: ['https://twitter.com/', 'twitter'],
+	t:  ['https://twitter.com/', 'twitter'],
 	fa: ['https://www.furaffinity.net/user/', 'furaffinity'],
-	f: ['https://www.facebook.com/', 'facebook'],
-	u: ['https://www.reddit.com/u/', 'reddit'],
+	f:  ['https://www.facebook.com/', 'facebook'],
+	u:  ['https://www.reddit.com/u/', 'reddit'],
 	tw: ['https://www.twitch.tv/', 'twitch'],
 	yt: ['https://www.youtube.com/c/', 'youtube'],
 	tt: ['https://www.tiktok.com/@', 'tiktok'],
 	tg: ['https://t.me/', 'telegram'],
-	p: ['https://www.patreon.com/', 'patreon'],
+	p:  ['https://www.patreon.com/', 'patreon'],
 	pi: ['https://www.picarto.tv/', 'picarto'],
 	kf: ['https://ko-fi.com/', 'ko-fi'],
 	gr: ['https://gumroad.com/', 'gumroad'],
@@ -103,8 +103,8 @@ const userLinks = {
 	rf: ['https://ref.st/', 'refsheet'],
 	pp: ['https://www.paypal.me/', 'paypal'],
 	fn: ['https://www.furrynetwork.com/', 'furrynetwork'],
-	w: ['https://www.weasyl.com/~', 'weasyl'],
-	b: ['https://boosty.to/', 'boosty'],
+	w:  ['https://www.weasyl.com/~', 'weasyl'],
+	b:  ['https://boosty.to/', 'boosty'],
 	th: ['https://toyhou.se/', 'toyhouse'],
 	cm: ['https://commiss.io/', 'commissio'],
 	ig: ['https://www.instagram.com/', 'instagram'],
@@ -122,8 +122,7 @@ const mdRequestCacheLimit = 100;
 
 let tempUrl = null;
 
-switch (environment)
-{
+switch (environment) {
 	case 'local':
 		tempUrl = /https?:\/\/localhost(?:\:\d{1,4})?/;
 		break;
@@ -164,8 +163,7 @@ const mdMakeRequest = (url, silent=false) => {
 
 	const promise = new Promise(resolve => {
 
-		if (mdRequestCache.hasOwnProperty(url))
-		{
+		if (mdRequestCache.hasOwnProperty(url)) {
 			resolve(mdRequestCache[url]);
 			return;
 		}
@@ -175,8 +173,7 @@ const mdMakeRequest = (url, silent=false) => {
 			{ resolve(); return; }
 
 			response.json().then(r => {
-				if (response.status < 300)
-				{
+				if (response.status < 300) {
 					// description exists in a lot of responses, and is almost always the biggest one
 					// delete it just in case it exists to avoid taking up too much storage
 					if (r.hasOwnProperty('description'))
@@ -187,15 +184,13 @@ const mdMakeRequest = (url, silent=false) => {
 				}
 				else if (silent)
 				{ }
-				else if (response.status < 500)
-				{
+				else if (response.status < 500) {
 					store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: r.error,
 					});
 				}
-				else
-				{
+				else {
 					store.commit('createToast', {
 						title: apiErrorMessageToast,
 						description: apiErrorDescriptionToast,
@@ -224,8 +219,7 @@ export const mdRenderer = {
 	link(href, title, text) {
 		const id = mdRefId();
 
-		if (href.match(url))
-		{
+		if (href.match(url)) {
 			setTimeout(() => {
 				const element = document.getElementById(id);
 
@@ -235,8 +229,7 @@ export const mdRenderer = {
 				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(href); });
 			}, 0);
 		}
-		else
-		{
+		else {
 			setTimeout(() => {
 				const element = document.getElementById(id);
 
@@ -254,10 +247,6 @@ export const mdRenderer = {
 
 
 const mdRules = {
-	whitespace: {
-		start: /^\n[ ]+|[ ]{2,}/,
-		rule: /^(\n)?([ ]+)/,
-	},
 	handle: {
 		start: /(^|\s*)\w*@[\w_-]/,
 		rule: /^(\w*)@([\w_-]+)/,
@@ -305,10 +294,8 @@ export const mdExtensions = [
 		tokenizer(src) {
 			const match = mdRules.handle.rule.exec(src);
 
-			if (match)
-			{
-				if (userLinks.hasOwnProperty(match[1]))
-				{
+			if (match) {
+				if (userLinks.hasOwnProperty(match[1])) {
 					const link = userLinks[match[1]];
 					return {
 						type: 'handle',
@@ -321,8 +308,7 @@ export const mdExtensions = [
 						username: match[2],
 					};
 				}
-				else
-				{
+				else {
 					return {
 						type: 'text',
 						raw: match[0],
@@ -334,8 +320,7 @@ export const mdExtensions = [
 		renderer(token) {
 			const id = mdRefId();
 
-			if (token.raw[0] === '@')
-			{
+			if (token.raw[0] === '@') {
 				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element)
@@ -348,14 +333,12 @@ export const mdExtensions = [
 
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle">${token.text}</a>`;
 			}
-			else if (token.code === iconShortcode)
-			{
+			else if (token.code === iconShortcode) {
 				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element)
 					{ return; }
-					if (r)
-					{
+					if (r) {
 						element.innerHTML = `<img src="${r.icon ? getIconUrl(r.icon, r.handle.toLowerCase()) : getMediaThumbnailUrl(defaultUserIcon, 400)}" class="profile-user-icon loading wave">`;
 						element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
 						element.firstChild.addEventListener('load', e => e.target.classList = 'profile-user-icon');
@@ -366,8 +349,7 @@ export const mdExtensions = [
 
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="@${token.username}"><span class="profile-user-icon loading wave"/></a>`;
 			}
-			else
-			{
+			else {
 				const imgId = mdRefId();
 
 				setTimeout(() => {
@@ -396,8 +378,7 @@ export const mdExtensions = [
 		tokenizer(src) {
 			const match = mdRules.icon.rule.exec(src);
 
-			if (match)
-			{
+			if (match) {
 				return {
 					type: 'handle',
 					raw: match[0],
@@ -421,8 +402,7 @@ export const mdExtensions = [
 		tokenizer(src) {
 			const match = mdRules.emoji.rule.exec(src);
 
-			if (match)
-			{
+			if (match) {
 				return {
 					type: 'emoji',
 					raw: match[0],
@@ -457,8 +437,7 @@ export const mdExtensions = [
 		tokenizer(src) {
 			const match = mdRules.post.rule.exec(src);
 
-			if (match)
-			{
+			if (match) {
 				return {
 					type: 'post',
 					raw: match[0],
@@ -495,8 +474,7 @@ export const mdExtensions = [
 		tokenizer(src) {
 			const match = mdRules.tag.rule.exec(src);
 
-			if (match)
-			{
+			if (match) {
 				return {
 					type: 'tag',
 					raw: match[0],
@@ -538,8 +516,7 @@ export const mdExtensions = [
 			if (match[1])
 			{ tokens.push({ type: 'text', raw: match[1], text: match[1] }); }
 
-			while (src)
-			{
+			while (src) {
 				match = mdRules.gigamoji.single.exec(src);
 				src = src.substr(match[0].length);
 				tokens.push({
@@ -561,10 +538,8 @@ export const mdExtensions = [
 		},
 		renderer(token) {
 			let rendered = '<p class="gigamoji">';
-			for (const t of token.tokens)
-			{
-				if (t.type === 'emoji')
-				{
+			for (const t of token.tokens) {
+				if (t.type === 'emoji') {
 					const id = mdRefId();
 
 					setTimeout(() => {
@@ -595,7 +570,7 @@ export const mdExtensions = [
 			{ return; }
 
 			let text = match[2].trim();
-			const align = match[1] === '>' ? (
+			const align = match[1] === '>' ? (			
 				match[3] === '<' ? 'center' : 'right'
 			) : (
 				match[3] === '>' ? null : 'left'
@@ -604,8 +579,7 @@ export const mdExtensions = [
 			if (!align)
 			{ return; }
 
-			if (match[4])
-			{
+			if (match[4]) {
 				for (const m of match[4].trim().matchAll(mdRules.alignment[align]))
 				{ text += '\n' + (m[2] || m[1]).trim(); }
 			}

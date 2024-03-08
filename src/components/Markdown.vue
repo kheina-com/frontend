@@ -70,8 +70,7 @@ export default {
 		};
 	},
 	mounted() {
-		if (this.lazy)
-		{
+		if (this.lazy) {
 			this.observer = new IntersectionObserver(
 				e => {
 					// console.log(e);
@@ -93,15 +92,12 @@ export default {
 	},
 	methods: {
 		mdString() {
-			if (this.content)
-			{
-				if (this.concise)
-				{
+			if (this.content) {
+				if (this.concise) {
 					const match = this.content.match(/((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?/);
 
 					let end = '';
-					if (match[1].length > 500)
-					{
+					if (match[1].length > 500) {
 						end = '...';
 						this.cut = true;
 					}
