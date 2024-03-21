@@ -232,7 +232,9 @@ export const mdRenderer = {
 				if (!element)
 				{ return; }
 
-				element.target = '_blank';
+				if (!href.startsWith("#")) {
+					element.target = '_blank';
+				}
 				element.addEventListener('click', e => e.stopPropagation());
 			}, 0);
 		}

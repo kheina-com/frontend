@@ -44,7 +44,7 @@
 		<div class='post-tiles'>
 			<ol>
 				<li>
-					<PostTile :key='postId' :postId='postId' :nested='true' v-bind='post' :thumbhash='thumbhash'/>
+					<PostTile :key='postId' :postId='postId' :nested='true' v-bind='post'/>
 				</li>
 			</ol>
 			<div class='buttons'>
@@ -62,12 +62,8 @@
 		</div>
 		<div class='color-comparer' v-show='colors.length'>
 			<div v-for='i in colors.length' :style='"background: " + colors[i - 1]'>
-				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor('#fff')).toFixed(2)
-				}}
-				</p>
-				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor('#000')).toFixed(2)
-				}}
-				</p>
+				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor('#fff')).toFixed(2) }}</p>
+				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor('#000')).toFixed(2) }}</p>
 				<input placeholder='color' class='interactable' v-model='colors[i - 1]' />
 				<Button @click='colors.splice(i - 1, 1);'><i class='material-icons-outline'>delete</i>Remove</Button>
 			</div>

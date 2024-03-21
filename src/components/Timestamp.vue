@@ -3,6 +3,7 @@
 </template>
 
 <script>
+const yearRepl = `, ${new Date().getFullYear()}`;
 export default {
 	name: 'Timestamp',
 	components: { },
@@ -20,8 +21,9 @@ export default {
 		}
 	},
 	mounted() {
-		if (this.live)
-		{ this.setLoop(); }
+		if (this.live) {
+			this.setLoop();
+		}
 	},
 	unmounted() {
 		if (this.loop) {
@@ -35,7 +37,7 @@ export default {
 		absoluteTime() {
 			return this.date
 				.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })
-				.replace(`, ${new Date().getFullYear()}`, '')
+				.replace(yearRepl, '')
 				+ ', '
 				+ this.date.toLocaleTimeString()
 				.toLowerCase();
@@ -43,15 +45,19 @@ export default {
 	},
 	methods: {
 		setLoop(t=0) {
-			if (this.loop) {
-				clearTimeout(this.loop);
-			}
+			this.clearLoop();
 			if (t > 0x7fffffff) {
 				// setTimeout breaks above the 32bit int max value
 				return;
 			}
 			// console.log("t:", t);
 			this.loop = setTimeout(this.updateSelf, t);
+		},
+		clearLoop() {
+			if (this.loop) {
+				clearTimeout(this.loop);
+			}
+			this.loop = null;
 		},
 		updateSelf() {
 			// console.log("updateSelf");
@@ -60,8 +66,9 @@ export default {
 			}
 			this.loop = null;
 
-			if (this.displayAbsolute)
-			{ return; }
+			if (this.displayAbsolute) {
+				return;
+			}
 
 			this.$forceUpdate();
 			this.setLoop(this.timeout());
@@ -70,14 +77,16 @@ export default {
 		{ return this.prettyTime((Date.now() - this.date.valueOf()) / 1000, 0) + ' ago'; },
 		toggleDisplayType() {
 			this.displayAbsolute = !this.displayAbsolute;
-			if (!this.displayAbsolute && this.live)
-			{ this.setLoop(); }
-			else
-			{ clearTimeout(this.loop); }
+			if (!this.displayAbsolute && this.live) {
+				this.setLoop();
+			}
+			else {
+				this.clearLoop();
+			}
 		},
 		timeout() {
 			const conversion = 1000 / this.conversion((Date.now() - this.date.valueOf()) / 1000).conversion;
-			return conversion - (Date.now() - this.date.valueOf()) % conversion;
+			return conversion - (Date.now() - this.date.valueOf() - conversion / 2) % conversion;
 			// console.log("t:", t, "c:", conversion, "r:", Date.now() - this.date.valueOf());
 		},
 		conversion(time) {
@@ -118,10 +127,11 @@ export default {
 			return { conversion, unit };
 		},
 		prettyTime(time, fixed=2) {
-			if (time === null)
-			{ return null; }
+			if (time === null) {
+				return null;
+			}
 			const conversion = this.conversion(time);
-			let value = (time * conversion.conversion).toFixed(fixed);
+			const value = (time * conversion.conversion).toFixed(fixed);
 			return value + ' ' + conversion.unit + (value === '1' ? '' : 's');
 		},
 	},

@@ -7,7 +7,7 @@
 
 <script>
 export default {
-	name: 'Timestamp',
+	name: 'Countdown',
 	components: { },
 	props: {
 		endtime: String,
