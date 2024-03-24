@@ -204,7 +204,6 @@ import Profile from '@/components/Profile.vue';
 import Score from '@/components/Score.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Post from '@/components/Post.vue';
-import Thumbnail from '@/components/Thumbnail.vue';
 import DropDown from '@/components/DropDown.vue';
 import ShareLink from '@/components/ShareLink.vue';
 import FavoriteButton from '@/components/FavoriteButton.vue';
@@ -233,7 +232,6 @@ export default {
 		Score,
 		MarkdownEditor,
 		Button,
-		Thumbnail,
 		DropDown,
 		ShareLink,
 		FavoriteButton,

@@ -25,10 +25,6 @@ export default {
 			type: Number,
 			default: 400,
 		},
-		onLoad: { 
-			type: Function,
-			default() { },
-		},
 		width: {
 			type: Number,
 			default: 0,
@@ -45,7 +41,14 @@ export default {
 			type: String,
 			default: null,
 		},
+		load: {
+			type: Boolean,
+			default: true,
+		},
 	},
+	emits: [
+		"load",
+	],
 	setup() {
 		const media = ref(null);
 		return {
@@ -54,13 +57,15 @@ export default {
 	},
 	data() {
 		return {
-			isLoading: true,
+			isLoading: !this.thumbhash,
 			webp: true,
 			isError: false,
 		};
 	},
 	mounted() {
-		lazyObserver.observe(this.$refs.media);
+		if (this.load) {
+			lazyObserver.observe(this.$refs.media);
+		}
 
 		const parentStyle = getComputedStyle(this.$refs.media.parentElement);
 		const maxWidth = this.maxWidth ?? (parentStyle.maxWidth.endsWith('%') ? (
@@ -101,7 +106,7 @@ export default {
 		loaded(event) {
 			if (this.$refs.media) {
 				this.isLoading = false;
-				this.onLoad(event);
+				this.$emit("load", event);
 			}
 		},
 		onError(event) {
@@ -158,6 +163,11 @@ export default {
 		},
 		thumbhash(value) {
 			return this.th(value);
+		},
+		load(value) {
+			if (value) {
+				lazyObserver.observe(this.$refs.media);
+			}
 		},
 	},
 }

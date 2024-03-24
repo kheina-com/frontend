@@ -1,77 +1,76 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
-	<div :class='divClass' ref='self' v-if='$store.state.userConfig?.block_behavior === "hide" && blocked'>
-		butts
+	<div>
+		<div :class='divClass' ref='self'>
+			<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
+			<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && link'/>
+			<div class='labels' v-show='!isLoading'>
+				<DropDown class='more-button' v-show='!hideButtons' :options="[
+					{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
+					{ html: `Block @${user?.handle}`, action: missingFeature },
+					{ html: `Report @${user?.handle}`, action: missingFeature },
+				]">
+					<i class='material-icons-round'>more_horiz</i>
+				</DropDown>
+				<div v-if='labels'>
+					<Subtitle static='right' v-show='showPrivacy'>{{privacy}}</Subtitle>
+					<Subtitle static='right' v-show='parent'>reply</Subtitle>
+				</div>
+				<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+			</div>
+			<div class='header-block'>
+				<Score :score='score' :postId='postId'/>
+				<div class='post-header'>
+					<h2 v-if='isLoading || title'>
+						<Loading span v-if='isLoading'>this is an example title</Loading>
+						<Markdown :content='title' inline class='title' lazy v-else/>
+					</h2>
+					<Profile :isLoading='isLoading' v-bind='user'/>
+				</div>
+			</div>
+			<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
+			<!-- <div v-else-if='editing' style='width: 100%'>
+				<MarkdownEditor v-model:value='description' height='10em' resize='vertical' class='bottom-margin'/>
+				<div class='update-button'>
+					<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
+					<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
+				</div>
+			</div> -->
+			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
+			<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
+				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='acceptedMature' @load='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
+				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
+					this post contains <b>{{rating}}</b> content, click here to show it anyway.
+				</button>
+			</div>
+			<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
+				<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
+				<Subtitle static='left' v-else>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
+			</Loading>
+			<div class='buttons' v-if='!isLoading' v-show='!hideButtons'>
+				<Report :data='{ post: postId }' v-if='!isLoading'/>
+				<RepostButton :postId='postId' v-bind:count='reposts'/>
+				<FavoriteButton :postId='postId' v-bind:count='favorites'/>
+				<ShareLink class='post-buttons' :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+				<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
+					<i class='material-icons'>reply</i>
+				</button>
+			</div>
+		</div>
+		<ol v-if='replying || (replies && replies.length !== 0)'>
+			<li v-if='replying'>
+				<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
+				<div class='reply-buttons'>
+					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
+					<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+				</div>
+			</li>
+			<li v-for='reply in replies'>
+				<Post :postId='reply.post_id' v-bind='reply' reply @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
+			</li>
+		</ol>
 	</div>
-	<div :class='divClass' ref='self' v-else-if='!blocked'>
-		<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
-		<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && link'/>
-		<div class='labels' v-show='!isLoading'>
-			<DropDown class='more-button' v-show='!hideButtons' :options="[
-				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
-				{ html: `Block @${user?.handle}`, action: missingFeature },
-				{ html: `Report @${user?.handle}`, action: missingFeature },
-			]">
-				<i class='material-icons-round'>more_horiz</i>
-			</DropDown>
-			<div v-if='labels'>
-				<Subtitle static='right' v-show='showPrivacy'>{{privacy}}</Subtitle>
-				<Subtitle static='right' v-show='parent'>reply</Subtitle>
-			</div>
-			<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
-		</div>
-		<div class='header-block'>
-			<Score :score='score' :postId='postId'/>
-			<div class='post-header'>
-				<h2 v-if='isLoading || title'>
-					<Loading span v-if='isLoading'>this is an example title</Loading>
-					<Markdown :content='title' inline class='title' lazy v-else/>
-				</h2>
-				<Profile :isLoading='isLoading' v-bind='user'/>
-			</div>
-		</div>
-		<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-		<!-- <div v-else-if='editing' style='width: 100%'>
-			<MarkdownEditor v-model:value='description' height='10em' resize='vertical' class='bottom-margin'/>
-			<div class='update-button'>
-				<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-				<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
-			</div>
-		</div> -->
-		<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
-		<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-			<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
-			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
-				this post contains <b>{{rating}}</b> content, click here to show it anyway.
-			</button>
-		</div>
-		<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
-			<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
-			<Subtitle static='left' v-else>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
-		</Loading>
-		<div class='buttons' v-if='!isLoading' v-show='!hideButtons'>
-			<Report :data='{ post: postId }' v-if='!isLoading'/>
-			<RepostButton :postId='postId' v-bind:count='reposts'/>
-			<FavoriteButton :postId='postId' v-bind:count='favorites'/>
-			<ShareLink class='post-buttons' :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
-			<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
-				<i class='material-icons'>reply</i>
-			</button>
-		</div>
-	</div>
-	<ol v-if='replying || (replies && replies.length !== 0)'>
-		<li v-if='replying'>
-			<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
-			<div class='reply-buttons'>
-				<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
-				<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i>Cancel</Button>
-			</div>
-		</li>
-		<li v-for='reply in replies'>
-			<Post :postId='reply.post_id' v-bind='reply' reply @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
-		</li>
-	</ol>
 </template>
 
 <script>
@@ -239,7 +238,6 @@ export default {
 	},
 	data() {
 		return {
-			ratingMap,
 			isMobile,
 			editing: false,
 			guideHeight: null,
@@ -247,7 +245,7 @@ export default {
 			// childTrigger: null,
 			replying: null,
 			replyMessage: null,
-			acceptedMature: false,
+			acceptedMature: this.$store.state.maxRating >= ratingMap[this.rating],
 		};
 	},
 	// mounted() {

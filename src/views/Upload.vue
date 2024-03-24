@@ -79,6 +79,18 @@
 			</div>
 			<div class='field'>
 				<div>
+					<span>Reply To</span>
+					<input class='interactable text' v-model='update.parent'>
+					<div v-if='validParent'>
+						<Post :postId='parentPost.post_id' v-bind='parentPost' style='margin-top: 25px' nested hideButtons/>
+					</div>
+					<div v-else-if='update.parent' style='margin-top: 25px'>
+						invalid post id
+					</div>
+				</div>
+			</div>
+			<div class='field'>
+				<div>
 					<span>Tags</span>
 					<div ref='tagDiv' class='tag-field interactable text' contenteditable='true'>
 						{{tagsField}}
@@ -279,6 +291,7 @@ export default {
 			savedTags: [],
 			tagSuggestions: null,
 			showSuggestions: true,
+			postIdRegex: /^[a-zA-Z0-9_-]{8}$/,
 
 			showUpload: false,
 			showResize: false,
@@ -304,10 +317,15 @@ export default {
 			tagsField: null,
 			privacy: null,
 			rating: null,
+			parent: null,
 
 			// drafts
 			drafts: null,
 			showDrafts: false,
+
+			// parent post
+			parentPost: { },
+			validParent: null,
 		};
 	},
 	mounted() {
@@ -327,6 +345,11 @@ export default {
 		this.$watch(
 			() => this.width * this.height,
 			this.calcResize,
+		);
+
+		this.$watch(
+			() => this.update.parent,
+			this.fetchParent,
 		);
 	},
 	unmounted() {
@@ -350,6 +373,27 @@ export default {
 		commafy,
 		tab,
 		sortTagGroups,
+		fetchParent(postId) {
+			if (this.postIdRegex.exec(postId)) {
+				this.validParent = true;
+				if (this.$store.state.postCache?.post_id === postId) {
+					this.parentPost = this.$store.state.postCache;
+				}
+				else {
+					khatch(`${postsHost}/v1/post/${postId}`, {
+						errorMessage: 'Unable To Retrieve Post Data!',
+					}).then(response => {
+						response.json().then(r => {
+							this.parentPost = r;
+						});
+					});
+				}
+			}
+			else {
+				this.validParent = false;
+				this.parentPost = { };
+			}
+		},
 		calcResize() {
 			if (!this.update.webResize)
 			{ this.resized = null; }
@@ -506,6 +550,7 @@ export default {
 				{ formdata.append('web_resize', parseInt(this.update.webResize.trim())); }
 
 				const complete = () => {
+					this.showResize = false;
 					this.uploadDone = true;
 					this.isUploading = false;
 					this.uploadProgress = 0;
@@ -568,6 +613,11 @@ export default {
 					this.rating = this.update.rating;
 				}
 
+				if (this.parent !== this.update.parent) {
+					sendUpdate = true;
+					this.parent = this.update.parent;
+				}
+
 				if (sendUpdate) {
 					requiredSuccesses++;
 					khatch(`${uploadHost}/v1/update_post`, {
@@ -578,6 +628,7 @@ export default {
 							title: this.title ? this.title.trim() : null,
 							description: this.description ?? null,
 							rating: this.rating,
+							parent: this.parent,
 						},
 					}).then(() => {
 						successes++;
@@ -703,6 +754,7 @@ export default {
 					this.title = this.update.title = r.title;
 					this.privacy = this.update.privacy = r.privacy;
 					this.rating = this.update.rating = r.rating;
+					this.parent = this.update.parent = r.parent;
 					this.mime = r.media_type?.mime_type;
 
 					if (r.filename) {
@@ -726,6 +778,7 @@ export default {
 							this.title = this.update.title = r.title;
 							this.privacy = this.update.privacy = r.privacy;
 							this.rating = this.update.rating = r.rating;
+							this.parent = this.update.parent = r.parent;
 							this.mime = r.media_type?.mime_type;
 							if (r.filename) {
 								this.uploadDone = true;	

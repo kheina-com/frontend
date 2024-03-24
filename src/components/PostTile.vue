@@ -3,7 +3,7 @@
 	<div :class='divClass' v-if='link' :title='title || postId'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='link'/>
 		<div :to='`/p/${postId}`' class='thumbnail' v-if='media_type'>
-			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='($store.state.maxRating >= ratingMap[rating] || acceptedMature)' :onLoad='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
+			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='acceptedMature' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${size?.width}/${size?.height}`' v-else>
 				this post is <b>{{rating}}</b>, click to show.
 			</button>
@@ -37,7 +37,7 @@
 		</div>
 	</div>
 	<div class='post tile nested link no-buttons' v-else>
-		<Thumbnail class='thumbnail' :size='400' :post='postId' :onLoad='onLoad' :width='size?.width' :height='size?.height' :thumbhash='thumbhash' v-if='media_type'/>
+		<Thumbnail class='thumbnail' :size='400' :post='postId' :width='size?.width' :height='size?.height' :thumbhash='thumbhash' v-if='media_type'/>
 		<div class='text' v-else>
 			<div class='parent' v-if='parent'>
 				<Loading span v-if='parentData === null'>this is an example title</Loading>
@@ -160,15 +160,11 @@ export default {
 			default: null,
 		},
 	},
-	emits: [
-		'loaded',
-	],
 	data() {
 		return {
 			isMobile,
-			ratingMap,
 			parentData: null,
-			acceptedMature: false,
+			acceptedMature: this.$store.state.maxRating >= ratingMap[this.rating],
 		};
 	},
 	mounted() {
@@ -251,14 +247,6 @@ export default {
 				thumbhash: this.thumbhash,
 			};
 			this.$router.push('/p/' + this.postId);
-		},
-		onLoad() {
-			if (this.parentElement) {
-				let self = this.$refs.self.getBoundingClientRect();
-				this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
-			}
-			this.$emit('loaded');
-			// this.childTrigger = !this.childTrigger;
 		},
 		followUser() {
 			khatch(`${usersHost}/v1/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
