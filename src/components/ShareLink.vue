@@ -20,21 +20,34 @@ export default {
 			popup,
 		};
 	},
+	data() {
+		return {
+			t: null,
+		};
+	},
 	props: {
 		content: String,
 	},
 	methods: {
 		copy() {
 			const root = environment === 'prod' ? 'https://fuzz.ly' : 'https://dev.fuzz.ly';
-			const element = document.createElement('textarea');
-			element.value = root + this.content;
-			document.body.appendChild(element);
-			element.select();
-			document.execCommand('copy');
-			document.body.removeChild(element);
-
-			this.$refs.popup.style.display = 'block';
-			setTimeout(() => this.$refs.popup.style.display = null, 5000);
+			const value = root + this.content;
+			navigator.clipboard.writeText(value)
+			.catch(() => {
+				const element = document.createElement('textarea');
+				element.value = value;
+				document.body.appendChild(element);
+				element.select();
+				document.execCommand('copy');
+				document.body.removeChild(element);
+			})
+			.then(() => {
+				this.$refs.popup.style.display = 'block';
+				if (this.t) {
+					clearTimeout(this.t);
+				}
+				this.t = setTimeout(() => { this.t = null; this.$refs.popup.style.display = null }, 5000);
+			});
 		},
 	},
 }
@@ -82,7 +95,7 @@ button:hover i {
 	height: 1.2em;
 	border-bottom-right-radius: var(--border-radius);
 	position: absolute;
-	bottom: -0.65em;
+	bottom: -0.67em;
 	background: var(--bg2color);
 	left: 50%;
 	transform: translateX(-50%) rotate(45deg);

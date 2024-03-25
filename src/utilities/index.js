@@ -233,6 +233,15 @@ export async function khatch(url, options={ }) {
 
 export function tab(e) {
 	e.target.focus();
+	// const dt = new DataTransfer();
+	// dt.setData("text/html", "\t");
+	// e.target.dispatchEvent(
+	// 	new ClipboardEvent("paste", {
+	// 		clipboardData: dt,
+	// 		// bubbles: true,
+	// 		// cancelable: true
+	// 	})
+	// );
 	if (!document.execCommand || !document.execCommand("insertText", false, "\t")) {
 		const start = e.target.selectionStart;
 		e.target.value = e.target.value.substring(0, e.target.selectionStart) + "\t" + e.target.value.substring(e.target.selectionEnd);

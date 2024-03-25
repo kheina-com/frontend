@@ -41,6 +41,7 @@
 				<p>note: signature is not checked</p>
 			</div>
 		</div>
+		<CopyText content="a"/>
 		<div class='post-tiles'>
 			<ol>
 				<li>
@@ -94,6 +95,7 @@ import epoch from '@/config/constants';
 import { environment, postsHost } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
+import CopyText from '@/components/CopyText.vue';
 
 
 export default {
@@ -105,6 +107,7 @@ export default {
 		Button,
 		Markdown,
 		PostTile,
+		CopyText,
 	},
 	data() {
 		return {

@@ -129,6 +129,7 @@ export default {
 					th.src = thumbHashToDataURL(base64ToBytes(value));
 					th.style.width = this.$refs.media.style.width;
 					th.style.height = this.$refs.media.style.height;
+					th.setAttribute(this.$options.__scopeId, "");
 					th.classList = "th-hash";
 					this.$refs.media.parentNode.prepend(th);
 
@@ -185,6 +186,18 @@ export default {
 	transition: var(--transition) var(--fadetime);
 	position: relative;
 }
+.th-hash {
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: var(--border-radius);
+}
 .hash {
 	position: absolute;
 	top: 0;
@@ -204,17 +217,3 @@ img {
 	overflow: hidden;
 }
 </style>
-<style>
-.th-hash {
-	-webkit-transition: var(--transition) var(--fadetime);
-	-moz-transition: var(--transition) var(--fadetime);
-	-o-transition: var(--transition) var(--fadetime);
-	transition: var(--transition) var(--fadetime);
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
-</style>
-<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && link'/>

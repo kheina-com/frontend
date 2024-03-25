@@ -39,8 +39,8 @@
 			</div> -->
 			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 			<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' v-if='acceptedMature' @load='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
-				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-else>
+				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' @load='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
+				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-show='!acceptedMature'>
 					this post contains <b>{{rating}}</b> content, click here to show it anyway.
 				</button>
 			</div>
@@ -508,6 +508,8 @@ export default {
 	max-height: 300px;
 	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
+	position: relative;
+	display: flex;
 }
 .mobile .thumbnail {
 	margin: 0 auto 0;
@@ -681,6 +683,10 @@ ol > :last-child, ol > :last-child .post {
 .show-mature {
 	padding: 25px;
 	background: var(--bg2color);
+	position: absolute;
+	align-self: center;
+	max-width: 100%;
+	margin: auto 25px;
 }
 .nested .show-mature {
 	background: var(--bg1color);

@@ -9,26 +9,25 @@
 
 <script>
 import { ref } from 'vue';
-import { authRegex } from '@/config/constants';
 import { base64ToBytes, createToast } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 import { thumbHashToDataURL } from 'thumbhash';
 
-function abbreviate(value) {
-	if (value >= 995e7)
-	{ return `${Math.round(value / 1e9)}GB`; }
-	if (value >= 9995e5)
-	{ return `${(value / 1e9).toFixed(1)}GB`; }
-	if (value >= 995e4)
-	{ return `${Math.round(value / 1e6)}MB`; }
-	if (value >= 9995e2)
-	{ return `${(value / 1e6).toFixed(1)}MB`; }
-	if (value >= 9950)
-	{ return `${Math.round(value / 1e3)}KB`; }
-	if (value >= 1e3)
-	{ return `${(value / 1e3).toFixed(1)}KB`; }
-	return `${value}B`;
-}
+// function abbreviate(value) {
+// 	if (value >= 995e7)
+// 	{ return `${Math.round(value / 1e9)}GB`; }
+// 	if (value >= 9995e5)
+// 	{ return `${(value / 1e9).toFixed(1)}GB`; }
+// 	if (value >= 995e4)
+// 	{ return `${Math.round(value / 1e6)}MB`; }
+// 	if (value >= 9995e2)
+// 	{ return `${(value / 1e6).toFixed(1)}MB`; }
+// 	if (value >= 9950)
+// 	{ return `${Math.round(value / 1e3)}KB`; }
+// 	if (value >= 1e3)
+// 	{ return `${(value / 1e3).toFixed(1)}KB`; }
+// 	return `${value}B`;
+// }
 
 export default {
 	name: 'Media',
@@ -155,6 +154,7 @@ export default {
 		onLoad() {
 			this.isLoading = false;
 			// this.$refs.loader.style = null;
+			this.$refs.media.parentNode.style.background = null;
 			if (this.bg) {
 				this.$refs.media.parentNode.classList.add('bg');
 			}
@@ -193,6 +193,7 @@ export default {
 	watch: {
 		src() {
 			this.isLoading = !this.thumbhash;
+			this.$refs.media.parentNode.classList.remove('bg');
 		},
 		thumbhash(value) {
 			return this.th(value);
