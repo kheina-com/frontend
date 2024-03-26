@@ -9,16 +9,10 @@
 			class='interactable text'
 			v-show='!preview'
 			:value='value'
+			spellcheck='true'
 			@input='$emit(`update:value`, $event.target.value)'
 			@keydown.tab.prevent='tab'
-			@keydown.(.prevent='quote'
-			@keydown.[.prevent='quote'
-			@keydown.{.prevent='quote'
-			@keydown.*.prevent='quote'
-			@keydown._.prevent='quote'
-			@keydown.".prevent='quote'
-			@keydown.'.prevent='quote'
-			spellcheck='true'
+			@keydown='quote'
 		>
 		</textarea>
 		<button v-if='!hidePreview' @click='togglePreview' :title='preview ? "Disable preview" : "Show preview"'><i class='material-icons-round'>{{preview ? 'visibility_off' : 'visibility'}}</i></button>
@@ -80,30 +74,39 @@ export default {
 	},
 	methods: {
 		tab,
+		selection(e) {
+			return e.target.value.substring(e.target.selectionStart, e.target.selectionEnd);
+		},
 		quote(e) {
 			e.target.focus();
-			let text = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd)
+			let text;
 			switch (e.key) {
 				case "(":
-					text = "(" + text + ")";
+					text = "(" + this.selection(e) + ")";
+					e.preventDefault();
 					break;
 				case "[":
-					text = "[" + text + "]";
+					text = "[" + this.selection(e) + "]";
+					e.preventDefault();
 					break;
 				case "{":
-					text = "{" + text + "}";
+					text = "{" + this.selection(e) + "}";
+					e.preventDefault();
 					break;
 				case '"':
 				case "'":
 				case "*":
 				case "_":
-					if (text) {
-						text = e.key + text + e.key;
+					if (e.target.selectionStart !== e.target.selectionEnd) {
+						text = e.key + this.selection(e) + e.key;
 					}
 					else {
 						text = e.key;
 					}
+					e.preventDefault();
 					break;
+				default:
+					return;
 			}
 			const start = e.target.selectionStart;
 			const end = e.target.selectionEnd;
