@@ -66,14 +66,14 @@
 				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor('#fff')).toFixed(2) }}</p>
 				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor('#000')).toFixed(2) }}</p>
 				<input placeholder='color' class='interactable' v-model='colors[i - 1]' />
-				<Button @click='colors.splice(i - 1, 1);'><i class='material-icons-outline'>delete</i>Remove</Button>
+				<Button @click='colors.splice(i - 1, 1);'><i class='material-icons-outline'>delete</i><span>Remove</span></Button>
 			</div>
 		</div>
 		<div class='color-bar' v-show='colors.length'>
 			<div v-for='i in colors.length' :style='"background: " + colors[colors.length - i]' />
 		</div>
 		<div class='buttons'>
-			<Button @click='colors.push("#" + uuid(6))'><i class='material-icons'>add</i>Add Color</Button>
+			<Button @click='colors.push("#" + uuid(6))'><i class='material-icons'>add</i><span>Add Color</span></Button>
 			<Button @click='loadTheme'>Load Theme</Button>
 			<Button @click='toggleGray'>Toggle Grayscale</Button>
 			<Button @click='generateColors'>Generate!</Button>

@@ -1,6 +1,6 @@
 <template>
-	<span ref='markdown' class='markdown inline' v-html='renderedMd' v-if='inline'></span>
-	<div ref='markdown' class='markdown block' v-html='renderedMd' v-else></div>
+	<span ref='markdown' class='markdown inline' v-html='rendered' v-if='inline'></span>
+	<div ref='markdown' class='markdown block' v-html='rendered' v-else></div>
 </template>
 
 <script> 
@@ -65,7 +65,7 @@ export default {
 	data() {
 		return {
 			cut: false,
-			renderedMd: null,
+			rendered: null,
 			observer: null,
 		};
 	},
@@ -75,8 +75,7 @@ export default {
 				e => {
 					// console.log(e);
 					e.forEach(entry => {
-						if (entry.isIntersecting)
-						{
+						if (entry.isIntersecting) {
 							this.observer.unobserve(entry.target);
 							this.render();
 							this.observer = null;
@@ -87,8 +86,9 @@ export default {
 			);
 			this.observer.observe(this.$refs.markdown);
 		}
-		else
-		{ this.render(); }
+		else {
+			this.render();
+		}
 	},
 	methods: {
 		mdString() {
@@ -106,13 +106,14 @@ export default {
 
 					return match[1].substring(0, 500) + end;
 				}
-				if (this.inline)
-				{ return mdEscape(this.content); }
+				if (this.inline) {
+					return mdEscape(this.content);
+				}
 				return this.content;
 			}
 		},
 		render() {
-			this.renderedMd =  this.content ? (
+			this.rendered =  this.content ? (
 				this.inline ? (
 					marked.parse(this.mdString())
 				) : (
@@ -123,7 +124,7 @@ export default {
 	},
 	watch: {
 		content() {
-			if (this.renderedMd !== null)
+			if (this.rendered !== null)
 			{ this.render(); }
 		},
 	},

@@ -56,7 +56,6 @@ import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Sidebar from '@/components/Sidebar.vue';
-import Button from '@/components/Button.vue';
 
 export default {
 	name: 'FinalizeAccount',
@@ -89,7 +88,6 @@ export default {
 		};
 	},
 	components: {
-		Button,
 		ThemeMenu,
 		Loading,
 		Sidebar,

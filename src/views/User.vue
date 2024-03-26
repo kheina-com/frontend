@@ -63,7 +63,11 @@
 						</div>
 						<Button @click='follow' :red='user?.following' class='follow-button' :nested='isMobile'>
 							<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
-							{{user?.following ? 'Unfollow' : 'Follow'}}
+							<span>{{user?.following ? 'Unfollow' : 'Follow'}}</span>
+						</Button>
+						<Button class='interactable edit-profile-button' title='Edit profile' @click='toggleEdit(!isEditing)' :nested='isMobile'>
+							<i class='material-icons'>{{isEditing ? 'edit_off' : 'edit'}}</i>
+							<span>{{isEditing ? 'Cancel' : 'Edit Profile'}}</span>
 						</Button>
 						<div class='badges'>
 							<p class='verified' v-if='user?.verified'>
@@ -121,20 +125,10 @@
 			</div>
 			<MarkdownEditor v-model:value='update.description' class='description' resize='vertical' v-if='isEditing'/>
 			<Markdown :content='user?.description' class='description' v-else/>
-			<div class='edit-profile-button'>
-				<div v-if='isEditing'>
-					<Button class='interactable' title='Edit profile' @click='updateProfile'>
-						<i class='material-icons'>done</i>
-						Update Profile
-					</Button>
-					<Button class='interactable' title='Edit profile' @click='toggleEdit(false)'>
-						<i class='material-icons'>edit_off</i>
-						Cancel
-					</Button>
-				</div>
-				<Button class='interactable' title='Edit profile' @click='toggleEdit(true)' v-else>
-					<i class='material-icons'>edit</i>
-					Edit Profile
+			<div class='edit-profile-button' v-show='isEditing'>
+				<Button class='interactable' title='Edit profile' @click='updateProfile'>
+					<i class='material-icons'>done</i>
+					<span>Update Profile</span>
 				</Button>
 			</div>
 			<div class='mobile-profile-buttons' v-if='isMobile'>
@@ -242,9 +236,9 @@
 				}'
 			/>
 			<div class='button-list'>
-				<Button @click.prevent.stop='updateProfileImage'><i class='material-icons'>check</i>Set {{isUploadIcon ? 'Icon' : 'Banner'}}</Button>
-				<Button @click.prevent.stop='disableUploads' red><i class='material-icons'>close</i>Cancel</Button>
-				<Button @click.prevent.stop='showData'><i class='material-icons'>science</i>test</Button>
+				<Button @click.prevent.stop='updateProfileImage'><i class='material-icons'>check</i><span>Set {{isUploadIcon ? 'Icon' : 'Banner'}}</span></Button>
+				<Button @click.prevent.stop='disableUploads' red><i class='material-icons'>close</i><span>Cancel</span></Button>
+				<Button @click.prevent.stop='showData'><i class='material-icons'>science</i><span>test</span></Button>
 			</div>
 		</div>
 		<div class='upload-window' @mousedown.stop v-else>

@@ -67,6 +67,19 @@ button.unnested.interactable, button.unnested {
 button.loading {
 	pointer-events: none;
 }
+
+button:deep(i:first-child) {
+	margin-right: 0.25em;
+	font-size: 1.2em;
+}
+button:deep(i:last-child) {
+	margin-left: 0.25em;
+	font-size: 1.2em;
+}
+button:deep(i:only-child) {
+	margin: 0;
+}
+
 a, button {
 	display: flex;
 	align-items: center;

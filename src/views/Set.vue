@@ -28,8 +28,8 @@
 				<MarkdownEditor class='markdown-editor' resize='vertical' v-model:value='updateBody.description'/>
 			</div>
 			<div class='update-button'>
-				<Button @click='updateSet' green><i class='material-icons-round'>check</i>Update</Button>
-				<Button @click='deleteSet' red><i class='material-icons-outline'>delete</i>Delete</Button>
+				<Button @click='updateSet' green><i class='material-icons-round'>check</i><span>Update</span></Button>
+				<Button @click='deleteSet' red><i class='material-icons-outline'>delete</i><span>Delete</span></Button>
 			</div>
 		</Loading>
 		<div v-else>

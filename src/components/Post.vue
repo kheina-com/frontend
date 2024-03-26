@@ -17,7 +17,9 @@
 					<Subtitle static='right' v-show='showPrivacy'>{{privacy}}</Subtitle>
 					<Subtitle static='right' v-show='parent'>reply</Subtitle>
 				</div>
-				<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button>
+				<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'>
+					<i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i>
+				</Button>
 			</div>
 			<div class='header-block'>
 				<Score :score='score' :postId='postId'/>
@@ -62,8 +64,8 @@
 			<li v-if='replying'>
 				<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
 				<div class='reply-buttons'>
-					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
-					<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+					<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 				</div>
 			</li>
 			<li v-for='reply in replies'>

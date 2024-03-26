@@ -42,9 +42,9 @@
 				<div v-else-if='editing' style='width: 100%'>
 					<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
 					<div class='update-button'>
-						<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
-						<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-						<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
+						<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i><span>Full Editor</span></Button>
+						<Button @click='updatePost' green><i class='material-icons-round'>check</i><span>Update</span></Button>
+						<Button @click='deletePost' red><i class='material-icons-round'>close</i><span>Delete</span></Button>
 					</div>
 				</div>
 				<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
@@ -85,10 +85,10 @@
 						</DropDown>
 					</p>
 					<div class='buttons' v-if='writeComment'>
-						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
-						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 					</div>
-					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i>Reply</Button>
+					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 				</div>
 				<li v-for='reply in replies'>
 					<Reply :postId='reply?.post_id' v-bind='reply' reply/>
@@ -130,9 +130,9 @@
 					<div v-else-if='editing' style='width: 100%'>
 						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
 						<div class='update-button'>
-							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i>Full Editor</Button>
-							<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-							<Button @click='deletePost' red><i class='material-icons-round'>close</i>Delete</Button>
+							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i><span>Full Editor</span></Button>
+							<Button @click='updatePost' green><i class='material-icons-round'>check</i><span>Update</span></Button>
+							<Button @click='deletePost' red><i class='material-icons-round'>close</i><span>Delete</span></Button>
 						</div>
 					</div>
 					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
@@ -175,10 +175,10 @@
 					</DropDown>
 				</p>
 				<div class='buttons' v-if='writeComment'>
-					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i>Post</Button>
-					<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i>Cancel</Button>
+					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+					<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 				</div>
-				<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i>Reply</Button>
+				<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 			</div>
 			<li v-for='reply in replies'>
 				<Reply :postId='reply?.post_id' v-bind='reply' reply/>

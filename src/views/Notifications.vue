@@ -5,7 +5,8 @@
 		</p>
 		<div>
 			<Button @click='audio.play()'>
-				<i class='material-icons'>volume_up</i> play me!
+				<i class='material-icons'>volume_up</i>
+				<span>play me!</span>
 			</Button>
 		</div>
 	</main>

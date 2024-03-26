@@ -87,7 +87,7 @@ export const apiErrorMessageToast = 'An error occurred during an API call';
 
 export const apiErrorDescriptionToast = 'If you submit a bug report, please include the data below.';
 
-export const tagGroups = ['artist', 'subject', 'sponsor', 'species', 'gender', 'misc', 'rating'];
+export const tagGroups = ['artist', 'subject', 'species', 'gender', 'misc', 'rating'];
 
 export const ratings = new Set(['general', 'mature', 'explicit']);
 

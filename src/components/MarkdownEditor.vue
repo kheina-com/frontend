@@ -4,8 +4,24 @@
 		<div v-if='preview' class='markdown-container'>
 			<Markdown :content='value'/>
 		</div>
-		<textarea ref='mdTextArea' class='interactable text' v-show='!preview' :value='value' @input='$emit(`update:value`, $event.target.value)' @keydown.tab.prevent='tab'></textarea>
-		<button @click='togglePreview' :title='preview ? `Disable preview` : `Show preview`'><i class='material-icons-round'>{{preview ? 'visibility_off' : 'visibility'}}</i></button>
+		<textarea
+			ref='mdTextArea'
+			class='interactable text'
+			v-show='!preview'
+			:value='value'
+			@input='$emit(`update:value`, $event.target.value)'
+			@keydown.tab.prevent='tab'
+			@keydown.(.prevent='quote'
+			@keydown.[.prevent='quote'
+			@keydown.{.prevent='quote'
+			@keydown.*.prevent='quote'
+			@keydown._.prevent='quote'
+			@keydown.".prevent='quote'
+			@keydown.'.prevent='quote'
+			spellcheck='true'
+		>
+		</textarea>
+		<button v-if='!hidePreview' @click='togglePreview' :title='preview ? "Disable preview" : "Show preview"'><i class='material-icons-round'>{{preview ? 'visibility_off' : 'visibility'}}</i></button>
 	</div>
 </template>
 
@@ -45,7 +61,11 @@ export default {
 		hideGuide: {
 			type: Boolean,
 			default: false,
-		}
+		},
+		hidePreview: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	emits: [
 		'update:value',
@@ -60,6 +80,39 @@ export default {
 	},
 	methods: {
 		tab,
+		quote(e) {
+			e.target.focus();
+			let text = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd)
+			switch (e.key) {
+				case "(":
+					text = "(" + text + ")";
+					break;
+				case "[":
+					text = "[" + text + "]";
+					break;
+				case "{":
+					text = "{" + text + "}";
+					break;
+				case '"':
+				case "'":
+				case "*":
+				case "_":
+					if (text) {
+						text = e.key + text + e.key;
+					}
+					else {
+						text = e.key;
+					}
+					break;
+			}
+			const start = e.target.selectionStart;
+			const end = e.target.selectionEnd;
+			if (!document.execCommand || !document.execCommand("insertText", false, text)) {
+				e.target.value = e.target.value.substring(0, start) + text + e.target.value.substring(end);
+			}
+			e.target.selectionStart = start + 1;
+			e.target.selectionEnd = end + 1;
+		},
 		togglePreview() {
 			this.preview = !this.preview;
 		},
@@ -71,11 +124,14 @@ export default {
 div {
 	position: relative;
 }
-textarea.interactable.text {
+textarea {
 	display: block;
 	width: 100%;
-	padding: 0.5em 2em 0.5em 0.5em;
+	padding: 0.5em;
 	height: 100%;
+}
+div:has(button) > textarea.interactable.text {
+	padding: 0.5em 2em 0.5em 0.5em;
 }
 button {
 	position: absolute;

@@ -6,8 +6,7 @@ import store from '@/global';
 export default null;
 
 import { cdnHost, environment } from '@/config/constants'
-export function setCookie(name, value, maxage=86400, samesite='strict', path='/')
-{
+export function setCookie(name, value, maxage=86400, samesite='strict', path='/') {
 	if (store.state.cookiesAllowed)
 	{ document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== 'local' ? 'secure' : ''}`; }
 };
@@ -16,8 +15,7 @@ const ParserTypeMap = {
 	[Boolean]: v => typeof(v) === 'string' ? 'false' !== v : Boolean(v),
 };
 
-export function getCookie(cookieName, default_value=null, type=null)
-{
+export function getCookie(cookieName, default_value=null, type=null) {
 	let name = cookieName + '=';
 	let ca = document.cookie.split(';');
 	let value = default_value;
@@ -46,8 +44,7 @@ export function setTitle(title)
 { document.title = title; }
 
 import { routerMetaTag } from '@/config/constants'
-export function setMeta(content)
-{
+export function setMeta(content) {
 	const tag = document.createElement('meta');
 
 	Object.entries(content).forEach(pair => tag.setAttribute(pair[0], pair[1]));
@@ -86,23 +83,19 @@ else {
 export const getMediaUrl = _getMediaUrl;
 export const getMediaThumbnailUrl = _getMediaThumbnailUrl;
 
-export function getEmojiUrl(emojiName)
-{
+export function getEmojiUrl(emojiName) {
 	return `${cdnHost}/emoji/${encodeURIComponent(emojiName)}.webp`;
 }
 
-export function getIconUrl(postId, handle, extension='webp')
-{
+export function getIconUrl(postId, handle, extension='webp') {
 	return `${cdnHost}/${postId}/icons/${handle}.${extension}`;
 }
 
-export function getBannerUrl(postId, handle, extension='webp')
-{
+export function getBannerUrl(postId, handle, extension='webp') {
 	return `${cdnHost}/${postId}/banners/${handle}.${extension}`;
 }
 
-export function round(num, precision)
-{
+export function round(num, precision) {
 	let multiplier = 10 ** precision;
 	return Math.round(num * multiplier) / multiplier;
 }
@@ -233,15 +226,6 @@ export async function khatch(url, options={ }) {
 
 export function tab(e) {
 	e.target.focus();
-	// const dt = new DataTransfer();
-	// dt.setData("text/html", "\t");
-	// e.target.dispatchEvent(
-	// 	new ClipboardEvent("paste", {
-	// 		clipboardData: dt,
-	// 		// bubbles: true,
-	// 		// cancelable: true
-	// 	})
-	// );
 	if (!document.execCommand || !document.execCommand("insertText", false, "\t")) {
 		const start = e.target.selectionStart;
 		e.target.value = e.target.value.substring(0, e.target.selectionStart) + "\t" + e.target.value.substring(e.target.selectionEnd);
@@ -260,8 +244,7 @@ export function abbreviate(value) {
 	return `${value}`;
 }
 
-export function int_from_bytes(bytestring)
-{
+export function int_from_bytes(bytestring) {
 	let i = 0;
 	let r = 0;
 	bytestring.split('').reverse().map(x => x.charCodeAt(0)).forEach(x => {
@@ -270,8 +253,7 @@ export function int_from_bytes(bytestring)
 	return r;
 }
 
-export function authCookie(cookie=null)
-{
+export function authCookie(cookie=null) {
 	const token = cookie ?? getCookie('kh-auth');
 
 	if (!token || token.length <= 10)

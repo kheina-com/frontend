@@ -10,7 +10,9 @@
 			</div>
 		</div>
 		<Markdown :content='message' v-else-if='message'/>
-		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='$store.state.auth?.isAdmin'><i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i></Button>
+		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='$store.state.auth?.isAdmin'>
+			<i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i>
+		</Button>
 		<div class='nav'>
 			<div class='bg'/>
 			<div class='profile' v-if='$store.state.auth'>

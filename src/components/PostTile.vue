@@ -54,7 +54,6 @@
 <script>
 import { khatch } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, postsHost, ratingMap, usersHost } from '@/config/constants';
-import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Profile from '@/components/Profile.vue';
@@ -81,7 +80,6 @@ export default {
 		Timestamp,
 		Subtitle,
 		MarkdownEditor,
-		Button,
 		Thumbnail,
 		Report,
 		FavoriteButton,

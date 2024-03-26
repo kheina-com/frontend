@@ -41,7 +41,7 @@
 				<p>warning: this will add the new inherited tag to every post containing "{{tag.replace(/_/g, ' ')}}"</p>
 				<div>
 					<input class='interactable text' placeholder='inherited tag' v-model='newInheritedTag'>
-					<Button @click='inheritTag' :isLoading='newInheritLoading'><i class='material-icons'>add</i>Add Tag</Button>
+					<Button @click='inheritTag' :isLoading='newInheritLoading'><i class='material-icons'>add</i><span>Add Tag</span></Button>
 				</div>
 			</div>
 			<MarkdownEditor class='markdown-editor' resize='vertical' v-model:value='updateBody.description'/>
@@ -77,7 +77,7 @@
 				<b v-else>None</b>
 			</div>
 		</div>
-		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i>Update</Button>
+		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i><span>Update</span></Button>
 		<div class='markdown-block' v-else>
 			<Markdown :content='showingMore ? tagData.description : tagDescription'/>
 			<button v-show='showMore && !showingMore' class='show-more' @click='showingMore=true'>show more</button>
@@ -485,7 +485,8 @@ ul {
 }
 .markdown-editor {
 	background: var(--bg2color);
-	margin-bottom: 25px;
+	margin: 0 auto 25px;
+	width: 70vw;
 }
 .mobile .markdown-block, .mobile .tag, .mobile .add-inherited-tag {
 	width: auto;
@@ -629,6 +630,9 @@ ul {
 @media only screen and (max-width: 1200px) {
 	.tag, .add-inherited-tag {
 		margin: 0 0 25px;
+		width: auto;
+	}
+	.markdown-editor, .markdown-block {
 		width: auto;
 	}
 }

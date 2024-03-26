@@ -47,7 +47,6 @@ import { createToast, khatch } from '@/utilities';
 import { postsHost } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
-import Button from '@/components/Button.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import Post from '@/components/Post.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
@@ -58,7 +57,6 @@ export default {
 	components: {
 		ThemeMenu,
 		Title,
-		Button,
 		RadioButtons,
 		Post,
 		MarkdownEditor,

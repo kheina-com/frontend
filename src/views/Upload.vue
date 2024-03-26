@@ -35,7 +35,7 @@
 									v-model:checked='showResize'
 									@click='update.webResize = "1500"'
 								>Resize For Web</CheckBox>
-								<Button @click='uploadFile(true)' green><i class='material-icons'>upload</i>Upload</Button>
+								<Button @click='uploadFile(true)' green><i class='material-icons'>upload</i><span>Upload</span></Button>
 							</div>
 						</div>
 					</div>
@@ -72,7 +72,7 @@
 					<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
 					<MarkdownEditor v-model:value='update.description' :hideGuide='true' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
 					<div class='markdown-editor' v-else>
-						<textarea v-model='update.description' @keydown.tab.prevent='tab' class='interactable text'/>
+						<MarkdownEditor v-model:value='update.description' :hideGuide='true' :hidePreview='true' style='grid-area: editor'/>
 						<Markdown :content='update.description || "**Your description is empty.**"'/>
 					</div>
 				</div>
@@ -220,10 +220,10 @@
 				</div>
 			</div>
 			<div class='actions'>
-				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i>test</Button>
-				<Button @click='markDraft' :isLoading='saving' v-show='privacy === "unpublished"'><i class='material-icons'>note_add</i>Mark Draft</Button>
-				<Button @click='savePost' :isLoading='saving'><i class='material-icons'>save</i>Save</Button>
-				<Button @click='publishPost' :isLoading='saving' green><i class='material-icons'>publish</i>Publish</Button>
+				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i><span>test</span></Button>
+				<Button @click='markDraft' :isLoading='saving' v-show='privacy === "unpublished"'><i class='material-icons'>note_add</i><span>Mark Draft</span></Button>
+				<Button @click='savePost' :isLoading='saving'><i class='material-icons'>save</i><span>Save</span></Button>
+				<Button @click='publishPost' :isLoading='saving' green><i class='material-icons'>publish</i><span>Publish</span></Button>
 			</div>
 		</div>
 		<ThemeMenu/>
@@ -600,7 +600,7 @@ export default {
 
 				if (this.title !== this.update.title) {
 					sendUpdate = true;
-					this.title = this.update.title;
+					this.title = this.update.title = this.update.title.trim();
 				}
 
 				if (this.description !== this.update.description) {
@@ -625,8 +625,8 @@ export default {
 						errorMessage: 'failed to update post!',
 						body: {
 							post_id: this.postId,
-							title: this.title ? this.title.trim() : null,
-							description: this.description ?? null,
+							title: this.title,
+							description: this.description,
 							rating: this.rating,
 							parent: this.parent,
 						},
@@ -907,7 +907,7 @@ main {
 .form > :first-child {
 	margin-top: 0;
 }
-.form span {
+.form div > span {
 	position: relative;
 	left: 25px;
 	padding: 0 0 2px;
