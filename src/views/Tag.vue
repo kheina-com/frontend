@@ -188,29 +188,16 @@ export default {
 	created() {
 		this.fetchPosts();
 
-		khatch(`${tagsHost}/v1/tag/${encodeURIComponent(this.tag)}`)
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{
-						this.tagData = r;
-						setTitle(`${r.tag}, ${r.group} tag | fuzz.ly`);
-					}
-					else if (response.status === 400)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 401)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 404)
-					{ this.$store.commit('error', r.error); }
-					else
-					{ this.$store.commit('error', apiErrorMessage, r); }
-
-				});
-			})
-			.catch(error => {
-				this.$store.commit('error', apiErrorMessage, error);
-				console.error(error);
-			});
+		khatch(`${tagsHost}/v1/tag/${encodeURIComponent(this.tag)}`, {
+			errorMessage: "Could not fetch tag details!",
+			errorHandlers: {
+				404: r => r.json().then(r => this.$store.commit("error", r.error || "NotFound: the provided tag does not exist.")),
+			},
+		}).then(r => r.json())
+		.then(r => {
+			this.tagData = r;
+			setTitle(`${r.tag}, ${r.group} tag | fuzz.ly`);
+		});
 
 		this.$watch(
 			() => this.$route.query,
@@ -249,8 +236,7 @@ export default {
 			this.count = parseInt(this.$route.query?.count) || 64;
 			this.sort = this.$route.query?.sort || 'hot';
 
-			if (window.history.state.posts)
-			{
+			if (window.history.state.posts) {
 				this.posts = window.history.state.posts;
 				this.total_results = window.history.state.total;
 				return;
@@ -269,8 +255,7 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						if (response.status < 300)
-						{
+						if (response.status < 300) {
 							saveToHistory(r)
 							this.posts = r.posts;
 							this.total_results = r.total;
@@ -293,8 +278,7 @@ export default {
 		},
 		editToggle() {
 			this.editing = !this.editing;
-			if (this.editing)
-			{
+			if (this.editing) {
 				this.updateBody.name = this.tag;
 				this.updateBody.group = this.tagData.group;
 				this.updateBody.description = this.tagData.description;
@@ -355,22 +339,19 @@ export default {
 					body,
 				})
 				.then(response => {
-					if (response.status < 400)
-					{
-						if (body.name)
-						{
+					if (response.status < 400) {
+						if (body.name) {
 							this.$router.push('/t/' + body.name);
 							return;
 						}
 						this.tagData.group = body?.group ?? this.tagData?.group;
 						this.tagData.description = body?.description ?? this.tagData?.description;
 
-						if (body.hasOwnProperty('owner'))
-						{
-							if (!body.owner)
-							{ this.tagData.owner = null; }
-							else
-							{
+						if (body.hasOwnProperty('owner')) {
+							if (!body.owner) {
+								this.tagData.owner = null;
+							}
+							else {
 								khatch(`${usersHost}/v1/fetch_user/${body.owner}`, {
 									errorMessage: 'Failed to retrieve new tag owner.',
 								}).then(response => {
@@ -388,8 +369,7 @@ export default {
 						this.pendingUpdate = false;
 						this.editing = false;
 					}
-					else 
-					{
+					else {
 						response.json().then(r => {
 							if (response.status === 400)
 							{ this.$store.commit('error', r.error); }
@@ -419,7 +399,7 @@ export default {
 			if (this.sort !== 'hot')
 			{ query.push(`sort=${this.sort}`); }
 
-			return '/t/' + this.tag + '?' + query.join('&');
+			return '/t/' + encodeURIComponent(this.tag) + '?' + query.join('&');
 		},
 		setPage(page) {
 			this.page = page;

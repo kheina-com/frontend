@@ -11,7 +11,7 @@
 			<CopyText :content='dump'/>
 		</div>
 		<div style='display: flex; justify-content: center'>
-			<router-link :to='`/`' class='interactable'>Home</router-link>
+			<Button @click='$router.back()'>Back</Button>
 		</div>
 		<ThemeMenu/>
 	</main>
@@ -22,6 +22,7 @@ import Subtitle from '@/components/Subtitle.vue';
 import Title from '@/components/Title.vue';
 import CopyText from '@/components/CopyText.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
+import Button from '@/components/Button.vue';
 
 export default {
 	name: 'Error',
@@ -30,6 +31,7 @@ export default {
 		Title,
 		CopyText,
 		ThemeMenu,
+		Button,
 	},
 	props: {
 		message: String,

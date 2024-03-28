@@ -209,6 +209,20 @@ const mdMakeRequest = (url, silent=false) => {
 	});
 };
 
+export const mdTokenizer = {
+	emStrong(src, maskedSrc, prevChar) {
+		// this prevents marked from rendering *furry rp text*
+		if (!src.match(/^\*[^\*]/)) {
+			return false;
+		}
+
+		return {
+			type: "text",
+			raw: "*",
+			text: "*",
+		};
+	},
+};
 
 export const mdRenderer = {
 	html: htmlEscape,

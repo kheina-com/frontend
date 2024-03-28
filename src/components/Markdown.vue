@@ -6,7 +6,7 @@
 <script> 
 import { ref } from 'vue';
 import { lazyConfig } from '@/utilities';
-import { mdEscape, mdExtensions, mdRenderer } from '@/utilities/markdown';
+import { mdEscape, mdExtensions, mdRenderer, mdTokenizer } from '@/utilities/markdown';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
@@ -26,13 +26,14 @@ marked.setOptions({
 marked.use({
 	extensions: mdExtensions,
 	renderer: mdRenderer,
+	tokenizer: mdTokenizer,
 });
-
+//// for debugging
 // marked.Lexer.lex = function (src, options) {
 // 	const lexer = new marked.Lexer(options);
 
 // 	const a = lexer.lex(src)
-// 	if (src.includes('strawberry'))
+// 	// if (src.includes('strawberry'))
 // 	{ console.log(a); }
 
 // 	return a;

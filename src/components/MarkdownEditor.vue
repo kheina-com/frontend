@@ -70,7 +70,7 @@ export default {
 		};
 	},
 	mounted() {
-		this.$refs.mdTextArea.style=`height: ${this.height}; resize: ${this.resize}`;
+		this.$refs.mdTextArea.style=`min-height: ${this.height}; resize: ${this.resize}`;
 	},
 	methods: {
 		tab,
@@ -83,15 +83,12 @@ export default {
 			switch (e.key) {
 				case "(":
 					text = "(" + this.selection(e) + ")";
-					e.preventDefault();
 					break;
 				case "[":
 					text = "[" + this.selection(e) + "]";
-					e.preventDefault();
 					break;
 				case "{":
 					text = "{" + this.selection(e) + "}";
-					e.preventDefault();
 					break;
 				case '"':
 				case "'":
@@ -103,11 +100,13 @@ export default {
 					else {
 						text = e.key;
 					}
-					e.preventDefault();
 					break;
 				default:
 					return;
 			}
+
+			e.preventDefault();
+
 			const start = e.target.selectionStart;
 			const end = e.target.selectionEnd;
 			if (!document.execCommand || !document.execCommand("insertText", false, text)) {

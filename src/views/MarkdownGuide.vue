@@ -5,7 +5,7 @@
 	</main>
 	<main id='feature' v-else>
 		<div class='guide'>
-			<textarea class='interactable text' resize='vertical' @keydown.tab.prevent='tab' v-model='content'/>
+			<MarkdownEditor v-model:value='content' :hideGuide='true' :hidePreview='true' style='grid-area: editor' resize='vertical'/>
 			<Markdown :content='content'/>
 		</div>
 	</main>
