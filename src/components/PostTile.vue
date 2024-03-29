@@ -37,7 +37,7 @@
 		</div>
 	</div>
 	<div class='post tile nested link no-buttons' v-else>
-		<Thumbnail class='thumbnail' :size='400' :post='postId' :width='size?.width' :height='size?.height' :thumbhash='thumbhash' v-if='media_type'/>
+		<Thumbnail class='thumbnail' :key='postId' :size='400' :post='postId' :width='size?.width' :height='size?.height' :thumbhash='thumbhash' v-if='media_type'/>
 		<div class='text' v-else>
 			<div class='parent' v-if='parent'>
 				<Loading span v-if='parentData === null'>this is an example title</Loading>

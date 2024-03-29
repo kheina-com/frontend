@@ -41,11 +41,10 @@
 				<p>note: signature is not checked</p>
 			</div>
 		</div>
-		<CopyText content="a"/>
 		<div class='post-tiles'>
 			<ol>
 				<li>
-					<PostTile :key='postId' :postId='postId' :nested='true' v-bind='post'/>
+					<PostTile :postId='post?.post_id' v-bind='post' :nested='true'/>
 				</li>
 			</ol>
 			<div class='buttons'>
@@ -95,7 +94,6 @@ import epoch from '@/config/constants';
 import { environment, postsHost } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
-import CopyText from '@/components/CopyText.vue';
 
 
 export default {
@@ -107,7 +105,6 @@ export default {
 		Button,
 		Markdown,
 		PostTile,
-		CopyText,
 	},
 	data() {
 		return {
@@ -120,13 +117,12 @@ export default {
 			environment,
 			colors: [],
 			cutoff: null,
-			thumbhash: null,
-			postId: 'ugE_qTJL',
+			postId: null,
 			post: null,
 		};
 	},
 	mounted() {
-		this.toggleThumbhash();
+		this.postId = "ugE_qTJL";
 	},
 	methods: {
 		createToast,
@@ -221,12 +217,6 @@ export default {
 			this.postId = this.postId ? null : this.post.post_id;
 			console.log(this.postId);
 		},
-		toggleThumbhash() {
-			this.thumbhash = this.thumbhash ? null : this.post?.thumbhash;
-			if (this.thumbhash === null) {
-				document.getElementsByClassName("thumbnail")[0].firstElementChild.style = null;
-			}
-		},
 	},
 	computed: {
 		cookie() {
@@ -252,7 +242,6 @@ export default {
 						r.favorites = 0;
 						r.reposts = 0;
 						this.post = r;
-						this.thumbhash = r.thumbhash;
 					});
 				});
 			}

@@ -41,7 +41,7 @@
 			</div> -->
 			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 			<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' @load='onLoad' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
+				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-show='!acceptedMature'>
 					this post contains <b>{{rating}}</b> content, click here to show it anyway.
 				</button>
@@ -54,7 +54,7 @@
 				<Report :data='{ post: postId }' v-if='!isLoading'/>
 				<RepostButton :postId='postId' v-bind:count='reposts'/>
 				<FavoriteButton :postId='postId' v-bind:count='favorites'/>
-				<ShareLink class='post-buttons' :content='`/p/${postId}`' v-if='post?.privacy !== "unpublished"'/>
+				<ShareLink class='post-buttons' :content='`/p/${postId}`' v-if='!unpublishedPrivacy.has(privacy)'/>
 				<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
 					<i class='material-icons'>reply</i>
 				</button>
@@ -184,11 +184,11 @@ export default {
 			default: false,
 		},
 		created: {
-			type: Date,
+			type: String,
 			default: null,
 		},
 		updated: {
-			type: Date,
+			type: String,
 			default: null,
 		},
 		filename: {
@@ -258,7 +258,7 @@ export default {
 	// },
 	computed: {
 		mediaUrl()
-		{ return this.post !== null ? getMediaUrl(this.postId, this.post.filename) : ''; },
+		{ return this.postId !== null ? getMediaUrl(this.postId, this.filename) : ''; },
 		hasMedia()
 		{ return this.tags !== null ? !this.tags.includes('text') : true; },
 		isLoading()
@@ -268,7 +268,7 @@ export default {
 		showPrivacy()
 		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
 		isUpdated()
-		{ return this.post !== null ? this.created !== this.updated : false; },
+		{ return this.postId !== null ? this.created !== this.updated : false; },
 		target()
 		{ return this.to || '/p/' + this.postId; },
 	},
@@ -511,6 +511,8 @@ export default {
 	max-height: 300px;
 	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
+	position: relative;
+	pointer-events: none;
 	display: flex;
 }
 
@@ -686,6 +688,7 @@ ol > :last-child, ol > :last-child .post {
 	align-self: center;
 	max-width: 100%;
 	margin: auto var(--margin);
+	pointer-events: all;
 }
 .nested .show-mature {
 	background: var(--bg1color);
