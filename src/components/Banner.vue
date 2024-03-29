@@ -429,7 +429,7 @@ html.mobile .menu-open .menu, .menu-open .menu {
 }
 
 .menu .inner {
-	padding: 0.5em 25px 0;
+	padding: 0.5em var(--margin) 0;
 	margin: 0;
 	overflow: auto;
 	height: 80%;
@@ -488,12 +488,12 @@ html.mobile .menu-open .menu, .menu-open .menu {
 	font-size: 1.5em;
 }
 .markdown {
-	padding: 20px 0 25px;
+	padding: 20px 0 var(--margin);
 	position: relative;
 	background: var(--bg1color);
 }
 textarea {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 	min-width: 800px;
 	width: 50vw;
 	resize: none;
@@ -648,7 +648,7 @@ html.mobile .menu-open .create p, .menu-open .create p {
 
 .edit-message-button {
 	position: absolute;
-	right: 25px;
+	right: var(--margin);
 	padding: 0.25em;
 	top: calc(2.5rem + 20px);
 }
@@ -664,10 +664,10 @@ html.mobile .menu-open .create p, .menu-open .create p {
 	align-items: center;
 }
 .edit-message button {
-	margin: 0 12.5px
+	margin: 0 var(--half-margin)
 }
 .theme-menu {
-	margin-top: 25px;
+	margin-top: var(--margin);
 }
 
 /* MOBILE */
@@ -714,7 +714,7 @@ html.mobile .menu-open .create p, .menu-open .create p {
 }
 
 .menu-footer {
-	margin-top: 25px;
+	margin-top: var(--margin);
 }
 .menu-footer img {
 	opacity: 33.333%;

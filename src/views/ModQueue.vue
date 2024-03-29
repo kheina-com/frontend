@@ -33,7 +33,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 i {
 	margin: 0 0.25em 0 0;
@@ -46,7 +46,7 @@ i {
 	align-content: center;
 }
 .container {
-	margin: 25px auto 0;
+	margin: var(--margin) auto 0;
 	text-align: center;
 }
 </style>

@@ -265,7 +265,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 	display: block;
 }
 
@@ -287,14 +287,14 @@ ol {
 	padding: 0;
 }
 ol li {
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 ol > :last-child {
 	margin-bottom: 0;
 }
 
 .post-tiles {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 .post-tiles ol {
 	display: flex;
@@ -302,10 +302,10 @@ ol > :last-child {
 	flex-wrap: wrap;
 	justify-content: space-around;
 	align-items: center;
-	margin: -12.5px;
+	margin: var(--neg-half-margin);
 }
 .post-tiles ol li {
-	margin: 12.5px;
+	margin: var(--half-margin);
 }
 
 .user-field {
@@ -342,8 +342,8 @@ i {
 
 .token {
 	display: grid;
-	grid-template-columns: [editor-start] 1fr [editor-end] 25px [preview-start] 1fr [preview-end];
-	margin: 0 auto 25px;
+	grid-template-columns: [editor-start] 1fr [editor-end] var(--margin) [preview-start] 1fr [preview-end];
+	margin: 0 auto var(--margin);
 	min-width: 1000px;
 	position: relative;
 }
@@ -363,7 +363,7 @@ i {
 
 .mobile .token textarea {
 	height: 15em;
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 
 .token div {
@@ -374,7 +374,7 @@ i {
 	display: flex;
 }
 .buttons > * {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .buttons > *:last-child {
 	margin-right: 0;
@@ -401,7 +401,7 @@ i {
 }
 
 .color-comparer div {
-	padding: 5em 25px;
+	padding: 5em var(--margin);
 }
 
 .color-comparer div>* {
@@ -414,6 +414,6 @@ i {
 
 .color-bar,
 .color-text {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 </style>

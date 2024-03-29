@@ -69,7 +69,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 
 input {
@@ -95,7 +95,7 @@ input:active, input:focus {
 .container {
 	width: 60vw;
 	min-width: 600px;
-	margin: 25px auto 0;
+	margin: var(--margin) auto 0;
 }
 .mobile .container {
 	width: 100%;
@@ -109,7 +109,7 @@ button {
 
 .container-title {
 	position: relative;
-	left: 25px;
+	left: var(--margin);
 	padding: 0 0 2px;
 	display: inline-block;
 }
@@ -118,7 +118,7 @@ button {
 	display: flex;
 }
 .input-field input {
-	margin-right: 25px;
+	margin-right: var(--margin);
 	width: 100%;
 }
 .input-field i {

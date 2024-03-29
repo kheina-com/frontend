@@ -158,7 +158,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 	display: block;
 }
 ol {
@@ -167,7 +167,7 @@ ol {
 	padding: 0;
 }
 ol li {
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 ol > :last-child {
 	margin-bottom: 0;
@@ -179,14 +179,14 @@ ol > :last-child {
 	flex-wrap: wrap;
 	justify-content: space-around;
 	align-items: center;
-	margin: -12.5px;
+	margin: var(--neg-half-margin);
 }
 .tiles ol li {
-	margin: 12.5px;
+	margin: var(--half-margin);
 }
 
 .page-links {
-	margin-top: 25px;
+	margin-top: var(--margin);
 }
 
 .sort-dropdown {
@@ -216,16 +216,16 @@ ol > :last-child {
 	/* --bg2color: var(--bg1color); */
 	--bg1color: var(--bg0color);
 	background: #0000;
-	padding: 0 25px;
+	padding: 0 var(--margin);
 }
 .buttons {
-	margin: 0 25px;
+	margin: 0 var(--margin);
 	display: flex;
 	justify-content: end;
 }
 .buttons button {
 	color: var(--subtle);
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .buttons button:hover {
 	color: var(--interact);

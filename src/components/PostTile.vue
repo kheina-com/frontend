@@ -304,7 +304,7 @@ export default {
 	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
-	padding: 25px 25px 2px;
+	padding: var(--margin) var(--margin) 2px;
 	align-items: flex-start;
 	position: relative;
 	border: var(--border-size) solid var(--bordercolor);
@@ -325,7 +325,7 @@ export default {
 	height: 100%;
 }
 .post.no-buttons {
-	padding: 25px;
+	padding: var(--margin);
 }
 .thumbnail, .show-mature {
 	max-width: 20em;
@@ -389,7 +389,7 @@ export default {
 	margin-bottom: 0;
 }
 .bottom-margin {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 .buttons {
 	margin: -5px -15px 0;

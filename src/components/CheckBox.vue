@@ -101,7 +101,7 @@ label {
 	padding-left: 0.3em;
 }
 span {
-	margin: 0 25px 0 0;
+	margin: 0 var(--margin) 0 0;
 }
 .check-boxes {
 	display: flex;

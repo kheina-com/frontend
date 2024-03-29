@@ -48,10 +48,10 @@ export default {
 	position: relative;
 	pointer-events: all;
 	background: var(--bg2color);
-	padding: 25px;
+	padding: var(--margin);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 	width: 20vw;
 	min-width: 400px;
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);

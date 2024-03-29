@@ -15,6 +15,19 @@
 		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
 		<div class='form'>
 			<Loading type='block' :isLoading='isUploading'>
+				<!-- this hasn't been implemented server-side yet, though the field is already handled here -->
+				<!-- <div class='field'>
+					<div>
+						<span>Reply To</span>
+						<input class='interactable text' v-model='update.parent'>
+						<div v-if='validParent'>
+							<Post :postId='parentPost.post_id' v-bind='parentPost' style='margin-top: var(--margin)' nested hideButtons/>
+						</div>
+						<div v-else-if='update.parent' style='margin-top: var(--margin)'>
+							invalid post id
+						</div>
+					</div>
+				</div> -->
 				<div class='field'>
 					<div>
 						<span>File</span>
@@ -58,7 +71,7 @@
 					<ProgressBar :fill='uploadProgress'/>
 				</template>
 			</Loading>
-			<!-- <Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: 25px' v-else/> -->
+			<!-- <Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: var(--margin)' v-else/> -->
 			<div class='field'>
 				<div>
 					<span>Title</span>
@@ -69,7 +82,7 @@
 			<div class='field'>
 				<div>
 					<span>Description</span>
-					<router-link style='position: absolute; right: 25px; font-size: 0.9em' to='/md'>markdown guide</router-link>
+					<router-link style='position: absolute; right: var(--margin); font-size: 0.9em' to='/md'>markdown guide</router-link>
 					<MarkdownEditor v-model:value='update.description' :hideGuide='true' style='min-width: 100%; display: inline-block; transform: translateX(-50%); left: 50%;' v-if='isMobile'/>
 					<div class='markdown-editor' v-else>
 						<MarkdownEditor v-model:value='update.description' :hideGuide='true' :hidePreview='true' style='grid-area: editor'/>
@@ -79,22 +92,10 @@
 			</div>
 			<div class='field'>
 				<div>
-					<span>Reply To</span>
-					<input class='interactable text' v-model='update.parent'>
-					<div v-if='validParent'>
-						<Post :postId='parentPost.post_id' v-bind='parentPost' style='margin-top: 25px' nested hideButtons/>
-					</div>
-					<div v-else-if='update.parent' style='margin-top: 25px'>
-						invalid post id
-					</div>
-				</div>
-			</div>
-			<div class='field'>
-				<div>
 					<span>Tags</span>
 					<div ref='tagDiv' class='tag-field interactable text' contenteditable='true' @input='tagTracker'></div>
 					<div class='frequently-used' v-if='tagSuggestions'>
-						<span style='margin-top: 25px'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
+						<span style='margin-top: var(--margin)'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
 						<div class='frequently-used-border'/>
 						<div v-show='showSuggestions'>
 							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
@@ -383,11 +384,8 @@ export default {
 				else {
 					khatch(`${postsHost}/v1/post/${postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
-					}).then(response => {
-						response.json().then(r => {
-							this.parentPost = r;
-						});
-					});
+					}).then(r => r.json())
+					.then(r => this.parentPost = r);
 				}
 			}
 			else {
@@ -456,8 +454,7 @@ export default {
 					post_id: this.postId,
 					privacy: 'draft',
 				},
-			}))
-			.then(r => {
+			})).then(() => {
 				this.privacy = 'draft';
 				createToast({
 					icon: 'done',
@@ -465,8 +462,7 @@ export default {
 					color: 'green',
 					time: 5,
 				});
-			})
-			.finally(() => this.saving = false);
+			}).finally(() => this.saving = false);
 		},
 		savePost() {
 			this.saving = true;
@@ -475,7 +471,6 @@ export default {
 			.finally(() => this.saving = false);
 		},
 		publishPost() {
-			console.log(this.update.privacy);
 			if (!PublishedPrivacies.has(this.update.privacy)) {
 				createToast({
 					title: 'Privacy Not Set!',
@@ -496,8 +491,7 @@ export default {
 			})).then(() => {
 				this.privacy = this.update.privacy;
 				this.$router.push(`/p/${this.postId}`);
-			})
-			.catch(() => this.saving = false);
+			}).catch(() => this.saving = false);
 		},
 		addTag(tag) {
 			if (this.activeTags.has(tag)) {
@@ -590,8 +584,6 @@ export default {
 		},
 		saveData() {
 			return new Promise((resolve, reject) => {
-				this.showData();
-
 				let sendUpdate = false;
 				let requiredSuccesses = 0;
 				let successes = 0;
@@ -616,6 +608,19 @@ export default {
 					this.parent = this.update.parent;
 				}
 
+				const success = () => {
+					successes++;
+					if (successes >= requiredSuccesses) {
+						createToast({
+							icon: 'done',
+							title: 'Post Updated!',
+							color: 'green',
+							time: 5,
+						});
+						resolve();
+					}
+				};
+
 				if (sendUpdate) {
 					requiredSuccesses++;
 					khatch(`${uploadHost}/v1/update_post`, {
@@ -628,23 +633,15 @@ export default {
 							rating: this.rating,
 							parent: this.parent,
 						},
-					}).then(() => {
-						successes++;
-						if (requiredSuccesses > 0 && successes >= requiredSuccesses) {
-							createToast({
-								icon: 'done',
-								title: 'Post Updated!',
-								color: 'green',
-								time: 5,
-							});
-							resolve();
-						}
-					}).catch(reject);
+					}).then(success)
+					.catch(reject);
 				}
+
+				const activeTags = new Set(this.activeTags);
 
 				let removedTags = [];
 				this.savedTags.forEach(tag => {
-					if (!this.activeTags.has(tag))
+					if (!activeTags.has(tag))
 					{ removedTags.push(tag); }
 				});
 
@@ -657,22 +654,12 @@ export default {
 							post_id: this.postId,
 							tags: removedTags,
 						},
-					}).then(() => {
-						successes++;
-						if (requiredSuccesses > 0 && successes >= requiredSuccesses) {
-							createToast({
-								icon: 'done',
-								title: 'Post Updated!',
-								color: 'green',
-								time: 5,
-							});
-							resolve();
-						}
-					}).catch(reject);
+					}).then(success)
+					.catch(reject);
 				}
 
 				let newTags = [];
-				this.activeTags.forEach(tag => {
+				activeTags.forEach(tag => {
 					if (!this.savedTags.has(tag))
 					{ newTags.push(tag); }
 				});
@@ -686,35 +673,21 @@ export default {
 							post_id: this.postId,
 							tags: newTags,
 						},
-					}).then(response => {
-						response.json().then(r => {
-							console.log(r);
-							this.$refs.tagDiv.innerText = Array.from(this.savedTags).join(' ');
-						});
-						successes++;
-						if (requiredSuccesses > 0 && successes >= requiredSuccesses) {
-							createToast({
-								icon: 'done',
-								title: 'Post Updated!',
-								color: 'green',
-								time: 5,
-							});
-							resolve();
-						}
-					}).catch(reject);
+					}).then(success)
+					.catch(reject);
 				}
 
 				if (requiredSuccesses === 0)
 				{ resolve(); }
 
-				console.log(JSON.parse(JSON.stringify({
-					activeTags: this.activeTags,
+				console.debug(JSON.parse(JSON.stringify({
+					activeTags,
 					newTags,
 					removedTags,
 					savedTags: this.savedTags,
 				})));
 
-				this.savedTags = this.activeTags;
+				this.savedTags = activeTags;
 			});
 		},
 		queryListener(event) {
@@ -732,7 +705,7 @@ export default {
 		postWatcher(value) {
 			if (this.$route.path !== path || this.postId === value)
 			{ return; }
-			console.log("postWatcher:", value);
+			console.debug("postWatcher:", value);
 
 			this.postId = value;
 			const unset = () => {
@@ -768,48 +741,45 @@ export default {
 				else {
 					khatch(`${postsHost}/v1/post/${this.postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
-					}).then(response => {
-						response.json().then(r => {
-							this.description = this.update.description = r.description;
-							this.title = this.update.title = r.title;
-							this.privacy = this.update.privacy = r.privacy;
-							this.rating = this.update.rating = r.rating;
-							this.parent = this.update.parent = r.parent;
-							this.mime = r.media_type?.mime_type;
-							if (r.filename) {
-								this.uploadDone = true;	
-								this.filename = r.filename;
-								this.mediaUrl = getMediaUrl(this.postId, this.filename);
-								this.width = r?.size?.width;
-								this.height = r?.size?.height;
-							}
-							else {
-								unset();
-							}
-							// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
-							// { this.uploadUnavailable = true; }
-						});
+					}).then(r => r.json())
+					.then(r => {
+						this.description = this.update.description = r.description ?? "";
+						this.title = this.update.title = r.title ?? "";
+						this.privacy = this.update.privacy = r.privacy;
+						this.rating = this.update.rating = r.rating;
+						this.parent = this.update.parent = r.parent ?? "";
+						this.mime = r.media_type?.mime_type;
+						if (r.filename) {
+							this.uploadDone = true;	
+							this.filename = r.filename;
+							this.mediaUrl = getMediaUrl(this.postId, this.filename);
+							this.width = r?.size?.width;
+							this.height = r?.size?.height;
+						}
+						else {
+							unset();
+						}
+						// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+						// { this.uploadUnavailable = true; }
 					});
 				}
 
 				khatch(`${tagsHost}/v1/tags/${this.postId}`, {
 					errorMessage: 'Unable To Retrieve Post Tags!',
-				}).then(response => {
-					response.json().then(r => {
-						this.savedTags = new Set(Object.values(r).flat());
-						this.colorizeTags(this.savedTags);
-						this.$refs.tagDiv.innerText = Array.from(this.savedTags).join(' ');
-					});
+				}).then(r => r.json())
+				.then(r => {
+					this.savedTags = new Set(Object.values(r).flat());
+					this.colorizeTags(this.savedTags);
+					this.$refs.tagDiv.innerText = Array.from(this.savedTags).join(' ');
 				});
 
 				khatch(`${tagsHost}/v1/frequently_used`, {
 					errorMessage: 'Unable To Retrieve Your Recommended Tags!',
 					errorHandlers: { 404: () => { } },
-				}).then(response => {
-					response.json().then(r => {
-						this.tagSuggestions = r;
-						setTimeout(this.colorizeTags)
-					});
+				}).then(r => r.json())
+				.then(r => {
+					this.tagSuggestions = r;
+					setTimeout(this.colorizeTags);
 				});
 			}
 			else {
@@ -818,11 +788,8 @@ export default {
 					method: 'POST',
 					errorMessage: 'Unable To Create New Post Draft!',
 					body: { },
-				}).then(response => {
-					response.json().then(r => {
-						document.dispatchEvent(new CustomEvent("router-event", { detail: { query: { post: r.post_id } } }));
-					});
-				});
+				}).then(r => r.json())
+				.then(r => document.dispatchEvent(new CustomEvent("router-event", { detail: { query: { post: r.post_id } } })));
 			}
 		},
 		tagTracker() {
@@ -867,7 +834,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 .form {
 	margin: 0 auto;
@@ -875,7 +842,7 @@ main {
 	position: relative;
 }
 .form .field {
-	margin: 25px 0;
+	margin: var(--margin) 0;
 }
 .form .flex {
 	display: flex;
@@ -886,10 +853,10 @@ main {
 	display: flex;
 	align-items: center;
 	flex-flow: wrap;
-	margin: 0 25px;
+	margin: 0 var(--margin);
 }
 .form .multi-field div {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .form .multi-field div, .form .multi-field span {
 	display: block;
@@ -928,7 +895,7 @@ main {
 	justify-content: flex-end;
 }
 .actions button, .actions .checkbox {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .actions > :last-child {
 	margin: 0;
@@ -941,7 +908,7 @@ main {
 }
 .form div > span {
 	position: relative;
-	left: 25px;
+	left: var(--margin);
 	padding: 0 0 2px;
 	display: inline-block;
 }
@@ -970,7 +937,7 @@ main {
 }
 .resize-field {
 	display: grid;
-	grid-template-columns: [input-start] 1fr [input-end] 25px [data-start] 1fr [data-end];
+	grid-template-columns: [input-start] 1fr [input-end] var(--margin) [data-start] 1fr [data-end];
 }
 .resize-field > :first-child {
 	grid-area: input;
@@ -981,7 +948,7 @@ main {
 }
 .resize-field > :last-child span {
 	left: initial;
-	right: 25px;
+	right: var(--margin);
 }
 .resize-field > :last-child div {
 	border-top: 1px solid var(--bordercolor);
@@ -989,7 +956,7 @@ main {
 
 .drafts-button {
 	z-index: 2;
-	top: 25px;
+	top: var(--margin);
 	left: 0;
 	position: absolute;
 	display: flex;
@@ -997,7 +964,7 @@ main {
 	padding-right: 0.25em;
 }
 .drafts-button i {
-	width: 25px;
+	width: var(--margin);
 }
 .mobile .drafts-button i {
 	width: auto;
@@ -1005,8 +972,8 @@ main {
 
 .menu-border {
 	border-bottom: var(--border-size) solid var(--bordercolor);
-	padding: 3.0625em 25px 0;
-	padding: calc(1.5em + 25px) 25px 0;
+	padding: 3.0625em var(--margin) 0;
+	padding: calc(1.5em + var(--margin)) var(--margin) 0;
 	margin: 0 20px;
 }
 
@@ -1039,12 +1006,12 @@ main {
 .drafts-panel ol {
 	list-style-type: none;
 	margin: 0;
-	padding: 0.5em 25px 0;
+	padding: 0.5em var(--margin) 0;
 	overflow: auto;
-	max-height: calc(100% - 25px - 2em);
+	max-height: calc(100% - var(--margin) - 2em);
 }
 .drafts-panel ol li {
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 
 h4 {
@@ -1067,7 +1034,7 @@ input {
 
 .markdown-editor {
 	display: grid;
-	grid-template-columns: [editor-start] 1fr [editor-end] 25px [preview-start] 1fr [preview-end];
+	grid-template-columns: [editor-start] 1fr [editor-end] var(--margin) [preview-start] 1fr [preview-end];
 }
 .markdown-editor textarea {
 	grid-area: editor;
@@ -1089,7 +1056,7 @@ input {
 }
 
 .checkboxes > div {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 
 .radio-buttons {
@@ -1114,13 +1081,13 @@ input {
 
 .frequently-used li {
 	list-style: none;
-	margin: 0 12.5px 10px;
+	margin: 0 var(--half-margin) 10px;
 }
 
 .frequently-used > div {
 	display: flex;
 	width: calc(100vw - 50px);
-	left: calc(50% - 50vw + 25px);
+	left: calc(50% - 50vw + var(--margin));
 	position: relative;
 }
 .mobile .frequently-used > div {
@@ -1130,6 +1097,7 @@ input {
 .frequently-used button {
 	display: inline-flex;
 	align-items: center;
+	white-space: nowrap;
 }
 
 .frequently-used .group-title {
@@ -1140,7 +1108,7 @@ input {
 	margin: 0;
 }
 .mobile .frequently-used .group-title {
-	left: 25px;
+	left: var(--margin);
 }
 
 .frequently-used-border {
@@ -1160,7 +1128,7 @@ html.e621 main {
 		flex-direction: column;
 	}
 	.frequently-used .group-title {
-		left: 25px;
+		left: var(--margin);
 	}
 }
 </style>

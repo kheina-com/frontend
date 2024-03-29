@@ -174,7 +174,7 @@ export default {
 .top span
 { 
 	position: relative;
-	left: 25px;
+	left: var(--margin);
 	padding: 0 0 8px;
 }
 .top .source span
@@ -204,7 +204,7 @@ export default {
 .top .source
 {
 	display: block;
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 	text-align: left;
 	overflow: hidden;
 }

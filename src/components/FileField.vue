@@ -113,7 +113,7 @@ export default {
 <style scoped>
 label {
 	width: 100%;
-	padding: 25px;
+	padding: var(--margin);
 	border-radius: var(--border-radius);
 	border-style: dashed;
 	border-width: 2px;

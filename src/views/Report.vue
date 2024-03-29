@@ -103,13 +103,13 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 .container {
 	position: relative;
 	width: 50vw;
 	min-width: 600px;
-	margin: 25px auto 0;
+	margin: var(--margin) auto 0;
 }
 .mobile .container {
 	width: 100%;
@@ -121,7 +121,7 @@ textarea {
 }
 span {
 	position: relative;
-	left: 25px;
+	left: var(--margin);
 }
 pre {
 	background: var(--bg2color);
@@ -135,13 +135,13 @@ pre code {
 	padding: 0;
 }
 .type-select {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 .radio-buttons {
 	justify-content: center;
 }
 .buttons {
-	margin-top: 25px;
+	margin-top: var(--margin);
 	text-align: right;
 }
 
@@ -150,12 +150,12 @@ span {
 }
 
 .post {
-	margin-top: 25px;
+	margin-top: var(--margin);
 }
 
 .md-link {
 	position: absolute;
-	right: 25px;
+	right: var(--margin);
 	font-size: 0.9em;
 	color: var(--subtle);
 }

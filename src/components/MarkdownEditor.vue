@@ -148,7 +148,7 @@ button i {
 .markdown-container {
 	background: var(--bg2color);
 	border: var(--border-size) solid var(--bordercolor);
-	padding: 25px;
+	padding: var(--margin);
 	border-radius: var(--border-radius);
 }
 .markdown {
@@ -157,7 +157,7 @@ button i {
 }
 .guide {
 	position: absolute;
-	right: 25px;
+	right: var(--margin);
 	top: -1.3em;
 	font-size: 0.9em;
 	text-decoration: none;

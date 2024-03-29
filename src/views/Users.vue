@@ -73,7 +73,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 	display: block;
 }
 ol {
@@ -82,7 +82,7 @@ ol {
 	padding: 0;
 }
 ol li {
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 ol li a {
 	display: block;

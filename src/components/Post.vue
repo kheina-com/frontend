@@ -64,7 +64,7 @@
 			<li v-if='replying'>
 				<MarkdownEditor v-model:value='replyMessage' resize='vertical' class='bottom-margin'/>
 				<div class='reply-buttons'>
-					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+					<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
 					<Button class='interactable' @click='replying = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 				</div>
 			</li>
@@ -464,7 +464,7 @@ export default {
 	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
-	padding: 25px;
+	padding: var(--margin);
 	align-items: flex-start;
 	position: relative;
 	border: var(--border-size) solid var(--bordercolor);
@@ -513,9 +513,6 @@ export default {
 	margin: 0 auto 0 0;
 	display: flex;
 }
-.mobile .thumbnail {
-	margin: 0 auto 0;
-}
 
 .header-block {
 	display: flex;
@@ -524,7 +521,7 @@ export default {
 }
 
 .post-header {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 	display: flex;
 	flex-flow: column;
 	align-items: flex-start;
@@ -556,7 +553,7 @@ a.profile:hover {
 	margin: -0.5em 0.5em 0 -0.5em;
 }
 .mobile .score {
-	margin: -25px 0 0 -25px;
+	margin: var(--neg-margin) 0 0 var(--neg-margin);
 }
 .nested .score {
 	--bg2color: var(--bg1color);
@@ -567,7 +564,7 @@ a.profile:hover {
 .labels {
 	display: flex;
 	position: absolute;
-	right: 25px;
+	right: var(--margin);
 	align-items: flex-end;
 	flex-direction: column;
 }
@@ -589,29 +586,29 @@ textarea {
 }
 .update-button {
 	position: absolute;
-	right: 25px;
-	bottom: 25px;
+	right: var(--margin);
+	bottom: var(--margin);
 	display: flex;
 }
 .update-button button {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .update-button > :last-child {
 	margin: 0;
 }
 .description.loading {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 
 ol {
 	list-style: none;
 	padding: 0;
-	margin: 25px 0 0 25px;
+	margin: var(--margin) 0 0 var(--margin);
 	display: block;
 	position: relative;
 }
 ol li {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 ol > :last-child, ol > :last-child .post {
 	margin: 0;
@@ -620,7 +617,7 @@ ol > :last-child, ol > :last-child .post {
 	position: absolute;
 	bottom: 50%;
 	left: -14px;
-	height: calc(50% + 25px);
+	height: calc(50% + var(--margin));
 	width: 13px;
 	border-bottom-left-radius: 12px;
 	border-width: 0 0 2px 2px;
@@ -660,10 +657,10 @@ ol > :last-child, ol > :last-child .post {
 }
 .mobile .buttons {
 	width: calc(100% + 50px);
-	margin: 0 -25px -25px;
+	margin: 0 var(--neg-margin) var(--neg-margin);
 }
 .mobile .buttons button, .mobile .buttons a {
-	padding: 0 25px 25px;
+	padding: 0 var(--margin) var(--margin);
 	margin: 0;
 }
 .reply-button {
@@ -683,18 +680,18 @@ ol > :last-child, ol > :last-child .post {
 	justify-content: flex-end;
 }
 .show-mature {
-	padding: 25px;
+	padding: var(--margin);
 	background: var(--bg2color);
 	position: absolute;
 	align-self: center;
 	max-width: 100%;
-	margin: auto 25px;
+	margin: auto var(--margin);
 }
 .nested .show-mature {
 	background: var(--bg1color);
 }
 .bottom-margin {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 
 .more-button i {
@@ -717,8 +714,8 @@ ol > :last-child, ol > :last-child .post {
 	background: var(--bg1color);
 }
 .mobile .more-button {
-	padding: 25px;
-	margin: -25px;
+	padding: var(--margin);
+	margin: var(--neg-margin);
 }
 
 .mobile .thumbnail {
@@ -726,6 +723,8 @@ ol > :last-child, ol > :last-child .post {
 	overflow: hidden;
 	/* this is necessary so that we can calc thumbnails sizes off of the max width */
 	max-width: calc(100vw - 100px - 2 * var(--border-size));
+	margin-left: auto;
+	margin-right: auto;
 }
 .mobile .thumbnail img {
 	max-height: 100%;

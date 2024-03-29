@@ -29,18 +29,18 @@ export default {
 <style scoped>
 .cookies {
 	position: fixed;
-	left: 25px;
-	bottom: 25px;
+	left: var(--margin);
+	bottom: var(--margin);
 	background: var(--bg1color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
-	padding: 25px;
+	padding: var(--margin);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 	z-index: 1;
 	display: flex;
 }
 .interactable {
-	margin: 0 0 0 25px;
+	margin: 0 0 0 var(--margin);
 	display: inline-block;
 }
 .cookies a:link, .cookies a:visited {

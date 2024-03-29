@@ -2,7 +2,7 @@
 	<main>
 		<div style='display: flex; flex-direction: column; align-items: center'>
 			I haven't gotten around to building a proper content policy yet, but here's the gist:
-			<p style='margin-bottom: 0; padding-top: 25px'>
+			<p style='margin-bottom: 0; padding-top: var(--margin)'>
 				pretty much everything is allowed with exception to the following:
 				<ul>
 					<li>NSFW underage content</li>
@@ -35,6 +35,6 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 </style>

@@ -34,13 +34,13 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 	display: block;
 }
 
 p {
 	text-align: center;
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 	width: 70vw;
 }
 

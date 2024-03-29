@@ -137,7 +137,7 @@ i
 {
 	top: -0.1em;
 	position: absolute;
-	right: -25px;
+	right: var(--neg-margin);
 }
 span
 {

@@ -85,13 +85,13 @@ export default {
 
 <style scoped>
 h3 {
-	margin: 0 12.5px 12px;
+	margin: 0 var(--half-margin) 12px;
 	border-bottom: var(--border-size) solid var(--bordercolor);
-	padding: 0 12.5px 12px;
+	padding: 0 var(--half-margin) 12px;
 }
 ol {
 	list-style: none;
-	margin: 0 25px 0;
+	margin: 0 var(--margin) 0;
 	padding: 0;
 }
 
@@ -126,6 +126,6 @@ html.e621 .mature a::after {
 }
 
 .post-data {
-	margin: 0 1em 0 25px;
+	margin: 0 1em 0 var(--margin);
 }
 </style>

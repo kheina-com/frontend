@@ -71,7 +71,7 @@ a {
 
 .content {
 	position: relative;
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 	width: 400px;
 }
 

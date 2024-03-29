@@ -41,7 +41,7 @@ export default {
 
 <style scoped>
 .tag {
-	padding: 25px;
+	padding: var(--margin);
 	background: var(--bg1color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);

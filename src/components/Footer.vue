@@ -79,7 +79,7 @@ export default {
 	margin: 4px 0 0;
 	font-size: 0.9rem;
 	white-space: nowrap;
-	padding: 0 25px 25px;
+	padding: 0 var(--margin) var(--margin);
 	text-align: center;
 }
 .footer .anchor

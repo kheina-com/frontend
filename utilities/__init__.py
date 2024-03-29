@@ -16,7 +16,7 @@ concise_regex = re_compile(r'((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?')
 description_limit = 250
 
 markdown_regex = re_compile('|'.join([
-	r'\[.+\]\((.+)\)',
+	r'\[(.+)\]\(.+\)',
 	r'#{1,6} ',
 	r'`+',
 	r'[><]\s?(.+?)\s?[><](?=\n|$)',

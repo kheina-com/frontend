@@ -19,6 +19,6 @@ export default {
 	right: 0;
 	font-size: 0.9em;
 	color: var(--subtle);
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 </style>

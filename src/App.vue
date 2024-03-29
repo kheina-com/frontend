@@ -256,8 +256,7 @@ html, html * {
 	scrollbar-width: thin;
 }
 
-a, input, label, textarea
-{
+a, input, label, textarea {
 	cursor: pointer;
 	pointer-events: all;
 	text-decoration: none;
@@ -282,13 +281,11 @@ input:hover::placeholder {
 }
 a:link, a:visited
 { color: var(--textcolor); }
-a:hover
-{
+a:hover {
 	color: var(--interact) !important;
 	opacity: 1 !important;
 }
-button
-{
+button {
 	font-size: 1em;
 	padding: 0;
 	border: none;
@@ -311,15 +308,13 @@ textarea {
 	padding: 0.5em;
 }
 
-::-webkit-scrollbar
-{
+::-webkit-scrollbar {
 	width: 12px;
 	height:12px;
 }
 ::-webkit-scrollbar-track
 { background: var(--bg2color); }
-::-webkit-scrollbar-thumb
-{
+::-webkit-scrollbar-thumb {
 	background: #4D535A;
 	border-radius: 4px;
 	border: 2px solid var(--bg2color);
@@ -331,8 +326,7 @@ textarea {
 form, p
 { margin: 0; }
 
-.interactable
-{
+.interactable {
 	cursor: pointer;
 	position: relative;
 	border-radius: var(--border-radius);
@@ -352,42 +346,37 @@ form, p
 	cursor: text;
 	padding: 0.5em;
 }
-.interactable:hover /*, .interactable:active, .interactable:focus */
-{
+.interactable:hover /*, .interactable:active, .interactable:focus */ {
 	border-color: var(--borderhover);
 	color: var(--interact);
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 .interactable.text:hover
 { color: var(--interact); }
-.interactable.text:active, .interactable.text:focus
-{
+.interactable.text:active, .interactable.text:focus {
 	color: var(--textcolor);
 	border-color: var(--interact);
 }
 .header
 { text-align: right; }
 .header p
-{ margin: 0 25px 6px; }
+{ margin: 0 var(--margin) 6px; }
 
 
 
-p.center
-{
+p.center {
 	text-align: center;
 	margin: 0;
 	color: var(--subtle);
 }
-.searchstats
-{
+.searchstats {
 	text-align: left;
-	margin: 5.5em 0 0 25px;
+	margin: 5.5em 0 0 var(--margin);
 	position: absolute;
 	font-size: 1em;
 	max-width: 300px;
 }
-.source
-{
+.source {
 	position: relative;
 	background: var(--bg2color);
 	border-radius: var(--border-radius);
@@ -401,27 +390,23 @@ p.center
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 }
-.source img
-{
+.source img {
 	max-width: 256px;
 	max-height: 128px;
 }
 .source h2
 { margin: 0; }
-.source .thumbnail
-{
+.source .thumbnail {
 	top: 64px;
 	transform: translateY(-50%);
 	position: relative;
 	float: left;
 }
-a.source:hover, a.source:active, a.source:focus
-{
+a.source:hover, a.source:active, a.source:focus {
 	border-color: var(--borderhover);
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
-h3#percent
-{
+h3#percent {
 	position: absolute;
 	font-weight: bold;
 	right: 8px;
@@ -478,6 +463,11 @@ html {
 
 	--notification-text: #eee;
 	--notification-bg: var(--red);
+
+	--margin: 25px;
+	--half-margin: calc(var(--margin) / 2);
+	--neg-margin: calc(var(--margin) * -1);
+	--neg-half-margin: calc(var(--margin) * -0.5);
 }
 html.mobile {
 	--border-size: 2px;	
@@ -507,8 +497,7 @@ html.light, .high-contrast-light {
 	--main: #e7eceecc;
 }
 
-html.midnight
-{
+html.midnight {
 	--interact: #2676D5;
 	--bg0color: #000000;
 	--bg1color: #151416;
@@ -519,8 +508,7 @@ html.midnight
 }
 
 
-html.e621
-{
+html.e621 {
 	--interact: #2E76B4;
 	--bg0color: #031131;
 	--bg1color: #152F56;
@@ -553,16 +541,14 @@ html.e621
 	background-position: center top;
 	background-size: auto;
 }
-html.e621 main
-{
+html.e621 main {
 	margin-left: 0.82em;
 	margin-right: 0.82em;
 	border-radius: 6px;
 }
 html.e621 div.themes
 { border-bottom-right-radius: 6px; }
-html.e621 .source
-{
+html.e621 .source {
 	padding: 0 0 8px;
 	border: none;
 }
@@ -571,8 +557,7 @@ html.e621 .top .source h2
 html.e621 .more .source .left
 { margin-bottom: 8px; }
 
-html.youtube
-{
+html.youtube {
 	--interact: #FFF;
 	--bg0color: #121212;
 	--bg1color: #272727;
@@ -586,8 +571,7 @@ html.youtube
 	--main: #2c2c2ccc;
 }
 
-html.wikipedia
-{
+html.wikipedia {
 	--interact: #0645AD;
 	--bg0color: #F6F6F6;
 	--bg1color: #FFF;
@@ -839,7 +823,7 @@ html.winter main {
 	background-image: url(/assets/themes/winter/1.png), url(/assets/themes/winter/2.png);
 	background-repeat: repeat-x;
 	background-position: center bottom, center top;
-	padding-bottom: 25px;
+	padding-bottom: var(--margin);
 }
 
 /*

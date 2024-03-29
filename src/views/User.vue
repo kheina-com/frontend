@@ -245,7 +245,7 @@
 			<div class='image-uploader' v-if='uploadLoading'>
 				<Loading type='block'/>
 			</div>
-			<div v-if='!uploadablePosts' style='margin-top: 25px; text-align: center'>
+			<div v-if='!uploadablePosts' style='margin-top: var(--margin); text-align: center'>
 				Select an existing post to set as your {{isUploadIcon ? 'profile picture' : 'banner image'}}.
 			</div>
 			<ol class='results' v-else>
@@ -751,7 +751,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 0 25px 25px;
+	padding: 0 var(--margin) var(--margin);
 	margin: 0 auto;
 }
 
@@ -885,21 +885,21 @@ main {
 	text-align: center;
 }
 .edit-profile-button button {
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 }
 .edit-profile-button p {
 	text-align: center;
 }
 .edit-profile-button div button {
 	display: flex inline;
-	margin: 25px 12.5px;
+	margin: var(--margin) var(--half-margin);
 }
 .user-field i {
 	margin: 0 0.25em 0 0;
 	font-size: 1.2em;
 }
 .results > * {
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 .results > :last-child {
 	margin-bottom: 0;
@@ -917,13 +917,13 @@ ul, ol {
 	flex-wrap: wrap;
 	justify-content: space-around;
 	align-items: center;
-	margin: -12.5px;
+	margin: var(--neg-half-margin);
 }
 .tiles ol li {
-	margin: 12.5px;
+	margin: var(--half-margin);
 }
 .tiles ol.results > :last-child {
-	margin-bottom: 12.5px;
+	margin-bottom: var(--half-margin);
 }
 
 .checkbox {
@@ -931,17 +931,17 @@ ul, ol {
 }
 
 .page-links {
-	margin-top: 25px;
+	margin-top: var(--margin);
 }
 
 .header-bar {
 	position: relative;
-	padding: 0 25px;
+	padding: 0 var(--margin);
 	width: 100%;
 	background: var(--bg2color);
 	border-bottom: var(--border-size) solid var(--bordercolor);
-	left: -25px;
-	right: -25px;
+	left: var(--neg-margin);
+	right: var(--neg-margin);
 	margin-bottom: 3em;
 }
 .mobile .header-bar {
@@ -972,7 +972,7 @@ ul, ol {
 	left: calc(8em + 6px);
 	width: calc(100% - 8em - 6px);
 	align-items: flex-start;
-	padding-top: 25px;
+	padding-top: var(--margin);
 }
 
 .mobile .selfless .profile-buttons {
@@ -988,7 +988,7 @@ ul, ol {
 }
 
 .mobile .badges > p {
-	margin-left: 25px;
+	margin-left: var(--margin);
 }
 
 .mobile .self .badges p {
@@ -1021,7 +1021,7 @@ ul, ol {
 
 .mobile-profile-buttons {
 	position: relative;
-	margin: 0 -25px 25px;
+	margin: 0 var(--neg-margin) var(--margin);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -1030,8 +1030,8 @@ ul, ol {
 
 .mobile .active-tab {
 	background: var(--bg2color);
-	margin: -25px;
-	padding: 25px;
+	margin: var(--neg-margin);
+	padding: var(--margin);
 }
 
 
@@ -1044,7 +1044,7 @@ ul, ol {
 	justify-content: center;
 }
 .tabs button {
-	padding: 20px 25px;
+	padding: 20px var(--margin);
 	position: relative;
 	flex: 1;
 }
@@ -1069,7 +1069,7 @@ ul, ol {
 
 .user-info {
 	width: 70vw;
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 	display: flex;
 	justify-content: space-between;
 	position: relative;
@@ -1079,7 +1079,7 @@ ul, ol {
 }
 
 .description {
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 	width: 70vw;
 }
 .mobile .description {
@@ -1093,7 +1093,7 @@ ul, ol {
 }
 
 ol li {
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 ol > :last-child {
 	margin-bottom: 0;
@@ -1101,7 +1101,7 @@ ol > :last-child {
 
 .tags li {
 	display: block;
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 .tags > :last-child {
 	margin-bottom: 0;
@@ -1142,7 +1142,7 @@ ol > :last-child {
 }
 .upload-window, .cropper {
 	background: var(--bg1color);
-	padding: 25px;
+	padding: var(--margin);
 	border-radius: var(--border-radius);
 	border: var(--border-size) solid var(--bordercolor);
 }
@@ -1152,7 +1152,7 @@ ol > :last-child {
 	justify-content: center;
 }
 .image-uploader .button-list button {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .image-uploader .button-list > :last-child {
 	margin-right: 0;
@@ -1179,16 +1179,16 @@ ol > :last-child {
 }
 .upload-window ol.results li {
 	list-style: none;
-	margin: 0 12.5px 25px;
+	margin: 0 var(--half-margin) var(--margin);
 }
 .upload-window .page-links {
 	margin-top: 0;
 }
 .search-close {
 	position: fixed;
-	top: 25px;
-	right: 25px;
-	margin: 25px;
+	top: var(--margin);
+	right: var(--margin);
+	margin: var(--margin);
 }
 .search-close:hover {
 	color: var(--error) !important;
@@ -1198,7 +1198,7 @@ ol > :last-child {
 }
 .mobile .search-close i {
 	font-size: 1.5em;
-	padding: 25px;
+	padding: var(--margin);
 	background: var(--bg1color);
 	border-radius: 50%;
 }
@@ -1310,13 +1310,13 @@ html.mobile.winter .active-tab {
 }
 
 .result-buttons {
-	margin: 0 25px;
+	margin: 0 var(--margin);
 	display: flex;
 	justify-content: end;
 }
 .result-buttons button {
 	color: var(--subtle);
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .result-buttons button:hover {
 	color: var(--interact);

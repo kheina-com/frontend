@@ -68,12 +68,12 @@ label
 	text-transform: capitalize;
 }
 span {
-	margin: 0.375em 12.5px;
+	margin: 0.375em var(--half-margin);
 }
 .radio-buttons {
 	display: flex;
 	flex-flow: wrap;
-	margin: -0.375em -12.5px;
+	margin: -0.375em var(--neg-half-margin);
 }
 .maxrating label:hover, .maxrating label:active, .maxrating label:focus,
 label:hover, label:active, label:focus

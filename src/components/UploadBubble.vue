@@ -14,8 +14,8 @@ export default {
 <style scoped>
 .upload-bubble {
 	position: fixed;
-	left: 25px;
-	bottom: 25px;
+	left: var(--margin);
+	bottom: var(--margin);
 	background: var(--bg2color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: 50%;

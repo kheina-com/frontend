@@ -45,7 +45,7 @@ export default {
 
 <style scoped>
 .set {
-	padding: 25px;
+	padding: var(--margin);
 	background: var(--bg1color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
@@ -75,7 +75,7 @@ a.profile:hover {
 .privacy {
 	color: var(--subtle);
 	position: absolute;
-	top: 25px;
-	right: 25px;
+	top: var(--margin);
+	right: var(--margin);
 }
 </style>

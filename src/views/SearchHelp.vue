@@ -83,19 +83,19 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 div {
 	width: 70vw;
 	margin: 0 auto;
 }
 h2 {
-	margin: 25px -5px 10px;
+	margin: var(--margin) -5px 10px;
 	padding: 0 5px 5px 30px;
 	border-bottom: var(--border-size) solid var(--bordercolor);
 }
 h3 {
-	margin: 10px 0 5px 25px;
+	margin: 10px 0 5px var(--margin);
 }
 div > :first-child {
 	margin-top: 0;

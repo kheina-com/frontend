@@ -145,7 +145,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 
 input {
@@ -188,11 +188,11 @@ input:active, input:focus {
 	width: 100%;
 }
 .container {
-	margin: 25px auto 0;
+	margin: var(--margin) auto 0;
 }
 .action-description {
 	text-align: center;
-	margin: 0.5em auto 25px;
+	margin: 0.5em auto var(--margin);
 }
 
 textarea {
@@ -203,7 +203,7 @@ textarea {
 
 span {
 	position: relative;
-	left: 25px;
+	left: var(--margin);
 }
 
 pre {
@@ -231,7 +231,7 @@ span {
 }
 
 .buttons {
-	margin-top: 25px;
+	margin-top: var(--margin);
 	text-align: right;
 }
 
@@ -243,7 +243,7 @@ span {
 	margin-top: 0;
 }
 input {
-	margin: 0 25px;
+	margin: 0 var(--margin);
 	width: 100%;
 }
 

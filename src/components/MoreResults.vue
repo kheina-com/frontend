@@ -133,7 +133,7 @@ export default {
 .more
 {
 	text-align: center;
-	margin: 0 12.5px -25px;
+	margin: 0 var(--half-margin) -var(--margin);
 }
 .more .source
 {
@@ -141,7 +141,7 @@ export default {
 	max-width: 256px;
 	overflow: hidden;
 	white-space: nowrap;
-	margin: 0 12.5px 25px;
+	margin: 0 var(--half-margin) var(--margin);
 }
 .more .source .thumbnail
 {
@@ -174,7 +174,7 @@ export default {
 {
 	background: linear-gradient(to right, #0000, var(--bg2color));
 	height: 1.2em;
-	width: 25px;	
+	width: var(--margin);	
 	display: inline-block;
 }
 .more div.source div.links

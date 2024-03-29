@@ -27,7 +27,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 p a, p a:link, p a:visited {
 	text-decoration: underline;

@@ -174,7 +174,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 	display: block;
 }
 form .text
@@ -202,7 +202,7 @@ form
 form span
 {
 	position: relative;
-	left: 25px;
+	left: var(--margin);
 	padding: 0 0 2px;
 	display: inline-block;
 }
@@ -223,7 +223,7 @@ form .maxrating input, form .integratedsearch input, form .submit input
 	width: 0;
 }
 form input
-{ margin: 0 0 25px; }
+{ margin: 0 0 var(--margin); }
 form p
-{ margin-left: 25px; }
+{ margin-left: var(--margin); }
 </style>

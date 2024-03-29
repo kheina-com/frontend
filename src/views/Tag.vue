@@ -423,7 +423,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 	display: block;
 }
 h2, .add-inherited-tag p {
@@ -437,35 +437,35 @@ a.profile:hover {
 }
 ul {
 	margin: 0;
-	padding-left: 25px;
+	padding-left: var(--margin);
 }
 .tag {
 	width: 70vw;
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 	display: flex;
 	justify-content: space-between;
 }
 .add-inherited-tag {
 	width: 70vw;
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 }
 .add-inherited-tag h2 {
 	margin: 0;
 }
 .add-inherited-tag input {
 	width: 100%;
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .add-inherited-tag div {
 	display: flex;
 }
 .markdown-block {
 	width: 70vw;
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 }
 .markdown-editor {
 	background: var(--bg2color);
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 	width: 70vw;
 }
 .mobile .markdown-block, .mobile .tag, .mobile .add-inherited-tag {
@@ -479,13 +479,13 @@ ul {
 	margin-left: 0.5em;
 	padding: 0.25em;
 	position: absolute;
-	right: 25px;
+	right: var(--margin);
 }
 .edit-button i {
 	display: block;
 }
 .update-button {
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 }
 ol {
 	list-style-type: none;
@@ -493,7 +493,7 @@ ol {
 	padding: 0;
 }
 ol li {
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 ol > :last-child {
 	margin-bottom: 0;
@@ -505,24 +505,24 @@ ol > :last-child {
 	flex-wrap: wrap;
 	justify-content: space-around;
 	align-items: center;
-	margin: -12.5px;
+	margin: var(--neg-half-margin);
 }
 .tiles ol li {
-	margin: 12.5px;
+	margin: var(--half-margin);
 }
 
 .page-links {
-	margin-top: 25px;
+	margin-top: var(--margin);
 }
 
 .buttons {
-	margin: 0 25px;
+	margin: 0 var(--margin);
 	display: flex;
 	justify-content: space-between;
 }
 .buttons button {
 	color: var(--subtle);
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .buttons button:hover {
 	color: var(--interact);
@@ -600,7 +600,7 @@ ul {
 }
 
 .mobile .editing h2 {
-	margin-left: 25px;
+	margin-left: var(--margin);
 }
 
 .mobile .tag .interactable.text {
@@ -609,7 +609,7 @@ ul {
 
 @media only screen and (max-width: 1200px) {
 	.tag, .add-inherited-tag {
-		margin: 0 0 25px;
+		margin: 0 0 var(--margin);
 		width: auto;
 	}
 	.markdown-editor, .markdown-block {
@@ -622,7 +622,7 @@ html.midnight main {
 	/* --bg2color: var(--bg1color); */
 	--bg1color: var(--bg0color);
 	background: #0000;
-	padding: 0 25px;
+	padding: 0 var(--margin);
 }
 
 html.e621 .subject {

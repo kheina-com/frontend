@@ -346,7 +346,7 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 input {
 	display: block;
@@ -373,7 +373,7 @@ input:active, input:focus {
 }
 .form span {
 	position: relative;
-	left: 25px;
+	left: var(--margin);
 	padding: 0 0 0.1em;
 	display: flex;
 }
@@ -384,7 +384,7 @@ i {
 
 .field {
 	width: 100%;
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 
 .final-field {
@@ -408,7 +408,7 @@ i {
 	display: flex;
 }
 .submit-field input {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 
 button {

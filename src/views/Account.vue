@@ -66,7 +66,7 @@
 		</ul>
 
 		<h2>NOT IMPLEMENTED</h2>
-		<p style='text-align: center; margin: -25px 0 25px'>
+		<p style='text-align: center; margin: var(--neg-margin) 0 var(--margin)'>
 			everything below this point is non-functional and a work in progress
 		</p>
 		<ul class='settings'>
@@ -235,11 +235,11 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 h2 {
 	text-align: center;
-	margin: 25px 0;
+	margin: var(--margin) 0;
 }
 input, textarea {
 	display: block;
@@ -260,10 +260,10 @@ span {
 }
 .settings li {
 	list-style: none;
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 .settings li span {
-	margin-left: 25px;
+	margin-left: var(--margin);
 }
 .performance h2 {
 	display: inline;
@@ -275,7 +275,7 @@ span {
 	display: flex;
 }
 .checkboxes .checkbox {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .checkboxes:last-child {
 	margin-right: 0;

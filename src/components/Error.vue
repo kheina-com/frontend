@@ -1,7 +1,7 @@
 <template>
 	<main class='error'>
 		<Title static='center'>Error</Title>
-		<Subtitle style='margin: 0 0 25px' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
+		<Subtitle style='margin: 0 0 var(--margin)' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
 		<p class='message'>Hmmm, looks like something went wrong.</p>
 		<div class='top'>
 			<pre class='message'>{{message}}</pre>
@@ -47,11 +47,10 @@ export default {
 main {
 	background: var(--main);
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 	display: block;
 }
-.top
-{
+.top {
 	width: 800px;
 	max-width: calc(100% - 50px);
 	margin: 0 auto;
@@ -59,20 +58,18 @@ main {
 	padding: 0;
 }
 
-p.message
-{
+p.message {
 	text-align: center;
 	width: 100%;
 	margin: 0 0 8px;
 	padding: 0;
 	padding: 0;
 }
-pre.message
-{
+pre.message {
 	display: block;
 	padding: 8px 16px;
 	background: var(--bg2color);
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 	line-height: 2em;
 	white-space: pre-wrap;
 	border: var(--border-size) solid var(--bordercolor);
@@ -80,6 +77,6 @@ pre.message
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
 button {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 </style>

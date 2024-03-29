@@ -40,14 +40,14 @@
 				</div>
 				<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
 				<div v-else-if='editing' style='width: 100%'>
-					<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
+					<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: var(--margin)'/>
 					<div class='update-button'>
 						<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i><span>Full Editor</span></Button>
 						<Button @click='updatePost' green><i class='material-icons-round'>check</i><span>Update</span></Button>
 						<Button @click='deletePost' red><i class='material-icons-round'>close</i><span>Delete</span></Button>
 					</div>
 				</div>
-				<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
+				<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 var(--margin)'/>
 				<Loading :isLoading='isLoading'>
 					<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
 					<Subtitle static='left' v-else>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
@@ -68,7 +68,7 @@
 				<ThemeMenu/>
 			</main>
 			<ol class='replies'>
-				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
+				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
 				<div class='reply-field'>
 					<p class='reply-label'>
 						{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
@@ -85,7 +85,7 @@
 						</DropDown>
 					</p>
 					<div class='buttons' v-if='writeComment'>
-						<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+						<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
 						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 					</div>
 					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
@@ -128,14 +128,14 @@
 					</div>
 					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
 					<div v-else-if='editing' style='width: 100%'>
-						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: 25px'/>
+						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: var(--margin)'/>
 						<div class='update-button'>
 							<Button :href='`/create?post=${postId}`'><i class='material-icons-round'>launch</i><span>Full Editor</span></Button>
 							<Button @click='updatePost' green><i class='material-icons-round'>check</i><span>Update</span></Button>
 							<Button @click='deletePost' red><i class='material-icons-round'>close</i><span>Delete</span></Button>
 						</div>
 					</div>
-					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 25px'/>
+					<Markdown v-else-if='post.description' :content='post.description' style='margin: 0 0 var(--margin)'/>
 					<Loading :isLoading='isLoading'>
 						<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
 						<Subtitle static='left' v-else>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
@@ -158,7 +158,7 @@
 			</div>
 		</div>
 		<ol class='replies'>
-			<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: 25px' v-if='writeComment'/>
+			<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
 			<div class='reply-field'>
 				<p class='reply-label'>
 					{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
@@ -175,7 +175,7 @@
 					</DropDown>
 				</p>
 				<div class='buttons' v-if='writeComment'>
-					<Button class='interactable' style='margin-right: 25px' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+					<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
 					<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 				</div>
 				<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
@@ -644,20 +644,20 @@ main {
 	flex-direction: column;
 	align-items: flex-start;
 	position: relative;
-	padding: 25px;
+	padding: var(--margin);
 }
 .media-container {
 	grid-area: media;
-	margin: 0 auto 25px 0;
+	margin: 0 auto var(--margin) 0;
 	position: relative;
 	-webkit-transition: none;
 	-moz-transition: none;
 	-o-transition: none;
 	transition: none;
-	max-width: calc(100% - 25px);
+	max-width: calc(100% - var(--margin));
 }
 .mobile .media-container {
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 	max-width: 100%;
 }
 .media img, .media video {
@@ -666,25 +666,25 @@ main {
 }
 .mobile .media {
 	max-width: 100%;
-	margin: 0 auto 25px;
+	margin: 0 auto var(--margin);
 }
 .media .loading p {
 	display: table-cell;
 }
 .set-controls {
-	margin: 25px 25px 0	;
+	margin: var(--margin) var(--margin) 0	;
 	display: flex;
 	justify-content: space-between;
 }
 .mobile .set-controls {
-	margin: 0 25px 25px;
+	margin: 0 var(--margin) var(--margin);
 }
 .set-controls p {
 	display: flex;
 	align-items: center;
 }
 .set-controls p a {
-	margin: 0 12.5px;
+	margin: 0 var(--half-margin);
 }
 .set-controls p a i {
 	display: block;
@@ -711,7 +711,7 @@ html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 .privacy {
 	display: flex;
 	position: absolute;
-	right: 25px;
+	right: var(--margin);
 	align-items: center;
 }
 .content {
@@ -722,7 +722,7 @@ html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 }
 .description {
 	font-size: 1.3em;
-	margin: 0 0 25px;
+	margin: 0 0 var(--margin);
 }
 .profile {
 	margin: -0.25em;
@@ -733,7 +733,7 @@ a.profile:hover {
 }
 .post-header {
 	display: flex;
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 .post-title {
 	display: flex;
@@ -771,7 +771,7 @@ textarea {
 	justify-content: flex-end;
 }
 .update-button button, .update-button a {
-	margin-right: 25px;
+	margin-right: var(--margin);
 }
 .update-button > :last-child {
 	margin: 0;
@@ -785,22 +785,22 @@ input {
 
 ol {
 	list-style: none;
-	padding: 0 25px 0 0;
-	margin: 25px 0 0;
+	padding: 0 var(--margin) 0 0;
+	margin: var(--margin) 0 0;
 	display: block;
 	position: relative;
 }
 ol li {
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 ol > :last-child, ol > :last-child .post {
 	margin: 0;
 }
 ol p {
-	margin: 0 0 0.25em 25px;
+	margin: 0 0 0.25em var(--margin);
 }
 .mobile .replies {
-	padding: 0 25px;
+	padding: 0 var(--margin);
 }
 .reply-field {
 	display: flex;
@@ -810,14 +810,14 @@ ol p {
 .reply-field .buttons {
 	display: flex;
 	justify-content: flex-end;
-	margin-bottom: 25px;
+	margin-bottom: var(--margin);
 }
 .reply-label, .reply-label button {
 	display: flex;
 	align-items: center;
 }
 .reply-label button {
-	margin-left: 25px;
+	margin-left: var(--margin);
 	color: var(--subtle);
 }
 .reply-label button:hover {
@@ -829,8 +829,8 @@ ol p {
 
 
 .parent {
-	margin-bottom: 25px;
-	padding: 1em 25px;
+	margin-bottom: var(--margin);
+	padding: 1em var(--margin);
 	background: var(--main);
 }
 

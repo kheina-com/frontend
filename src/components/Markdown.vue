@@ -149,11 +149,11 @@ export default {
 .markdown h1, .markdown h2 {
 	border-bottom: var(--border-size) solid var(--blockquote);
 	padding: 0 5px 4px;
-	margin: 25px -5px 20px;
+	margin: var(--margin) -5px 20px;
 	width: 100%;
 }
 .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
-	margin: 25px 0 15px;
+	margin: var(--margin) 0 15px;
 }
 .markdown p, .markdown ul, .markdown ol, .markdown blockquote, .markdown .alignment {
 	margin: 15px 0;
@@ -271,7 +271,7 @@ export default {
 }
 .markdown blockquote {
 	position: relative;
-	margin-left: 25px;
+	margin-left: var(--margin);
 }
 .markdown blockquote blockquote {
 	margin-left: 17.5px;

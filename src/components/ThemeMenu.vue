@@ -53,12 +53,12 @@ export default {
 .theme-menu {
 	top: 105%;
 	top: calc(100% + 5px);
-	right: -25px;
+	right: var(--neg-margin);
 	border-top-left-radius: 3px;
 	position: absolute;
 	pointer-events: all;
 	background: var(--bg2color);
-	padding: 25px 50px 50px 25px;
+	padding: var(--margin) 50px 50px var(--margin);
 	border-left: var(--border-size) solid var(--bordercolor);
 	border-top: var(--border-size) solid var(--bordercolor);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
@@ -78,7 +78,7 @@ label {
 	right: 0;
 	font-size: 0.9em;
 	color: var(--subtle);
-	margin-right: 25px;
+	margin-right: var(--margin);
 	bottom: -1.25rem;
 }
 </style>
