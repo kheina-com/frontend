@@ -2,7 +2,7 @@
 	<div class='content' v-show='content'>
 		<div ref='popup' class='popup'>
 			<div/>
-			<p style="position: relative;">link copied!</p>
+			<p style="position: relative;">copied!</p>
 		</div>
 		<input ref='text' type='text' class='code' :value='copyValue' readonly/>
 		<a role='button' @click='copy'><i class='material-icons'>content_copy</i></a>
@@ -64,7 +64,7 @@ a {
 	position: absolute;
 	right: 0.3em;
 	top: 0.4em;
-	background: linear-gradient(to right, #0000 0, var(--bg2color) 50%);
+	background: linear-gradient(to right, #0000 0, var(--bg1color) 50%);
 	padding-left: 1.5em;
 	height: 1em;
 }
@@ -82,7 +82,7 @@ input {
 	cursor: text;
 	color: var(--textolor);
 	padding: 8px;
-	background: var(--bg2color);
+	background: var(--bg1color);
 	white-space: pre-wrap;
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
@@ -95,8 +95,8 @@ input {
 	pointer-events: none;
 	color: var(--textcolor);
 	bottom: 150%;
-	right: -2.5em;
-	background: var(--bg2color);
+	right: -1.4em;
+	background: var(--bg1color);
 	padding: 0.25em 0.5em;
 	border-radius: var(--border-radius);
 	border: var(--border-size) solid var(--bordercolor);
@@ -109,7 +109,7 @@ input {
 	border-bottom-right-radius: var(--border-radius);
 	position: absolute;
 	bottom: -0.67em;
-	background: var(--bg2color);
+	background: var(--bg1color);
 	left: 50%;
 	transform: translateX(-50%) rotate(45deg);
 }

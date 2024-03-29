@@ -319,13 +319,14 @@ export function isDarkMode() {
 	return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+const b64repl = { "-": "+", "_": "/" };
 export function base64ToBytes(base64) {
-    const binaryString = atob(base64.replace('-', '+').replace('_', '/'));
-    const bytes = new Uint8Array(binaryString.length);
-    for (var i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
+	const binaryString = atob(base64.replace(/[-_]/g, m => b64repl[m[0]]));
+	const bytes = new Uint8Array(binaryString.length);
+	for (let i = 0; i < binaryString.length; i++) {
+		bytes[i] = binaryString.charCodeAt(i);
+	}
+	return bytes;
 }
 
 export const lazyConfig = {
@@ -333,14 +334,13 @@ export const lazyConfig = {
 	rootMargin: '10%',
 };
 
-const unloadable = new Set(['null', 'undefined', null, undefined])
+const unloadable = new Set(['null', 'undefined', null, undefined]);
 
 export const lazyObserver = new IntersectionObserver(
 	e => {
 		// console.log(e);
 		e.forEach(entry => {
-			if (entry.isIntersecting)
-			{
+			if (entry.isIntersecting) {
 				const src = entry.target.dataset.src;
 				if (unloadable.has(src))
 				{ entry.target.dataset.intersected = true; }

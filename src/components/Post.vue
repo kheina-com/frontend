@@ -275,6 +275,7 @@ export default {
 	methods: {
 		getMediaThumbnailUrl,
 		nav() {
+			console.log("nav:", this.target);
 			// this needs to match the fingerprint of the api:
 			/*{
 				"post_id": "string",
@@ -510,7 +511,6 @@ export default {
 	max-height: 300px;
 	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
-	position: relative;
 	display: flex;
 }
 .mobile .thumbnail {

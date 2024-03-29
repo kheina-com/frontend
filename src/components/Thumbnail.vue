@@ -111,6 +111,9 @@ export default {
 		},
 		onError(event) {
 			// console.log(event);
+			if (!this.$refs.media) {
+				return;
+			}
 			if (this.post && this.webp) {
 				this.webp = false;
 				this.$refs.media.src = getMediaThumbnailUrl(this.post, 1200, 'jpg');
@@ -122,32 +125,37 @@ export default {
 			}
 		},
 		th(value) {
-			// console.log('thumbhash:', value);
-			if (value) {
-				try {
-					const th = document.createElement("img");
-					th.src = thumbHashToDataURL(base64ToBytes(value));
-					th.style.width = this.$refs.media.style.width;
-					th.style.height = this.$refs.media.style.height;
-					th.setAttribute(this.$options.__scopeId, "");
-					th.classList = "th-hash";
-					this.$refs.media.parentNode.prepend(th);
+			if (!value) {
+				return;
+			}
 
-					this.$refs.media.style.opacity = 0;
-					this.$refs.media.classList.add("th");
-					this.$refs.media.addEventListener("load", () => {
-						this.$refs.media.style.opacity = null;
-						setTimeout(() => {
-							th.style.opacity = 0;
-							setTimeout(() => this.$refs.media.parentNode.removeChild(th), 500);
-						}, 50);
-					});
+			let dataurl;
+			try {
+				const th = document.createElement("img");
+				dataurl = th.src = thumbHashToDataURL(base64ToBytes(value));
+				th.style.width = this.$refs.media.style.width;
+				th.style.height = this.$refs.media.style.height;
+				th.setAttribute(this.$options.__scopeId, "");
+				th.classList = "th-hash";
+				this.$refs.media.parentNode.prepend(th);
 
-					this.isLoading = false;
-				}
-				catch (e) {
-					console.error(e);
-				}
+				this.$refs.media.style.opacity = 0;
+				this.$refs.media.classList.add("th");
+				this.$refs.media.addEventListener("load", () => {
+					if (!this.$refs.media) {
+						return;
+					}
+					this.$refs.media.style.opacity = null;
+					setTimeout(() => {
+						th.style.opacity = 0;
+						setTimeout(() => this.$refs.media.parentNode.removeChild(th), 500);
+					}, 50);
+				});
+
+				this.isLoading = false;
+			}
+			catch (e) {
+				console.error("thumbhash:", value, "dataurl:", dataurl, "error:", e);
 			}
 		},
 	},

@@ -92,9 +92,7 @@
 			<div class='field'>
 				<div>
 					<span>Tags</span>
-					<div ref='tagDiv' class='tag-field interactable text' contenteditable='true'>
-						{{tagsField}}
-					</div>
+					<div ref='tagDiv' class='tag-field interactable text' contenteditable='true' @input='tagTracker'></div>
 					<div class='frequently-used' v-if='tagSuggestions'>
 						<span style='margin-top: 25px'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
 						<div class='frequently-used-border'/>
@@ -102,7 +100,7 @@
 							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
 								<p class='group-title'>{{group}}</p>
 								<li v-for='tag in tags'>
-									<button class='interactable' @click='addTag(tag)'>
+									<button class='interactable' @click='addTag(tag)' :id='tag'>
 										{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
 									</button>
 								</li>
@@ -288,7 +286,8 @@ export default {
 			tagGroups,
 			PublishedPrivacies,
 			serverTags: null,
-			savedTags: [],
+			savedTags: new Set(),
+			activeTags: new Set(),
 			tagSuggestions: null,
 			showSuggestions: true,
 			postIdRegex: /^[a-zA-Z0-9_-]{8}$/,
@@ -314,7 +313,6 @@ export default {
 			postId: null,
 			description: null,
 			title: null,
-			tagsField: null,
 			privacy: null,
 			rating: null,
 			parent: null,
@@ -326,6 +324,9 @@ export default {
 			// parent post
 			parentPost: { },
 			validParent: null,
+
+			// active tag tracking
+			tagTrackerTimeout: null,
 		};
 	},
 	mounted() {
@@ -436,11 +437,8 @@ export default {
 			if (this.drafts === null) {
 				khatch(`${postsHost}/v1/fetch_drafts`, {
 					handleError: true,
-				}).then(response => {
-					response.json().then(r => {
-						this.drafts = r;
-					});
-				});
+				}).then(r => r.json())
+				.then(r => this.drafts = r.toSorted((a, b) => new Date(b.updated) - new Date(a.updated)));
 			}
 		},
 		closeDrafts() {
@@ -488,28 +486,28 @@ export default {
 			this.saving = true;
 			this.uploadFile()
 			.then(this.saveData)
-			.then(() => {
-				khatch(`${uploadHost}/v1/update_privacy`, {
-					handleError: true,
-					method: 'POST',
-					body: {
-						post_id: this.postId,
-						privacy: this.update.privacy,
-					},
-				}).then(response => {
-					this.privacy = this.update.privacy;
-					this.$router.push(`/p/${this.postId}`);
-				});
+			.then(() => khatch(`${uploadHost}/v1/update_privacy`, {
+				handleError: true,
+				method: 'POST',
+				body: {
+					post_id: this.postId,
+					privacy: this.update.privacy,
+				},
+			})).then(() => {
+				this.privacy = this.update.privacy;
+				this.$router.push(`/p/${this.postId}`);
 			})
 			.catch(() => this.saving = false);
 		},
 		addTag(tag) {
-			const tags = new Set(this.$refs.tagDiv.textContent.split(/\s/).filter(x => x));
-			if (tags.has(tag)) {
-				tags.delete(tag);
-				this.$refs.tagDiv.textContent = Array.from(tags).join(" ");
+			if (this.activeTags.has(tag)) {
+				this.activeTags.delete(tag);
+				this.$refs.tagDiv.innerText = Array.from(this.activeTags).join(" ");
+				document.getElementById(tag).style.borderColor = null;
 			} else {
-				this.$refs.tagDiv.textContent += ' ' + tag;
+				this.activeTags.add(tag);
+				this.$refs.tagDiv.innerText = Array.from(this.activeTags).join(" ");
+				document.getElementById(tag).style.borderColor = "var(--interact)";
 			}
 		},
 		showData() {
@@ -521,7 +519,7 @@ export default {
 				description: this.description,
 				privacy: this.privacy,
 				rating: this.rating,
-				activeTags: tagSplit(this.$refs.tagDiv.textContent),
+				activeTags: this.activeTags,
 				savedTags: this.savedTags,
 				tagSuggestions: this.tagSuggestions,
 				meta: {
@@ -644,11 +642,9 @@ export default {
 					}).catch(reject);
 				}
 
-				let activeTags = tagSplit(this.$refs.tagDiv.textContent);
-
 				let removedTags = [];
 				this.savedTags.forEach(tag => {
-					if (!activeTags.includes(tag))
+					if (!this.activeTags.has(tag))
 					{ removedTags.push(tag); }
 				});
 
@@ -676,8 +672,8 @@ export default {
 				}
 
 				let newTags = [];
-				activeTags.forEach(tag => {
-					if (!this.savedTags.includes(tag))
+				this.activeTags.forEach(tag => {
+					if (!this.savedTags.has(tag))
 					{ newTags.push(tag); }
 				});
 
@@ -693,7 +689,7 @@ export default {
 					}).then(response => {
 						response.json().then(r => {
 							console.log(r);
-							this.tagsField = Object.values(activeTags).flat().join(' ');
+							this.$refs.tagDiv.innerText = Array.from(this.savedTags).join(' ');
 						});
 						successes++;
 						if (requiredSuccesses > 0 && successes >= requiredSuccesses) {
@@ -712,13 +708,13 @@ export default {
 				{ resolve(); }
 
 				console.log(JSON.parse(JSON.stringify({
-					activeTags,
+					activeTags: this.activeTags,
 					newTags,
 					removedTags,
 					savedTags: this.savedTags,
 				})));
 
-				this.savedTags = activeTags;
+				this.savedTags = this.activeTags;
 			});
 		},
 		queryListener(event) {
@@ -796,12 +792,13 @@ export default {
 					});
 				}
 
-				khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
+				khatch(`${tagsHost}/v1/tags/${this.postId}`, {
 					errorMessage: 'Unable To Retrieve Post Tags!',
 				}).then(response => {
 					response.json().then(r => {
-						this.savedTags = Object.values(r).flat();
-						this.tagsField = this.savedTags.join(' ');
+						this.savedTags = new Set(Object.values(r).flat());
+						this.colorizeTags(this.savedTags);
+						this.$refs.tagDiv.innerText = Array.from(this.savedTags).join(' ');
 					});
 				});
 
@@ -811,6 +808,7 @@ export default {
 				}).then(response => {
 					response.json().then(r => {
 						this.tagSuggestions = r;
+						setTimeout(this.colorizeTags)
 					});
 				});
 			}
@@ -827,7 +825,41 @@ export default {
 				});
 			}
 		},
+		tagTracker() {
+			if (this.tagTrackerTimeout) {
+				clearTimeout(this.tagTrackerTimeout);
+			}
+			this.tagTrackerTimeout = setTimeout(() => {
+				this.colorizeTags();
+				this.tagTrackerTimeout = null;
+			}, 300);
+		},
+		colorizeTags(tags) {
+			tags = tags || new Set(tagSplit(this.$refs.tagDiv.innerText));
+			tags.forEach(e => {
+				const b = document.getElementById(e);
+				if (b && !b.style.borderColor) {
+					// for every new tag, set border color
+					b.style.borderColor = "var(--interact)";
+				}
+			});
+			this.activeTags.forEach(e => {
+				if (!tags.has(e)) {
+					// for every old tag, unset border color
+					const b = document.getElementById(e);
+					if (b) {
+						b.style.borderColor = null;
+					}
+				}
+			});
+			this.activeTags = new Set(tags);
+		},
 	},
+	// watch: {
+	// 	activeTags(value) {
+	// 		const tags = new Set(tagSplit(this.$refs.tagDiv.innerText));
+	// 	},
+	// },
 }
 </script>
 

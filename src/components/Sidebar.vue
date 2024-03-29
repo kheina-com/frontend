@@ -30,6 +30,9 @@
 			<br>
 			description: {{post.description ? `${post.description.length} chars` : 'none'}}
 		</div>
+		<!-- <div class='scalar' v-show='scalarWidth !== null'>
+			scalar: {{ scalarWidth ? "width" : "height" }} <Button @click='toggleScalar'>toggle</Button>
+		</div> -->
 	</div>
 </template>
 
@@ -38,6 +41,7 @@ import { commafy, sortTagGroups } from '@/utilities';
 import { tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
+import Button from '@/components/Button.vue';
 
 export default {
 	name: 'Sidebar',
@@ -50,7 +54,14 @@ export default {
 			type: Object,
 			default: null,
 		},
+		scalarWidth: {
+			type: Boolean,
+			default: null,
+		},
 	},
+	emits:[
+		"update:scalarWidth"
+	],
 	data() {
 		return {
 			tagGroups,
@@ -59,10 +70,15 @@ export default {
 	components: {
 		Loading,
 		TagGroup,
+		Button,
 	},
 	methods: {
 		commafy,
 		sortTagGroups,
+		toggleScalar() {
+			// console.log("aaa:", this.scalarWidth);
+			this.$emit("update:scalarWidth", !this.scalarWidth);
+		},
 	},
 }
 </script>

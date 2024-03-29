@@ -45,13 +45,7 @@ export default {
 			{ return buttonClass + ' yellow'; }
 			else if (this.green)
 			{ return buttonClass + ' green'; }
-			else
-			{ return buttonClass; }
-		},
-	},
-	methods: {
-		openLink() {
-			this.$router.push(this.link);
+			return buttonClass;
 		},
 	},
 }

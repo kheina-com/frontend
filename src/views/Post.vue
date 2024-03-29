@@ -6,7 +6,7 @@
 	</div>
 
 	<div class='container' v-if='!isMobile'>
-		<Sidebar :tags='tags' :post='post' class='sidebar'/>
+		<Sidebar :tags='tags' :post='post' v-model:scalarWidth='scalarWidth' class='sidebar'/>
 		<div class='content'>
 			<div class='media-container' :style='`left: calc(max(10vw, 50% - ${width / 2}px) - 10vw);`' v-show='post'>
 				<Media class='media' v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :thumbhash='post?.thumbhash' v-model:width='width' v-model:height='height' bg/>
@@ -108,7 +108,7 @@
 			</div>
 		</div>
 		<div class='container'>
-			<Sidebar :tags='tags' :post='post' class='sidebar'/>
+			<Sidebar :tags='tags' :post='post' :scalarWidth='scalarWidth' class='sidebar'/>
 			<div class='main'>
 				<main>
 					<div class='post-header'>
@@ -259,6 +259,7 @@ export default {
 			height: null,
 			sets: null,
 			commentSort: 'best',
+			scalarWidth: true,
 		};
 	},
 	created() {
@@ -622,6 +623,9 @@ export default {
 	watch: {
 		commentSort() {
 			this.fetchComments();
+		},
+		scalarWidth(value) {
+			console.log("scalarWidth:", value)
 		},
 	},
 }

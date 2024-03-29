@@ -152,6 +152,9 @@ export default {
 	},
 	methods: {
 		onLoad() {
+			if (!this.$refs.media) {
+				return;
+			}
 			this.isLoading = false;
 			// this.$refs.loader.style = null;
 			this.$refs.media.parentNode.style.background = null;
@@ -176,17 +179,21 @@ export default {
 		// },
 		th(value) {
 			// console.log('thumbhash:', value);
-			if (value) {
-				try {
-					// this.$refs.media.style.opacity = 0;
-					this.$refs.media.classList.add("th");
-					this.$refs.media.parentNode.style.background = "url('" + thumbHashToDataURL(base64ToBytes(value)) + "')";
-					this.$refs.media.parentNode.style.backgroundSize = "cover";
-					// this.isLoading = false;
-				}
-				catch (e) {
-					console.error(e);
-				}
+			if (!value) {
+				return;
+			}
+
+			let dataurl;
+			try {
+				// this.$refs.media.style.opacity = 0;
+				this.$refs.media.classList.add("th");
+				dataurl = thumbHashToDataURL(base64ToBytes(value));
+				this.$refs.media.parentNode.style.background = "url('" + dataurl + "')";
+				this.$refs.media.parentNode.style.backgroundSize = "cover";
+				// this.isLoading = false;
+			}
+			catch (e) {
+				console.error("thumbhash:", value, "dataurl:", dataurl, "error:", e);
 			}
 		},
 	},

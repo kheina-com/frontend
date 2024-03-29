@@ -529,28 +529,21 @@ export default {
 					{ return; }
 
 					khatch(`${setsHost}/v1/user/${this.handle}`, {
-							errorMessage: 'Failed to Retrieve User tags!',
-					}).then(response => {
-						response.json().then(r => {
-							this.sets = r;
-						});
-					});
+						errorMessage: 'Failed to Retrieve User sets!',
+						errorHandlers: { 404: () => this.sets = [] },
+					}).then(r => r.json())
+					.then(r => this.sets = r)
+					.catch(() => { });
 					break;
 
 				case 'tags' :
-					if (this.userTags === null)
-					{
-						khatch(
-							`${tagsHost}/v1/get_user_tags/${this.handle}`,
-							{
-								errorMessage: 'Failed to Retrieve User tags!',
-								errorHandlers: { 404: () => this.userTags = [] },
-							},
-						).then(response => {
-							response.json().then(r => {
-								this.userTags = r;
-							});
-						}).catch(() => { });
+					if (this.userTags === null) {
+						khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`, {
+							errorMessage: 'Failed to Retrieve User tags!',
+							errorHandlers: { 404: () => this.userTags = [] },
+						}).then(r => r.json())
+						.then(r => this.userTags = r)
+						.catch(() => { });
 					}
 					break;
 
@@ -562,8 +555,7 @@ export default {
 					this.page = parseInt(this.$route.query?.page) || 1;
 					this.count = parseInt(this.$route.query?.count) || 64;
 
-					if (window.history.state.uploads)
-					{
+					if (window.history.state.uploads) {
 						this.posts = window.history.state.uploads;
 						return;
 					}
@@ -571,65 +563,36 @@ export default {
 					this.posts = null;
 
 					khatch(`${postsHost}/v1/fetch_my_posts`, {
-							method: 'POST',
-							body: {
-								sort: 'hot',
-								page: this.page,
-								count: this.count,
-							},
-						})
-						.then(response => {
-							response.json().then(r => {
-								if (response.status < 300)
-								{
-									saveToHistory({ uploads: r })
-									this.posts = r;
-								}
-								else if (response.status < 500)
-								{
-									this.$store.commit('createToast', {
-										title: apiErrorMessageToast,
-										description: r.error,
-									});
-								}
-								else
-								{
-									this.$store.commit('createToast', {
-										title: apiErrorMessageToast,
-										description: apiErrorDescriptionToast,
-										dump: r,
-									});
-								}
-							});
-						})
-						.catch(error => {
-							console.error(error);
-							this.$store.commit('createToast', {
-								title: apiErrorMessageToast,
-								description: error,
-							});
-						});
+						handleError: true,
+						method: 'POST',
+						body: {
+							sort: 'hot',
+							page: this.page,
+							count: this.count,
+						},
+					}).then(r => r.json())
+					.then(r => {
+						saveToHistory({ uploads: r })
+						this.posts = r;
+					});
 					break;
 			}
 		},
 		toggleEdit(editing) {
 			this.isEditing = editing;
-			if (editing)
-			{
+			if (editing) {
 				this.update = {
 					name: this.user?.name,
 					website: this.user?.website,
 					description: this.user?.description,
 				};
 
-				if (this.availableBadges === null)
-				{
+				if (this.availableBadges === null) {
 					khatch(`${usersHost}/v1/badges`, {
 						method: 'GET',
 						errorMessage: 'Failed to fetch available badges',
-					})
-					.then(r => r.json().then(response => this.availableBadges = response))
-					.catch(() => { });
+					}).then(r => r.json())
+					.then(response => this.availableBadges = response);
 				}
 			}
 		},
@@ -640,44 +603,12 @@ export default {
 			// website: str = None
 			// description: str = None
 
-			khatch(
-				`${usersHost}/v1/update_self`,
-				{
-					method: 'POST',
-					body: this.update,
-				}
-			).then(response => {
-				if (response.status < 300)
-				{
-					this.user = Object.assign(this.user, this.update);
-					this.isEditing = false;
-					return;
-				}
-				response.json()
-					.then(r => {
-						if (response.status < 500)
-						{
-							this.$store.commit('createToast', {
-								title: apiErrorMessageToast,
-								description: r.error,
-							});
-						}
-						else
-						{
-							this.$store.commit('createToast', {
-								title: apiErrorMessageToast,
-								description: apiErrorDescriptionToast,
-								dump: r,
-							});
-						}
-					});
-			})
-			.catch(error => {
-				console.error(error);
-				this.$store.commit('createToast', {
-					title: apiErrorMessageToast,
-					description: error,
-				});
+			khatch(`${usersHost}/v1/update_self`, {
+				method: 'POST',
+				body: this.update,
+			}).then(() => {
+				this.user = Object.assign(this.user, this.update);
+				this.isEditing = false;
 			});
 		},
 		toggleIconUpload() {
@@ -723,24 +654,22 @@ export default {
 					coordinates: this.$refs.cropper.getResult().coordinates,
 				},
 			})
-			.then(r => {
-				if (this.isUploadIcon)
-				{
+			.then(() => {
+				if (this.isUploadIcon) {
 					this.user.icon = this.uploadPostId;
 					this.$store.state.user.icon = this.uploadPostId;
 				}
-				else if (this.isUploadBanner)
-				{ this.user.banner = this.uploadPostId; }
-				this.disableUploads();
+				else if (this.isUploadBanner) {
+					this.user.banner = this.uploadPostId;
+				}
 			})
-			.catch(this.disableUploads);
+			.finally(this.disableUploads);
 		},
 		runSearchQuery(page=null) {
 			this.uploadablePosts = 0;
 			this.uploadLoading = true;
 			this.uploadablePage = page || 1;
-			if (this.searchValue)
-			{
+			if (this.searchValue) {
 				khatch(`${postsHost}/v1/posts`, {
 					errorMessage: 'Failed to fetch posts for profile.',
 					method: 'POST',
@@ -750,18 +679,14 @@ export default {
 						page: this.uploadablePage,
 						count: 64,
 					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						this.total_results = r.total;
-						this.uploadablePosts = r.posts;
-						this.uploadLoading = null;
-					});
-				})
-				.catch(this.disableUploads);
+				}).then(r => r.json())
+				.then(r => {
+					this.total_results = r.total;
+					this.uploadablePosts = r.posts;
+					this.uploadLoading = null;
+				}).catch(this.disableUploads);
 			}
-			else
-			{
+			else {
 				khatch(`${postsHost}/v1/fetch_user_posts`, {
 					errorMessage: 'Failed to fetch posts for profile.',
 					method: 'POST',
@@ -770,15 +695,12 @@ export default {
 						page: this.uploadablePage,
 						count: 64,
 					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						this.total_results = r.total;
-						this.uploadablePosts = r.posts;
-						this.uploadLoading = null;
-					});
-				})
-				.catch(this.disableUploads);
+				}).then(r => r.json())
+				.then(r => {
+					this.total_results = r.total;
+					this.uploadablePosts = r.posts;
+					this.uploadLoading = null;
+				}).catch(this.disableUploads);
 			}
 		},
 		pageLink(page) {
@@ -807,13 +729,10 @@ export default {
 
 			khatch(`${postsHost}/v1/post/${value}`, {
 				errorMessage: 'Failed to fetch post for profile.',
-			})
-			.then(response => {
-				response.json().then(r => {
-					this.cropperImage = getMediaUrl(r.post_id, r.filename);
-				});
-			})
-			.catch(e => { });
+			}).then(r => r.json())
+			.then(r => {
+				this.cropperImage = getMediaUrl(r.post_id, r.filename);
+			});
 		},
 		tiles(value) {
 			this.$store.commit('searchResultsTiles', value);

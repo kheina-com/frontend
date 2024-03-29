@@ -82,7 +82,7 @@ span {
 </style>
 
 <style>
-.loading {
+.loading, .loading * {
 	pointer-events: none;
 }
 

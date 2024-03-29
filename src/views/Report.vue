@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<main>
 		<Title>Report Content</Title>
-		<Post :postId='post?.post_id' :nested='true' v-bind='post' labels class='post' v-if='post'/>
+		<Post :postId='post?.post_id' :nested='true' v-bind='post' labels v-if='post'/>
 		<div class='container'>
 			<span>Select a report type below or enter your own</span>
 		</div>
@@ -70,20 +70,17 @@ export default {
 		};
 	},
 	created() {
-		if (this.$route.query?.post)
-		{
-			this.post = this.$route.query?.post;
-			khatch(
-				`${postsHost}/v1/post/${this.post}`,
-				{ handleError: true },
-			).then(response => {
-				response.json().then(r => {
-					r.favorites = 0;
-					r.reposts = 0;
-					this.post = r;
-				});
-			})
-			.catch(() => { });
+		const postId = this.$route.query?.post;
+		if (postId) {
+			this.post = { postId: null };
+			khatch(`${postsHost}/v1/post/${postId}`, {
+				handleError: true
+			}).then(r => r.json())
+			.then(r => {
+				r.favorites = 0;
+				r.reposts = 0;
+				this.post = r;
+			});
 		}
 	},
 	methods: {
