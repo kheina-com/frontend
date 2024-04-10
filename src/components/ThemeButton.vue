@@ -12,8 +12,7 @@ export default {
 .mobile .themebutton {
 	display: none;
 }
-.themebutton
-{
+.themebutton {
 	cursor: pointer;
 	position: absolute;
 	right: 0;

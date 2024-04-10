@@ -615,6 +615,12 @@ html.high-contrast-dark, html.high-contrast-light {
 	font-size: 1.1em;
 }
 
+/*
+spare high contrast colors:
+#aefcd6
+#cfbdf0
+*/
+
 html.high-contrast-dark {
 	--interact: #F1B636; /* #d9a216 / #efe006 */
 	--bg3color: #2D333A;

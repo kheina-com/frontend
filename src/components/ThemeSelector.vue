@@ -5,7 +5,7 @@
 			<tr>
 				<td>theme</td>
 				<td>
-					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme.name'>
+					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme'>
 						<option v-for='[value, name] in themes' :value='value'>{{name}}</option>
 					</select>
 				</td>

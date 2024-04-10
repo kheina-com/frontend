@@ -3,6 +3,7 @@
 	<main>
 		<button @click='toggleDrafts' class='drafts-button'><i class='material-icons'>{{showDrafts ? 'chevron_left' : 'chevron_right'}}</i>Drafts</button>
 		<div ref='draftsPanel' class='drafts-panel'>
+			<button @click='fetchDrafts' class='refresh-drafts' title='refresh drafts'><i class='material-icons'>refresh</i></button>
 			<div class='menu-border'/>
 			<ol class='results'>
 				<p v-show='drafts?.length === 0' style='text-align: center'>No drafts found</p>
@@ -433,11 +434,15 @@ export default {
 			{ this.$refs.draftsPanel.classList.remove('open'); }
 
 			if (this.drafts === null) {
-				khatch(`${postsHost}/v1/fetch_drafts`, {
-					handleError: true,
-				}).then(r => r.json())
-				.then(r => this.drafts = r.toSorted((a, b) => new Date(b.updated) - new Date(a.updated)));
+				this.fetchDrafts();
 			}
+		},
+		fetchDrafts() {
+			this.drafts = null;
+			khatch(`${postsHost}/v1/fetch_drafts`, {
+				handleError: true,
+			}).then(r => r.json())
+			.then(r => this.drafts = r.toSorted((a, b) => new Date(b.updated) - new Date(a.updated)));
 		},
 		closeDrafts() {
 			this.showDrafts = false;
@@ -964,6 +969,7 @@ main {
 	padding-right: 0.25em;
 }
 .drafts-button i {
+	max-width: var(--margin);
 	width: var(--margin);
 }
 .mobile .drafts-button i {
@@ -1012,6 +1018,20 @@ main {
 }
 .drafts-panel ol li {
 	margin: 0 0 var(--margin);
+}
+
+.refresh-drafts {
+	position: absolute;
+	top: calc(var(--margin) - 0.25em);
+	right: var(--half-margin);
+	color: var(--subtle);
+	border-radius: var(--border-radius);
+	display: flex;
+	padding: 0.25em;
+}
+.refresh-drafts:hover {
+	color: var(--interact);
+	background: var(--bg1color);
 }
 
 h4 {

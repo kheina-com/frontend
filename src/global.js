@@ -72,12 +72,9 @@ export default createStore({
 		theme(state, theme) {
 			setCookie('theme', theme);
 			if (state.theme)
-			{ document.documentElement.classList.remove(state.theme.name); }
+			{ document.documentElement.classList.remove(state.theme); }
 			document.documentElement.classList.add(theme);
-			state.theme = {
-				name: theme,
-				bg1color: getComputedStyle(document.body).getPropertyValue('--bg1color'),
-			};
+			state.theme = theme;
 
 			if (!state.cookiesAllowed && !state.init) {
 				createToast(state, {

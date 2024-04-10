@@ -13,7 +13,7 @@
 					<Timestamp :datetime='epoch' live />
 				</div>
 			</div>
-			<div class=''>
+			<div>
 				<div>
 					<Button @click='playAudio' :isLoading='audioLoading'>
 						play me
@@ -35,9 +35,9 @@
 			</div>
 		</div>
 		<div class='token'>
-			<textarea class='interactable text' v-model='content' />
+			<textarea class='interactable text' v-model='content'/>
 			<div>
-				<Markdown :content='cookie' />
+				<Markdown :content='cookie'/>
 				<p>note: signature is not checked</p>
 			</div>
 		</div>
@@ -49,15 +49,15 @@
 			</ol>
 			<div class='buttons'>
 				<Button @click='togglePost'>toggle</Button>
-				<Button @click='toggleThumbhash'>thumbhash</Button>
+				<!-- <Button @click='toggleThumbhash'>thumbhash</Button> -->
 				<input placeholder='post' class='interactable' v-model='postId'/>
 			</div>
 		</div>
 		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
 				<p>{{ color }} text</p>
-				<p style='font-weight: bold'>bold {{ color }} text</p>
-				<p v-for='i in [0, 1, 2]'>bg<code>{{ i }}</code> contrast: {{ contrastWithBg(color, i).toFixed(2) }}</p>
+				<p style='font-weight: bold'>bold text</p>
+				<p v-for='i in [0, 1, 2]' :style='`background: var(--bg${i}color)`'>bg<code>{{ i }}</code> contrast: {{ contrastWithBg(color, i).toFixed(2) }}</p>
 			</div>
 		</div>
 		<div class='color-comparer' v-show='colors.length'>
@@ -69,7 +69,7 @@
 			</div>
 		</div>
 		<div class='color-bar' v-show='colors.length'>
-			<div v-for='i in colors.length' :style='"background: " + colors[colors.length - i]' />
+			<div v-for='i in colors.length' :style='"background: " + colors[colors.length - i]'/>
 		</div>
 		<div class='buttons'>
 			<Button @click='colors.push("#" + uuid(6))'><i class='material-icons'>add</i><span>Add Color</span></Button>
@@ -77,6 +77,10 @@
 			<Button @click='toggleGray'>Toggle Grayscale</Button>
 			<Button @click='generateColors'>Generate!</Button>
 			<input placeholder='contrast cutoff' class='interactable' v-model='cutoff' />
+		</div>
+		<div class='slider'>
+			<input type='range' min='0' max='10' step='0.001' v-model='saturation'>
+			<span>{{ saturation }}</span>
 		</div>
 		{{ colors }}
 		<ThemeMenu />
@@ -119,10 +123,14 @@ export default {
 			cutoff: null,
 			postId: null,
 			post: null,
+			saturation: 1,
 		};
 	},
 	mounted() {
 		this.postId = "ugE_qTJL";
+	},
+	unmounted() {
+		document.documentElement.style.filter = null;
 	},
 	methods: {
 		createToast,
@@ -192,25 +200,43 @@ export default {
 		toggleGray() {
 			document.documentElement.style.filter ? document.documentElement.style.filter = null : document.documentElement.style.filter = "grayscale(1)";
 		},
+		ctoh(c) {
+			return Math.floor(c / 16).toString(16) + (c % 16).toString(16);
+		},
 		loadTheme() {
-			this.colors.length = 0;
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--textcolor`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--interact`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--pink`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--yellow`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--green`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--blue`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--orange`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--red`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--cyan`));
-			this.colors.push(getComputedStyle(document.documentElement).getPropertyValue(`--violet`));
+			const colors = [
+				getComputedStyle(document.documentElement).getPropertyValue(`--textcolor`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--interact`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--pink`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--yellow`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--green`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--blue`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--orange`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--red`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--cyan`),
+				getComputedStyle(document.documentElement).getPropertyValue(`--violet`),
+			];
+			this.colors = colors.map(e => {
+				const m = e.match(/^\w+$/);
+				if (!m) {
+					return e;
+				}
+				const d = document.createElement("div");
+				d.style.color = e;
+				document.documentElement.appendChild(d);
+				const c = this.textToColor(getComputedStyle(d, null).color);
+				document.documentElement.removeChild(d);
+				return `#${this.ctoh(c.R)}${this.ctoh(c.G)}${this.ctoh(c.B)}`;
+			});
 		},
 		generateColors() {
 			const cutoff = Math.min(parseInt(this.cutoff || 0), 20); // don't fucking crash
 			this.colors.length = 0;
-			while (this.colors.length < 10) {
+			for (let i = 0; i < 10000 && this.colors.length < 10; i++) {
 				const newColor = '#' + this.uuid(6);
-				if (this.contrastWithBg(newColor, 0) >= cutoff || this.contrastWithBg(newColor, 1) >= cutoff) { this.colors.push(newColor); }
+				if (this.contrastWithBg(newColor, 0) >= cutoff || this.contrastWithBg(newColor, 1) >= cutoff) {
+					this.colors.push(newColor);
+				}
 			}
 		},
 		togglePost() {
@@ -245,6 +271,9 @@ export default {
 					});
 				});
 			}
+		},
+		saturation(value) {
+			document.documentElement.style.filter = `saturate(${value})`;
 		},
 	},
 }
@@ -404,5 +433,55 @@ i {
 .color-bar,
 .color-text {
 	margin-bottom: var(--margin);
+}
+
+.slider {
+	display: flex;
+	width: 100%;
+	height: 1.5em;
+	align-items: center;
+	margin-top: var(--margin);
+}
+.slider span {
+	width: 2em;
+	text-align: right;
+	margin-left: 0.5em;
+}
+.slider input {
+	/* margin-top: 0.75em; */
+	display: initial;
+	width: 100%;
+	border-top: solid 1px var(--subtle);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	height: 0.25em;
+	background: var(--subtle);
+	opacity: 0.75;
+	-webkit-transition: ease var(--fadetime);
+	-moz-transition: ease var(--fadetime);
+	transition: ease var(--fadetime);
+	border-radius: 0.25em;
+	outline: none;
+}
+.slider input:hover {
+	opacity: 1;
+}
+.slider input::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 1em;
+	height: 1.5em;
+	background: var(--interact);
+	cursor: pointer;
+	border-radius: 0.5em;
+}
+.slider input::-moz-range-thumb {
+	outline: none;
+	width: 1em;
+	height: 1.5em;
+	background: var(--interact);
+	cursor: pointer;
+	border-radius: 1em;
 }
 </style>
