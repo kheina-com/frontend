@@ -130,7 +130,7 @@ export function saveToHistory(data) {
 }
 
 export async function khatch(url, options={ }) {
-	const attempts = options?.attempts || 1;
+	const attempts = options?.attempts || 3;
 	const handleError = Boolean(options?.handleError || options?.errorMessage);
 	const errorMessage = options?.errorMessage || apiErrorMessageToast;
 	const errorHandlers = options?.errorHandlers || { };
@@ -165,18 +165,18 @@ export async function khatch(url, options={ }) {
 		}
 		catch (e) {
 			error = e;
-			break;
+			// break;
 		}
 
 		// we only want to retry when we think it might succeed
-		if (response.status <= 500)
+		if (response && response.status <= 500)
 		{ break; }
 
 		await new Promise(r => setTimeout(r, attempt ** 2 * 1000));
 		attempt++;
 	}
 
-	console.debug('[khatch]', url, options, response, error);
+	console.debug('[khatch]', attempt, url, options, response, error);
 
 	if (response?.status === 401)
 	{ store.commit('setAuth', null); }
@@ -193,11 +193,14 @@ export async function khatch(url, options={ }) {
 				});
 			}
 			else if (errorHandlers.hasOwnProperty(response.status)) {
-				if (errorHandlers[response.status])
-				{ errorHandlers[response.status](response); }
+				if (errorHandlers[response.status]) {
+					errorHandlers[response.status](response);
+				}
 			}
-			else if (response.status < 400)
-			{ return response; } // unreachable?
+			else if (response.status < 400) {
+				// unreachable?
+				return response;
+			}
 			else if (response.status < 500) {
 				store.commit('createToast', {
 					title: errorMessage,
@@ -212,7 +215,7 @@ export async function khatch(url, options={ }) {
 				});
 			}
 
-			return new Promise((_, reject) => reject());
+			return new Promise((_, reject) => reject("([khatch] handled)"));
 		}
 		else if (error)
 		{ throw error; }

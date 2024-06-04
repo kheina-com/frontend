@@ -65,15 +65,15 @@ export default {
 		{ this.$store.commit('setAuth', auth); }
 		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
 
-		khatch(`${configHost}/v1/user`, {
-			errorMessage: 'Could Not Retrieve User Config!',
-			errorHandlers: {
-				// do nothing, we don't care
-				401: () => { },
-			},
-		}).then(response => response.json().then(r => {
-			this.$store.commit('userConfig', r);
-		}));
+		// khatch(`${configHost}/v1/user`, {
+		// 	errorMessage: 'Could Not Retrieve User Config!',
+		// 	errorHandlers: {
+		// 		// do nothing, we don't care
+		// 		401: () => { },
+		// 	},
+		// }).then(response => response.json().then(r => {
+		// 	this.$store.commit('userConfig', r);
+		// }));
 
 		const fontFamily = document.getElementById('font-family');
 		const customFont = getCookie('font-family');
@@ -126,7 +126,7 @@ export default {
 		},
 		onResize() {
 			// document.dispatchEvent(new CustomEvent('resize'));
-			console.debug('resize');
+			// console.debug('resize');
 			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true)) {
 				const offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
 				this.$refs.content.style.top = `${offset}px`;
