@@ -1,5 +1,5 @@
 <template>
-	<!-- <div ref='loader' class='loader'><div ref='loaderContent'/></div> -->
+	<div ref='loader' class='loader'><div ref='loaderContent'><p></p><!-- yes, there needs to be two p tags --><p></p></div></div>
 	<Loading class='media' :style='parentStyle' :isLoading='isLoading'>
 		<p v-if='isError'>Could not load media.</p>
 		<video ref='media' :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
@@ -8,6 +8,7 @@
 </template>
 
 <script>
+import { authRegex } from '@/config/constants';
 import { ref } from 'vue';
 import { base64ToBytes, createToast } from '@/utilities';
 import Loading from '@/components/Loading.vue';
@@ -28,6 +29,50 @@ import { thumbHashToDataURL } from 'thumbhash';
 // 	{ return `${(value / 1e3).toFixed(1)}KB`; }
 // 	return `${value}B`;
 // }
+
+function abbreviate(value) {
+	const e3 = Math.log(value) * Math.LOG10E / 3| 0;
+
+	// more concise but slower (I think)
+	// const abr = ['B', 'KB', 'MB', 'GB', 'TB'];
+	// if (value >= 9995 * 10 ** (e3 * 3 - 1)) {
+	// 	return `${Math.round(value / (10 ** ((e3 + 1) * 3)))}${abr[e3 + 1]}`;
+	// }
+	// if (value >= 995 * 10 ** (e3 * 3 - 2)) {
+	// 	return `${Math.round(value / (10 ** (e3 * 3)))}${abr[e3]}`;
+	// }
+	// return `${(value / (10 ** (e3 * 3))).toFixed(1)}${abr[e3]}`;
+
+	switch (Math.log(value) * Math.LOG10E | 0) {
+		case 0:
+		case 1:
+		case 2:
+			return `${value}B`;
+		case 3:
+			if (value < 9950)
+			{ return `${(value / 1e3).toFixed(1)}KB`; }
+			return `${Math.round(value / 1e3)}KB`; // necessary to avoid double check
+		case 5:
+			if (value >= 9995e2)
+			{ return `${(value / 1e6).toFixed(1)}MB`; }
+		case 4:
+			return `${Math.round(value / 1e3)}KB`;
+		case 6:
+			if (value < 995e4)
+			{ return `${(value / 1e6).toFixed(1)}MB`; }
+			return `${Math.round(value / 1e6)}MB`; // necessary to avoid double check
+		case 8:
+			if (value >= 9995e5)
+			{ return `${(value / 1e9).toFixed(1)}GB`; }
+		case 7:
+			return `${Math.round(value / 1e6)}MB`;
+		case 9:
+			if (value < 995e7)
+			{ return `${(value / 1e9).toFixed(1)}GB`; }
+		default:
+			return `${Math.round(value / 1e9)}GB`;
+	}
+}
 
 export default {
 	name: 'Media',
@@ -74,11 +119,11 @@ export default {
 	},
 	setup() {
 		const media = ref(null);
-		// const loader = ref(null);
+		const loader = ref(null);
 		const loaderContent = ref(null);
 		return {
 			media,
-			// loader,
+			loader,
 			loaderContent,
 		};
 	},
@@ -88,51 +133,72 @@ export default {
 			isError: false,
 		};
 	},
+	created() {
+		const store = this.$store;
+		Image.prototype.load = function(url, callback) {
+			// const img = this;
+			const xhr = new XMLHttpRequest();
+			xhr.open('GET', url, true);
+
+			if (url.match(authRegex)) {
+				const auth = store.state.auth?.token;
+				if (auth) {
+					xhr.setRequestHeader('authorization', 'bearer ' + auth);
+				}
+			}
+
+			// xhr.setRequestHeader('Cache-Control', 'max-stale=10000000');
+			xhr.responseType = 'arraybuffer';
+			xhr.onload = () => {
+				// TODO: until I figure out the caching issue, use blobs
+				const blob = new Blob([xhr.response], { type: xhr.getResponseHeader('content-type') });
+				// console.log(blob)
+				this.src = window.URL.createObjectURL(blob);
+
+				// TODO: in the future, the browser should just cache the image locally and be able to load it directly from img.src
+				// this.src = url;
+			};
+			xhr.onprogress = callback;
+			xhr.send();
+			this.onload = () => URL.revokeObjectURL(this.src);
+		};
+	},
 	mounted() {
 		this.th(this.thumbhash);
-		this.$refs.media.src = this.src;
 
-		// if (this.src.substring(0, 5) === "data:") {
-		// 	// image is a local file, skip
-		// 	this.$refs.media.src = this.src;
-		// 	return;
-		// }
+		if (this.src.substring(0, 5) === "data:") {
+			// image is a local file, skip
+			this.$refs.media.src = this.src;
+			return;
+		}
 
-		// if (this.isImage) {
-		// 	const show = setTimeout(() => this.$refs.loader.style.display = "flex", 3000);
-		// 	// Image.prototype.load = function(url, callback) {
-		// 		// const img = this;
-		// 		const xhr = new XMLHttpRequest();
-		// 		xhr.open('GET', this.src, true);
+		// return this.$refs.media.src = this.src;
 
-		// 		if (this.src.match(authRegex)) {
-		// 			const auth = this.$store.state.auth?.token;
-		// 			if (auth) {
-		// 				xhr.setRequestHeader('authorization', 'bearer ' + auth);
-		// 			}
-		// 		}
+		if (this.isImage) {
+			const show = setTimeout(() => this.$refs.loader.style.display = "flex", 1000);
 
-		// 		xhr.responseType = 'arraybuffer';
-		// 		xhr.onload = () => {
-		// 			clearTimeout(show);
-		// 			const blob = new Blob([xhr.response]);
-		// 			this.$refs.media.src = window.URL.createObjectURL(blob);
-		// 		};
-		// 		xhr.onprogress = this.onProgress
-		// 		xhr.send();
-		// 	// };
-
-		// 	// const i = new Image();
-		// 	// i.load(this.src, this.onProgress);
-		// 	// this.$refs.media.parentNode.replaceChild(i, this.$refs.media);
-		// 	// this.$refs.media = i;
-		// }
+			// const i = new Image();
+			// i.onlo
+			this.$refs.media.load(this.src, e => {
+				this.$refs.loaderContent.firstElementChild.innerText = (e.loaded / e.total * 100).toFixed(1) + "%";
+				this.$refs.loaderContent.lastElementChild.innerText = `${abbreviate(e.loaded)} / ${abbreviate(e.total)}`;
+			});
+			// i.dataset = this.$refs.media.dataset;
+			// i.className = this.$refs.media.className;
+			// this.$refs.media.parentNode.replaceChild(i, this.$refs.media);
+			// this.$refs.media = i;
+			this.$refs.media.addEventListener('load', () => {
+				clearTimeout(show);
+				this.$refs.loader.style.display = "none";
+			});
+		}
 		// else if (this.isVideo) {
 
 		// }
-		// else {
-		// 	// error
-		// }
+		else {
+			this.$refs.media.src = this.src;
+			// error
+		}
 	},
 	computed: {
 		isImage()
@@ -157,7 +223,7 @@ export default {
 			}
 			this.isLoading = false;
 			// this.$refs.loader.style = null;
-			this.$refs.media.parentNode.style.background = null;
+			// this.$refs.media.parentNode.style.background = null;
 			if (this.bg) {
 				this.$refs.media.parentNode.classList.add('bg');
 			}
@@ -174,23 +240,23 @@ export default {
 				dump: this.src,
 			});
 		},
-		// onProgress(e) {
-		// 	this.$refs.loaderContent.innerHTML = `${(e.loaded / e.total * 100).toFixed(1)}%<br>${abbreviate(e.loaded)} / ${abbreviate(e.total)}`;
-		// },
 		th(value) {
 			// console.log('thumbhash:', value);
-			if (!value) {
-				return;
-			}
+			if (!value) return;
 
 			let dataurl;
 			try {
-				// this.$refs.media.style.opacity = 0;
-				this.$refs.media.classList.add("th");
 				dataurl = thumbHashToDataURL(base64ToBytes(value));
 				this.$refs.media.parentNode.style.background = "url('" + dataurl + "')";
 				this.$refs.media.parentNode.style.backgroundSize = "cover";
+				this.$refs.media.style.opacity = 0;
+				this.$refs.media.parentNode.classList.add("th");
 				// this.isLoading = false;
+				this.$refs.media.addEventListener('load', e => {
+					// this.$refs.media.parentNode.style.background = null;
+					e.target.style.opacity = 100;
+					// setTimeout(() => this.$refs.media.style.opacity = 100, 150);
+				});
 			}
 			catch (e) {
 				console.error("thumbhash:", value, "dataurl:", dataurl, "error:", e);
@@ -243,5 +309,11 @@ export default {
 .media p {
 	align-self: center;
 	text-align: center;
+}
+.th img {
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 </style>

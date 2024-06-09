@@ -28,6 +28,7 @@
 							refid: uuid(),
 							status: 0xdeadbeef,
 						},
+						time: 10000,
 					})">
 						toast
 					</Button>

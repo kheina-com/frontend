@@ -1,11 +1,11 @@
 <template>
-	<div class='content' v-show='content'>
+	<div class='content' ref='main' v-show='content'>
+		<span></span>
+		<a role='button' @click='copy'><i class='material-icons'>content_copy</i></a>
 		<div ref='popup' class='popup'>
 			<div/>
-			<p style="position: relative;">copied!</p>
+			<p style='position: relative'>copied!</p>
 		</div>
-		<input ref='text' type='text' class='code' :value='copyValue' readonly/>
-		<a role='button' @click='copy'><i class='material-icons'>content_copy</i></a>
 	</div>
 </template>
 
@@ -15,15 +15,28 @@ import { ref } from 'vue';
 export default {
 	name: 'CopyText',
 	setup() {
-		const text = ref(null);
+		const main = ref(null);
 		const popup = ref(null);
 		return {
-			text,
+			main,
 			popup,
 		};
 	},
 	props: {
 		content: Object,
+		inline: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	mounted() {
+		this.$refs.main.firstElementChild.innerText = this.copyValue;
+		if (this.inline) {
+			this.$refs.main.classList.add('inline');
+		}
+		else {
+			this.$refs.main.classList.add('block');
+		}
 	},
 	computed: {
 		copyValue() {
@@ -39,16 +52,13 @@ export default {
 	methods: {
 		copy() {
 			navigator.clipboard.writeText(this.copyValue)
-			.catch(() => {
-				this.$refs.text.select();
-				document.execCommand('copy');
-			})
+			// don't even bother supporting old shit anymore
 			.then(() => {
 				this.$refs.popup.style.display = 'block';
 				if (this.t) {
 					clearTimeout(this.t);
 				}
-				this.t = setTimeout(() => { this.t = null; this.$refs.popup.style.display = null }, 5000);
+				this.t = setTimeout(() => { this.$refs.popup.style.display = this.t = null }, 5000);
 			});
 		},
 	},
@@ -61,32 +71,59 @@ i {
 }
 a {
 	font-size: 1.2em;
-	position: absolute;
-	right: 0.3em;
-	top: 0.4em;
-	background: linear-gradient(to right, #0000 0, var(--bg1color) 50%);
-	padding-left: 1.5em;
-	height: 1em;
 }
 
 .content {
 	position: relative;
-	margin: 0 auto var(--margin);
-	width: 400px;
-}
-
-input {
 	font-size: 0.9em;
-	width: 100%;
-	width: calc(100% - 16px);
-	cursor: text;
 	color: var(--textolor);
-	padding: 8px;
 	background: var(--bg1color);
 	white-space: pre-wrap;
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+}
+.block.content {
+	/* margin: 0 auto var(--margin); */
+	width: 400px;
+}
+.inline.content {
+	display: inline-block;
+	padding: 0 0.3em;
+}
+
+.block {
+	span {
+		width: 100%;
+		width: calc(100% - 16px);
+		padding: 0.5em;
+		white-space: nowrap;
+		overflow: hidden;
+		display: block;
+	}
+	a {
+		position: absolute;
+		right: 0;
+		top: 0;
+		background: linear-gradient(to right, #0000 0, var(--bg1color) 50%);
+		padding: 0.4em 0.4em 0.4em 1.5em;
+		height: 1em;
+	}
+}
+
+.inline {
+	span {
+		padding: 0.2em;
+	}
+	a {
+		position: relative;
+		top: 0.2em;
+		margin-left: 0.5em;
+	}
+}
+
+span {
+	display: inline-block;
 }
 
 .popup {
@@ -95,6 +132,7 @@ input {
 	pointer-events: none;
 	color: var(--textcolor);
 	bottom: 150%;
+	bottom: calc(100% + 1.2em);
 	right: -1.4em;
 	background: var(--bg1color);
 	padding: 0.25em 0.5em;

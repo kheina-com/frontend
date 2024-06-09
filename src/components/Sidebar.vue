@@ -22,7 +22,7 @@
 		</ol>
 		<h3 style='padding-top: 2em'>Info</h3>
 		<div class='post-data' v-if='post'>
-			post id: <code>{{post.post_id ?? post.postId}}</code>
+			post id: <CopyText :content='post.post_id ?? post.postId' inline/>
 			<br>
 			size: {{post.size ? `${post.size.width}x${post.size.height}px` : 'none'}}
 			<br>
@@ -42,6 +42,7 @@ import { tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
 import Button from '@/components/Button.vue';
+import CopyText from '@/components/CopyText.vue';
 
 export default {
 	name: 'Sidebar',
@@ -71,6 +72,7 @@ export default {
 		Loading,
 		TagGroup,
 		Button,
+		CopyText,
 	},
 	methods: {
 		commafy,
