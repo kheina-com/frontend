@@ -74,15 +74,10 @@ export default {
 				}
 			}
 		},
-		readerOnLoad(reader) {
-			this.src = reader.result;
-			this.hasFile = true;
-		},
 		addFile(file) {
 			this.$emit('update:file', file);
-			const reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.addEventListener('load', () => this.readerOnLoad(reader), false);
+			this.src = window.URL.createObjectURL(file, { type: file.type });
+			this.hasFile = true;
   		},
 		fileAdded(event) {
 			this.addFile(event.target.files[0]);
