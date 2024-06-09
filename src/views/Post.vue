@@ -4,7 +4,6 @@
 	<div v-if='parent' class='parent'>
 		<Reply :postId='parent?.post_id' v-bind='parent' nested labels/>
 	</div>
-
 	<div class='container' v-if='!isMobile'>
 		<Sidebar :tags='tags' :post='post' v-model:scalarWidth='scalarWidth' class='sidebar'/>
 		<div class='content'>
@@ -67,33 +66,37 @@
 				</div>
 				<ThemeMenu/>
 			</main>
-			<ol class='replies'>
-				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
-				<div class='reply-field'>
-					<p class='reply-label'>
-						{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
-						<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
-							{ html: 'Top', value: 'top' },
-							{ html: 'Hot', value: 'hot' },
-							{ html: 'Best', value: 'best' },
-							{ html: 'Controversial', value: 'controversial' },
-						]">
-							<span class='sort-by'>
-								<i class='material-icons-round'>sort</i>
-								sort by
-							</span>
-						</DropDown>
-					</p>
-					<div class='buttons' v-if='writeComment'>
-						<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
-						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
+			<div class='reply-section'>
+				<div class='reply-header'>
+					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
+					<div class='reply-field'>
+						<p class='reply-label'>
+							{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
+							<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
+								{ html: 'Top', value: 'top' },
+								{ html: 'Hot', value: 'hot' },
+								{ html: 'Best', value: 'best' },
+								{ html: 'Controversial', value: 'controversial' },
+							]">
+								<span class='sort-by'>
+									<i class='material-icons-round'>sort</i>
+									sort by
+								</span>
+							</DropDown>
+						</p>
+						<div class='buttons' v-if='writeComment'>
+							<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
+						</div>
+						<Button class='buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 					</div>
-					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 				</div>
-				<li v-for='reply in replies'>
-					<Reply :postId='reply?.post_id' v-bind='reply' reply/>
-				</li>
-			</ol>
+				<ol class='replies'>
+					<li v-for='reply in replies'>
+						<Reply :postId='reply?.post_id' v-bind='reply' reply/>
+					</li>
+				</ol>
+			</div>
 		</div>
 	</div>
 	<div class='content' v-else>
@@ -157,29 +160,33 @@
 				</main>
 			</div>
 		</div>
-		<ol class='replies'>
-			<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
-			<div class='reply-field'>
-				<p class='reply-label'>
-					{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
-					<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
-						{ html: 'Top', value: 'top' },
-						{ html: 'Hot', value: 'hot' },
-						{ html: 'Best', value: 'best' },
-						{ html: 'Controversial', value: 'controversial' },
-					]">
-						<span class='sort-by'>
-							<i class='material-icons-round'>sort</i>
-							sort by
-						</span>
-					</DropDown>
-				</p>
-				<div class='buttons' v-if='writeComment'>
-					<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
-					<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
+		<div class='reply-section'>
+			<div class='reply-header'>
+				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
+				<div class='reply-field'>
+					<p class='reply-label'>
+						{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
+						<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
+							{ html: 'Top', value: 'top' },
+							{ html: 'Hot', value: 'hot' },
+							{ html: 'Best', value: 'best' },
+							{ html: 'Controversial', value: 'controversial' },
+						]">
+							<span class='sort-by'>
+								<i class='material-icons-round'>sort</i>
+								sort by
+							</span>
+						</DropDown>
+					</p>
+					<div class='buttons' v-if='writeComment'>
+						<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
+					</div>
+					<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 				</div>
-				<Button class='interactable buttons' @click='$store.state.user ? writeComment = true : $router.push(`/account/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 			</div>
+		</div>
+		<ol class='replies'>
 			<li v-for='reply in replies'>
 				<Reply :postId='reply?.post_id' v-bind='reply' reply/>
 			</li>
@@ -786,7 +793,7 @@ input {
 ol {
 	list-style: none;
 	padding: 0 var(--margin) 0 0;
-	margin: var(--margin) 0 0;
+	margin: 0 0 calc(var(--margin) - 4px);
 	display: block;
 	position: relative;
 }
@@ -796,8 +803,15 @@ ol li {
 ol > :last-child, ol > :last-child .post {
 	margin: 0;
 }
-ol p {
-	margin: 0 0 0.25em var(--margin);
+.reply-section:has(> .replies:empty) > .reply-header > .reply-field {
+	align-items: flex-start;
+	& .buttons {
+		margin: 0;
+	}
+}
+.reply-header {
+	margin-top: var(--margin);
+	padding-right: var(--margin);
 }
 .mobile .replies {
 	padding: 0 var(--margin);
@@ -812,7 +826,11 @@ ol p {
 	justify-content: flex-end;
 	margin-bottom: var(--margin);
 }
+.reply-label {
+	margin: 0 0 0.25em var(--margin);
+}
 .reply-label, .reply-label button {
+	margin-left: var(--margin);
 	display: flex;
 	align-items: center;
 }
