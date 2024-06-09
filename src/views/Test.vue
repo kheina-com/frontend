@@ -54,6 +54,9 @@
 				<input placeholder='post' class='interactable' v-model='postId'/>
 			</div>
 		</div>
+		<div ref='ellipse'>
+
+		</div>
 		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
 				<p>{{ color }} text</p>
@@ -89,6 +92,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -111,6 +115,12 @@ export default {
 		Markdown,
 		PostTile,
 	},
+	setup() {
+		const ellipse = ref(null);
+		return {
+			ellipse,
+		};
+	},
 	data() {
 		return {
 			epoch: new Date(epoch).toString(),
@@ -125,16 +135,79 @@ export default {
 			postId: null,
 			post: null,
 			saturation: 1,
+			animate: true,
 		};
 	},
 	mounted() {
 		this.postId = "ugE_qTJL";
+		this.$refs.ellipse.style = "position: relative; margin: auto";
+		const width = 500;
+		const x = width / 2;
+		const y = width / 2;
+		this.$refs.ellipse.style.width = `${width}px`;
+		this.$refs.ellipse.style.height = `${width}px`;
+		const c = 4;
+		const orbsize = 4;
+		const squish = 1/3;
+		for (let i = 0; i < c; i++) {
+			this.drawEllipse(x + orbsize / 2 + 1, y + orbsize / 2 + 1, x, squish, i / c / 2);
+		}
+		for (let i = 0; i < c; i++) {
+			const e = document.createElement("div");
+			e.style.position = "absolute";
+			e.style.width = 0;
+			e.style.height = 0;
+			e.style.border = `${orbsize}px solid var(--interact)`;
+			e.style.borderRadius = "50%";
+			this.$refs.ellipse.appendChild(e);
+			this.rotator(x, y, x, squish, i / c / 2, 1, e, i / c);
+		}
 	},
 	unmounted() {
 		document.documentElement.style.filter = null;
+		this.animate = false;
 	},
 	methods: {
 		createToast,
+		rotator(x, y, radius, squish, rotation, speed, element, position=0) {
+			// element = this.$refs.ellipse.childNodes[0];
+			// console.log(x, y, radius, squish, rotation, speed, element);
+			let lastruntime = Date.now();
+			const r = () => {
+				const runtime = Date.now();
+				position += (runtime - lastruntime) / 1000 * speed;
+				const [xi, yi] = this.ellipsePoint(radius, squish, rotation, position);
+				// console.log(position, xi, yi);
+				element.style.left = `${x + xi}px`;
+				element.style.top = `${y + yi}px`;
+				lastruntime = runtime;
+				if (this.animate) {
+					setTimeout(r, 0);
+				}
+			};
+			r();
+		},
+		ellipsePoint(radius, squish, rotation, percent) {
+			const rads = Math.PI * percent * 2;
+			const x = (radius * Math.cos(rads));
+			const y = (radius * Math.sin(rads)) * squish;
+
+			const rot = Math.PI * rotation * 2;
+			return [x * Math.cos(rot) - y * Math.sin(rot), y * Math.cos(rot) + x * Math.sin(rot)];
+		},
+		drawEllipse(x, y, radius, squish, rotation) {
+			const rot = Math.PI * rotation * 2;
+			const e = document.createElement("div");
+			e.style.position = "absolute";
+			e.style.width = `${radius * 2}px`;
+			e.style.height = `${radius * squish * 2}px`;
+			e.style.left = `${x - radius}px`;
+			e.style.top = `${y - radius * squish}px`;
+			e.style.border = "var(--border-size) solid var(--bordercolor)";
+			e.style.rotate = `${rot}rad`;
+			e.style.borderRadius = "50%";
+			this.$refs.ellipse.appendChild(e);
+		},
 		uuid(len = 32) {
 			let uuid = '';
 			for (let i = 0; i < len; i++) { uuid += Math.floor(Math.random() * 16).toString(16); }
