@@ -26,54 +26,23 @@ switch (window.location.hostname.toLowerCase())
 export const environment = env;
 
 
-let pHost = null;
-let tHost = null;
-let aHost = null;
-let uHost = null;
-let cHost = null;
-let usrHost = null;
-let sHost = null;
-
+let apiHost;
 switch (environment)
 {
-	case 'prod' :
-		pHost = 'https://posts.fuzz.ly';
-		tHost = 'https://tags.fuzz.ly';
-		aHost = 'https://account.fuzz.ly';
-		uHost = 'https://upload.fuzz.ly';
-		cHost = 'https://config.fuzz.ly';
-		usrHost = 'https://users.fuzz.ly';
-		sHost = 'https://sets.fuzz.ly';
+	case 'prod':
+		apiHost = 'https://api.fuzz.ly';
 		break;
 
-	case 'dev' :
-		pHost = 'https://posts-dev.fuzz.ly';
-		tHost = 'https://tags-dev.fuzz.ly';
-		aHost = 'https://account-dev.fuzz.ly';
-		uHost = 'https://upload-dev.fuzz.ly';
-		cHost = 'https://config-dev.fuzz.ly';
-		usrHost = 'https://users-dev.fuzz.ly';
-		sHost = 'https://sets-dev.fuzz.ly';
+	case 'dev':
+		apiHost = 'https://api-dev.fuzz.ly';
 		break;
 
-	case 'local' :
-		pHost = 'https://posts-dev.fuzz.ly';
-		tHost = 'https://tags-dev.fuzz.ly';
-		aHost = 'https://account-dev.fuzz.ly';
-		uHost = 'https://upload-dev.fuzz.ly';
-		cHost = 'https://config-dev.fuzz.ly';
-		usrHost = 'https://users-dev.fuzz.ly';
-		sHost = 'https://sets-dev.fuzz.ly';
+	default:
+		apiHost = 'http://localhost:5000';
 		break;
 }
 
-export const postsHost = pHost;
-export const tagsHost = tHost;
-export const accountHost = aHost;
-export const uploadHost = uHost;
-export const configHost = cHost;
-export const usersHost = usrHost;
-export const setsHost = sHost;
+export const host = apiHost;
 
 export const cdnHost = 'https://cdn.fuzz.ly';
 

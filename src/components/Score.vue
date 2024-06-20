@@ -9,7 +9,7 @@
 <script>
 import { ref } from 'vue';
 import { abbreviate, khatch } from '@/utilities';
-import { apiErrorMessage, postsHost } from '@/config/constants';
+import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 
 export default {
@@ -60,7 +60,7 @@ export default {
 			if (this.score?.user_vote === vote)
 			{ vote = 0; }
 
-			khatch(`${postsHost}/v1/vote`, {
+			khatch(`${host}/v1/posts/vote`, {
 				handleError: true,
 				method: 'POST',
 				body: {

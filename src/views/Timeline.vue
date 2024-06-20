@@ -28,7 +28,7 @@
 
 <script>
 import { khatch, saveToHistory } from '@/utilities';
-import { postsHost } from '@/config/constants';
+import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
@@ -114,7 +114,7 @@ export default {
 
 			this.posts = null;
 
-			khatch(`${postsHost}/v1/timeline_posts`, {
+			khatch(`${host}/v1/posts/timeline_posts`, {
 					handleError: true,
 					method: 'POST',
 					body: {

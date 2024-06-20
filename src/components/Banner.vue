@@ -210,7 +210,7 @@
 
 <script>
 import { deleteCookie, khatch } from '@/utilities';
-import { accountHost, configHost, environment, isMobile, ratings } from '@/config/constants.js';
+import { host, environment, isMobile, ratings } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -272,7 +272,7 @@ export default {
 			document.dispatchEvent(new CustomEvent("router-event"));
 		},
 		updateLoop() {
-			khatch(`${configHost}/v1/banner`, {
+			khatch(`${host}/v1/config/banner`, {
 				errorMessage: 'Error Occurred While Fetching Banner',
 			}).then(response => {
 				response.json().then(r => {
@@ -325,7 +325,7 @@ export default {
 			this.$router.push(route + encodeURIComponent(query));
 		},
 		signOut() {
-			khatch(accountHost+ '/v1/logout', {
+			khatch(host + '/v1/account/logout', {
 				method: 'DELETE',
 				errorMessage: 'Could not perform logout!',
 			}).then(() => {
@@ -351,7 +351,7 @@ export default {
 		},
 		updateMessage() {
 			this.isMessageLoading = true;
-			khatch(`${configHost}/v1/update_config`, {
+			khatch(`${host}/v1/config/update_config`, {
 					method: 'POST',
 					body: {
 						config: 'banner',

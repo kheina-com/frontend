@@ -126,7 +126,7 @@
 
 <script>
 import { khatch, saveToHistory, setTitle } from '@/utilities';
-import { apiErrorMessage, postsHost, tagsHost, usersHost } from '@/config/constants';
+import { apiErrorMessage, host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
 import Post from '@/components/Post.vue';
@@ -188,7 +188,7 @@ export default {
 	created() {
 		this.fetchPosts();
 
-		khatch(`${tagsHost}/v1/tag/${encodeURIComponent(this.tag)}`, {
+		khatch(`${host}/v1/tags/tag/${encodeURIComponent(this.tag)}`, {
 			errorMessage: "Could not fetch tag details!",
 			errorHandlers: {
 				404: r => r.json().then(r => this.$store.commit("error", r.error || "NotFound: the provided tag does not exist.")),
@@ -244,7 +244,7 @@ export default {
 
 			this.posts = null;
 
-			khatch(`${postsHost}/v1/posts`, {
+			khatch(`${host}/v1/posts`, {
 					method: 'POST',
 					body: {
 						sort: this.sort,
@@ -288,7 +288,7 @@ export default {
 		inheritTag() {
 			if (this.newInheritedTag) {
 				this.newInheritLoading = true;
-				khatch(`${tagsHost}/v1/inherit_tag`, {
+				khatch(`${host}/v1/tags/inherit_tag`, {
 					method: 'POST',
 					errorMessage: 'Could not create inheritance.',
 					body: {
@@ -304,7 +304,7 @@ export default {
 			}
 		},
 		removeInheritance(tag_to_remove) {
-			khatch(`${tagsHost}/v1/remove_inheritance`, {
+			khatch(`${host}/v1/tags/remove_inheritance`, {
 				method: 'POST',
 				errorMessage: 'Could not remove inherited tag.',
 				body: {
@@ -334,7 +334,7 @@ export default {
 			if (this.updateBody?.description && this.updateBody.description !== this.tagData?.description)
 			{ body.description = this.updateBody.description; }
 
-			khatch(`${tagsHost}/v1/tag/${this.tag}`, {
+			khatch(`${host}/v1/tags/tag/${this.tag}`, {
 					method: 'PATCH',
 					body,
 				})
@@ -352,7 +352,7 @@ export default {
 								this.tagData.owner = null;
 							}
 							else {
-								khatch(`${usersHost}/v1/fetch_user/${body.owner}`, {
+								khatch(`${host}/v1/users/${body.owner}`, {
 									errorMessage: 'Failed to retrieve new tag owner.',
 								}).then(response => {
 									response.json().then(r => {

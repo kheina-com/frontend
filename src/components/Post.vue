@@ -78,7 +78,7 @@
 <script>
 import { ref } from 'vue';
 import { getMediaThumbnailUrl, khatch } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, uploadHost, usersHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, host } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -334,7 +334,7 @@ export default {
 			this.$router.push(this.target);
 		},
 		followUser() {
-			khatch(`${usersHost}/v1/${this.user.following ? 'unfollow_user' : 'follow_user'}`, {
+			khatch(`${host}/v1/users/${this.user.following ? 'unfollow_user' : 'follow_user'}`, {
 				method: 'POST',
 				body: {
 					handle: this.user.handle,
@@ -382,7 +382,7 @@ export default {
 			let created = new Date();
 			let updated = created;
 
-			khatch(`${uploadHost}/v1/create_post`, {
+			khatch(`${host}/v1/upload/create_post`, {
 					method: 'POST',
 					body: {
 						reply_to: this.postId,

@@ -265,7 +265,7 @@ import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, postsHost, uploadHost, usersHost, tabs, tagsHost, setsHost } from '@/config/constants';
+import { isMobile, host, tabs } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -378,7 +378,7 @@ export default {
 		else
 		{
 			khatch(
-				`${usersHost}/v1/fetch_user/${this.handle}`,
+				`${host}/v1/users/${this.handle}`,
 				{ handleError: true },
 			).then(response => {
 				response.json().then(r => {
@@ -439,7 +439,7 @@ export default {
 		getEmojiUrl,
 		addBadge(badge) {
 			console.log('adding', badge)
-			khatch(`${usersHost}/v1/add_badge`, {
+			khatch(`${host}/v1/users/add_badge`, {
 				method: 'POST',
 				errorMessage: 'Failed to add badge.',
 				body: badge,
@@ -448,7 +448,7 @@ export default {
 			.catch(() => { });
 		},
 		removeBadge(badge) {
-			khatch(`${usersHost}/v1/remove_badge`, {
+			khatch(`${host}/v1/users/remove_badge`, {
 				method: 'POST',
 				errorMessage: 'Failed to remove badge.',
 				body: badge,
@@ -464,7 +464,7 @@ export default {
 			this.$router.push(this.pageLink(1));
 		},
 		follow() {
-			khatch(`${usersHost}/v1/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
+			khatch(`${host}/v1/users/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
 				method: 'POST',
 				body: {
 					handle: this.user?.handle,
@@ -504,7 +504,7 @@ export default {
 
 					this.posts = null;
 
-					khatch(`${postsHost}/v1/posts`, {
+					khatch(`${host}/v1/posts`, {
 						handleError: true,
 						method: 'POST',
 						body: {
@@ -528,7 +528,7 @@ export default {
 					if (this.sets !== null)
 					{ return; }
 
-					khatch(`${setsHost}/v1/user/${this.handle}`, {
+					khatch(`${host}/v1/sets/user/${this.handle}`, {
 						errorMessage: 'Failed to Retrieve User sets!',
 						errorHandlers: { 404: () => this.sets = [] },
 					}).then(r => r.json())
@@ -538,7 +538,7 @@ export default {
 
 				case 'tags' :
 					if (this.userTags === null) {
-						khatch(`${tagsHost}/v1/get_user_tags/${this.handle}`, {
+						khatch(`${host}/v1/tags/user/${this.handle}`, {
 							errorMessage: 'Failed to Retrieve User tags!',
 							errorHandlers: { 404: () => this.userTags = [] },
 						}).then(r => r.json())
@@ -562,7 +562,7 @@ export default {
 
 					this.posts = null;
 
-					khatch(`${postsHost}/v1/fetch_my_posts`, {
+					khatch(`${host}/v1/posts/fetch_my_posts`, {
 						handleError: true,
 						method: 'POST',
 						body: {
@@ -588,7 +588,7 @@ export default {
 				};
 
 				if (this.availableBadges === null) {
-					khatch(`${usersHost}/v1/badges`, {
+					khatch(`${users}/v1/users/badges`, {
 						method: 'GET',
 						errorMessage: 'Failed to fetch available badges',
 					}).then(r => r.json())
@@ -603,8 +603,8 @@ export default {
 			// website: str = None
 			// description: str = None
 
-			khatch(`${usersHost}/v1/update_self`, {
-				method: 'POST',
+			khatch(`${host}/v1/users/self`, {
+				method: 'PATCH',
 				body: this.update,
 			}).then(() => {
 				this.user = Object.assign(this.user, this.update);
@@ -646,7 +646,7 @@ export default {
 			if (this.isUploadBanner)
 			{ endpoint = 'set_banner'; }
 
-			khatch(`${uploadHost}/v1/${endpoint}`, {
+			khatch(`${host}/v1/upload/${endpoint}`, {
 				errorMessage: 'Failed to update user image!',
 				method: 'POST',
 				body: {
@@ -670,7 +670,7 @@ export default {
 			this.uploadLoading = true;
 			this.uploadablePage = page || 1;
 			if (this.searchValue) {
-				khatch(`${postsHost}/v1/posts`, {
+				khatch(`${host}/v1/posts`, {
 					errorMessage: 'Failed to fetch posts for profile.',
 					method: 'POST',
 					body: {
@@ -687,7 +687,7 @@ export default {
 				}).catch(this.disableUploads);
 			}
 			else {
-				khatch(`${postsHost}/v1/fetch_user_posts`, {
+				khatch(`${host}/v1/posts/fetch_user_posts`, {
 					errorMessage: 'Failed to fetch posts for profile.',
 					method: 'POST',
 					body: {
@@ -727,7 +727,7 @@ export default {
 			if (!value)
 			{ return; }
 
-			khatch(`${postsHost}/v1/post/${value}`, {
+			khatch(`${host}/v1/posts/${value}`, {
 				errorMessage: 'Failed to fetch post for profile.',
 			}).then(r => r.json())
 			.then(r => {

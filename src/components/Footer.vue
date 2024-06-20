@@ -21,7 +21,7 @@
 <script>
 import ThemeButton from '@/components/ThemeButton.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
-import { configHost } from '@/config/constants';
+import { host } from '@/config/constants';
 import { khatch } from '@/utilities';
 
 export default {
@@ -41,7 +41,7 @@ export default {
 	},
 	methods: {
 		updateLoop() {
-			khatch(`${configHost}/v1/funding`, {
+			khatch(`${host}/v1/config/funding`, {
 				errorMessage: 'Error Occurred While Fetching Funding',
 			}).then(response => {
 				response.json().then(r => {

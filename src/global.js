@@ -1,6 +1,6 @@
 import { createStore } from 'vuex';
 import { authCookie, getMediaUrl, khatch, setCookie } from '@/utilities';
-import { configHost, ratingMap, postsHost, usersHost } from '@/config/constants';
+import { ratingMap, host, environment } from '@/config/constants';
 
 
 let toastCounter = 0;
@@ -23,7 +23,7 @@ function userConfig(state, config) {
 		wallpaper: config.wallpaper,
 	};
 	if (config.wallpaper) {
-		khatch(`${postsHost}/v1/post/${config.wallpaper}`, {
+		khatch(`${host}/v1/posts/${config.wallpaper}`, {
 			errorMessage: 'Failed to Retrieve User Wallpaper!',
 		}).then(r => r.json()).then(r => {
 			document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.filename)})`;
@@ -118,12 +118,12 @@ export default createStore({
 				}
 				else {
 					const maxage = Math.round(auth.expires - new Date().valueOf() / 1000);
-					if (window.location.hostname.toLowerCase().includes('fuzz.ly')) // specifically open this cookie to subdomains so that cdn works
+					if (environment !== 'local') // specifically open this cookie to subdomains so that cdn works
 					{ document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=strict; domain=.fuzz.ly; path=/; secure`; }
 					else
 					{ setCookie('kh-auth', auth.token, maxage); }
 					state.auth = authCookie();
-					khatch(`${usersHost}/v1/fetch_self`, {
+					khatch(`${host}/v1/users/self`, {
 						errorMessage: 'Error Occurred While Fetching Self'
 					}).then(response => {
 						response.json().then(r => {
@@ -133,11 +133,12 @@ export default createStore({
 					})
 					.catch(() => { });
 
-					khatch(`${configHost}/v1/user`, {
+					khatch(`${host}/v1/config/user`, {
 						errorMessage: 'Could Not Retrieve User Config!',
 						errorHandlers: {
 							// do nothing, we don't care
 							401: () => { },
+							404: () => { },
 						},
 					}).then(response => response.json().then(r => {
 						userConfig(state, r);

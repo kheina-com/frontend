@@ -196,7 +196,7 @@
 
 <script>
 import { demarkdown, khatch, getMediaUrl, setTitle } from '@/utilities';
-import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, isMobile, postsHost, setsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
+import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, environment, isMobile, host } from '@/config/constants';
 import Report from '@/components/Report.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -270,7 +270,7 @@ export default {
 		};
 	},
 	created() {
-		khatch(`${tagsHost}/v1/fetch_tags/${this.postId}`, {
+		khatch(`${host}/v1/tags/${this.postId}`, {
 			errorMessage: 'Could not retrieve post tags!',
 		}).then(response => {
 			response.json().then(r => {
@@ -280,7 +280,7 @@ export default {
 			});
 		});
 
-		khatch(`${setsHost}/v1/post/${this.postId}`, {
+		khatch(`${host}/v1/sets/post/${this.postId}`, {
 			errorMessage: 'Could not retrieve post sets!',
 		}).then(response => {
 			response.json().then(r => {
@@ -304,7 +304,7 @@ export default {
 		}
 		else {
 			// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
-			khatch(`${postsHost}/v1/post/${this.postId}`, {
+			khatch(`${host}/v1/posts/${this.postId}`, {
 				errorMessage: 'Could not retrieve post!',
 			}).then(response => {
 				response.json().then(r => {
@@ -379,7 +379,7 @@ export default {
 			setTitle(title);
 		},
 		followUser() {
-			khatch(`${usersHost}/v1/${this.post?.user.following ? 'unfollow_user' : 'follow_user'}`, {
+			khatch(`${host}/v1/users/${this.post?.user.following ? 'unfollow_user' : 'follow_user'}`, {
 				method: 'POST',
 				body: {
 					handle: this.post.user.handle,
@@ -418,7 +418,7 @@ export default {
 		},
 		fetchComments() {
 			this.replies = null;
-			khatch(`${postsHost}/v1/fetch_comments`, {
+			khatch(`${host}/v1/posts/fetch_comments`, {
 					method: 'POST',
 					body: {
 						post_id: this.postId,
@@ -463,7 +463,7 @@ export default {
 				if (replies.length === 0)
 				{ resolve(); }
 				replies.forEach(reply => {
-					khatch(`${postsHost}/v1/fetch_comments`, {
+					khatch(`${host}/v1/posts/fetch_comments`, {
 							method: 'POST',
 							body: {
 								post_id: reply.post_id,
@@ -503,7 +503,7 @@ export default {
 			});
 		},
 		fetchParent(postId) {
-			khatch(`${postsHost}/v1/post/${postId}`)
+			khatch(`${host}/v1/posts/${postId}`)
 				.then(response => {
 					response.json().then(r => {
 						if (response.status < 300)
@@ -540,7 +540,7 @@ export default {
 			let created = new Date();
 			let updated = created;
 
-			khatch(`${uploadHost}/v1/create_post`, {
+			khatch(`${host}/v1/upload/create_post`, {
 					method: 'POST',
 					body: {
 						reply_to: this.postId,
@@ -596,7 +596,7 @@ export default {
 			this.editing = !this.editing;
 		},
 		updatePost() {
-			khatch(`${uploadHost}/v1/update_post`, {
+			khatch(`${host}/v1/upload/update_post`, {
 					method: 'POST',
 					body: {
 						post_id: this.postId,

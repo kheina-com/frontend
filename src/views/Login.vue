@@ -1,4 +1,5 @@
 <template>
+	<div class='bg'/>
 	<main>
 		<Loading type='block' :isLoading='isLoading'>
 			<Title static='center'>Login<template v-slot:super><router-link to='/account/create'>Create</router-link></template></Title>
@@ -23,7 +24,7 @@
 <script>
 import { ref } from 'vue';
 import { khatch } from '@/utilities';
-import { apiErrorMessage, accountHost } from '@/config/constants';
+import { apiErrorMessage, host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -49,10 +50,19 @@ export default {
 			isLoading: false,
 		};
 	},
+	mounted() {
+			// const colors = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#24408E', '#732982', '#FFFFFF', '#FFAFC8', '#74D7EE', '#613915', '#000000', '#E40303', '#FF8C00'].map(e => e + '20').join(', ');
+			// document.body.style.background = 'linear-gradient(90deg,' + colors + ')';
+			// document.body.style.backgroundSize = `${100 * 12}%`;
+			// document.body.style.animation = 'login 10s linear infinite';
+	},
+	unmounted() {
+		document.body.style = null;
+	},
 	methods: {
 		sendLogin() {
 			this.isLoading = true;
-			khatch(`${accountHost}/v1/login`, {
+			khatch(`${host}/v1/account/login`, {
 					method: 'POST',
 					credentials: 'include',
 					body: {
@@ -62,8 +72,7 @@ export default {
 				})
 				.then(response => {
 					response.json().then(r => {
-						if (response.status < 400 && r.token.token.length > 10)
-						{
+						if (response.status < 400 && r.token.token.length > 10) {
 							this.$store.commit('setAuth', r.token);
 							this.$router.push(this.$route.query?.path ? this.$route.query.path : '/');
 						}
@@ -140,5 +149,23 @@ input:active, input:focus {
 button {
 	word-wrap: normal;
 	white-space: nowrap;
+}
+.bg {
+	position: fixed;
+	z-index: -1;
+	top: -50%;
+	left: -50%;
+	width: 200%;
+	height: 200%;
+	rotate: -45deg;
+	opacity: 20%;
+	pointer-events: none;
+	background: linear-gradient(90deg, #000000, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #FFFFFF, #FFAFC8, #74D7EE, #613915, #000000, #E40303) 0% 0% / 1200% 100%;
+	animation: 20s linear infinite login;
+}
+
+@keyframes login {
+	0% { background-position: 0% 0%; }
+	100% { background-position: 100% 0%; }
 }
 </style>

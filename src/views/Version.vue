@@ -28,7 +28,7 @@
 
 <script>
 import { khatch } from '@/utilities';
-import { accountHost, configHost, environment, postsHost, tagsHost, uploadHost, usersHost } from '@/config/constants';
+import { host, environment } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
@@ -55,48 +55,12 @@ export default {
 		}
 	},
 	created() {
-		khatch(`${accountHost}/`, {
-			// errorMessage: 'Error occurred while retrieving post deployment hash.',
-			method: 'GET',
-		})
-		.then(response => this.versioning.account = response.headers.get('kh-hash'))
-		.catch(() => { });
-
-		khatch(`${configHost}/`, {
-			// errorMessage: 'Error occurred while retrieving post deployment hash.',
-			method: 'GET',
-		})
-		.then(response => this.versioning.configs = response.headers.get('kh-hash'))
-		.catch(() => { });
-
-		khatch(`${postsHost}/`, {
+		khatch(`${host}/`, {
 			// errorMessage: 'Error occurred while retrieving post deployment hash.',
 			method: 'GET',
 		})
 		.then(response => this.versioning.posts = response.headers.get('kh-hash'))
 		.catch(() => { });
-
-		khatch(`${tagsHost}/`, {
-			// errorMessage: 'Error occurred while retrieving post deployment hash.',
-			method: 'GET',
-		})
-		.then(response => this.versioning.tagger = response.headers.get('kh-hash'))
-		.catch(() => { });
-
-		khatch(`${uploadHost}/`, {
-			// errorMessage: 'Error occurred while retrieving post deployment hash.',
-			method: 'GET',
-		})
-		.then(response => this.versioning.uploader = response.headers.get('kh-hash'))
-		.catch(() => { });
-
-		khatch(`${usersHost}/`, {
-			// errorMessage: 'Error occurred while retrieving post deployment hash.',
-			method: 'GET',
-		})
-		.then(response => this.versioning.users = response.headers.get('kh-hash'))
-		.catch(() => { });
-
 	},
 	computed: {
 		cookie() {

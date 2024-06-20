@@ -53,7 +53,7 @@
 
 <script>
 import { khatch } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, postsHost, ratingMap, usersHost } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host, ratingMap } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Profile from '@/components/Profile.vue';
@@ -167,7 +167,7 @@ export default {
 	},
 	mounted() {
 		if (this.parent) {
-			khatch(`${postsHost}/v1/post/${this.parent}`, {
+			khatch(`${host}/v1/posts/${this.parent}`, {
 				method: 'GET',
 				errorMessage: 'Failed to retrieve post parent.',
 			})
@@ -247,7 +247,7 @@ export default {
 			this.$router.push('/p/' + this.postId);
 		},
 		followUser() {
-			khatch(`${usersHost}/v1/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
+			khatch(`${host}/v1/users/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
 				method: 'POST',
 				body: {
 					handle: this.user?.handle,
@@ -285,7 +285,7 @@ export default {
 	watch: {
 		parent(value) {
 			if (value) {
-				khatch(`${postsHost}/v1/post/${value}`, {
+				khatch(`${host}/v1/posts/${value}`, {
 					method: 'GET',
 					errorMessage: 'Failed to retrieve post parent.',
 				})

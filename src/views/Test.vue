@@ -54,8 +54,12 @@
 				<input placeholder='post' class='interactable' v-model='postId'/>
 			</div>
 		</div>
+		<div class='post-tiles'>
+			<div class='buttons'>
+				<Button @click='dumpStore'>dump</Button>
+			</div>
+		</div>
 		<div ref='ellipse'>
-
 		</div>
 		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
@@ -100,7 +104,7 @@ import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
 import { authCookie, createToast, khatch } from '@/utilities';
 import epoch from '@/config/constants';
-import { environment, postsHost } from '@/config/constants';
+import { environment, host } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
 
@@ -317,6 +321,9 @@ export default {
 			this.postId = this.postId ? null : this.post.post_id;
 			console.log(this.postId);
 		},
+		dumpStore() {
+			console.log('this.$store.state:', this.$store.state);
+		},
 	},
 	computed: {
 		cookie() {
@@ -335,7 +342,7 @@ export default {
 		postId(value) {
 			console.log(value);
 			if (value && value.length === 8) {
-					khatch(`${postsHost}/v1/post/${value}`, {
+					khatch(`${host}/v1/posts/${value}`, {
 					errorMessage: 'Could not retrieve post!',
 				}).then(response => {
 					response.json().then(r => {

@@ -12,7 +12,7 @@
 
 <script>
 import { khatch } from '@/utilities';
-import { apiErrorMessage, tagsHost } from '@/config/constants';
+import { apiErrorMessage, host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Tag from '@/components/Tag.vue';
 
@@ -31,7 +31,7 @@ export default {
 		}
 	},
 	mounted() {
-		khatch(`${tagsHost}/v1/lookup_tags`, {
+		khatch(`${host}/v1/tags/lookup_tags`, {
 				method: 'POST',
 				body: { },
 			})

@@ -1,5 +1,5 @@
 import { getMediaThumbnailUrl, getEmojiUrl, getIconUrl, khatch } from '@/utilities';
-import { postsHost, usersHost, apiErrorDescriptionToast, apiErrorMessageToast, defaultUserIcon, environment, iconShortcode } from '@/config/constants';
+import { host, apiErrorDescriptionToast, apiErrorMessageToast, defaultUserIcon, environment, iconShortcode } from '@/config/constants';
 import store from '@/global';
 import router from '@/router';
 
@@ -333,7 +333,7 @@ export const mdExtensions = [
 			const id = mdRefId();
 
 			if (token.raw[0] === '@') {
-				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
+				mdMakeRequest(`${host}/v1/users/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element)
 					{ return; }
@@ -346,7 +346,7 @@ export const mdExtensions = [
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle">${token.text}</a>`;
 			}
 			else if (token.code === iconShortcode) {
-				mdMakeRequest(`${usersHost}/v1/fetch_user/${token.username}`, true).then(r => {
+				mdMakeRequest(`${host}/v1/users/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element)
 					{ return; }
@@ -461,7 +461,7 @@ export const mdExtensions = [
 		renderer(token) {
 			const id = mdRefId();
 
-			mdMakeRequest(`${postsHost}/v1/post/${token.text}`)
+			mdMakeRequest(`${host}/v1/posts/${token.text}`)
 				.then(r => {
 					const title = r?.title ? htmlEscape(r.title) : null;
 					const element = document.getElementById(id);

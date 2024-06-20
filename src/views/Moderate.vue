@@ -68,7 +68,7 @@
 
 <script>
 import { createToast, khatch } from '@/utilities';
-import { postsHost } from '@/config/constants';
+import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
@@ -98,7 +98,7 @@ export default {
 		{
 			this.post = this.$route.query?.post;
 			khatch(
-				`${postsHost}/v1/post/${this.post}`,
+				`${host}/v1/posts/${this.post}`,
 				{ handleError: true },
 			).then(response => {
 				response.json().then(r => {

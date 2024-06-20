@@ -133,7 +133,7 @@
 <script>
 import { getCookie, khatch, setCookie, createToast, tagSplit } from '@/utilities';
 import { cookieFailedError } from '@/global';
-import { configHost, ratingMap } from '@/config/constants';
+import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import CheckBox from '@/components/CheckBox.vue';
@@ -164,7 +164,7 @@ export default {
 	},
 	methods: {
 		retrieve() {
-			return khatch(`${configHost}/v1/user`, {
+			return khatch(`${host}/v1/config/user`, {
 				errorMessage: 'Could Not Retrieve User Config!',
 				errorHandlers: {
 					// do nothing, we don't care
@@ -183,7 +183,7 @@ export default {
 		save() {
 			clearTimeout(this.saveTimeout);
 			this.saveTimeout = setTimeout(() => {
-				khatch(`${configHost}/v1/update_user_config`, {
+				khatch(`${host}/v1/config/update_user_config`, {
 					errorMessage: 'Could Not Save User Config!',
 					body: {
 						blocking_behavior: this.localConfig?.blocking_behavior,

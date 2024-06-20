@@ -104,7 +104,7 @@
 
 <script>
 import { khatch, saveToHistory, setTitle, createToast } from '@/utilities';
-import { postsHost, setsHost, usersHost } from '@/config/constants';
+import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
 import Post from '@/components/Post.vue';
@@ -161,7 +161,7 @@ export default {
 	created() {
 		this.fetchPosts();
 
-		khatch(`${setsHost}/v1/set/${this.setId}`, {
+		khatch(`${host}/v1/sets/${this.setId}`, {
 			errorMessage: 'Could not retrieve set with id: ' + this.setId,
 		}).then(response => {
 			response.json().then(r => {
@@ -216,7 +216,7 @@ export default {
 
 			this.posts = null;
 
-			khatch(`${postsHost}/v1/posts`, {
+			khatch(`${host}/v1/posts`, {
 				errorMessage: 'Could not retrieve posts from set!', 
 				method: 'POST',
 				body: {
@@ -278,14 +278,14 @@ export default {
 				return;
 			}
 
-			khatch(`${setsHost}/v1/set/${this.setId}`, {
+			khatch(`${host}/v1/sets/${this.setId}`, {
 				errorMessage: 'Could not update set!',
 				method: 'PATCH',
 				body,
 			}).then(() => {
 				if (body.hasOwnProperty('owner'))
 				{
-					khatch(`${usersHost}/v1/user/${body.owner}`, {
+					khatch(`${host}/v1/users/${body.owner}`, {
 						errorMessage: 'Failed to retrieve new set owner.',
 					}).then(response => {
 						response.json().then(r => {
@@ -312,7 +312,7 @@ export default {
 		},
 		deleteSet() {
 			this.pendingUpdate = true;
-			khatch(`${setsHost}/v1/set/${this.setId}`, {
+			khatch(`${host}/v1/sets/${this.setId}`, {
 				errorMessage: 'Could not delete set!',
 				method: 'DELETE',
 			}).then(() => {

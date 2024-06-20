@@ -13,7 +13,7 @@
 <script>
 import { ref } from 'vue';
 import { authCookie, getCookie, isDarkMode, khatch } from '@/utilities';
-import { configHost, isMobile } from '@/config/constants';
+import { host, isMobile } from '@/config/constants';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -65,7 +65,7 @@ export default {
 		{ this.$store.commit('setAuth', auth); }
 		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
 
-		// khatch(`${configHost}/v1/user`, {
+		// khatch(`${host}/v1/config/user`, {
 		// 	errorMessage: 'Could Not Retrieve User Config!',
 		// 	errorHandlers: {
 		// 		// do nothing, we don't care
@@ -108,7 +108,7 @@ export default {
 
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
-		link.href = `${configHost}/v1/theme.css`;
+		link.href = `${host}/v1/config/theme.css`;
 		document.head.appendChild(link);
 	},
 	mounted() {

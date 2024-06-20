@@ -233,7 +233,7 @@
 <script>
 import { ref } from 'vue';
 import { commafy, createToast, khatch, tab, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
-import { cdnHost, uploadHost, tagGroups, postsHost, tagsHost, environment, isMobile } from '@/config/constants';
+import { cdnHost, host, tagGroups, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Button from '@/components/Button.vue';
 import Title from '@/components/Title.vue';
@@ -383,7 +383,7 @@ export default {
 					this.parentPost = this.$store.state.postCache;
 				}
 				else {
-					khatch(`${postsHost}/v1/post/${postId}`, {
+					khatch(`${host}/v1/posts/${postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
 					}).then(r => r.json())
 					.then(r => this.parentPost = r);
@@ -439,7 +439,7 @@ export default {
 		},
 		fetchDrafts() {
 			this.drafts = null;
-			khatch(`${postsHost}/v1/fetch_drafts`, {
+			khatch(`${host}/v1/posts/fetch_drafts`, {
 				handleError: true,
 			}).then(r => r.json())
 			.then(r => this.drafts = r.toSorted((a, b) => new Date(b.updated) - new Date(a.updated)));
@@ -452,7 +452,7 @@ export default {
 			this.saving = true;
 			this.uploadFile()
 			.then(this.saveData)
-			.then(() => khatch(`${uploadHost}/v1/update_privacy`, {
+			.then(() => khatch(`${host}/v1/upload/update_privacy`, {
 				handleError: true,
 				method: 'POST',
 				body: {
@@ -486,7 +486,7 @@ export default {
 			this.saving = true;
 			this.uploadFile()
 			.then(this.saveData)
-			.then(() => khatch(`${uploadHost}/v1/update_privacy`, {
+			.then(() => khatch(`${host}/v1/upload/update_privacy`, {
 				handleError: true,
 				method: 'POST',
 				body: {
@@ -581,7 +581,7 @@ export default {
 				ajax.addEventListener('error', e => reject(errorHandler(e)), false);
 
 				const auth = this.$store.state.auth?.token;
-				ajax.open('POST', `${uploadHost}/v1/upload_image`);
+				ajax.open('POST', `${host}/v1/upload/image`);
 				ajax.setRequestHeader('authorization', 'bearer ' + auth);
 
 				ajax.send(formdata);
@@ -628,7 +628,7 @@ export default {
 
 				if (sendUpdate) {
 					requiredSuccesses++;
-					khatch(`${uploadHost}/v1/update_post`, {
+					khatch(`${host}/v1/upload/update_post`, {
 						method: 'POST',
 						errorMessage: 'failed to update post!',
 						body: {
@@ -652,7 +652,7 @@ export default {
 
 				if (removedTags.length > 0) {
 					requiredSuccesses++;
-					khatch(`${tagsHost}/v1/remove_tags`, {
+					khatch(`${host}/v1/tags/remove_tags`, {
 						errorMessage: 'failed to remove tags!',
 						method: 'POST',
 						body: {
@@ -671,7 +671,7 @@ export default {
 
 				if (newTags.length > 0) {
 					requiredSuccesses++;
-					khatch(`${tagsHost}/v1/add_tags`, {
+					khatch(`${host}/v1/tags/add_tags`, {
 						errorMessage: 'failed to add tags!',
 						method: 'POST',
 						body: {
@@ -744,7 +744,7 @@ export default {
 					this.$store.state.postCache = null;
 				}
 				else {
-					khatch(`${postsHost}/v1/post/${this.postId}`, {
+					khatch(`${host}/v1/posts/${this.postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
 					}).then(r => r.json())
 					.then(r => {
@@ -769,7 +769,7 @@ export default {
 					});
 				}
 
-				khatch(`${tagsHost}/v1/tags/${this.postId}`, {
+				khatch(`${host}/v1/tags/${this.postId}`, {
 					errorMessage: 'Unable To Retrieve Post Tags!',
 				}).then(r => r.json())
 				.then(r => {
@@ -778,7 +778,7 @@ export default {
 					this.$refs.tagDiv.innerText = Array.from(this.savedTags).join(' ');
 				});
 
-				khatch(`${tagsHost}/v1/frequently_used`, {
+				khatch(`${host}/v1/tags/frequently_used`, {
 					errorMessage: 'Unable To Retrieve Your Recommended Tags!',
 					errorHandlers: { 404: () => { } },
 				}).then(r => r.json())
@@ -789,7 +789,7 @@ export default {
 			}
 			else {
 				unset();
-				khatch(`${uploadHost}/v1/create_post`, {
+				khatch(`${host}/v1/upload/create_post`, {
 					method: 'POST',
 					errorMessage: 'Unable To Create New Post Draft!',
 					body: { },

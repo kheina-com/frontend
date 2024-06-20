@@ -35,7 +35,7 @@ export function getCookie(cookieName, default_value=null, type=null) {
 	{ return ParserTypeMap[type](value); }
 
 	return value;
-};
+}
 
 export function deleteCookie(cookieName)
 { document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`; };

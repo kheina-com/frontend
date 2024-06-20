@@ -23,7 +23,7 @@
 <script>
 import { ref } from 'vue';
 import { khatch } from '@/utilities';
-import { apiErrorMessage, accountHost } from '@/config/constants';
+import { apiErrorMessage, host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -59,7 +59,7 @@ export default {
 	methods: {
 		sendCreate() {
 			this.isLoading = true;
-			khatch(`${accountHost}/v1/create`, {
+			khatch(`${host}/v1/account/create`, {
 				method:'POST',
 				body: {
 					name: this.$refs.name.value.trim(),

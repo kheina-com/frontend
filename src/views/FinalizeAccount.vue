@@ -50,7 +50,7 @@
 <script>
 import { ref } from 'vue';
 import { khatch } from '@/utilities';
-import { apiErrorMessage, accountHost } from '@/config/constants';
+import { apiErrorMessage, host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
@@ -110,7 +110,7 @@ export default {
 	methods: {
 		sendFinalize() {
 			this.isLoading = true;
-			khatch(`${accountHost}/v1/finalize`, {
+			khatch(`${host}/v1/account/finalize`, {
 				method:'POST',
 				body: {
 					token: this.tokenProvided ? this.$route.query.token : this.$refs.token.value,

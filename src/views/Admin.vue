@@ -24,7 +24,7 @@
 
 <script>
 import { createToast, khatch } from '@/utilities';
-import { configHost } from '@/config/constants';
+import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
 
@@ -42,7 +42,7 @@ export default {
 	methods: {
 		setMonthlyCost() {
 			const costs = parseInt(this.monthlyCost.trim().replace('.', ''));
-			khatch(`${configHost}/v1/update_config`, {
+			khatch(`${host}/v1/config/update_config`, {
 				handleError: true,
 				method: 'POST',
 				body: {

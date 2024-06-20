@@ -23,7 +23,7 @@
 
 <script>
 import { khatch } from '@/utilities';
-import { apiErrorMessage, usersHost } from '@/config/constants';
+import { apiErrorMessage, host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -44,7 +44,7 @@ export default {
 		}
 	},
 	mounted() {
-		khatch(`${usersHost}/v1/all_users`)
+		khatch(`${host}/v1/users/all`)
 			.then(response => {
 				response.json().then(r => {
 					console.log(r);
