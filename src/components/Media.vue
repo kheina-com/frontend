@@ -7,9 +7,9 @@
 	</Loading>
 </template>
 
-<script>
+<script lang="ts">
 import { authRegex } from '@/config/constants';
-import { ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { base64ToBytes, createToast } from '@/utilities';
 import Loading from '@/components/Loading.vue';
 import { thumbHashToDataURL } from 'thumbhash';
@@ -74,7 +74,7 @@ function abbreviate(value) {
 	}
 }
 
-export default {
+export default defineComponent({
 	name: 'Media',
 	components: {
 		Loading,
@@ -225,7 +225,13 @@ export default {
 			// this.$refs.loader.style = null;
 			// this.$refs.media.parentNode.style.background = null;
 			if (this.bg) {
-				this.$refs.media.parentNode.classList.add('bg');
+				const div = document.createElement('div');
+				// div.style.opacity = 0;
+				for (let data in this.$refs.media.dataset) {
+					div.dataset[data] = "";
+				}
+				div.classList.add('bg');
+				this.$refs.media.parentNode.prepend(div);
 			}
 			this.$emit(`update:width`, this.$refs.media.naturalWidth);
 			this.$emit(`update:height`, this.$refs.media.naturalHeight);
@@ -272,7 +278,7 @@ export default {
 			return this.th(value);
 		},
 	},
-}
+})
 </script>
 
 <style scoped>
@@ -301,16 +307,22 @@ export default {
 	max-height: 100%;
 	margin: 0 auto;
 	display: block;
+	position: relative;
 	/* add a background to transparent images */
 }
-.media.bg img, .media.bg video {
+.bg {
 	background: var(--bg0color) url(/assets/lightnoise.png) repeat center;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
 }
 .media p {
 	align-self: center;
 	text-align: center;
 }
-.th img {
+.th img, .bg {
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);

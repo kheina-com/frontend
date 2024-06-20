@@ -10,5 +10,6 @@ Headers: Dict[str, str] = {
 		"style-src 'self' *.fuzz.ly 'unsafe-inline';"
 		"media-src 'self' cdn.fuzz.ly blob:;"
 		"manifest-src 'self';"
+		"base-uri 'self';"
 		"frame-ancestors 'none'",
 }
