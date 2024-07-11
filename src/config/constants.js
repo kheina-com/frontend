@@ -5,8 +5,7 @@ export default 1576242000 * 1000;
 
 let env = null;
 
-switch (window.location.hostname.toLowerCase())
-{
+switch (window.location.hostname.toLowerCase()) {
 	case 'kheina.com' :
 	case 'fuzz.ly' :
 		env = 'prod';
@@ -27,24 +26,25 @@ export const environment = env;
 
 
 let apiHost;
-switch (environment)
-{
+let cdn;
+switch (environment) {
 	case 'prod':
 		apiHost = 'https://api.fuzz.ly';
+		cdn = 'https://cdn.fuzz.ly';
 		break;
 
 	case 'dev':
 		apiHost = 'https://api-dev.fuzz.ly';
+		cdn = 'https://cdn.fuzz.ly';
 		break;
 
 	default:
-		apiHost = 'http://localhost:5000';
+		apiHost = 'http://localhost:8000';
+		cdn = 'http://localhost:9000/kheina-content';
 		break;
 }
-
 export const host = apiHost;
-
-export const cdnHost = 'https://cdn.fuzz.ly';
+export const cdnHost = cdn;
 
 export const authRegex = /^(?:https:\/\/(?:[a-z0-9-_]+\.)*kheina\.com\/|http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)*fuzz\.ly\/)/i;
 
@@ -64,7 +64,7 @@ export const routerMetaTag = 'data-v-router';
 
 export const tabs = new Set(['posts', 'sets', 'tags', 'favs', 'uploads']);
 
-export const defaultUserIcon = '_V-EGBtH';
+export const defaultUserIcon = cdnHost + '/default-icon.png';
 
 export const iconShortcode = 'icon';
 
