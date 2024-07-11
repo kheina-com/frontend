@@ -73,7 +73,7 @@ export default {
 		const postId = this.$route.query?.post;
 		if (postId) {
 			this.post = { postId: null };
-			khatch(`${host}/v1/posts/${postId}`, {
+			khatch(`${host}/v1/post/${postId}`, {
 				handleError: true
 			}).then(r => r.json())
 			.then(r => {

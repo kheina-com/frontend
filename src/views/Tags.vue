@@ -31,7 +31,7 @@ export default {
 		}
 	},
 	mounted() {
-		khatch(`${host}/v1/tags/lookup_tags`, {
+		khatch(`${host}/v1/tags/lookup`, {
 				method: 'POST',
 				body: { },
 			})

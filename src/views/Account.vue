@@ -183,7 +183,8 @@ export default {
 		save() {
 			clearTimeout(this.saveTimeout);
 			this.saveTimeout = setTimeout(() => {
-				khatch(`${host}/v1/config/update_user_config`, {
+				khatch(`${host}/v1/config/user`, {
+					method: 'PATCH',
 					errorMessage: 'Could Not Save User Config!',
 					body: {
 						blocking_behavior: this.localConfig?.blocking_behavior,

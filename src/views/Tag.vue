@@ -188,7 +188,7 @@ export default {
 	created() {
 		this.fetchPosts();
 
-		khatch(`${host}/v1/tags/tag/${encodeURIComponent(this.tag)}`, {
+		khatch(`${host}/v1/tag/${encodeURIComponent(this.tag)}`, {
 			errorMessage: "Could not fetch tag details!",
 			errorHandlers: {
 				404: r => r.json().then(r => this.$store.commit("error", r.error || "NotFound: the provided tag does not exist.")),
@@ -288,7 +288,7 @@ export default {
 		inheritTag() {
 			if (this.newInheritedTag) {
 				this.newInheritLoading = true;
-				khatch(`${host}/v1/tags/inherit_tag`, {
+				khatch(`${host}/v1/tag/inherit`, {
 					method: 'POST',
 					errorMessage: 'Could not create inheritance.',
 					body: {
@@ -304,7 +304,7 @@ export default {
 			}
 		},
 		removeInheritance(tag_to_remove) {
-			khatch(`${host}/v1/tags/remove_inheritance`, {
+			khatch(`${host}/v1/tag/remove_inheritance`, {
 				method: 'POST',
 				errorMessage: 'Could not remove inherited tag.',
 				body: {
@@ -334,7 +334,7 @@ export default {
 			if (this.updateBody?.description && this.updateBody.description !== this.tagData?.description)
 			{ body.description = this.updateBody.description; }
 
-			khatch(`${host}/v1/tags/tag/${this.tag}`, {
+			khatch(`${host}/v1/tag/${this.tag}`, {
 					method: 'PATCH',
 					body,
 				})
@@ -352,7 +352,7 @@ export default {
 								this.tagData.owner = null;
 							}
 							else {
-								khatch(`${host}/v1/users/${body.owner}`, {
+								khatch(`${host}/v1/user/${body.owner}`, {
 									errorMessage: 'Failed to retrieve new tag owner.',
 								}).then(response => {
 									response.json().then(r => {

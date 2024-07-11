@@ -98,7 +98,7 @@ export default {
 		{
 			this.post = this.$route.query?.post;
 			khatch(
-				`${host}/v1/posts/${this.post}`,
+				`${host}/v1/post/${this.post}`,
 				{ handleError: true },
 			).then(response => {
 				response.json().then(r => {

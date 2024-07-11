@@ -1,16 +1,16 @@
 <template>
 	<main>
 		<h3 class='swagger'>
-			<a :href='`https://${environment != "prod" ? "dev." : ""}fuzz.ly/docs`' target='_blank'>swagger docs</a>
+			<a :href='`${host}/docs`' target='_blank'>swagger docs</a>
 		</h3>
 		<div class='clicky-things'>
 			<div class='timers'>
-				<Countdown :endtime='date' />
+				<Countdown :endtime='date'/>
 				<div>
-					<Timestamp :datetime='datetime' live />
+					<Timestamp :datetime='datetime' live/>
 				</div>
 				<div>
-					<Timestamp :datetime='epoch' live />
+					<Timestamp :datetime='epoch' live/>
 				</div>
 			</div>
 			<div>
@@ -50,7 +50,7 @@
 			</ol>
 			<div class='buttons'>
 				<Button @click='togglePost'>toggle</Button>
-				<!-- <Button @click='toggleThumbhash'>thumbhash</Button> -->
+				<Button @click='toggleThumbhash'>thumbhash</Button>
 				<input placeholder='post' class='interactable' v-model='postId'/>
 			</div>
 		</div>
@@ -59,7 +59,11 @@
 				<Button @click='dumpStore'>dump</Button>
 			</div>
 		</div>
-		<div ref='ellipse'>
+		<div ref='ellipse' class='ellipse'>
+		</div>
+		<div class='slider'>
+			<input type='range' min='0' max='10' step='0.001' v-model='speed'>
+			<span>{{ speed }}</span>
 		</div>
 		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
@@ -86,10 +90,6 @@
 			<Button @click='generateColors'>Generate!</Button>
 			<input placeholder='contrast cutoff' class='interactable' v-model='cutoff' />
 		</div>
-		<div class='slider'>
-			<input type='range' min='0' max='10' step='0.001' v-model='saturation'>
-			<span>{{ saturation }}</span>
-		</div>
 		{{ colors }}
 		<ThemeMenu />
 	</main>
@@ -104,7 +104,7 @@ import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
 import { authCookie, createToast, khatch } from '@/utilities';
 import epoch from '@/config/constants';
-import { environment, host } from '@/config/constants';
+import { host } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
 
@@ -133,13 +133,14 @@ export default {
 			audio: new Audio(notify),
 			content: authCookie()?.token,
 			audioLoading: false,
-			environment,
+			host,
 			colors: [],
 			cutoff: null,
 			postId: null,
 			post: null,
-			saturation: 1,
+			speed: 1,
 			animate: true,
+			thumbhash: null,
 		};
 	},
 	mounted() {
@@ -150,7 +151,7 @@ export default {
 		const y = width / 2;
 		this.$refs.ellipse.style.width = `${width}px`;
 		this.$refs.ellipse.style.height = `${width}px`;
-		const c = 4;
+		const c = 3;
 		const orbsize = 4;
 		const squish = 1/3;
 		for (let i = 0; i < c; i++) {
@@ -158,11 +159,11 @@ export default {
 		}
 		for (let i = 0; i < c; i++) {
 			const e = document.createElement("div");
-			e.style.position = "absolute";
-			e.style.width = 0;
-			e.style.height = 0;
-			e.style.border = `${orbsize}px solid var(--interact)`;
-			e.style.borderRadius = "50%";
+			e.className = "dot";
+			// e.style.border = `${orbsize}px solid var(--interact)`;
+			for (let data in this.$refs.ellipse.dataset) {
+				e.dataset[data] = "";
+			}
 			this.$refs.ellipse.appendChild(e);
 			this.rotator(x, y, x, squish, i / c / 2, 1, e, i / c);
 		}
@@ -179,7 +180,7 @@ export default {
 			let lastruntime = Date.now();
 			const r = () => {
 				const runtime = Date.now();
-				position += (runtime - lastruntime) / 1000 * speed;
+				position += (runtime - lastruntime) / 1000 * this.speed;
 				const [xi, yi] = this.ellipsePoint(radius, squish, rotation, position);
 				// console.log(position, xi, yi);
 				element.style.left = `${x + xi}px`;
@@ -324,6 +325,14 @@ export default {
 		dumpStore() {
 			console.log('this.$store.state:', this.$store.state);
 		},
+		toggleThumbhash() {
+			const th = this.thumbhash;
+			this.thumbhash = this.post?.thumbhash;
+			this.post.thumbhash = th;
+			if (th === null) {
+				document.getElementsByClassName("th")[0].dispatchEvent(new Event('load'));
+			}
+		},
 	},
 	computed: {
 		cookie() {
@@ -342,7 +351,7 @@ export default {
 		postId(value) {
 			console.log(value);
 			if (value && value.length === 8) {
-					khatch(`${host}/v1/posts/${value}`, {
+					khatch(`${host}/v1/post/${value}`, {
 					errorMessage: 'Could not retrieve post!',
 				}).then(response => {
 					response.json().then(r => {
@@ -352,9 +361,6 @@ export default {
 					});
 				});
 			}
-		},
-		saturation(value) {
-			document.documentElement.style.filter = `saturate(${value})`;
 		},
 	},
 }
@@ -392,6 +398,13 @@ ol > :last-child {
 	margin-bottom: 0;
 }
 
+.ellipse .dot {
+	position: absolute;
+	width: 0;
+	height: 0;
+	border: 4px solid var(--interact);
+	border-radius: 50%;
+}
 .post-tiles {
 	margin-bottom: var(--margin);
 }

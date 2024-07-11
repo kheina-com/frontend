@@ -167,7 +167,7 @@ export default {
 	},
 	mounted() {
 		if (this.parent) {
-			khatch(`${host}/v1/posts/${this.parent}`, {
+			khatch(`${host}/v1/post/${this.parent}`, {
 				method: 'GET',
 				errorMessage: 'Failed to retrieve post parent.',
 			})
@@ -247,11 +247,8 @@ export default {
 			this.$router.push('/p/' + this.postId);
 		},
 		followUser() {
-			khatch(`${host}/v1/users/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
-				method: 'POST',
-				body: {
-					handle: this.user?.handle,
-				},
+			khatch(`${host}/v1/user/${this.user?.handle}/follow`, {
+				method: this.user?.following ? 'DELETE' : 'PUT',
 			})
 			.then(response => {
 				if (response.status < 300) {

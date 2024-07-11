@@ -152,16 +152,17 @@ button {
 }
 .bg {
 	position: fixed;
-	z-index: -1;
 	top: -50%;
 	left: -50%;
 	width: 200%;
 	height: 200%;
-	rotate: -45deg;
+	width: max(200vw, 200vh);
+	height: max(200vw, 200vh);
+	rotate: -30deg;
 	opacity: 20%;
 	pointer-events: none;
-	background: linear-gradient(90deg, #000000, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #FFFFFF, #FFAFC8, #74D7EE, #613915, #000000, #E40303) 0% 0% / 1200% 100%;
-	animation: 20s linear infinite login;
+	background: linear-gradient(90deg, #000000, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #FFFFFF, #FFAFC8, #74D7EE, #613915, #000000, #E40303) 0% 0% / 1200%;
+	animation: 45s linear infinite login;
 }
 
 @keyframes login {

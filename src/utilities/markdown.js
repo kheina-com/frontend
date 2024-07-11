@@ -333,7 +333,7 @@ export const mdExtensions = [
 			const id = mdRefId();
 
 			if (token.raw[0] === '@') {
-				mdMakeRequest(`${host}/v1/users/${token.username}`, true).then(r => {
+				mdMakeRequest(`${host}/v1/user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element)
 					{ return; }
@@ -346,7 +346,7 @@ export const mdExtensions = [
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle">${token.text}</a>`;
 			}
 			else if (token.code === iconShortcode) {
-				mdMakeRequest(`${host}/v1/users/${token.username}`, true).then(r => {
+				mdMakeRequest(`${host}/v1/user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element)
 					{ return; }
@@ -431,7 +431,7 @@ export const mdExtensions = [
 				const element = document.getElementById(id);
 				if (!element)
 				{ return; }
-				element.addEventListener('error', e => e.target.src = getEmojiUrl('cross-mark'));
+				element.addEventListener('error', e => e.target.src = getEmojiUrl('cross-mark'), { once: true });
 				element.addEventListener('load', e => e.target.classList = 'emoji');
 				element.src = token.href;
 			}, 0);
@@ -461,7 +461,7 @@ export const mdExtensions = [
 		renderer(token) {
 			const id = mdRefId();
 
-			mdMakeRequest(`${host}/v1/posts/${token.text}`)
+			mdMakeRequest(`${host}/v1/post/${token.text}`)
 				.then(r => {
 					const title = r?.title ? htmlEscape(r.title) : null;
 					const element = document.getElementById(id);
@@ -558,7 +558,7 @@ export const mdExtensions = [
 						const element = document.getElementById(id);
 						if (!element)
 						{ return; }
-						element.addEventListener('error', e => e.target.src = getEmojiUrl('cross-mark'));
+						element.addEventListener('error', e => e.target.src = getEmojiUrl('cross-mark'), { once: true });
 						element.addEventListener('load', e => e.target.classList = null);
 						element.src = t.href;
 					}, 0);

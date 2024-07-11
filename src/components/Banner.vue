@@ -1,5 +1,5 @@
 <template>
-	<div class='banner'>
+	<div ref='banner' class='banner'>
 		<div class='nav-backdrop'/>
 		<div v-if='editMessage' class='markdown edit-message'>
 			<MarkdownEditor resize='none' v-model:value='message' style='min-width: 70vw; display: inline-block'/>
@@ -209,6 +209,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { deleteCookie, khatch } from '@/utilities';
 import { host, environment, isMobile, ratings } from '@/config/constants.js';
 import Loading from '@/components/Loading.vue';
@@ -236,6 +237,12 @@ export default {
 			type: Function,
 			default() { },
 		},
+	},
+	setup() {
+		const banner = ref(null);
+		return {
+			banner,
+		};
 	},
 	data() {
 		return {
@@ -274,8 +281,18 @@ export default {
 		updateLoop() {
 			khatch(`${host}/v1/config/banner`, {
 				errorMessage: 'Error Occurred While Fetching Banner',
+				errorHandlers: {
+					404: () => {
+						this.$refs.banner.style.background = "none";
+					},
+				},
 			}).then(response => {
 				response.json().then(r => {
+					if (!r.banner) {
+						this.$refs.banner.style.background = "none";
+					} else {
+						this.$refs.banner.style.background = null;
+					}
 					this.message = r.banner;
 					this.isMessageLoading = false;
 					setTimeout(this.onResize, 0);
@@ -328,6 +345,9 @@ export default {
 			khatch(host + '/v1/account/logout', {
 				method: 'DELETE',
 				errorMessage: 'Could not perform logout!',
+				errorHandlers: {
+					401: () => { },
+				},
 			}).then(() => {
 				deleteCookie('kh-auth');
 				document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
@@ -351,27 +371,25 @@ export default {
 		},
 		updateMessage() {
 			this.isMessageLoading = true;
-			khatch(`${host}/v1/config/update_config`, {
-					method: 'POST',
-					body: {
-						config: 'banner',
-						value: {
-							banner: this.message,
-						},
+			khatch(`${host}/v1/config`, {
+				method: 'PATCH',
+				handleError: true,
+				body: {
+					config: 'banner',
+					value: {
+						banner: this.message,
 					},
-				})
-				.then(response => {
-					if (response.status < 300)
-					{
-						this.isMessageLoading = this.editMessage = false;
-						setTimeout(this.onResize, 0);
-					}
-					else
-					{ console.error(response); }
-				})
-				.catch(error => {
-					console.error(error);
-				});
+				},
+			})
+			.then(response => {
+				if (response.status < 300)
+				{
+					this.isMessageLoading = this.editMessage = false;
+					setTimeout(this.onResize, 0);
+				}
+				else
+				{ console.error(response); }
+			});
 		},
 		removeMessage() {
 			this.message = null;

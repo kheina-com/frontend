@@ -304,7 +304,7 @@ export default {
 		}
 		else {
 			// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
-			khatch(`${host}/v1/posts/${this.postId}`, {
+			khatch(`${host}/v1/post/${this.postId}`, {
 				errorMessage: 'Could not retrieve post!',
 			}).then(response => {
 				response.json().then(r => {
@@ -379,11 +379,8 @@ export default {
 			setTitle(title);
 		},
 		followUser() {
-			khatch(`${host}/v1/users/${this.post?.user.following ? 'unfollow_user' : 'follow_user'}`, {
-				method: 'POST',
-				body: {
-					handle: this.post.user.handle,
-				},
+			khatch(`${host}/v1/user/${this.post.user.handle}/follow`, {
+				method: this.post?.user.following ? 'DELETE' : 'PUT',
 			})
 			.then(response => {
 				if (response.status < 300)
@@ -418,7 +415,7 @@ export default {
 		},
 		fetchComments() {
 			this.replies = null;
-			khatch(`${host}/v1/posts/fetch_comments`, {
+			khatch(`${host}/v1/post/comments`, {
 					method: 'POST',
 					body: {
 						post_id: this.postId,
@@ -463,7 +460,7 @@ export default {
 				if (replies.length === 0)
 				{ resolve(); }
 				replies.forEach(reply => {
-					khatch(`${host}/v1/posts/fetch_comments`, {
+					khatch(`${host}/v1/post/comments`, {
 							method: 'POST',
 							body: {
 								post_id: reply.post_id,
@@ -503,7 +500,7 @@ export default {
 			});
 		},
 		fetchParent(postId) {
-			khatch(`${host}/v1/posts/${postId}`)
+			khatch(`${host}/v1/post/${postId}`)
 				.then(response => {
 					response.json().then(r => {
 						if (response.status < 300)
@@ -540,8 +537,8 @@ export default {
 			let created = new Date();
 			let updated = created;
 
-			khatch(`${host}/v1/upload/create_post`, {
-					method: 'POST',
+			khatch(`${host}/v1/upload/post`, {
+					method: 'PUT',
 					body: {
 						reply_to: this.postId,
 						description: this.newComment.trim(),
@@ -553,21 +550,8 @@ export default {
 					response.json()
 						.then(r => {
 							this.replies.unshift({
-								post_id: r.post_id,
-								user: this.$store.state.user,
-								blocked: false,
-								description: this.newComment.trim(),
-								rating: 'general',
-								score: {
-									up: 1,
-									down: 0,
-								},
-								created,
-								updated,
-								title: null,
-								tags: [],
+								...r,
 								replies: [],
-								media: false,
 							});
 							this.newComment = null;
 							this.writeComment = null;
@@ -596,8 +580,8 @@ export default {
 			this.editing = !this.editing;
 		},
 		updatePost() {
-			khatch(`${host}/v1/upload/update_post`, {
-					method: 'POST',
+			khatch(`${host}/v1/upload/post`, {
+					method: 'PATCH',
 					body: {
 						post_id: this.postId,
 						title: this.post.title?.trim(),

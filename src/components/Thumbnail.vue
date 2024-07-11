@@ -125,6 +125,7 @@ export default {
 			}
 		},
 		th(value) {
+			// this.isLoading = !this.thumbhash;
 			if (!value) {
 				return;
 			}
@@ -150,7 +151,7 @@ export default {
 						th.style.opacity = 0;
 						setTimeout(() => this.$refs.media.parentNode.removeChild(th), 500);
 					}, 50);
-				});
+				}, { once: true });
 
 				this.isLoading = false;
 			}

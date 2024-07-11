@@ -114,7 +114,7 @@ export default {
 
 			this.posts = null;
 
-			khatch(`${host}/v1/posts/timeline_posts`, {
+			khatch(`${host}/v1/posts/timeline`, {
 					handleError: true,
 					method: 'POST',
 					body: {

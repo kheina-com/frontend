@@ -60,7 +60,7 @@ export default {
 			if (this.score?.user_vote === vote)
 			{ vote = 0; }
 
-			khatch(`${host}/v1/posts/vote`, {
+			khatch(`${host}/v1/post/vote`, {
 				handleError: true,
 				method: 'POST',
 				body: {

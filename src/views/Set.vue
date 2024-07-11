@@ -283,9 +283,8 @@ export default {
 				method: 'PATCH',
 				body,
 			}).then(() => {
-				if (body.hasOwnProperty('owner'))
-				{
-					khatch(`${host}/v1/users/${body.owner}`, {
+				if (body.hasOwnProperty('owner')) {
+					khatch(`${host}/v1/user/${body.owner}`, {
 						errorMessage: 'Failed to retrieve new set owner.',
 					}).then(response => {
 						response.json().then(r => {

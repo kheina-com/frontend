@@ -193,8 +193,8 @@
 				<div v-show='tab === "sets"'>
 					<div class='results'>
 						<p v-if='sets === null' style='text-align: center'>loading sets...</p>
-						<p v-else-if='sets.length === 0'>
-							<Markdown :content='user?.name' inline v-if='user?.name'/>
+						<p v-else-if='sets.length === 0' style='text-align: center'>
+								<Markdown :content='user?.name' inline v-if='user?.name'/>
 							<span v-else>@{{handle}}</span>
 							has no sets.
 						</p>
@@ -378,7 +378,7 @@ export default {
 		else
 		{
 			khatch(
-				`${host}/v1/users/${this.handle}`,
+				`${host}/v1/user/${this.handle}`,
 				{ handleError: true },
 			).then(response => {
 				response.json().then(r => {
@@ -464,11 +464,8 @@ export default {
 			this.$router.push(this.pageLink(1));
 		},
 		follow() {
-			khatch(`${host}/v1/users/${this.user?.following ? 'unfollow_user' : 'follow_user'}`, {
-				method: 'POST',
-				body: {
-					handle: this.user?.handle,
-				},
+			khatch(`${host}/v1/user/${this.user?.handle}/follow`, {
+				method: this.user?.following ? 'DELETE' : 'PUT',
 				errorMessage: `Failed to ${this.user?.following ? 'unfollow' : 'follow'} user`,
 			})
 			.then(() => {
@@ -562,7 +559,7 @@ export default {
 
 					this.posts = null;
 
-					khatch(`${host}/v1/posts/fetch_my_posts`, {
+					khatch(`${host}/v1/posts/mine`, {
 						handleError: true,
 						method: 'POST',
 						body: {
@@ -603,9 +600,10 @@ export default {
 			// website: str = None
 			// description: str = None
 
-			khatch(`${host}/v1/users/self`, {
+			khatch(`${host}/v1/user/self`, {
 				method: 'PATCH',
 				body: this.update,
+				handleError: true,
 			}).then(() => {
 				this.user = Object.assign(this.user, this.update);
 				this.isEditing = false;
@@ -687,7 +685,7 @@ export default {
 				}).catch(this.disableUploads);
 			}
 			else {
-				khatch(`${host}/v1/posts/fetch_user_posts`, {
+				khatch(`${host}/v1/posts/user`, {
 					errorMessage: 'Failed to fetch posts for profile.',
 					method: 'POST',
 					body: {
@@ -727,7 +725,7 @@ export default {
 			if (!value)
 			{ return; }
 
-			khatch(`${host}/v1/posts/${value}`, {
+			khatch(`${host}/v1/post/${value}`, {
 				errorMessage: 'Failed to fetch post for profile.',
 			}).then(r => r.json())
 			.then(r => {

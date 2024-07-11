@@ -23,7 +23,7 @@ function userConfig(state, config) {
 		wallpaper: config.wallpaper,
 	};
 	if (config.wallpaper) {
-		khatch(`${host}/v1/posts/${config.wallpaper}`, {
+		khatch(`${host}/v1/post/${config.wallpaper}`, {
 			errorMessage: 'Failed to Retrieve User Wallpaper!',
 		}).then(r => r.json()).then(r => {
 			document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.filename)})`;
@@ -123,8 +123,12 @@ export default createStore({
 					else
 					{ setCookie('kh-auth', auth.token, maxage); }
 					state.auth = authCookie();
-					khatch(`${host}/v1/users/self`, {
-						errorMessage: 'Error Occurred While Fetching Self'
+					khatch(`${host}/v1/user/self`, {
+						errorMessage: 'Error Occurred While Fetching Self',
+						errorHandlers: {
+							// do nothing, we don't care
+							401: () => { },
+						},
 					}).then(response => {
 						response.json().then(r => {
 							r.created = new Date(r.created);

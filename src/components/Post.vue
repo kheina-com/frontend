@@ -334,11 +334,8 @@ export default {
 			this.$router.push(this.target);
 		},
 		followUser() {
-			khatch(`${host}/v1/users/${this.user.following ? 'unfollow_user' : 'follow_user'}`, {
-				method: 'POST',
-				body: {
-					handle: this.user.handle,
-				},
+			khatch(`${host}/v1/user/${this.user.handle}/follow`, {
+				method: this.user.following ? 'DELETE' : 'PUT',
 			})
 			.then(response => {
 				if (response.status < 300)
@@ -382,8 +379,8 @@ export default {
 			let created = new Date();
 			let updated = created;
 
-			khatch(`${host}/v1/upload/create_post`, {
-					method: 'POST',
+			khatch(`${host}/v1/upload/post`, {
+					method: 'PUT',
 					body: {
 						reply_to: this.postId,
 						description: this.replyMessage.trim(),
@@ -395,20 +392,7 @@ export default {
 					response.json()
 						.then(r => {
 							this.replies?.unshift({
-								post_id: r.post_id,
-								user: this.$store.state.user,
-								blocked: false,
-								description: this.replyMessage.trim(),
-								rating: 'general',
-								score: {
-									up: 1,
-									down: 0,
-								},
-								created,
-								updated,
-								title: null,
-								media_type: null,
-								tags: [],
+								...r,
 								replies: [],
 							});
 							this.replyMessage = null;

@@ -42,9 +42,9 @@ export default {
 	methods: {
 		setMonthlyCost() {
 			const costs = parseInt(this.monthlyCost.trim().replace('.', ''));
-			khatch(`${host}/v1/config/update_config`, {
+			khatch(`${host}/v1/config`, {
+				method: 'PATCH',
 				handleError: true,
-				method: 'POST',
 				body: {
 					config: 'costs',
 					value: {

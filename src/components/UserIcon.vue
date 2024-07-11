@@ -4,7 +4,7 @@
 
 <script>
 import { ref } from 'vue';
-import { getIconUrl, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
+import { getIconUrl, lazyObserver } from '@/utilities';
 import { defaultUserIcon } from '@/config/constants';
 
 export default {
@@ -37,7 +37,7 @@ export default {
 			if (this.post)
 			{ return getIconUrl(this.post, this.handle.toLowerCase()); }
 			else
-			{ return getMediaThumbnailUrl(defaultUserIcon, 400); }
+			{ return defaultUserIcon; }
 		},
 	},
 	methods: {

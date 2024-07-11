@@ -383,7 +383,7 @@ export default {
 					this.parentPost = this.$store.state.postCache;
 				}
 				else {
-					khatch(`${host}/v1/posts/${postId}`, {
+					khatch(`${host}/v1/post/${postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
 					}).then(r => r.json())
 					.then(r => this.parentPost = r);
@@ -439,7 +439,7 @@ export default {
 		},
 		fetchDrafts() {
 			this.drafts = null;
-			khatch(`${host}/v1/posts/fetch_drafts`, {
+			khatch(`${host}/v1/posts/drafts`, {
 				handleError: true,
 			}).then(r => r.json())
 			.then(r => this.drafts = r.toSorted((a, b) => new Date(b.updated) - new Date(a.updated)));
@@ -452,9 +452,9 @@ export default {
 			this.saving = true;
 			this.uploadFile()
 			.then(this.saveData)
-			.then(() => khatch(`${host}/v1/upload/update_privacy`, {
+			.then(() => khatch(`${host}/v1/upload/privacy`, {
 				handleError: true,
-				method: 'POST',
+				method: 'PATCH',
 				body: {
 					post_id: this.postId,
 					privacy: 'draft',
@@ -485,10 +485,10 @@ export default {
 			}
 			this.saving = true;
 			this.uploadFile()
-			.then(this.saveData)
-			.then(() => khatch(`${host}/v1/upload/update_privacy`, {
+			.then(() => this.saveData(true))
+			.then(() => khatch(`${host}/v1/upload/privacy`, {
 				handleError: true,
-				method: 'POST',
+				method: 'PATCH',
 				body: {
 					post_id: this.postId,
 					privacy: this.update.privacy,
@@ -587,7 +587,7 @@ export default {
 				ajax.send(formdata);
 			});
 		},
-		saveData() {
+		saveData(publish=false) {
 			return new Promise((resolve, reject) => {
 				let sendUpdate = false;
 				let requiredSuccesses = 0;
@@ -628,8 +628,8 @@ export default {
 
 				if (sendUpdate) {
 					requiredSuccesses++;
-					khatch(`${host}/v1/upload/update_post`, {
-						method: 'POST',
+					khatch(`${host}/v1/upload/post`, {
+						method: 'PATCH',
 						errorMessage: 'failed to update post!',
 						body: {
 							post_id: this.postId,
@@ -652,7 +652,7 @@ export default {
 
 				if (removedTags.length > 0) {
 					requiredSuccesses++;
-					khatch(`${host}/v1/tags/remove_tags`, {
+					khatch(`${host}/v1/tags/remove`, {
 						errorMessage: 'failed to remove tags!',
 						method: 'POST',
 						body: {
@@ -671,7 +671,7 @@ export default {
 
 				if (newTags.length > 0) {
 					requiredSuccesses++;
-					khatch(`${host}/v1/tags/add_tags`, {
+					khatch(`${host}/v1/tags/add`, {
 						errorMessage: 'failed to add tags!',
 						method: 'POST',
 						body: {
@@ -682,8 +682,16 @@ export default {
 					.catch(reject);
 				}
 
-				if (requiredSuccesses === 0)
-				{ resolve(); }
+				if (requiredSuccesses === 0) {
+					if (!publish && this.privacy !== this.update.privacy) {
+						createToast({
+							title: 'Post Not Updated!',
+							description: 'privacy was not updated, click Publish to update privacy.',
+							time: 5,
+						});
+					}
+					resolve();
+				}
 
 				console.debug(JSON.parse(JSON.stringify({
 					activeTags,
@@ -744,7 +752,7 @@ export default {
 					this.$store.state.postCache = null;
 				}
 				else {
-					khatch(`${host}/v1/posts/${this.postId}`, {
+					khatch(`${host}/v1/post/${this.postId}`, {
 						errorMessage: 'Unable To Retrieve Post Data!',
 					}).then(r => r.json())
 					.then(r => {
@@ -783,14 +791,19 @@ export default {
 					errorHandlers: { 404: () => { } },
 				}).then(r => r.json())
 				.then(r => {
-					this.tagSuggestions = r;
+					this.tagSuggestions = { };
+					for (let [group, tags] of Object.entries(r)) {
+						if (Object.values(tags).length !== 0) {
+							this.tagSuggestions[group] = tags;
+						}
+					}
 					setTimeout(this.colorizeTags);
 				});
 			}
 			else {
 				unset();
-				khatch(`${host}/v1/upload/create_post`, {
-					method: 'POST',
+				khatch(`${host}/v1/upload/post`, {
+					method: 'PUT',
 					errorMessage: 'Unable To Create New Post Draft!',
 					body: { },
 				}).then(r => r.json())
@@ -1109,6 +1122,7 @@ input {
 	width: calc(100vw - 50px);
 	left: calc(50% - 50vw + var(--margin));
 	position: relative;
+	justify-content: center;
 }
 .mobile .frequently-used > div {
 	flex-direction: column;
