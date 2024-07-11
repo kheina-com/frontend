@@ -1,9 +1,13 @@
 <template>
 	<div ref='loader' class='loader'><div ref='loaderContent'><p></p><!-- yes, there needs to be two p tags --><p></p></div></div>
 	<Loading class='media' :style='parentStyle' :isLoading='isLoading'>
-		<p v-if='isError'>Could not load media.</p>
-		<video ref='media' :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
-		<img ref='media' :alt='alt' @load='onLoad' @error='onError' :style='linkStyle' v-else>
+		<div ref='mediaContainer'>
+			<div class='media-container'>
+				<p v-if='isError'>Could not load media.</p>
+				<video ref='media' :src='src' :title='alt' :controls='controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
+				<img ref='media' :alt='alt' @error='onError' :style='linkStyle' v-else>
+			</div>
+		</div>
 	</Loading>
 </template>
 
@@ -119,10 +123,12 @@ export default defineComponent({
 	},
 	setup() {
 		const media = ref(null);
+		const mediaContainer = ref(null);
 		const loader = ref(null);
 		const loaderContent = ref(null);
 		return {
 			media,
+			mediaContainer,
 			loader,
 			loaderContent,
 		};
@@ -140,31 +146,38 @@ export default defineComponent({
 			const xhr = new XMLHttpRequest();
 			xhr.open('GET', url, true);
 
-			if (url.match(authRegex)) {
-				const auth = store.state.auth?.token;
-				if (auth) {
-					xhr.setRequestHeader('authorization', 'bearer ' + auth);
-				}
-			}
+			// if (url.match(authRegex)) {
+			// 	const auth = store.state.auth?.token;
+			// 	if (auth) {			
+			// 		xhr.setRequestHeader('authorization', 'bearer ' + auth);
+			// 	}
+			// }
 
 			// xhr.setRequestHeader('Cache-Control', 'max-stale=10000000');
 			xhr.responseType = 'arraybuffer';
 			xhr.onload = () => {
 				// TODO: until I figure out the caching issue, use blobs
-				const blob = new Blob([xhr.response], { type: xhr.getResponseHeader('content-type') });
+				const blob = new Blob([xhr.response], { type: xhr.getResponseHeader('content-type') ?? undefined });
 				// console.log(blob)
 				this.src = window.URL.createObjectURL(blob);
 
 				// TODO: in the future, the browser should just cache the image locally and be able to load it directly from img.src
 				// this.src = url;
+				const ms = blob.size / 50000;
+				console.debug('render time:', ms / 1000);
+				this.onload = () => {
+					URL.revokeObjectURL(this.src);
+					// wait for the image to fully render (based on image size) before fading in
+					setTimeout(() => this.dispatchEvent(new Event('render')), ms);
+				};
 			};
 			xhr.onprogress = callback;
 			xhr.send();
-			this.onload = () => URL.revokeObjectURL(this.src);
 		};
 	},
 	mounted() {
 		this.th(this.thumbhash);
+		this.$refs.media.addEventListener('render', this.onLoad);
 
 		if (this.src.substring(0, 5) === "data:") {
 			// image is a local file, skip
@@ -187,10 +200,8 @@ export default defineComponent({
 			// i.className = this.$refs.media.className;
 			// this.$refs.media.parentNode.replaceChild(i, this.$refs.media);
 			// this.$refs.media = i;
-			this.$refs.media.addEventListener('load', () => {
-				clearTimeout(show);
-				this.$refs.loader.style.display = "none";
-			});
+			this.$refs.media.addEventListener('load', () => clearTimeout(show));
+			this.$refs.media.addEventListener('render', () => this.$refs.loader.style.display = "none");
 		}
 		// else if (this.isVideo) {
 
@@ -253,16 +264,16 @@ export default defineComponent({
 			let dataurl;
 			try {
 				dataurl = thumbHashToDataURL(base64ToBytes(value));
-				this.$refs.media.parentNode.style.background = "url('" + dataurl + "')";
-				this.$refs.media.parentNode.style.backgroundSize = "cover";
-				this.$refs.media.style.opacity = 0;
-				this.$refs.media.parentNode.classList.add("th");
+				this.$refs.mediaContainer.style.background = "url('" + dataurl + "')";
+				this.$refs.mediaContainer.style.backgroundSize = "cover";
+				this.$refs.media.parentNode.style.opacity = 0;
+				this.$refs.mediaContainer.classList.add("th");
 				// this.isLoading = false;
-				this.$refs.media.addEventListener('load', e => {
+				this.$refs.media.addEventListener('render', () => {
 					// this.$refs.media.parentNode.style.background = null;
-					e.target.style.opacity = 100;
+					this.$refs.media.parentNode.style.opacity = 100;
 					// setTimeout(() => this.$refs.media.style.opacity = 100, 150);
-				});
+				}, { once: true });
 			}
 			catch (e) {
 				console.error("thumbhash:", value, "dataurl:", dataurl, "error:", e);
@@ -272,7 +283,7 @@ export default defineComponent({
 	watch: {
 		src() {
 			this.isLoading = !this.thumbhash;
-			this.$refs.media.parentNode.classList.remove('bg');
+			this.$refs.media.parentNode.classList.remove('bg');	
 		},
 		thumbhash(value) {
 			return this.th(value);
@@ -322,7 +333,11 @@ export default defineComponent({
 	align-self: center;
 	text-align: center;
 }
-.th img, .bg {
+.th {
+	height: 100%;
+	width: 100%;
+}
+.th img, .media-container {
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
