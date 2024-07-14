@@ -2,7 +2,7 @@ from html import escape
 
 from aiohttp import ClientResponseError
 from fuzzly import FuzzlyClient
-from shared.models.set import Set
+from fuzzly.models.set import Set
 
 from utilities import concise, demarkdown, header_card_summary, header_description, header_image, header_title
 
