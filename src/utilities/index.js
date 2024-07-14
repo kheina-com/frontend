@@ -159,7 +159,7 @@ export async function khatch(url, options={ }) {
 	let response = null;
 	let error = null;
 
-	while (attempt <= attempts) {
+	for (;;) {
 		try {
 			response = await fetch(url, options);
 		}
@@ -172,8 +172,11 @@ export async function khatch(url, options={ }) {
 		if (response && response.status <= 500)
 		{ break; }
 
-		await new Promise(r => setTimeout(r, attempt ** 2 * 1000));
-		attempt++;
+		if (attempt < attempts) {
+			await new Promise(r => setTimeout(r, attempt++ ** 2 * 1000));
+		} else {
+			break;
+		}
 	}
 
 	console.debug('[khatch]', attempt, url, options, response, error);

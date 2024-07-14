@@ -118,7 +118,7 @@ export default {
 		document.getElementById('animated-accents').checked = this.$store.state.animatedAccents;
 
 		// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
-		this.$store.state.init = false;
+		delete this.$store.state.init;
 	},
 	methods: {
 		setAnimated(e) {
@@ -622,21 +622,25 @@ spare high contrast colors:
 */
 
 html.high-contrast-dark {
-	--interact: #F1B636; /* #d9a216 / #efe006 */
-	--bg3color: #2D333A;
-	--blockquote: var(--bg3color);
-	--textcolor: #FFFFFF;
+	--interact:    #F1B636; /* #d9a216 / #efe006 */
+	--bg3color:    #2D333A;
+	--blockquote:   var(--bg3color);
+	--textcolor:   #FFFFFF;
 	--bordercolor: #7f848a;
-	--subtle: #FFFFFFC0;
+	--subtle:      #FFFFFFC0;
 
-	--pink: #e6b7b6;
+	--pink:   #f587ea;
 	--yellow: #e8ec6b;
-	--green: #1ff160; /* #abd017 */
-	--blue: steelblue; /* #14bbde */
-	--orange: #e19c69;
-	--red: #d7242d;
-	--cyan: #81d9e3; /* #bbfdf8 / #47f4cf / #2396a1 */
+	--green:  #1ff160; /* #abd017 */
+	--blue:   #5de0f0; /* #14bbde */
+	--orange: #e19c69;	
+	--red:    #ff8888;
+	--cyan:   #81d9e3; /* #bbfdf8 / #47f4cf / #2396a1 */
 	--violet: #d3aae2; /* #d1bae7 / #e2c7fc */
+
+	--general:  var(--green); /* TODO */
+	--mature:   var(--yellow); /* TODO */
+	--explicit: var(--red);
 
 	--funding: #044721;
 }

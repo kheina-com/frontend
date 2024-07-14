@@ -163,7 +163,7 @@ export default defineComponent({
 
 				// TODO: in the future, the browser should just cache the image locally and be able to load it directly from img.src
 				// this.src = url;
-				const ms = blob.size / 50000;
+				const ms = blob.size / 60000;
 				console.debug('render time:', ms / 1000);
 				this.onload = () => {
 					URL.revokeObjectURL(this.src);
@@ -271,7 +271,7 @@ export default defineComponent({
 				// this.isLoading = false;
 				this.$refs.media.addEventListener('render', () => {
 					// this.$refs.media.parentNode.style.background = null;
-					this.$refs.media.parentNode.style.opacity = 100;
+					this.$refs.media.parentNode.style.opacity = 1;
 					// setTimeout(() => this.$refs.media.style.opacity = 100, 150);
 				}, { once: true });
 			}

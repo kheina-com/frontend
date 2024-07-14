@@ -369,14 +369,12 @@ export default {
 		else
 		{ this.$router.replace(this.$route.path + '?tab=posts'); }
 
-		if (window.history.state.user)
-		{
+		if (window.history.state.user) {
 			this.user = window.history.state.user;
 			setTitle(this.user?.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
 			return;
 		}
-		else
-		{
+		else {
 			khatch(
 				`${host}/v1/user/${this.handle}`,
 				{ handleError: true },
@@ -385,7 +383,7 @@ export default {
 					this.user = r;
 					setTitle(this.user.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
 					const route = this.$route.fullPath.replace(this.handle, this.user.handle);
-					saveToHistory({ user: r })
+					saveToHistory({ user: r });
 					this.$router.replace(route);
 				});
 			})
@@ -492,8 +490,7 @@ export default {
 					this.page = parseInt(this.$route.query?.page) || 1;
 					this.count = parseInt(this.$route.query?.count) || 64;
 
-					if (window.history.state.posts)
-					{
+					if (window.history.state.posts) {
 						this.posts = window.history.state.posts;
 						this.total_results = window.history.state.total;
 						return;
@@ -569,7 +566,7 @@ export default {
 						},
 					}).then(r => r.json())
 					.then(r => {
-						saveToHistory({ uploads: r })
+						saveToHistory({ uploads: r });
 						this.posts = r;
 					});
 					break;
@@ -607,6 +604,7 @@ export default {
 			}).then(() => {
 				this.user = Object.assign(this.user, this.update);
 				this.isEditing = false;
+				saveToHistory({ user: this.user });
 			});
 		},
 		toggleIconUpload() {

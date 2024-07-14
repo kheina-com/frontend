@@ -46,7 +46,7 @@ switch (environment) {
 export const host = apiHost;
 export const cdnHost = cdn;
 
-export const authRegex = /^(?:https:\/\/(?:[a-z0-9-_]+\.)*kheina\.com\/|http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)*fuzz\.ly\/)/i;
+export const authRegex = /^(?:http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)?fuzz\.ly\/)/i;
 
 export const isMobile = navigator.userAgent.toLowerCase().includes('mobile');
 
