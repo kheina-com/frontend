@@ -1,14 +1,15 @@
 from asyncio import Task, ensure_future
 from html import escape
 from re import compile as re_compile
+from typing import Optional
 
-from aiohttp import ClientResponseError, ClientTimeout
+from aiohttp import ClientResponseError, ClientTimeout, request
 from pydantic import parse_obj_as
-
-from .models import TagGroups, Tag, Post
-from utilities import api_timeout, concise, default_image, demarkdown, header_card_large, header_card_summary, header_description, header_image, header_title
-from aiohttp import request
 from utilities.constants import host
+
+from utilities import api_timeout, concise, default_image, demarkdown, header_card_large, header_card_summary, header_description, header_image, header_title
+
+from .models import Post, Tag, TagGroups
 
 
 post_regex = re_compile(r"^\/p\/([a-zA-Z0-9_-]{8})\/?$")
@@ -25,7 +26,7 @@ async def fetch_tag(tag: str) -> Tag :
 		return Tag.parse_obj(await response.json())
 
 
-async def buildTagString(tags: list[str], tag_group: str):
+async def buildTagString(tags: list[str], tag_group: str) -> str :
 	rendered: list[str] = []
 
 	try:
@@ -43,12 +44,8 @@ async def buildTagString(tags: list[str], tag_group: str):
 			else:
 				rendered.append(tag.tag.split(f"_({tag_group})")[0].replace("_", " "))
 
-	except ClientResponseError as e:
-		if e.status == 404:
-			rendered = tags
-
-		else:
-			raise
+	except ClientResponseError :
+		rendered = tags
 
 	tag_string: str = ""
 
@@ -78,9 +75,9 @@ async def fetch_tags(post_id: str) -> TagGroups :
 		return TagGroups() # type: ignore
 
 
-async def postMetaTags(post_id: str) -> str:
+async def postMetaTags(post_id: str) -> str :
 	if len(post_id) != 8:
-		return ""
+		return ''
 
 	tag_task = ensure_future(fetch_tags(post_id))
 	post: Post
@@ -94,21 +91,25 @@ async def postMetaTags(post_id: str) -> str:
 		) as response :
 			post = Post.parse_obj(await response.json())
 
-	except ClientResponseError as e :
-		if e.status == 404:
-			return ''
-
-		else:
-			raise
+	except ClientResponseError :
+		return ''
 
 	title = escape(demarkdown(post.title)) if post.title else post_id
+	artist_title:  Optional[Task[str]] = None
+	subject_title: Optional[Task[str]] = None
 	tags = await tag_task
 
 	if tags.artist:
-		title += " by " + await buildTagString(tags.artist, "artist")
+		artist_title = ensure_future(buildTagString(tags.artist, "artist"))
 
 	if tags.subject:
-		title += " featuring " + await buildTagString(tags.subject, "subject")
+		subject_title = ensure_future(buildTagString(tags.subject, "subject"))
+
+	if artist_title :
+		title += " by " + await artist_title
+
+	if subject_title :
+		title += " featuring " + await subject_title
 
 	headers: list[str] = [header_title.format(title + " | fuzz.ly")]
 

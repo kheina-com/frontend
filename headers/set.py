@@ -4,10 +4,11 @@ from typing import Optional
 
 from aiohttp import ClientResponseError, ClientTimeout, request
 from pydantic import BaseModel
+from utilities.constants import host
+
+from utilities import api_timeout, concise, demarkdown, header_card_summary, header_description, header_image, header_title
 
 from .models import Post, Privacy, UserPortable
-from utilities import api_timeout, concise, demarkdown, header_card_summary, header_description, header_image, header_title
-from utilities.constants import host
 
 
 class Set(BaseModel) :
@@ -35,12 +36,8 @@ async def setMetaTags(set_id: str) -> str :
 		) as response :
 			s = Set.parse_obj(await response.json())
 
-	except ClientResponseError as e :
-		if e.status == 404 :
-			return ''
-
-		else :
-			raise
+	except ClientResponseError :
+		return ''
 
 	title: str = 'Set: '
 
@@ -60,11 +57,16 @@ async def setMetaTags(set_id: str) -> str :
 
 	title += ' | fuzz.ly'
 
-	# TODO: once first/last are populated, make this header card large and send the first post thumbnail
-
-	return ''.join([
+	headers: list[str] = [
 		header_title.format(title),
-		header_image.format(f'https://cdn.fuzz.ly/{s.owner.icon}/icons/{s.owner.handle}.jpg'),
 		header_description.format(escape(concise(s.description))) if s.description else '',
 		header_card_summary,
-	])
+	]
+
+	if s.first and s.first.media_type :
+		headers.append(header_image.format(f"https://cdn.fuzz.ly/{s.first.post_id}/thumbnails/1200.jpg"))
+
+	else :
+		headers.append(header_image.format(f'https://cdn.fuzz.ly/{s.owner.icon}/icons/{s.owner.handle}.jpg'))
+
+	return ''.join(headers)

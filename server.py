@@ -5,6 +5,7 @@ from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from pydantic import constr
+from starlette.middleware.exceptions import ExceptionMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from headers.home import homeMetaTags
@@ -47,6 +48,13 @@ def vueIndex() :
 		raise ValueError('dist/index.html was not found! did you forget to run `npm run build`?')
 
 	return open('dist/index.html').read()
+
+
+def errorHandler(r: Request, e: Exception) -> HTMLResponse :
+	return HTMLResponse(vueIndex())
+
+
+app.add_middleware(ExceptionMiddleware, handlers={ Exception: errorHandler }, debug=False)
 
 
 @app.get('/t.gif')

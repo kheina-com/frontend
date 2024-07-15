@@ -20,11 +20,11 @@ class Verified(Enum) :
 
 
 class UserPortable(BaseModel) :
-	name: str
-	handle: str
-	privacy: Privacy
-	icon: Optional[str]
-	verified: Optional[Verified]
+	name:      str
+	handle:    str
+	privacy:   Privacy
+	icon:      Optional[str]
+	verified:  Optional[Verified]
 	following: Optional[bool]
 
 
@@ -44,9 +44,9 @@ class Rating(Enum) :
 
 
 class Score(BaseModel):
-	up: int
-	down: int
-	total: int
+	up:        int
+	down:      int
+	total:     int
 	user_vote: Optional[int]
 
 
@@ -56,19 +56,19 @@ class MediaType(BaseModel):
 
 
 class Post(BaseModel):
-	post_id: str
-	title: Optional[str]
+	post_id:     str
+	title:       Optional[str]
 	description: Optional[str]
-	user: UserPortable
-	score: Optional[Score]
-	rating: Rating
-	parent: Optional[str]
-	privacy: Privacy
-	created: Optional[datetime]
-	updated: Optional[datetime]
-	filename: Optional[str]
-	media_type: Optional[MediaType]
-	blocked: bool
+	user:        UserPortable
+	score:       Optional[Score]
+	rating:      Rating
+	parent:      Optional[str]
+	privacy:     Privacy
+	created:     Optional[datetime]
+	updated:     Optional[datetime]
+	filename:    Optional[str]
+	media_type:  Optional[MediaType]
+	blocked:     bool
 
 
 @unique
@@ -83,8 +83,8 @@ class TagGroupPortable(Enum):
 
 class Tag(BaseModel):
 	tag: str
-	owner: Optional[UserPortable]
-	group: TagGroupPortable
-	deprecated: bool
+	owner:          Optional[UserPortable]
+	group:          TagGroupPortable
+	deprecated:     bool
 	inherited_tags: list[str]
-	description: Optional[str]
+	description:    Optional[str]

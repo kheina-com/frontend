@@ -1,4 +1,5 @@
-from re import Match, compile as re_compile
+from re import Match
+from re import compile as re_compile
 from typing import Optional
 
 

@@ -4,12 +4,12 @@ from re import Match
 from re import compile as re_compile
 from typing import Optional
 
-from aiohttp import ClientResponseError, ClientTimeout
+from aiohttp import ClientResponseError, ClientTimeout, request
 from pydantic import BaseModel
+from utilities.constants import host
 
 from utilities import api_timeout, concise, default_image, demarkdown, header_card_summary, header_description, header_image, header_title
-from aiohttp import request
-from utilities.constants import host
+
 from .models import Privacy, Verified
 
 
@@ -35,10 +35,10 @@ class User(BaseModel) :
 	badges: list[Badge]
 
 
-async def userMetaTags(uri: str) -> Optional[str] :
+async def userMetaTags(uri: str) -> str :
 	match: Optional[Match[str]] = user_regex.match(uri)
 	if not match :
-		return
+		return ''
 
 	user: User
 
@@ -51,12 +51,8 @@ async def userMetaTags(uri: str) -> Optional[str] :
 		) as response :
 			user = User.parse_obj(await response.json())
 
-	except ClientResponseError as e :
-		if e.status == 404 :
-			return
-
-		else :
-			raise
+	except ClientResponseError :
+		return ''
 
 	if user.name :
 		title = f'{escape(demarkdown(user.name))} (@{user.handle}) | fuzz.ly'

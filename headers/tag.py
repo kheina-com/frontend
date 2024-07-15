@@ -1,36 +1,31 @@
 from html import escape
 from re import compile as re_compile
 
-from aiohttp import ClientResponseError, ClientTimeout
-from aiohttp import request
+from aiohttp import ClientResponseError, ClientTimeout, request
+from utilities.constants import host
+
+from utilities import api_timeout, concise, default_image, demarkdown, header_card_summary, header_description, header_image, header_title
 
 from .models import Tag
-from utilities import api_timeout, concise, default_image, demarkdown, header_card_summary, header_description, header_image, header_title
-from utilities.constants import host
 
 
 tag_regex = re_compile(r'^\/t\/([^\/]+)$')
 
 
-async def tagMetaTags(tag_str: str) -> str :
+async def tagMetaTags(t: str) -> str :
 	tag: Tag
 
 	try :
 		async with request(
 			'GET',
-			f'{host}/v1/tag/{tag_str}',
+			f'{host}/v1/tag/{t}',
 			timeout=ClientTimeout(api_timeout),
 			raise_for_status=True,
 		) as response :
 			tag = Tag.parse_obj(await response.json())
 
-	except ClientResponseError as e :
-		if e.status == 404 :
-			return ''
-
-		else :
-			raise
-
+	except ClientResponseError :
+		return ''
 
 	if tag.owner :
 		return ''.join([
