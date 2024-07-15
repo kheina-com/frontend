@@ -5,30 +5,26 @@ dist
 *.local
 
 # credentials
-**/credentials.*
-**/credentials
-credentials
-
-# python files
-**/__pycache__
-**/Pipfile
-**/.py*
-server.py
+**/credentials*.*
+**/credentials*
+credentials*
 
 # config files
 .vscode
 
-# text files, except a requirements file, should it exist
-*.log
-*.txt
-*.out
-!requirements.txt
+# database files
+sql.lock
 
-# experimental things
-ignore*
+# images
+**/*.jpg
+**/*.png
+**/*.gif
+**/*.ico
+**/*.svg
+images
 
-# grab template files
-!*template.*
-
-# grab ALL markdown files. These are all readmes, setups, and tutorials
-!**/*.md
+# python files
+**/__pycache__
+**/Pipfile
+.pytest_cache
+.venv
