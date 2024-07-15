@@ -119,7 +119,7 @@ export default createStore({
 				else {
 					const maxage = Math.round(auth.expires - new Date().valueOf() / 1000);
 					if (environment !== 'local') // specifically open this cookie to subdomains so that cdn works
-					{ document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=strict; domain=.fuzz.ly; path=/; secure`; }
+					{ document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=lax; domain=.fuzz.ly; path=/; secure`; }
 					else
 					{ setCookie('kh-auth', auth.token, maxage); }
 					state.auth = authCookie();
