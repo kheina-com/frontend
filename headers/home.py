@@ -9,7 +9,7 @@ home_regex = re_compile(r'^\/?$')
 
 
 @lru_cache
-async def homeMetaTags() -> str :
+def homeMetaTags() -> str :
 	return ''.join([
 		header_title.format('fuzz.ly'),
 		default_image,

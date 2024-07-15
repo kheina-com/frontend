@@ -68,7 +68,7 @@ async def post_route(post_id: constr(regex=r'^[a-zA-Z0-9_-]{8}$'), norich: Optio
 	if norich :
 		return HTMLResponse(vueIndex())
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await postMetaTags(post_id) or await homeMetaTags())))
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await postMetaTags(post_id) or homeMetaTags())))
 
 
 @app.get('/t/{tag}')
@@ -76,15 +76,15 @@ async def tag_route(tag: str, norich: Optional[str] = None) :
 	if norich :
 		return HTMLResponse(vueIndex())
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await tagMetaTags(tag) or await homeMetaTags())))
-
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await tagMetaTags(tag) or homeMetaTags())))
+	
 
 @app.get('/s/{set_id}')
 async def set_route(set_id: str, norich: Optional[str] = None) :
 	if norich :
 		return HTMLResponse(vueIndex())
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await setMetaTags(set_id) or await homeMetaTags())))
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await setMetaTags(set_id) or homeMetaTags())))
 
 
 @app.get('{uri:path}')
@@ -97,7 +97,7 @@ async def all_routes(uri: str, norich: Optional[str] = None) :
 	if norich :
 		return HTMLResponse(vueIndex())
 
-	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await userMetaTags(uri) or await homeMetaTags())))
+	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await userMetaTags(uri) or homeMetaTags())))
 
 
 if __name__ == '__main__' :
