@@ -2,53 +2,35 @@ from html import escape
 from re import compile as re_compile
 
 from aiohttp import ClientResponseError, ClientTimeout
-from aiohttp import request as request_async
-from kh_common.config.constants import tags_host
-from kh_common.gateway import Gateway
-from kh_common.logging import getLogger
+from aiohttp import request
 
-from headers.models import Tag
+from .models import Tag
 from utilities import api_timeout, concise, default_image, demarkdown, header_card_summary, header_description, header_image, header_title
+from utilities.constants import host
 
 
-TagService: Gateway = Gateway(tags_host + '/v1/tag/{tag}', Tag)
 tag_regex = re_compile(r'^\/t\/([^\/]+)$')
-logger = getLogger()
-
-
-async def fetchTagData(tag) :
-	try :
-		async with request_async(
-			'get',
-			f'{tags_host}/v1/tag/{tag}',
-			timeout=ClientTimeout(api_timeout),
-		) as response :
-			if response.ok :
-				return await response.json()
-
-			else :
-				logger.error({
-					'message': 'error while fetching user data from frontend server.',
-					'content': await response.read(),
-					'status': response.status,
-				})
-
-	except Exception :
-		logger.exception('error while fetching user data from frontend server.')
 
 
 async def tagMetaTags(tag_str: str) -> str :
-	tag: Tag = None
+	tag: Tag
 
 	try :
-		tag = await TagService(tag=tag_str)
+		async with request(
+			'GET',
+			f'{host}/v1/tag/{tag_str}',
+			timeout=ClientTimeout(api_timeout),
+			raise_for_status=True,
+		) as response :
+			tag = Tag.parse_obj(await response.json())
 
 	except ClientResponseError as e :
 		if e.status == 404 :
-			return
+			return ''
 
 		else :
 			raise
+
 
 	if tag.owner :
 		return ''.join([

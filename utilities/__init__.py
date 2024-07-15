@@ -1,4 +1,5 @@
-from re import compile as re_compile
+from re import Match, compile as re_compile
+from typing import Optional
 
 
 header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}"><title>{0}</title>'
@@ -1851,23 +1852,23 @@ emoji_regex = re_compile(
 )
 
 
-def firstGroupOrNone(match) :
+def firstGroupOrNone(match: Match[str]) -> str :
 	try :
 		return next(filter(None, match.groups()))
 
 	except StopIteration :
-		return None
+		return ""
 
 
-def demarkdown(string) :
+def demarkdown(string: str) -> str :
 	return markdown_regex.sub(firstGroupOrNone, emoji_regex.sub(lambda x : emoji_map[x[1]], string.strip('\r\n')))
 
 
-def concise(string: str) :
+def concise(string: str) -> str :
 	match = concise_regex.match(demarkdown(string))
 
 	if not match :
-		return None
+		return ''
 
 	if len(match[1]) > description_limit :
 		description = match[1][:description_limit - 3]

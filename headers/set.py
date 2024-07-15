@@ -1,24 +1,43 @@
+from datetime import datetime
 from html import escape
+from typing import Optional
 
-from aiohttp import ClientResponseError
-from fuzzly import FuzzlyClient
-from fuzzly.models.set import Set
+from aiohttp import ClientResponseError, ClientTimeout, request
+from pydantic import BaseModel
 
-from utilities import concise, demarkdown, header_card_summary, header_description, header_image, header_title
+from .models import Post, Privacy, UserPortable
+from utilities import api_timeout, concise, demarkdown, header_card_summary, header_description, header_image, header_title
+from utilities.constants import host
 
 
-client: FuzzlyClient = FuzzlyClient()
+class Set(BaseModel) :
+	set_id: str
+	owner: UserPortable
+	count: int
+	title: Optional[str]
+	description: Optional[str]
+	privacy: Privacy
+	created: datetime
+	updated: datetime
+	first: Optional[Post]
+	last: Optional[Post]
 
 
 async def setMetaTags(set_id: str) -> str :
 	s: Set
 
 	try :
-		s = await client.set(set_id)
+		async with request(
+			'GET',
+			f'{host}/v1/set/{set_id}',
+			timeout=ClientTimeout(api_timeout),
+			raise_for_status=True,
+		) as response :
+			s = Set.parse_obj(await response.json())
 
 	except ClientResponseError as e :
 		if e.status == 404 :
-			return
+			return ''
 
 		else :
 			raise

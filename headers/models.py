@@ -2,67 +2,90 @@ from datetime import datetime
 from enum import Enum, unique
 from typing import Optional
 
-from kh_common.models.privacy import Privacy
-from kh_common.models.rating import Rating
-from kh_common.models.user import UserPortable
 from pydantic import BaseModel
 
 
 @unique
-class TagGroupPortable(Enum):
-    artist = "artist"
-    subject = "subject"
-    sponsor = "sponsor"
-    species = "species"
-    gender = "gender"
-    misc = "misc"
+class Privacy(Enum) :
+	public   = 'public'
+	unlisted = 'unlisted'
+	private  = 'private'
 
 
-class TagPortable(str):
-    pass
+@unique
+class Verified(Enum) :
+	artist = 'artist'
+	mod    = 'mod'
+	admin  = 'admin'
 
 
-class Tag(BaseModel):
-    tag: str
-    owner: Optional[UserPortable]
-    group: TagGroupPortable
-    deprecated: bool
-    inherited_tags: list[TagPortable]
-    description: Optional[str]
-
-
-class Score(BaseModel):
-    up: int
-    down: int
-    total: int
-    user_vote: Optional[int]
-
-
-class MediaType(BaseModel):
-    file_type: str
-    mime_type: str
-
-
-class Post(BaseModel):
-    post_id: str
-    title: Optional[str]
-    description: Optional[str]
-    user: UserPortable
-    score: Optional[Score]
-    rating: Rating
-    parent: Optional[str]
-    privacy: Privacy
-    created: Optional[datetime]
-    updated: Optional[datetime]
-    filename: Optional[str]
-    media_type: Optional[MediaType]
-    blocked: bool
+class UserPortable(BaseModel) :
+	name: str
+	handle: str
+	privacy: Privacy
+	icon: Optional[str]
+	verified: Optional[Verified]
+	following: Optional[bool]
 
 
 class TagGroups(BaseModel):
-    artist: Optional[list[TagPortable]]
-    subject: Optional[list[TagPortable]]
-    sponsor: Optional[list[TagPortable]]
-    species: Optional[list[TagPortable]]
-    gender: Optional[list[TagPortable]]
-    misc: Optional[list[TagPortable]]
+	artist:  Optional[list[str]]
+	subject: Optional[list[str]]
+	sponsor: Optional[list[str]]
+	species: Optional[list[str]]
+	gender:  Optional[list[str]]
+	misc:    Optional[list[str]]
+
+
+@unique
+class Rating(Enum) :
+	general  = 'general'
+	mature   = 'mature'
+	explicit = 'explicit'
+
+
+class Score(BaseModel):
+	up: int
+	down: int
+	total: int
+	user_vote: Optional[int]
+
+
+class MediaType(BaseModel):
+	file_type: str
+	mime_type: str
+
+
+class Post(BaseModel):
+	post_id: str
+	title: Optional[str]
+	description: Optional[str]
+	user: UserPortable
+	score: Optional[Score]
+	rating: Rating
+	parent: Optional[str]
+	privacy: Privacy
+	created: Optional[datetime]
+	updated: Optional[datetime]
+	filename: Optional[str]
+	media_type: Optional[MediaType]
+	blocked: bool
+
+
+@unique
+class TagGroupPortable(Enum):
+	artist  = "artist"
+	subject = "subject"
+	sponsor = "sponsor"
+	species = "species"
+	gender  = "gender"
+	misc    = "misc"
+
+
+class Tag(BaseModel):
+	tag: str
+	owner: Optional[UserPortable]
+	group: TagGroupPortable
+	deprecated: bool
+	inherited_tags: list[str]
+	description: Optional[str]

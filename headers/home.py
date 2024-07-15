@@ -1,7 +1,6 @@
+from functools import lru_cache
 from html import escape
 from re import compile as re_compile
-
-from kh_common.caching import SimpleCache
 
 from utilities import default_image, header_card_summary, header_description, header_title
 
@@ -9,8 +8,8 @@ from utilities import default_image, header_card_summary, header_description, he
 home_regex = re_compile(r'^\/?$')
 
 
-@SimpleCache(float('inf'))
-async def homeMetaTags(match = None) -> str :
+@lru_cache
+async def homeMetaTags() -> str :
 	return ''.join([
 		header_title.format('fuzz.ly'),
 		default_image,

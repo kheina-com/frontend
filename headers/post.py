@@ -1,123 +1,143 @@
 from asyncio import Task, ensure_future
+from datetime import datetime
+from enum import Enum, unique
 from html import escape
 from re import compile as re_compile
+from typing import Optional
 
-from aiohttp import ClientResponseError
-from kh_common.config.constants import posts_host, tags_host
-from kh_common.gateway import Gateway
-from kh_common.logging import getLogger
+from aiohttp import ClientResponseError, ClientTimeout
+from pydantic import BaseModel, parse_obj_as
 
-from headers.models import Post, Tag, TagGroups
-from utilities import (
-    concise,
-    default_image,
-    demarkdown,
-    header_card_large,
-    header_card_summary,
-    header_description,
-    header_image,
-    header_title,
-)
+from .models import TagGroups, Tag, Post
+from utilities import api_timeout, concise, default_image, demarkdown, header_card_large, header_card_summary, header_description, header_image, header_title
+from aiohttp import request
+from utilities.constants import host
 
 
-PostsService = Gateway(posts_host + "/v1/post/{post_id}", Post)
-TagsService = Gateway(tags_host + "/v1/fetch_tags/{post_id}", TagGroups)
-FetchTag = Gateway(tags_host + "/v1/tag/{tag}", Tag)
 post_regex = re_compile(r"^\/p\/([a-zA-Z0-9_-]{8})\/?$")
-logger = getLogger()
+
+
+
+async def fetch_tag(tag: str) -> Tag :
+	async with request(
+		'GET',
+		f'{host}/v1/tag/{tag}',
+		timeout=ClientTimeout(api_timeout),
+		raise_for_status=True,
+	) as response :
+		return Tag.parse_obj(await response.json())
 
 
 async def buildTagString(tags: list[str], tag_group: str):
-    rendered: list[str] = []
+	rendered: list[str] = []
 
-    try:
-        rich_tags: list[Task[Tag]] = [ensure_future(FetchTag(tag=tag)) for tag in tags]
+	try:
+		rich_tags: list[Task[Tag]] = [ensure_future(fetch_tag(t)) for t in tags]
 
-        for tag in rich_tags:
-            tag: Tag = await tag
+		for t in rich_tags:
+			tag: Tag = await t
 
-            if tag.owner:
-                rendered.append(
-                    tag.tag.split(f"_({tag_group})")[0].replace("_", " ")
-                    + f" (@{tag.owner.handle})"
-                )
+			if tag.owner:
+				rendered.append(
+					tag.tag.split(f"_({tag_group})")[0].replace("_", " ")
+					+ f" (@{tag.owner.handle})"
+				)
 
-            else:
-                rendered.append(tag.tag.split(f"_({tag_group})")[0].replace("_", " "))
+			else:
+				rendered.append(tag.tag.split(f"_({tag_group})")[0].replace("_", " "))
 
-    except ClientResponseError as e:
-        if e.status == 404:
-            rendered = tags
+	except ClientResponseError as e:
+		if e.status == 404:
+			rendered = tags
 
-        else:
-            raise
+		else:
+			raise
 
-    tag_string: str = ""
+	tag_string: str = ""
 
-    if len(rendered) > 2:
-        tag_string += ", ".join(rendered[:-1]) + ", and " + rendered[-1]
+	if len(rendered) > 2:
+		tag_string += ", ".join(rendered[:-1]) + ", and " + rendered[-1]
 
-    elif len(rendered) == 2:
-        tag_string += ", ".join(rendered[:-1]) + " and " + rendered[-1]
+	elif len(rendered) == 2:
+		tag_string += ", ".join(rendered[:-1]) + " and " + rendered[-1]
 
-    else:
-        tag_string += rendered[0]
+	else:
+		tag_string += rendered[0]
 
-    return tag_string
+	return tag_string
+
+
+async def fetch_tags(post_id: str) -> TagGroups :
+	try :
+		async with request(
+			'GET',
+			f'{host}/v1/tags/{post_id}',
+			timeout=ClientTimeout(api_timeout),
+			raise_for_status=True,
+		) as response :
+			return parse_obj_as(await response.json(), TagGroups)
+
+	except ClientResponseError :
+		return TagGroups() # type: ignore
 
 
 async def postMetaTags(post_id: str) -> str:
-    post = tags = title = None
+	if len(post_id) != 8:
+		return ""
 
-    if len(post_id) != 8:
-        return ""
+	tag_task = ensure_future(fetch_tags(post_id))
+	post: Post
 
-    try:
-        tags = ensure_future(TagsService(post_id=post_id))
-        post = await PostsService(post_id=post_id)
+	try :
+		async with request(
+			'GET',
+			f'{host}/v1/post/{post_id}',
+			timeout=ClientTimeout(api_timeout),
+			raise_for_status=True,
+		) as response :
+			post = Post.parse_obj(await response.json())
 
-        title = escape(demarkdown(post.title)) if post.title else post_id
+	except ClientResponseError as e :
+		if e.status == 404:
+			return ''
 
-        tags = await tags
+		else:
+			raise
 
-    except ClientResponseError as e:
-        if e.status == 404:
-            return
+	title = escape(demarkdown(post.title)) if post.title else post_id
+	tags = await tag_task
 
-        else:
-            raise
+	if tags.artist:
+		title += " by " + await buildTagString(tags.artist, "artist")
 
-    if tags.artist:
-        title += " by " + await buildTagString(tags.artist, "artist")
+	if tags.subject:
+		title += " featuring " + await buildTagString(tags.subject, "subject")
 
-    if tags.subject:
-        title += " featuring " + await buildTagString(tags.subject, "subject")
+	headers: list[str] = [header_title.format(title + " | fuzz.ly")]
 
-    headers: list[str] = [header_title.format(title + " | fuzz.ly")]
+	if post.description:
+		headers.append(
+			header_description.format(escape(demarkdown(concise(post.description))))
+		)
 
-    if post.description:
-        headers.append(
-            header_description.format(escape(demarkdown(concise(post.description))))
-        )
+	if post.media_type:
+		headers += [
+			header_image.format(f"https://cdn.fuzz.ly/{post_id}/thumbnails/1200.jpg"),
+			header_card_large,
+		]
 
-    if post.media_type:
-        headers += [
-            header_image.format(f"https://cdn.fuzz.ly/{post_id}/thumbnails/1200.jpg"),
-            header_card_large,
-        ]
+	elif post.user.icon:
+		headers += [
+			header_image.format(
+				f"https://cdn.fuzz.ly/{post.user.icon}/icons/{post.user.handle}.jpg"
+			),
+			header_card_summary,
+		]
 
-    elif post.user.icon:
-        headers += [
-            header_image.format(
-                f"https://cdn.fuzz.ly/{post.user.icon}/icons/{post.user.handle}.jpg"
-            ),
-            header_card_summary,
-        ]
+	else:
+		headers += [
+			default_image,
+			header_card_summary,
+		]
 
-    else:
-        headers += [
-            default_image,
-            header_card_summary,
-        ]
-
-    return "".join(headers)
+	return "".join(headers)
