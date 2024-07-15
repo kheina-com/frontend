@@ -1,12 +1,9 @@
 from asyncio import Task, ensure_future
-from datetime import datetime
-from enum import Enum, unique
 from html import escape
 from re import compile as re_compile
-from typing import Optional
 
 from aiohttp import ClientResponseError, ClientTimeout
-from pydantic import BaseModel, parse_obj_as
+from pydantic import parse_obj_as
 
 from .models import TagGroups, Tag, Post
 from utilities import api_timeout, concise, default_image, demarkdown, header_card_large, header_card_summary, header_description, header_image, header_title
@@ -75,7 +72,7 @@ async def fetch_tags(post_id: str) -> TagGroups :
 			timeout=ClientTimeout(api_timeout),
 			raise_for_status=True,
 		) as response :
-			return parse_obj_as(await response.json(), TagGroups)
+			return parse_obj_as(TagGroups, await response.json())
 
 	except ClientResponseError :
 		return TagGroups() # type: ignore

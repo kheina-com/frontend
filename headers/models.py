@@ -31,7 +31,6 @@ class UserPortable(BaseModel) :
 class TagGroups(BaseModel):
 	artist:  Optional[list[str]]
 	subject: Optional[list[str]]
-	sponsor: Optional[list[str]]
 	species: Optional[list[str]]
 	gender:  Optional[list[str]]
 	misc:    Optional[list[str]]
