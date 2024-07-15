@@ -146,12 +146,12 @@ export default defineComponent({
 			const xhr = new XMLHttpRequest();
 			xhr.open('GET', url, true);
 
-			// if (url.match(authRegex)) {
-			// 	const auth = store.state.auth?.token;
-			// 	if (auth) {			
-			// 		xhr.setRequestHeader('authorization', 'bearer ' + auth);
-			// 	}
-			// }
+			if (url.match(authRegex)) {
+				const auth = store.state.auth?.token;
+				if (auth) {			
+					xhr.setRequestHeader('authorization', 'bearer ' + auth);
+				}
+			}
 
 			// xhr.setRequestHeader('Cache-Control', 'max-stale=10000000');
 			xhr.responseType = 'arraybuffer';
