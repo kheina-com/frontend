@@ -841,6 +841,7 @@ ol > :last-child, ol > :last-child .post {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	margin-bottom: -0.5em;
 }
 .more-button {
 	border-radius: var(--border-radius);

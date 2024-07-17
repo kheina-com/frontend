@@ -1,5 +1,7 @@
 <template>
-	<div ref='loader' class='loader'><div ref='loaderContent'><p></p><!-- yes, there needs to be two p tags --><p></p></div></div>
+	<div ref='loader' class='loader'>
+		<Spinner :loaded='loaded' :total='total'/>
+	</div>
 	<Loading class='media' :style='parentStyle' :isLoading='isLoading'>
 		<div ref='mediaContainer'>
 			<div class='media-container'>
@@ -12,76 +14,18 @@
 </template>
 
 <script lang="ts">
-import { authRegex } from '@/config/constants';
+import { cdnRegex } from '@/config/constants';
 import { defineComponent, ref } from 'vue';
 import { base64ToBytes, createToast } from '@/utilities';
 import Loading from '@/components/Loading.vue';
+import Spinner from '@/components/Spinner.vue';
 import { thumbHashToDataURL } from 'thumbhash';
-
-// function abbreviate(value) {
-// 	if (value >= 995e7)
-// 	{ return `${Math.round(value / 1e9)}GB`; }
-// 	if (value >= 9995e5)
-// 	{ return `${(value / 1e9).toFixed(1)}GB`; }
-// 	if (value >= 995e4)
-// 	{ return `${Math.round(value / 1e6)}MB`; }
-// 	if (value >= 9995e2)
-// 	{ return `${(value / 1e6).toFixed(1)}MB`; }
-// 	if (value >= 9950)
-// 	{ return `${Math.round(value / 1e3)}KB`; }
-// 	if (value >= 1e3)
-// 	{ return `${(value / 1e3).toFixed(1)}KB`; }
-// 	return `${value}B`;
-// }
-
-function abbreviate(value) {
-	const e3 = Math.log(value) * Math.LOG10E / 3| 0;
-
-	// more concise but slower (I think)
-	// const abr = ['B', 'KB', 'MB', 'GB', 'TB'];
-	// if (value >= 9995 * 10 ** (e3 * 3 - 1)) {
-	// 	return `${Math.round(value / (10 ** ((e3 + 1) * 3)))}${abr[e3 + 1]}`;
-	// }
-	// if (value >= 995 * 10 ** (e3 * 3 - 2)) {
-	// 	return `${Math.round(value / (10 ** (e3 * 3)))}${abr[e3]}`;
-	// }
-	// return `${(value / (10 ** (e3 * 3))).toFixed(1)}${abr[e3]}`;
-
-	switch (Math.log(value) * Math.LOG10E | 0) {
-		case 0:
-		case 1:
-		case 2:
-			return `${value}B`;
-		case 3:
-			if (value < 9950)
-			{ return `${(value / 1e3).toFixed(1)}KB`; }
-			return `${Math.round(value / 1e3)}KB`; // necessary to avoid double check
-		case 5:
-			if (value >= 9995e2)
-			{ return `${(value / 1e6).toFixed(1)}MB`; }
-		case 4:
-			return `${Math.round(value / 1e3)}KB`;
-		case 6:
-			if (value < 995e4)
-			{ return `${(value / 1e6).toFixed(1)}MB`; }
-			return `${Math.round(value / 1e6)}MB`; // necessary to avoid double check
-		case 8:
-			if (value >= 9995e5)
-			{ return `${(value / 1e9).toFixed(1)}GB`; }
-		case 7:
-			return `${Math.round(value / 1e6)}MB`;
-		case 9:
-			if (value < 995e7)
-			{ return `${(value / 1e9).toFixed(1)}GB`; }
-		default:
-			return `${Math.round(value / 1e9)}GB`;
-	}
-}
 
 export default defineComponent({
 	name: 'Media',
 	components: {
 		Loading,
+		Spinner,
 	},
 	props: {
 		mime: {
@@ -137,6 +81,8 @@ export default defineComponent({
 		return {
 			isLoading: !this.thumbhash,
 			isError: false,
+			loaded: 0,
+			total: 0,
 		};
 	},
 	created() {
@@ -146,9 +92,9 @@ export default defineComponent({
 			const xhr = new XMLHttpRequest();
 			xhr.open('GET', url, true);
 
-			if (url.match(authRegex)) {
+			if (url.match(cdnRegex)) {
 				const auth = store.state.auth?.token;
-				if (auth) {			
+				if (auth) {
 					xhr.setRequestHeader('authorization', 'bearer ' + auth);
 				}
 			}
@@ -177,14 +123,8 @@ export default defineComponent({
 	},
 	mounted() {
 		this.th(this.thumbhash);
+
 		this.$refs.media.addEventListener('render', this.onLoad);
-
-		if (this.src.substring(0, 5) === "data:") {
-			// image is a local file, skip
-			this.$refs.media.src = this.src;
-			return;
-		}
-
 		// return this.$refs.media.src = this.src;
 
 		if (this.isImage) {
@@ -193,8 +133,8 @@ export default defineComponent({
 			// const i = new Image();
 			// i.onlo
 			this.$refs.media.load(this.src, e => {
-				this.$refs.loaderContent.firstElementChild.innerText = (e.loaded / e.total * 100).toFixed(1) + "%";
-				this.$refs.loaderContent.lastElementChild.innerText = `${abbreviate(e.loaded)} / ${abbreviate(e.total)}`;
+				this.loaded = e.loaded;
+				this.total = e.total;
 			});
 			// i.dataset = this.$refs.media.dataset;
 			// i.className = this.$refs.media.className;
@@ -207,6 +147,7 @@ export default defineComponent({
 
 		// }
 		else {
+			this.$refs.media.addEventListener('load', () => this.$refs.media.dispatchEvent(new Event('render')));
 			this.$refs.media.src = this.src;
 			// error
 		}
@@ -264,8 +205,7 @@ export default defineComponent({
 			let dataurl;
 			try {
 				dataurl = thumbHashToDataURL(base64ToBytes(value));
-				this.$refs.mediaContainer.style.background = "url('" + dataurl + "')";
-				this.$refs.mediaContainer.style.backgroundSize = "cover";
+				this.$refs.mediaContainer.style.background = "url('/assets/lightnoise.png') repeat center, url('" + dataurl + "') 0% 0% / cover";
 				this.$refs.media.parentNode.style.opacity = 0;
 				this.$refs.mediaContainer.classList.add("th");
 				// this.isLoading = false;
@@ -308,11 +248,6 @@ export default defineComponent({
 	align-items: center;
 	text-align: center;
 }
-.loader div {
-	background: var(--screen-cover);
-	padding: 0.5em;
-	border-radius: var(--border-radius);
-}
 .media img, .media video {
 	max-width: 100%;
 	max-height: 100%;
@@ -342,5 +277,8 @@ export default defineComponent({
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
+}
+.media-container {
+	position: relative;
 }
 </style>

@@ -59,6 +59,11 @@
 				<Button @click='dumpStore'>dump</Button>
 			</div>
 		</div>
+		<Spinner :loaded='loaded' :total='1000000000' style='margin: auto'/>
+		<div class='slider'>
+			<input type='range' min='0' max='1000000000' step='10000' v-model='loaded'>
+			<span>{{ loaded }}</span>
+		</div>
 		<div ref='ellipse' class='ellipse'>
 		</div>
 		<div class='slider'>
@@ -107,6 +112,7 @@ import epoch from '@/config/constants';
 import { host } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
+import Spinner from '@/components/Spinner.vue';
 
 
 export default {
@@ -118,6 +124,7 @@ export default {
 		Button,
 		Markdown,
 		PostTile,
+		Spinner,
 	},
 	setup() {
 		const ellipse = ref(null);
@@ -139,6 +146,7 @@ export default {
 			postId: null,
 			post: null,
 			speed: 1,
+			loaded: 1,
 			animate: true,
 			thumbhash: null,
 		};
@@ -577,5 +585,24 @@ i {
 	background: var(--interact);
 	cursor: pointer;
 	border-radius: 1em;
+}
+
+.spinner svg {
+	margin: auto;
+	display: block;
+}
+.spinner circle {
+	fill: transparent;
+	stroke: black;
+	stroke-width: 2;
+	stroke-dasharray: 250;
+	stroke-dashoffset: 1000;
+	animation: rotate 5s linear infinite;
+}
+
+@keyframes rotate {
+	to {
+		stroke-dashoffset: 0;
+	}
 }
 </style>

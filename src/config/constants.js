@@ -48,6 +48,8 @@ export const cdnHost = cdn;
 
 export const authRegex = /^(?:http:\/\/localhost(?:\:\d{2,5})?\/|https:\/\/(?:[a-z0-9-_]+\.)?fuzz\.ly\/)/i;
 
+export const cdnRegex = /^(?:https:\/\/(?:[a-z0-9-_]+\.)?fuzz\.ly\/)/i;
+
 export const isMobile = navigator.userAgent.toLowerCase().includes('mobile');
 
 export const apiErrorMessage = 'An error occurred in your browser during an API call.';
