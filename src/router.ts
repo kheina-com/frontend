@@ -195,7 +195,7 @@ const routes: RouteRecordRaw[] = [
 		alias: ["/r"],
 		name: "report",
 		props: true,
-		component: Report,
+		component: () => import("./views/Report.vue"),
 		meta: {
 			title: "Report Content | fuzz.ly",
 		},
