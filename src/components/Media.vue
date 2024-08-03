@@ -16,14 +16,14 @@
 </template>
 
 <script setup lang="ts">
-import { cdnRegex } from '@/config/constants';
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { base64ToBytes, createToast } from '@/utilities';
+import { cdnRegex } from '@/config/constants';
+import store from '@/globals';
 import Loading from '@/components/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import { thumbHashToDataURL } from 'thumbhash';
-import store from '@/globals';
-
+import lightnoise from '$/lightnoise.png?url';
 
 const globals = store();
 const props = withDefaults(defineProps<{
@@ -195,7 +195,7 @@ function th(value: string | null) {
 	let dataurl;
 	try {
 		dataurl = thumbHashToDataURL(base64ToBytes(value));
-		mediaContainer.value.style.background = "url('/assets/lightnoise.png') repeat center, url('" + dataurl + "') 0% 0% / cover";
+		mediaContainer.value.style.background = "url('" + lightnoise + "') repeat center, url('" + dataurl + "') 0% 0% / cover";
 		(media.value.parentNode as HTMLDivElement).style.opacity = "0";
 		mediaContainer.value.classList.add("th");
 		// this.isLoading = false;
