@@ -1,107 +1,92 @@
 <template>
-	<div class='score' ref='scoreElement'>
+	<div class='score' ref='score'>
 		<button @click.stop='vote(1)'><b>▲</b></button>
-		<Loading :isLoading='isLoading'><p>{{score === null ? 'X' : score === undefined ? 10 : abbreviate(score.up - score.down)}}</p></Loading>
+		<Loading :isLoading='isLoading'><p>{{ props.score === null ? 'X' : (props.score === undefined ? 10 : abbreviate(props.score.up - props.score.down)) }}</p></Loading>
 		<button @click.stop='vote(-1)'><b>▼</b></button>
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { abbreviate, khatch } from '@/utilities';
 import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 
-export default {
-	name: 'Post',
-	props: {
-		postId: String,
-		score: Object,
-	},
-	components: {
-		Loading,
-	},
-	setup() {
-		const scoreElement = ref(null);
+const props = defineProps<{
+	postId?: string | null,
+	score?: Score | null,
+}>();
+const score = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
-		return {
-			scoreElement,
-		};
-	},
-	mounted() {
-		if (this.score === undefined || this.score === null)
-		{ this.$refs.scoreElement.classList.add('disabled'); }
-		else
-		{ this.$refs.scoreElement.classList.remove('disabled'); }
+onMounted(() => {
+	if (!props.score)
+	{ score.value.classList.add('disabled'); }
+	else
+	{ score.value.classList.remove('disabled'); }
 
-		this.setElementVote(this.score?.user_vote);
-	},
-	computed: {
-		isLoading() {
-			return this.score === undefined;
-		},
-	},
-	methods: {
-		abbreviate,
-		setElementVote(vote) {
-			const voteElement = this.$refs.scoreElement.querySelector('.vote');
-			if (voteElement)
-			{ voteElement.classList.remove('vote'); }
+	if (props.score) setElementVote(props.score.user_vote);
+});
 
-			if (vote === 1)
-			{ this.$refs.scoreElement.firstChild.classList.add('vote') }
-			else if (vote === -1)
-			{ this.$refs.scoreElement.lastChild.classList.add('vote') }
-		},
-		vote(vote) {
-			if (this.score === undefined || this.score === null)
-			{ return; }
+const isLoading = computed(() => props.score === undefined);
 
-			if (this.score?.user_vote === vote)
-			{ vote = 0; }
+function setElementVote(vote?: number | null) {
+	const voteElement = score.value.querySelector('.vote');
+	if (voteElement) {
+		voteElement.classList.remove('vote');
+	}
 
-			khatch(`${host}/v1/post/vote`, {
-				handleError: true,
-				method: 'POST',
-				body: {
-					post_id: this.postId,
-					vote,
-				},
-			}).then(response => {
-				response.json().then(r => {
-					this.setElementVote(vote);
-					this.score.user_vote = vote;
-					this.score.up = r.up;
-					this.score.down = r.down;
-				});
-			});
-		},
-	},
-	watch: {
-		score(value) {
-			if (this.score === undefined || this.score === null)
-			{ this.$refs.scoreElement.classList.add('disabled'); }
-			else
-			{ this.$refs.scoreElement.classList.remove('disabled'); }
-			this.setElementVote(value?.user_vote);
-		},
-	},
+	if (vote === 1)
+	{ (score.value.firstChild as HTMLElement).classList.add('vote') }
+	else if (vote === -1)
+	{ (score.value.lastChild as HTMLElement).classList.add('vote') }
 }
-</script>
+
+function vote(vote: number) {
+	if (!props.score) return;
+
+	if (props.score?.user_vote === vote)
+	{ vote = 0; }
+
+	khatch(`${host}/v1/post/vote`, {
+		handleError: true,
+		method: 'POST',
+		body: {
+			post_id: props.postId,
+			vote,
+		},
+	}).then(response => {
+		response.json().then(r => {
+			setElementVote(vote);
+			if (!props.score) return;
+			props.score.user_vote = vote;
+			props.score.up = r.up;
+			props.score.down = r.down;
+		});
+	});
+}
+
+watch(() => props.score, (value?: Score | null) => {
+	if (!value)
+	{ score.value.classList.add('disabled'); }
+	else {
+		score.value.classList.remove('disabled');
+		setElementVote(value?.user_vote);
+	}
+});
+</script>	
 
 <style scoped>
 .disabled {
-	opacity: 50%;
 	pointer-events: none;
+}
+.disabled button, .disabled p {
+	opacity: 50%;
 }
 .score {
 	text-align: center;
 }
 button {
 	pointer-events: all;
-}
-.disabled button {
-	pointer-events: none;
 }
 button b {
 	display: block;

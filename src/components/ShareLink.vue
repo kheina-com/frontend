@@ -8,48 +8,30 @@
 	</button>
 </template>
 
-<script>
+<script setup lang="ts">
 import { environment } from '@/config/constants';
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 
-export default {
-	name: 'ShareLink',
-	setup() {
-		const popup = ref(null);
-		return {
-			popup,
-		};
-	},
-	data() {
-		return {
-			t: null,
-		};
-	},
-	props: {
-		content: String,
-	},
-	methods: {
-		copy() {
-			const root = environment === 'prod' ? 'https://fuzz.ly' : 'https://dev.fuzz.ly';
-			const value = root + this.content;
-			navigator.clipboard.writeText(value)
-			.catch(() => {
-				const element = document.createElement('textarea');
-				element.value = value;
-				document.body.appendChild(element);
-				element.select();
-				document.execCommand('copy');
-				document.body.removeChild(element);
-			})
-			.then(() => {
-				this.$refs.popup.style.display = 'block';
-				if (this.t) {
-					clearTimeout(this.t);
-				}
-				this.t = setTimeout(() => { this.t = null; this.$refs.popup.style.display = null }, 5000);
-			});
-		},
-	},
+const popup = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+let t: number | null = null;
+const props = defineProps<{ content: string}>();
+function copy() {
+	const root = environment === "prod" ? "https://fuzz.ly" : "https://dev.fuzz.ly";
+	const value = root + props.content;
+
+	navigator.clipboard.writeText(value)
+	.catch(() => {
+		const element = document.createElement("textarea");
+		element.value = value;
+		document.body.appendChild(element);
+		element.select();
+		document.execCommand("copy");
+		document.body.removeChild(element);
+	}).then(() => {
+		popup.value.style.display = "block";
+		if (t) clearTimeout(t);
+		t = setTimeout(() => { t = null; popup.value.style.display = "" }, 5000);
+	});
 }
 </script>
 

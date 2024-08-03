@@ -5,7 +5,7 @@
 			<tr>
 				<td>theme</td>
 				<td>
-					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='$store.state.theme'>
+					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='globals.theme'>
 						<option v-for='[value, name] in themes' :value='value'>{{name}}</option>
 					</select>
 				</td>
@@ -13,7 +13,7 @@
 			<tr>
 				<td>accent</td>
 				<td>
-					<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='$store.state.accent'>
+					<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='globals.accent'>
 						<option v-for='[value, name] in accents' :value='value'>{{name}}</option>
 					</select>
 				</td>
@@ -25,63 +25,52 @@
 				:border='false'
 				id='animated-accents'
 				name='animated-accents'
-				v-model:checked='$store.state.animatedAccents'
+				v-model:checked='globals.animations'
 			>animated accents</CheckBox>
 		</div>
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
-import { getCookie } from '@/utilities';
+<script setup lang="ts">
 import CheckBox from '@/components/CheckBox.vue';
+import store from '@/globals';
 
-export default {
-	name: 'ThemeSelector',
-	components: {
-		CheckBox,
-	},
-	data() {
-		return {
-			animations: false,
-			themes: [
-				['kheina', 'kheina'],
-				['light', 'light mode'],
-				['midnight', 'midnight'],
-				['e621', 'e621'],
-				['youtube', 'youtube'],
-				['wikipedia', 'wikipedia'],
-				['terminal', 'terminal'],
-				['high-contrast-dark', 'high contrast dark'],
-				['high-contrast-light', 'high contrast light'],
-				['solarized-dark', 'solarized dark'],
-				['solarized-light', 'solarized light'],
-				['furaffinity', 'fur affinity'],
-				['discord', 'discord'],
-				['xfire', 'xfire'],
-				['gay', 'gay'],
-			],
-			accents: [
-				['none', 'none'],
-				['aurora', 'aurora'],
-				['autumn', 'autumn'],
-				['hex', 'hex grid'],
-				['summer', 'summer'],
-				['space', 'space'],
-				['spring', 'spring'],
-				['stars', 'stars'],
-				['winter', 'winter'],
-			],
-		}
-	},
-	methods: {
-		setTheme(event) {
-			this.$store.commit('theme', event.target.value);
-		},
-		setAccent(event) {
-			this.$store.commit('accent', event.target.value);
-		},
-	},
+const globals = store();
+const themes = [
+	['kheina', 'kheina'],
+	['light', 'light mode'],
+	['midnight', 'midnight'],
+	['e621', 'e621'],
+	['youtube', 'youtube'],
+	['wikipedia', 'wikipedia'],
+	['terminal', 'terminal'],
+	['high-contrast-dark', 'high contrast dark'],
+	['high-contrast-light', 'high contrast light'],
+	['solarized-dark', 'solarized dark'],
+	['solarized-light', 'solarized light'],
+	['furaffinity', 'fur affinity'],
+	['discord', 'discord'],
+	['xfire', 'xfire'],
+	['gay', 'gay'],
+];
+const accents = [
+	['none', 'none'],
+	['aurora', 'aurora'],
+	['autumn', 'autumn'],
+	['hex', 'hex grid'],
+	['summer', 'summer'],
+	['space', 'space'],
+	['spring', 'spring'],
+	['stars', 'stars'],
+	['winter', 'winter'],
+];
+
+function setTheme(event: Event) {
+	globals.setTheme((event.target as HTMLSelectElement).value);
+}
+
+function setAccent(event: Event) {
+	globals.setAccent((event.target as HTMLSelectElement).value);
 }
 </script>
 

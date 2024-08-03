@@ -1,5 +1,5 @@
 <template>
-	<div ref='banner' class='banner'>
+	<div ref='banner' class='banner' id='banner'>
 		<div class='nav-backdrop'/>
 		<div v-if='editMessage' class='markdown edit-message'>
 			<MarkdownEditor resize='none' v-model:value='message' style='min-width: 70vw; display: inline-block'/>
@@ -10,27 +10,27 @@
 			</div>
 		</div>
 		<Markdown :content='message' v-else-if='message'/>
-		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='$store.state.auth?.isAdmin'>
+		<Button class='interactable edit-message-button' @click='toggleEditMessage' title='Edit banner message' v-if='globals.auth?.isAdmin'>
 			<i class='material-icons-round'>{{editMessage ? 'edit_off' : 'edit'}}</i>
 		</Button>
 		<div class='nav'>
 			<div class='bg'/>
-			<div class='profile' v-if='$store.state.auth'>
+			<div class='profile' v-if='globals.auth'>
 				<div class='icon' id='user-verification'></div>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
-					<router-link :to='`/${$store.state.user?.handle}`'>
-						<UserIcon :handle='$store.state.user?.handle' :post='$store.state.user?.icon' v-model:isLoading='isIconLoading' v-if='$store.state.user'/>
+					<router-link :to='`/${globals.user?.handle}`'>
+						<UserIcon :handle='globals.user?.handle' :post='globals.user?.icon' v-model:isLoading='isIconLoading' v-if='globals.user'/>
 					</router-link>
 				</Loading>
 			</div>
 			<div class='profile' v-else>
-				<router-link :to='`/account/login?path=${route}`' class='interactable login'>Login</router-link>
+				<router-link :to='`/a/login?path=${routePath}`' class='interactable login'>Login</router-link>
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 		</div>
 		<div class='screen-cover' @click='closeMenu'/>
 		<div class='menu'>
-			<a href='/create' @click.stop.prevent='navCreate' :class='$store.state.auth ? "create" : "create logged-out"' title='Create new post'>
+			<a href='/create' @click.stop.prevent='navCreate' :class='globals.auth ? "create" : "create logged-out"' title='Create new post'>
 				<div class='icon'>
 					<i class='material-icons'>upload</i>
 				</div>
@@ -52,33 +52,33 @@
 							<router-link to='/?#'><i class='material-icons-round'>home</i>Home</router-link>
 						</span>
 					</li>
-					<li v-show='$store.state.auth'>
+					<li v-show='globals.auth'>
 						<span @click='closeMenu'>
-							<router-link to='/notifications'>
+							<router-link to='/n'>
 								<div class='notifications'>
 									<i class='material-icons-round'>notifications</i>
-									<div class='counter' v-show='$store.state.notifications'>
-										<span>{{$store.state.notifications}}</span>
+									<div class='counter' v-show='globals.notifications'>
+										<span>{{globals.notifications}}</span>
 									</div>
 								</div>
 								Notifications
 							</router-link>
 						</span>
 					</li>
-					<li v-show='$store.state.auth'>
+					<li v-show='globals.auth'>
 						<span @click='closeMenu'>
-							<router-link to='/timeline'>
+							<router-link to='/tl'>
 								<i class='material-icons'>timeline</i>
 								Timeline
 							</router-link>
 						</span>
 					</li>
-					<li v-show='$store.state.auth?.isMod'>
+					<li v-show='globals.auth?.isMod'>
 						<span @click='closeMenu'>
 							<router-link to='/mod/queue'><i class='material-icons'>security</i>Moderate</router-link>
 						</span>
 					</li>
-					<li v-show='$store.state.auth?.isAdmin'>
+					<li v-show='globals.auth?.isAdmin'>
 						<ol>
 							<li>
 								<span @click='closeMenu'>
@@ -97,7 +97,7 @@
 							</li>
 							<li>
 								<span @click='closeMenu'>
-									<router-link to='/users'><i class='material-icons-round'>people</i>All Users</router-link>
+									<router-link to='/usr'><i class='material-icons-round'>people</i>All Users</router-link>
 								</span>
 							</li>
 						</ol>
@@ -117,61 +117,70 @@
 							<router-link to='/emoji'><i class='material-icons-round'>dynamic_feed</i>Emoji</router-link>
 						</span>
 					</li>
-					<li v-show='$store.state.auth'>
+					<li v-show='globals.auth'>
 						<span @click='closeMenu'>
-							<router-link :to='`/${$store.state.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
+							<router-link :to='`/${globals.user?.handle}`'><i class='material-icons-round'>alternate_email</i>Profile</router-link>
 						</span>
 					</li>
-					<li v-show='$store.state.auth'>
+					<li v-show='globals.auth'>
 						<ol>
 							<li>
 								<span @click='closeMenu'>
-									<router-link :to='`/${$store.state.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
+									<router-link :to='`/${globals.user?.handle}?edit=1`'><i class='material-icons-round'>manage_accounts</i>Edit</router-link>
 								</span>
 							</li>
 						</ol>
 					</li>
-					<li v-show='$store.state.auth'>
+					<li v-show='globals.auth'>
 						<span @click='closeMenu'>
-							<router-link to='/account'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
+							<router-link to='/a'><i class='material-icons-round'>miscellaneous_services</i>Settings</router-link>
 						</span>
 					</li>
-					<li v-show='$store.state.auth'>
+					<li v-show='globals.auth'>
 						<button @click='signOut'><i class='material-icons-round'>logout</i>Sign Out</button>
 					</li>
-					<li v-show='!$store.state.auth'>
+					<li v-show='!globals.auth'>
 						<span @click='closeMenu'>
-							<router-link to='/account/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
+							<router-link to='/a/create'><i class='material-icons-round'>person_add</i>Create Account</router-link>
 						</span>
 					</li>
-					<li v-show='!$store.state.auth'>
+					<li v-show='!globals.auth'>
 						<span @click='closeMenu'>
-							<router-link :to='`/account/login?path=${route}`'><i class='material-icons-round'>login</i>Login</router-link>
-						</span>
-					</li>
-					<li>
-						<span @click='closeMenu'>
-							<router-link to='/report'><i class='kheina-icons'>report_content</i>Report Content</router-link>
+							<router-link :to='`/a/login?path=${routePath}`'><i class='material-icons-round'>login</i>Login</router-link>
 						</span>
 					</li>
 					<li>
 						<span @click='closeMenu'>
-							<router-link :to='`/bug?url=${route}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
+							<router-link to='/r'><i class='kheina-icons'>report_content</i>Report Content</router-link>
+						</span>
+					</li>
+					<li v-show='globals.auth'>
+						<ol>
+							<li>
+								<span @click='closeMenu'>
+									<router-link to='/rs'><i class='material-icons-round'>receipt_long</i>Your Reports</router-link>
+								</span>
+							</li>
+						</ol>
+					</li>
+					<li>
+						<span @click='closeMenu'>
+							<router-link :to='`/bug?url=${routePath}`'><i class='material-icons-round'>bug_report</i>Report a Bug</router-link>
 						</span>
 					</li>
 					<li>
 						<span @click='closeMenu'>
-							<router-link to='/privacy'><i class='material-icons'>policy</i>Privacy Policy</router-link>
+							<router-link to='/priv'><i class='material-icons'>policy</i>Privacy Policy</router-link>
 						</span>
 					</li>
 					<li>
 						<span @click='closeMenu'>
-							<router-link to='/content'><i class='material-icons'>article</i>Content Policy</router-link>
+							<router-link to='/con'><i class='material-icons'>article</i>Content Policy</router-link>
 						</span>
 					</li>
 					<li>
 						<span @click='closeMenu'>
-							<router-link to='/terms'><i class='material-icons'>gavel</i>Terms of Service</router-link>
+							<router-link to='/term'><i class='material-icons'>gavel</i>Terms of Service</router-link>
 						</span>
 					</li>
 					<ThemeSelector class='theme-menu'/>
@@ -179,15 +188,15 @@
 				<div class='menu-footer'>
 					<!-- TODO: replace this with an svg once one gets made -->
 					<img src='https://cdn.fuzz.ly/splash.png'>
-					<p class='commit'>version: <code @click='closeMenu'><router-link to='/version'>{{commit}}</router-link></code></p>
+					<p class='commit'>version: <code @click='closeMenu'><router-link to='/v'>{{commit}}</router-link></code></p>
 				</div>
 			</div>	
 		</div>
 		<div class='menu-button' v-if='isMobile'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-				<div class='counter' v-show='!menuOpen && $store.state.notifications'>
-					<span>{{$store.state.notifications}}</span>
+				<div class='counter' v-show='!menuOpen && globals.notifications'>
+					<span>{{globals.notifications}}</span>
 				</div>
 			</button>
 		</div>
@@ -195,23 +204,24 @@
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
 			</button>
-			<router-link to='/notifications' class='icon notifications' title='Notifications' v-if='$store.state.auth'>
+			<router-link to='/n' class='icon notifications' title='Notifications' v-if='globals.auth'>
 				<i class='material-icons-round'>notifications</i>
-				<div class='counter' v-show='$store.state.notifications'>
-					<span>{{$store.state.notifications}}</span>
+				<div class='counter' v-show='globals.notifications'>
+					<span>{{globals.notifications}}</span>
 				</div>
 			</router-link>
-			<router-link to='/timeline' class='icon timeline' title='Timeline' v-if='$store.state.auth'>
+			<router-link to='/tl' class='icon timeline' title='Timeline' v-if='globals.auth'>
 				<i class='material-icons'>timeline</i>
 			</router-link>
 		</div>
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, ref, type Ref, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { deleteCookie, khatch } from '@/utilities';
-import { host, environment, isMobile, ratings } from '@/config/constants.js';
+import { host, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -219,183 +229,168 @@ import Button from '@/components/Button.vue';
 import UserIcon from '@/components/UserIcon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
 import SearchBar from '@/components/SearchBar.vue';
+import store, { Rating } from '@/globals';
 
 
-export default {
-	name: 'Banner',
-	components: {
-		Markdown,
-		MarkdownEditor,
-		Loading,
-		Button,
-		UserIcon,
-		ThemeSelector,
-		SearchBar,
+const banner  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const globals = store();
+const props   = defineProps({
+	onResize: {
+		type: Function,
+		default() { },
 	},
-	props: {
-		onResize: {
-			type: Function,
-			default() { },
+});
+const route     = useRoute();
+const router    = useRouter();
+const routePath = computed(() => encodeURIComponent(route.fullPath));
+const commit    = __SHORT_COMMIT_HASH__;
+
+const message:        Ref<string | null> = ref(null);
+const editMessage:    Ref<boolean>       = ref(false);
+const menuOpen:       Ref<boolean>       = ref(false);
+const isIconLoading:  Ref<boolean>       = ref(true);
+const searchValue:    Ref<string | null> = ref(null);
+
+onMounted(() => {
+	updateLoop();
+	watch(
+		() => route.path,
+		setQuery,
+	);
+	watch(
+		() => globals.user,
+		setUser,
+	)
+});
+
+
+function navCreate() {
+	router.push("/create");
+	document.dispatchEvent(new CustomEvent("router-event"));
+}
+
+function updateLoop() {
+	khatch(`${host}/v1/config/banner`, {
+		errorMessage: 'Error Occurred While Fetching Banner',
+		errorHandlers: {
+			404: () => {
+				banner.value.style.background = "none";
+			},
 		},
-	},
-	setup() {
-		const banner = ref(null);
-		return {
-			banner,
-		};
-	},
-	data() {
-		return {
-			isMobile,
-			commit: __SHORT_COMMIT_HASH__,
-			message: null,
-			editMessage: false,
-			menuOpen: false,
-			isMessageLoading: true,
-			isIconLoading: true,
-			searchValue: null,
-			environment,
-		};
-	},
-	mounted() {
-		this.updateLoop();
-		this.$watch(
-			() => this.$route.path,
-			this.setQuery,
-		);
-		this.$watch(
-			() => this.$store.state.user,
-			this.setUser,
-		)
-	},
-	computed: {
-		route() {
-			return encodeURIComponent(this.$route.fullPath)
-		},
-	},
-	methods: {
-		navCreate() {
-			this.$router.push("/create");
-			document.dispatchEvent(new CustomEvent("router-event"));
-		},
-		updateLoop() {
-			khatch(`${host}/v1/config/banner`, {
-				errorMessage: 'Error Occurred While Fetching Banner',
-				errorHandlers: {
-					404: () => {
-						this.$refs.banner.style.background = "none";
-					},
-				},
-			}).then(response => {
-				response.json().then(r => {
-					if (!r.banner) {
-						this.$refs.banner.style.background = "none";
-					} else {
-						this.$refs.banner.style.background = null;
-					}
-					this.message = r.banner;
-					this.isMessageLoading = false;
-					setTimeout(this.onResize, 0);
-				});
-			});
-			setTimeout(this.updateLoop, 300e3);
-		},
-		setQuery() {
-			if (this.$route.path.match(/^\/[qt]\//))
-			{ this.searchValue = decodeURIComponent(this.$route.path.substring(3)); }
-			else if (this.$route.path == '/')
-			{ this.searchValue = null; }
-		},
-		setUser(user) {
-			// console.log("user:", user);
-			switch (user?.verified) {
-				case 'admin':
-					return;
+	}).then(response => {
+		response.json().then(r => {
+			if (!r.banner) {
+				banner.value.style.background = "none";
+			} else {
+				banner.value.style.background = "";
 			}
-			// <i class='kheina-icons' title='You are an admin' v-if='$store.state.auth?.isAdmin'>sword</i>
-			// <i class='material-icons' title='You are a moderator' v-else-if='$store.state.auth?.isMod'>verified_user</i>
-			// <i class='material-icons' :title='`You are a verified ${$store.state.user.verified}`' v-else-if='$store.state.user?.verified'>verified</i>
-		},
-		runSearchQuery() {
-			if (!this.searchValue) {
-				this.$router.push('/');
-				return;
-			}
+			message.value = r.banner;
+			setTimeout(props.onResize, 0);
+		});
+	});
+	setTimeout(updateLoop, 300e3);
+}
 
-			const query = this.searchValue.trim();
+function setQuery() {
+	if (route.path.match(/^\/[qt]\//))
+	{ searchValue.value = decodeURIComponent(route.path.substring(3)); }
+	else if (route.path == '/')
+	{ searchValue.value = null; }
+}
 
-			if (!query) {
-				this.$router.push('/');
-				return;
-			}
+function setUser(user: any) {
+	// console.log("user:", user);
+	switch (user?.verified) {
+		case 'admin':
+			return;
+	}
+	// <i class='kheina-icons' title='You are an admin' v-if='globals.auth?.isAdmin'>sword</i>
+	// <i class='material-icons' title='You are a moderator' v-else-if='globals.auth?.isMod'>verified_user</i>
+	// <i class='material-icons' :title='`You are a verified ${globals.user.verified}`' v-else-if='globals.user?.verified'>verified</i>
+}
 
-			if (query.match(/^set:[A-Za-z0-9_-]{7}$/)) {
-				this.$router.push('/s/' + query.substring(4));
-				return;
-			}
+function runSearchQuery() {
+	if (!searchValue) {
+		router.push('/');
+		return;
+	}
 
-			let route = '/t/';
-			if (ratings.has(query) || query.startsWith('@') || query.startsWith('-') || query.startsWith('sort:') || query.includes(' ')) {
-				route = '/q/';
-			}
+	const query = searchValue.value?.trim();
 
-			this.$router.push(route + encodeURIComponent(query));
+	if (!query) {
+		router.push('/');
+		return;
+	}
+
+	if (query.match(/^set:[A-Za-z0-9_-]{7}$/)) {
+		router.push('/s/' + query.substring(4));
+		return;
+	}
+
+	let route = '/t/';
+	if (query in Rating || query.startsWith('@') || query.startsWith('-') || query.startsWith('sort:') || query.includes(' ')) {
+		route = '/q/';
+	}
+
+	router.push(route + encodeURIComponent(query));
+}
+
+function signOut() {
+	khatch(host + '/v1/account/logout', {
+		method: 'DELETE',
+		errorMessage: 'Could not perform logout!',
+		errorHandlers: {
+			401: () => { },
 		},
-		signOut() {
-			khatch(host + '/v1/account/logout', {
-				method: 'DELETE',
-				errorMessage: 'Could not perform logout!',
-				errorHandlers: {
-					401: () => { },
-				},
-			}).then(() => {
-				deleteCookie('kh-auth');
-				document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
-				this.$store.commit('setAuth', null);
-			});
+	}).then(() => {
+		deleteCookie('kh-auth');
+		document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
+		globals.setAuth(null);
+	});
+}
+
+function toggleMenu() {
+	menuOpen.value = !menuOpen.value;
+	if (menuOpen.value)
+	{ document.body.classList.add('menu-open'); }
+	else
+	{ document.body.classList.remove('menu-open'); }
+}
+
+function closeMenu() {
+	menuOpen.value = false;
+	document.body.classList.remove('menu-open');
+}
+
+function toggleEditMessage() {
+	editMessage.value = !editMessage.value;
+	setTimeout(props.onResize, 0);
+}
+
+function updateMessage() {
+	khatch(`${host}/v1/config`, {
+		method: 'PATCH',
+		handleError: true,
+		body: {
+			config: 'banner',
+			value: {
+				banner: message,
+			},
 		},
-		toggleMenu() {
-			this.menuOpen = !this.menuOpen;
-			if (this.menuOpen)
-			{ document.body.classList.add('menu-open'); }
-			else
-			{ document.body.classList.remove('menu-open'); }
-		},
-		closeMenu() {
-			this.menuOpen = false;
-			document.body.classList.remove('menu-open');
-		},
-		toggleEditMessage() {
-			this.editMessage = !this.editMessage;
-			setTimeout(this.onResize, 0);
-		},
-		updateMessage() {
-			this.isMessageLoading = true;
-			khatch(`${host}/v1/config`, {
-				method: 'PATCH',
-				handleError: true,
-				body: {
-					config: 'banner',
-					value: {
-						banner: this.message,
-					},
-				},
-			})
-			.then(response => {
-				if (response.status < 300)
-				{
-					this.isMessageLoading = this.editMessage = false;
-					setTimeout(this.onResize, 0);
-				}
-				else
-				{ console.error(response); }
-			});
-		},
-		removeMessage() {
-			this.message = null;
-			this.updateMessage();
-		},
-	},
+	})
+	.then(response => {
+		if (response.status < 300) {
+			editMessage.value = false;
+			setTimeout(props.onResize, 0);
+		}
+		else
+		{ console.error(response); }
+	});
+}
+
+function removeMessage() {
+	message.value = null;
+	updateMessage();
 }
 </script>
 

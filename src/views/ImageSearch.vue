@@ -101,8 +101,7 @@ export default {
 			let formurl = form.querySelector('input#url');
 			let formfile = form.querySelector('input#file');
 
-			if (formfile.value || formurl.value.startsWith('http:') || formurl.value.startsWith('https:'))
-			{
+			if (formfile.value || formurl.value.startsWith('http:') || formurl.value.startsWith('https:')) {
 				this.searchStage += 1;
 
 				if (formfile.value)
@@ -130,27 +129,23 @@ export default {
 			ajax.send(formdata);
 		},
 		responseHandler(event) {
-			try
-			{
+			try {
 				let response = JSON.parse(event.target.responseText);
 
 				// validate data here
-				if (response.hasOwnProperty('error') && response.error)
-				{
+				if (response.hasOwnProperty('error') && response.error) {
 					this.searchStage = -1;
 					this.results = {
 						error: response.error,
 						message: '	stacktrace:\n' + response.stacktrace.join('').replace(/\s*$/,''),
 					};
 				}
-				else
-				{
+				else {
 					this.searchStage += 1;
 					this.results = response;
 				}
 			}
-			catch (error)
-			{
+			catch (error) {
 				this.searchStage = -1;
 				this.results = {
 					error: 'An error has occurred in your browser during an API call.',

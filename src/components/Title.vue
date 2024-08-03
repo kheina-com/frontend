@@ -2,38 +2,29 @@
 	<Loading :span='span' :isLoading='isLoading'><p class='title' :style='titleStyle'><slot name='default'/><span class='super'><slot name='super'/></span></p></Loading>
 </template>
 
-<script>
+<script setup lang="ts">
 import Loading from '@/components/Loading.vue';
+import { computed } from 'vue';
 
-export default {
-	name: 'Title',
-	components: {
-		Loading,
+const props = defineProps({
+	static: {
+		type: String,
+		default: null,
 	},
-	props: {
-		static: {
-			type: String,
-			default: null,
-		},
-		size: {
-			type: String,
-			default: '4rem',
-		},
-		isLoading: {
-			type: Boolean,
-			default: false,
-		},
-		span: {
-			type: Boolean,
-			default: false,
-		}
+	size: {
+		type: String,
+		default: '4rem',
 	},
-	computed: {
-		titleStyle() {
-			return `font-size: ${this.size}; text-align: ${this.static};`;
-		},
+	isLoading: {
+		type: Boolean,
+		default: false,
 	},
-}
+	span: {
+		type: Boolean,
+		default: false,
+	}
+});
+const titleStyle = computed(() => `font-size: ${props.size}; text-align: ${props.static};`);
 </script>
 
 <style scoped>

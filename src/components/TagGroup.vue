@@ -1,51 +1,36 @@
 <template>
 	<!-- eslint-disable vue/no-use-v-if-with-v-for-->
 	<!-- eslint-disable vue/require-v-for-key-->
-	<Loading :isLoading='tags === null'><h4>{{group.substr(0, 1).toUpperCase()}}{{group.substr(1).toLowerCase()}}</h4></Loading>
-	<ol :class='group'>
-		<li v-if='tags !== null' :class='tag' v-for='tag in tags'>
+	<Loading :isLoading='!tags'><h4>{{props.group.substr(0, 1).toUpperCase()}}{{props.group.substr(1).toLowerCase()}}</h4></Loading>
+	<ol :class='props.group'>
+		<li v-if='tags' :class='tag' v-for='tag in tags'>
 			<router-link :to='`/t/${encodeURIComponent(tag)}`'>
-				{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
+				{{tag.replace(new RegExp(`_\\(${props.group}\\)$`), '').replace(/_/g, ' ')}}
 			</router-link>
 		</li>
-		<li v-else v-for='i in loadingMap[group]'>
+		<li v-else v-for='i in loadingMap[props.group]'>
 			<Loading><p>hello</p></Loading>
 		</li>
 	</ol>
 </template>
 
-<script>
+<script setup lang="ts">
 import Loading from '@/components/Loading.vue';
 
-export default {
-	name: 'TagGroup',
-	props: {
-		group: {
-			type: String,
-			default: null,
-		},
-		tags: {
-			type: Array[String], 
-			default: null,
-		},
-	},
-	data() {
-		return {
-			loadingMap: {
-				artist: 1,
-				sponsor: 1,
-				subject: 1,
-				species: 3,
-				gender: 1,
-				misc: 5,
-				rating: 1,
-			},
-		};
-	},
-	components: {
-		Loading,
-	},
-}
+const props = defineProps<{
+	group: "artist" | "sponsor" | "subject" | "species" | "gender" | "misc" | "rating",
+	tags?: null | string[],
+}>();
+
+const loadingMap = {
+	artist: 1,
+	sponsor: 1,
+	subject: 1,
+	species: 3,
+	gender: 1,
+	misc: 5,
+	rating: 1,
+};
 </script>
 
 <style scoped>

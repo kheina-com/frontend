@@ -12,17 +12,6 @@ credentials*
 # config files
 .vscode
 
-# database files
-sql.lock
-
-# images
-**/*.jpg
-**/*.png
-**/*.gif
-**/*.ico
-**/*.svg
-images
-
 # python files
 **/__pycache__
 **/Pipfile

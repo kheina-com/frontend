@@ -22,7 +22,7 @@
 		</ol>
 		<h3 style='padding-top: 2em'>Info</h3>
 		<div class='post-data' v-if='post'>
-			post id: <CopyText :content='post.post_id ?? post.postId' inline/>
+			post id: <CopyText :content='post.post_id ?? (post as any).postId' inline/>
 			<br>
 			size: {{post.size ? `${post.size.width}x${post.size.height}px` : 'none'}}
 			<br>
@@ -36,52 +36,26 @@
 	</div>
 </template>
 
-<script>
-import { commafy, sortTagGroups } from '@/utilities';
+<script setup lang="ts">
+import { sortTagGroups } from '@/utilities';
 import { tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
-import Button from '@/components/Button.vue';
 import CopyText from '@/components/CopyText.vue';
 
-export default {
-	name: 'Sidebar',
-	props: {
-		post: {
-			type: Object,
-			default: null,
-		},
-		tags: {
-			type: Object,
-			default: null,
-		},
-		scalarWidth: {
-			type: Boolean,
-			default: null,
-		},
-	},
-	emits:[
-		"update:scalarWidth"
-	],
-	data() {
-		return {
-			tagGroups,
-		}
-	},
-	components: {
-		Loading,
-		TagGroup,
-		Button,
-		CopyText,
-	},
-	methods: {
-		commafy,
-		sortTagGroups,
-		toggleScalar() {
-			// console.log("aaa:", this.scalarWidth);
-			this.$emit("update:scalarWidth", !this.scalarWidth);
-		},
-	},
+const props = defineProps<{
+	post?: Post,
+	tags?: Tags,
+	scalarWidth?: boolean,
+}>();
+
+let scalarWidth = props.scalarWidth;
+
+const emits = defineEmits(["update:scalarWidth"]);
+function toggleScalar() {
+	// console.log("aaa:", this.scalarWidth);
+	scalarWidth = !scalarWidth;
+	emits("update:scalarWidth", scalarWidth);
 }
 </script>
 

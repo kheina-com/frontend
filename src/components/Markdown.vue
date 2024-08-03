@@ -3,11 +3,11 @@
 	<div ref='markdown' class='markdown block' v-html='rendered' v-else></div>
 </template>
 
-<script> 
-import { ref } from 'vue';
+<script setup lang="ts"> 
+import { onMounted, ref, watch, type Ref } from 'vue';
 import { lazyConfig } from '@/utilities';
 import { mdEscape, mdExtensions, mdRenderer, mdTokenizer } from '@/utilities/markdown';
-import { marked } from 'marked';
+import { marked, type RendererObject, type TokenizerObject } from 'marked';
 import DOMPurify from 'dompurify';
 
 
@@ -18,15 +18,15 @@ marked.setOptions({
 	pedantic: false,
 	gfm: true,
 	breaks: true,
-	smartLists: true,
-	xhtml: false,
-	sanitizer: DOMPurify.sanitize,
+	// smartLists: true,
+	// xhtml: false,
+	// sanitizer: DOMPurify.sanitize,
 });
 
 marked.use({
 	extensions: mdExtensions,
-	renderer: mdRenderer,
-	tokenizer: mdTokenizer,
+	renderer: mdRenderer as unknown as RendererObject,
+	tokenizer: mdTokenizer as unknown as TokenizerObject,
 });
 //// for debugging
 // marked.Lexer.lex = function (src, options) {
@@ -40,99 +40,93 @@ marked.use({
 // };
 
 
-export default {
-	name: 'Markdown',
-	props: {
-		content: String,
-		concise: {
-			type: Boolean,
-			default: false,
-		},
-		inline: {
-			type: Boolean,
-			default: false,
-		},
-		lazy: {
-			type: Boolean,
-			default: false,
-		},
-	},
-	setup() {
-		const markdown = ref(null);
-		return {
-			markdown,
-		};
-	},
-	data() {
-		return {
-			cut: false,
-			rendered: null,
-			observer: null,
-		};
-	},
-	mounted() {
-		if (this.lazy) {
-			this.observer = new IntersectionObserver(
-				e => {
-					// console.log(e);
-					e.forEach(entry => {
-						if (entry.isIntersecting) {
-							this.observer.unobserve(entry.target);
-							this.render();
-							this.observer = null;
-						}
-					});
-				},
-				lazyConfig,
-			);
-			this.observer.observe(this.$refs.markdown);
-		}
-		else {
-			this.render();
-		}
-	},
-	methods: {
-		mdString() {
-			if (this.content) {
-				if (this.concise) {
-					const match = this.content.match(/((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?/);
-
-					let end = '';
-					if (match[1].length > 500) {
-						end = '...';
-						this.cut = true;
+const props = withDefaults(defineProps<{
+	content?: string | null,
+	concise: boolean,
+	inline: boolean,
+	lazy: boolean,
+}>(), {
+	concise: false,
+	inline: false,
+	lazy: false,
+});
+const markdown = ref<HTMLDivElement | HTMLSpanElement | null>(null) as Ref<HTMLDivElement | HTMLSpanElement>;
+let cut = false;
+let rendered: Ref<string | null> = ref(null);
+onMounted(() => {
+	if (props.lazy) {
+		const observer = new IntersectionObserver(
+			e => {
+				// console.log(e);
+				e.forEach(entry => {
+					if (entry.isIntersecting) {
+						observer.unobserve(entry.target);
+						render();
 					}
-					else if (match[2])
-					{ this.cut = true; }
+				});
+			},
+			lazyConfig,
+		);
+		observer.observe(markdown.value);
+	}
+	else {
+		render();
+	}
+})
 
-					return match[1].substring(0, 500) + end;
-				}
-				if (this.inline) {
-					return mdEscape(this.content);
-				}
-				return this.content;
-			}
-		},
-		render() {
-			this.rendered =  this.content ? (
-				this.inline ? (
-					marked.parse(this.mdString())
-				) : (
-					marked.parse(this.mdString()) + (this.cut ? "	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>" : '')
-				)
-			) : '';
-		},
-	},
-	watch: {
-		content() {
-			if (this.rendered !== null)
-			{ this.render(); }
-		},
-	},
+function mdString(): string {
+	if (!props.content) return "";
+
+	if (props.concise) {
+		const match = props.content.match(/((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?/);
+
+		if (!match) {
+			return props.content.substring(0, 500);
+		}
+
+		let end = '';
+		if (match[1].length > 500) {
+			end = '...';
+			cut = true;
+		}
+		else if (match[2])
+		{ cut = true; }
+
+		return match[1].substring(0, 500) + end;
+	}
+	if (props.inline) {
+		return mdEscape(props.content);
+	}
+	return props.content;
 }
+
+function render() {
+	rendered.value =  props.content ? (
+		props.inline ? (
+			marked.parse(mdString()) as string
+		) : (
+			marked.parse(mdString()) + (cut ? "	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>" : '')
+		)
+	) : '';
+}
+watch(() => props.content, () => {
+	if (rendered.value !== null)
+	{ render(); }
+});
 </script>
 
 <style>
+a.external-link::after {
+	font-family: 'Material Icons Round' !important;
+	content: "open_in_new";
+	position: relative;
+	font-size: 1.2em;
+	bottom: -0.2em;
+	margin-top: -0.31em;
+	text-decoration: none;
+	display: inline-block;
+	margin-left: 0.2em;
+}
 .markdown.block {
 	width: 100%;
 }

@@ -26,132 +26,73 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, watch, type Ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import store from '@/globals';
 import { khatch, saveToHistory } from '@/utilities';
 import { host } from '@/config/constants';
-import Loading from '@/components/Loading.vue';
-import Title from '@/components/Title.vue';
-import Subtitle from '@/components/Subtitle.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
-import Sidebar from '@/components/Sidebar.vue';
-import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
-import DropDown from '@/components/DropDown.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
 
+const path = "/tl";
+const route = useRoute();
+const router = useRouter();
+const globals = store();
 
-const path = '/timeline';
-export default {
-	name: 'Timeline',
-	data() {
-		return {
-			// undefined for on pageload stuff
-			posts: undefined,
-			page: null,
-			count: null,
-			errorDump: null,
-			errorMessage: null,
-			tiles: this.$store.state.searchResultsTiles,
-		}
-	},
-	created() {
-		this.fetchPosts();
+// undefined for on pageload stuff
+const posts: Ref<any[] | null | void> = ref(undefined);
+const page: Ref<number> = ref(1);
+const count: Ref<number> = ref(64);
+const tiles: Ref<boolean> = ref(globals.tiles);
 
-		this.$watch(
-			() => this.$route.query,
-			this.fetchPosts,
-		);
-	},
-	components: {
-		Timestamp,
-		ThemeMenu,
-		Loading,
-		Sidebar,
-		Subtitle,
-		Title,
-		Post,
-		DropDown,
-		ResultsNavigation,
-		CheckBox,
-		PostTile,
-	},
-	computed: {
-		pagesBeforeCurrent() {
-			if (this.posts === null)
-			{ return null; }
+fetchPosts();
 
-			if (this.page - 2 > 0)
-			{ return [this.page - 2, this.page - 1]; }
+function fetchPosts() {
+	if (route.path !== path) return;
 
-			if (this.page - 1 > 0)
-			{ return [this.page - 1]; }
+	page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
+	count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
+	posts.value = null;
 
-			return [];
+	khatch(`${host}/v1/posts/timeline`, {
+		method: "POST",
+		errorHandlers: {
+			401: () => router.push("/a/login?path=" + encodeURIComponent(route.fullPath)),
 		},
-		pagesAfterCurrent() {
-			if (this.posts === null)
-			{ return null; }
-
-			if (this.posts.length >= this.count)
-			{ return [this.page + 1, this.page + 2]; }
+		body: {
+			page: page.value,
+			count: count.value,
 		},
-	},
-	methods: {
-		fetchPosts() {
-			if (this.$route.path !== path)
-			{ return; }
-
-			this.page = parseInt(this.$route.query?.page) || 1;
-			this.count = parseInt(this.$route.query?.count) || 64;
-
-			if (window.history.state.posts)
-			{
-				this.posts = window.history.state.posts;
-				return;
-			}
-
-			this.posts = null;
-
-			khatch(`${host}/v1/posts/timeline`, {
-					handleError: true,
-					method: 'POST',
-					body: {
-						page: this.page,
-						count: this.count,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						saveToHistory({ posts: r })
-						this.posts = r;
-					});
-				})
-				.catch(() => { });
-		},
-		pageLink(page) {
-			let query = [];
-
-			if (page !== 1)
-			{ query.push(`page=${page}`); }
-
-			if (this.count !== 64)
-			{ query.push(`count=${this.count}`); }
-
-			return '/timeline?' + query.join('&');
-		},
-		setPage(page) {
-			this.page = page;
-			this.$router.push(this.pageLink(page));
-		},
-	},
-	watch: {
-		tiles(value) {
-			this.$store.commit('searchResultsTiles', value);
-		},
-	},
+	}).then(response => response.json())
+	.then(r => {
+		saveToHistory({ posts: r })
+		posts.value = r;
+	});
 }
+
+function pageLink(p: number) {
+	let query = [];
+
+	if (p !== 1)
+	{ query.push(`page=${p}`); }
+
+	if (count.value !== 64)
+	{ query.push(`count=${count.value}`); }
+
+	return page + "?" + query.join("&");
+}
+
+function setPage(p: number) {
+	page.value = p;
+	router.push(pageLink(page.value));
+}
+
+watch(() => route.query, fetchPosts);
+watch(tiles, globals.searchResultsTiles);
 </script>
 
 <style scoped>

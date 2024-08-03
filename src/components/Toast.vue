@@ -1,8 +1,8 @@
 <template>
 	<div class='toasts'>
-		<div v-for='toast in $store.state.toasts' class='toast'>
+		<div v-for='toast in globals.toasts' class='toast'>
 			<div class='toast-body'>
-				<button @click='close(toast.id)' class='close'><i class='material-icons-round'>close</i></button>
+				<button @click='toast.close' class='close'><i class='material-icons-round'>close</i></button>
 				<i class='material-icons-round icon' :style='`color: var(--${toast.color})`'>{{toast.icon}}</i>
 				<div>
 					<p class='title'>{{toast.title}}</p>
@@ -16,20 +16,10 @@
 	</div>
 </template>
 
-<script>
+<script setup lang="ts">
 import CopyText from '@/components/CopyText.vue';
-
-export default {
-	name: 'Toast',
-	components: {
-		CopyText,
-	},
-	methods: {
-		close(toastId) {
-			delete this.$store.state.toasts[toastId];
-		},
-	},
-}
+import store from '@/globals';
+const globals = store();
 </script>
 
 <style scoped>

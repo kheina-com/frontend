@@ -4,11 +4,11 @@
 		<Subtitle style='margin: 0 0 var(--margin)' static='center'>If you think this may have been an issue with the website, <a href='https://gitlab.com/kheina/kheina.com/issues' target='_blank'>please report it here</a>.</Subtitle>
 		<p class='message'>Hmmm, looks like something went wrong.</p>
 		<div class='top'>
-			<pre class='message'>{{message}}</pre>
+			<pre class='message'>{{props.message}}</pre>
 		</div>
-		<div v-if='dump'>
+		<div v-if='props.dump'>
 			<p class='message'>If you submit a bug report, please include the data below.</p>
-			<CopyText :content='dump'/>
+			<CopyText :content='props.dump'/>
 		</div>
 		<div style='display: flex; justify-content: center'>
 			<Button @click='$router.back()'>Back</Button>
@@ -17,30 +17,17 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
 import Subtitle from '@/components/Subtitle.vue';
 import Title from '@/components/Title.vue';
 import CopyText from '@/components/CopyText.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Button from '@/components/Button.vue';
 
-export default {
-	name: 'Error',
-	components: {
-		Subtitle,
-		Title,
-		CopyText,
-		ThemeMenu,
-		Button,
-	},
-	props: {
-		message: String,
-		dump: {
-			type: Object,
-			default: null,
-		},
-	},
-}
+const props = defineProps<{
+	message: string,
+	dump?: any,
+}>();
 </script>
 
 <style scoped>

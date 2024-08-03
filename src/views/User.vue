@@ -83,8 +83,8 @@
 									<i class='material-icons'>close</i>
 								</button>
 							</p>
-							<DropDown v-if='isEditing' class='dropdown' :options='availableBadges?.map(badge => {
-								return { html: `<img class="emoji" src="${getEmojiUrl(badge.emoji)}">${badge.label}`, value: badge, action: () => addBadge(badge) };
+							<DropDown v-if='isEditing' class='dropdown' :options='availableBadges?.map((badge: Badge): DropDownOption => {
+								return { html: `<img class="emoji" src="${getEmojiUrl(badge.emoji)}">${badge.label}`, value: `${badge.label}:${badge.emoji}`, action: () => addBadge(badge) };
 							})'>
 								<p>
 									<i class='material-icons'>add</i>
@@ -250,7 +250,7 @@
 			</div>
 			<ol class='results' v-else>
 				<li v-for='post in uploadablePosts'>
-					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels @click='uploadPostId = post.post_id'/>
+					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels @click='uploadPostId = post.post_id' unlink/>
 				</li>
 			</ol>
 			<ResultsNavigation :navigate='runSearchQuery' :activePage='uploadablePage' :totalPages='uploadablePosts?.length ? Math.ceil(total_results / count) : 0' v-if='uploadablePosts'/>
@@ -260,19 +260,16 @@
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, onMounted, ref, toRaw, watch, type Ref } from 'vue';
+import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
 import { isMobile, host, tabs } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
-import Title from '@/components/Title.vue';
-import Subtitle from '@/components/Subtitle.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
-import Sidebar from '@/components/Sidebar.vue';
-import Submit from '@/components/Submit.vue';
 import UserIcon from '@/components/UserIcon.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -282,459 +279,406 @@ import Tag from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
-import DropDown from '@/components/DropDown.vue';
+import DropDown, { type DropDownOption } from '@/components/DropDown.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import ShareLink from '@/components/ShareLink.vue';
 import Set from '@/components/Set.vue';
+import store from '@/globals';
 
 
-export default {
-	name: 'User',
-	props: {
-		handle: {
-			type: String,
-			default: null,
-		},
-	},
-	components: {
-		Cropper,
-		Submit,
-		ThemeMenu,
-		Loading,
-		Sidebar,
-		Subtitle,
-		Title,
-		UserIcon,
-		Markdown,
-		Timestamp,
-		Post,
-		Button,
-		Tag,
-		MarkdownEditor,
-		SearchBar,
-		PostTile,
-		ResultsNavigation,
-		DropDown,
-		CheckBox,
-		ShareLink,
-		Set,
-	},
-	setup() {
-		const main = ref(null);
-		const banner = ref(null);
-		const profile = ref(null);
-		const cropper = ref(null);
+const globals = store();
+const route = useRoute();
+const router = useRouter();
+const path = route.path;
 
-		return {
-			main,
-			banner,
-			profile,
-			cropper,
-		};
-	},
-	data() {
-		return {
-			isMobile,
-			isIconLoading: true,
-			isBannerLoading: true,
-			errorDump: null,
-			user: null,
-			posts: null,
-			sets: null,
-			isEditing: false,
-			isUploadIcon: false,
-			isUploadBanner: false,
-			uploadPostId: null,
-			uploadablePosts: null,
-			uploadablePage: null,
-			searchValue: null,
-			cropperImage: null,
-			uploadLoading: null,
-			userTags: null,
-			tabElement: null,
-			tab: null,
-			update: null,
-			count: null,
-			page: null,
-			bannerWebpFailed: null,
-			availableBadges: null,
-			tiles: this.$store.state.searchResultsTiles,
-			total_results: 0,
-		};
-	},
-	created() {
-		this.path = this.$route.path;
-		if (tabs.has(this.$route.query?.tab))
-		{ this.tab = this.$route.query.tab; }
-		else
-		{ this.$router.replace(this.$route.path + '?tab=posts'); }
+const props = defineProps<{ handle: string }>();
+const main = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const cropper = ref<typeof Cropper | null>(null) as Ref<typeof Cropper>;
 
-		if (window.history.state.user) {
-			this.user = window.history.state.user;
-			setTitle(this.user?.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
+const tiles: Ref<boolean> = ref(globals.tiles);
+const user: Ref<FullUser | null> = ref(null);
+const posts: Ref<any[] | null> = ref(null);
+const sets: Ref<PostSet[] | null> = ref(null);
+const userTags: Ref<Tag[] | null> = ref(null);
+
+const isIconLoading: Ref<boolean> = ref(true);
+const isBannerLoading: Ref<boolean> = ref(true);
+const isEditing: Ref<boolean> = ref(false);
+const isUploadIcon: Ref<boolean> = ref(false);
+const isUploadBanner: Ref<boolean> = ref(false);
+const uploadPostId: Ref<string | null> = ref(null);
+const uploadablePosts: Ref<any[] | null> = ref(null);
+const uploadablePage: Ref<number> = ref(1);
+const searchValue: Ref<string | null> = ref(null);
+const cropperImage: Ref<string | null> = ref(null);
+const uploadLoading: Ref<boolean | null> = ref(null);
+const tab: Ref<string | undefined> = ref(undefined);
+const update: Ref<any | null> = ref(null);
+const count: Ref<number> = ref(64);
+const page: Ref<number> = ref(1);
+const bannerWebpFailed: Ref<boolean | null> = ref(null);
+const availableBadges: Ref<Badge[] | null> = ref(null);
+const total_results: Ref<number> = ref(0);
+
+let tabElement: HTMLElement | null = null;
+
+if (tabs.has(route.query?.tab?.toString())) {
+	tab.value = route.query.tab?.toString();
+}
+else {
+	router.replace(route.path + '?tab=posts');
+}
+
+if (window.history.state.user) {
+	user.value = window.history.state.user;
+	setTitle(user.value?.name ? `${demarkdown(user.value.name)} (@${user.value.handle}) | fuzz.ly` : `@${props.handle} | fuzz.ly`);
+}
+else {
+	khatch(
+		`${host}/v1/user/${props.handle}`,
+		{ handleError: true },
+	).then(response => {
+		response.json().then(r => {
+			user.value = r as FullUser;
+			setTitle(user.value.name ? `${demarkdown(user.value.name)} (@${user.value.handle}) | fuzz.ly` : `@${user.value.handle} | fuzz.ly`);
+			saveToHistory({ user: r });
+			router.replace(route.fullPath.replace(props.handle, user.value.handle));
+		});
+	})
+	.catch(() => { });
+}
+
+onMounted(() => {
+	if (route.query?.edit)
+	{ toggleEdit(true); }
+
+	fetchData();
+});
+
+const selfClass = computed(() => {
+	return (globals.user && globals.user?.handle === user.value?.handle) ? 'self' : 'selfless';
+});
+
+const banner = computed(() => {
+	if (!user.value?.banner) return undefined;
+
+	if (bannerWebpFailed)
+	{ return getBannerUrl(user.value.banner, user.value.handle, 'jpg'); }
+	return getBannerUrl(user.value.banner, user.value.handle);
+});
+
+function addBadge(badge: Badge) {
+	console.log('adding', badge);
+	khatch(`${host}/v1/users/add_badge`, {
+		method: 'POST',
+		errorMessage: 'Failed to add badge.',
+		body: badge,
+	})
+	.then(() => {
+		if (!user.value) return;
+		user.value.badges.push(badge);
+	})
+	.catch(() => { });
+}
+
+function removeBadge(badge: Badge) {
+	khatch(`${host}/v1/users/remove_badge`, {
+		method: 'POST',
+		errorMessage: 'Failed to remove badge.',
+		body: badge,
+	})
+	.then(() => {
+		if (!user.value) return;
+		const index = user.value.badges.indexOf(badge);
+		user.value.badges.splice(index, 1);
+	})
+	.catch(() => { });
+}
+
+function selectTab(event: Event) {
+	tab.value = (event.target as HTMLDivElement).id;
+	router.push(pageLink(1));
+}
+
+function follow() {
+	khatch(`${host}/v1/user/${user.value?.handle}/follow`, {
+		method: user.value?.following ? 'DELETE' : 'PUT',
+		errorMessage: `Failed to ${user.value?.following ? 'unfollow' : 'follow'} user`,
+	})
+	.then(() => {
+		if (!user.value) return;
+		user.value.following = !user.value?.following;
+	}).catch(() => { });
+}
+
+function fetchData(query: LocationQuery | null = null) {
+	if (route.path !== path) return;
+
+	tab.value = query?.tab?.toString() || tab.value;
+	if (!tab.value) return;
+
+	if (tabElement) (tabElement.lastChild as HTMLDivElement).style.borderBottomWidth = '0';
+
+	tabElement = document.getElementById(tab.value);
+	((tabElement as HTMLElement).lastChild as HTMLDivElement).style.borderBottomWidth = '5px';
+
+	switch (tab.value) {
+	case 'posts' :
+		total_results.value = 0;
+		page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
+		count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
+
+		if (window.history.state.posts) {
+			posts.value = window.history.state.posts;
+			total_results.value = window.history.state.total;
 			return;
 		}
-		else {
-			khatch(
-				`${host}/v1/user/${this.handle}`,
-				{ handleError: true },
-			).then(response => {
-				response.json().then(r => {
-					this.user = r;
-					setTitle(this.user.name ? `${demarkdown(this.user.name)} (@${this.user.handle}) | fuzz.ly` : `@${this.user.handle} | fuzz.ly`);
-					const route = this.$route.fullPath.replace(this.handle, this.user.handle);
-					saveToHistory({ user: r });
-					this.$router.replace(route);
-				});
-			})
-			.catch(() => { });
+
+		posts.value = null;
+
+		khatch(`${host}/v1/posts`, {
+			handleError: true,
+			method: 'POST',
+			body: {
+				page: page.value,
+				count: count.value,
+				sort: 'new',
+				tags: [`@${props.handle}`]
+			},
+		})
+		.then(response => {
+			response.json().then(r => {
+				saveToHistory(r);
+				total_results.value = r.total;
+				posts.value = r.posts;
+			});
+		})
+		.catch(() => { });
+		break;
+
+	case 'sets' :
+		if (sets.value) return;
+
+		khatch(`${host}/v1/sets/user/${props.handle}`, {
+			errorMessage: 'Failed to Retrieve User sets!',
+			errorHandlers: { 404: () => sets.value = [] },
+		}).then(r => r.json())
+		.then(r => sets.value = r)
+		.catch(() => { });
+		break;
+
+	case 'tags' :
+		if (userTags.value) return;
+
+		khatch(`${host}/v1/tags/user/${props.handle}`, {
+			errorMessage: 'Failed to Retrieve User tags!',
+			errorHandlers: { 404: () => userTags.value = [] },
+		}).then(r => r.json())
+		.then(r => userTags.value = r)
+		.catch(() => { });
+		break;
+
+	case 'favs' :
+		// nothing, yet
+		break;
+
+	case 'uploads' :
+		page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
+		count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
+
+		if (window.history.state.uploads) {
+			posts.value = window.history.state.uploads;
+			return;
 		}
-	},
-	mounted() {
-		if (this.$route.query?.edit)
-		{ this.toggleEdit(true); }
 
-		this.fetchData();
+		posts.value = null;
 
-		this.$watch(
-			() => this.$route.query,
-			this.fetchData,
-		);
-	},
-	computed: {
-		selfClass() {
-			return (this.$store.state.user && this.$store.state.user?.handle === this.user?.handle) ? 'self' : 'selfless';
-		},
-		banner() {
-			if (!this.user?.banner)
-			{ return null; }
-
-			if (this.bannerWebpFailed)
-			{ return getBannerUrl(this.user.banner, this.user.handle, 'jpg'); }
-			return getBannerUrl(this.user.banner, this.user.handle);
-		},
-		pagesBeforeCurrent() {
-			if (this.posts === null)
-			{ return null; }
-
-			if (this.page - 2 > 0)
-			{ return [this.page - 2, this.page - 1]; }
-
-			if (this.page - 1 > 0)
-			{ return [this.page - 1]; }
-
-			return [];
-		},
-		pagesAfterCurrent() {
-			if (this.posts === null)
-			{ return null; }
-
-			if (this.posts.length >= this.count)
-			{ return [this.page + 1, this.page + 2]; }
-		},
-	},
-	methods: {
-		getEmojiUrl,
-		addBadge(badge) {
-			console.log('adding', badge)
-			khatch(`${host}/v1/users/add_badge`, {
-				method: 'POST',
-				errorMessage: 'Failed to add badge.',
-				body: badge,
-			})
-			.then(() => this.user.badges.push(badge))
-			.catch(() => { });
-		},
-		removeBadge(badge) {
-			khatch(`${host}/v1/users/remove_badge`, {
-				method: 'POST',
-				errorMessage: 'Failed to remove badge.',
-				body: badge,
-			})
-			.then(() => {
-				const index = this.user.badges.indexOf(badge);
-				this.user.badges.splice(index, 1);
-			})
-			.catch(() => { });
-		},
-		selectTab(event) {
-			this.tab = event.target.id;
-			this.$router.push(this.pageLink(1));
-		},
-		follow() {
-			khatch(`${host}/v1/user/${this.user?.handle}/follow`, {
-				method: this.user?.following ? 'DELETE' : 'PUT',
-				errorMessage: `Failed to ${this.user?.following ? 'unfollow' : 'follow'} user`,
-			})
-			.then(() => {
-				this.user.following = !this.user?.following;
-			}).catch(() => { });
-		},
-		fetchData(query = null) {
-			if (this.$route.path !== this.path)
-			{ return; }
-
-			this.tab = query?.tab || this.tab;
-			if (!this.tab)
-			{ return; }
-
-			if (this.tabElement)
-			{ this.tabElement.lastChild.style.borderBottomWidth = '0'; }
-
-			this.tabElement = document.getElementById(this.tab);
-			this.tabElement.lastChild.style.borderBottomWidth = '5px';
-
-			switch (this.tab) {
-				case 'posts' :
-					this.total_results = 0;
-					this.page = parseInt(this.$route.query?.page) || 1;
-					this.count = parseInt(this.$route.query?.count) || 64;
-
-					if (window.history.state.posts) {
-						this.posts = window.history.state.posts;
-						this.total_results = window.history.state.total;
-						return;
-					}
-
-					this.posts = null;
-
-					khatch(`${host}/v1/posts`, {
-						handleError: true,
-						method: 'POST',
-						body: {
-							page: this.page,
-							count: this.count,
-							sort: 'new',
-							tags: [`@${this.handle}`]
-						},
-					})
-					.then(response => {
-						response.json().then(r => {
-							saveToHistory(r);
-							this.total_results = r.total;
-							this.posts = r.posts;
-						});
-					})
-					.catch(() => { });
-					break;
-
-				case 'sets' :
-					if (this.sets !== null)
-					{ return; }
-
-					khatch(`${host}/v1/sets/user/${this.handle}`, {
-						errorMessage: 'Failed to Retrieve User sets!',
-						errorHandlers: { 404: () => this.sets = [] },
-					}).then(r => r.json())
-					.then(r => this.sets = r)
-					.catch(() => { });
-					break;
-
-				case 'tags' :
-					if (this.userTags === null) {
-						khatch(`${host}/v1/tags/user/${this.handle}`, {
-							errorMessage: 'Failed to Retrieve User tags!',
-							errorHandlers: { 404: () => this.userTags = [] },
-						}).then(r => r.json())
-						.then(r => this.userTags = r)
-						.catch(() => { });
-					}
-					break;
-
-				case 'favs' :
-					// nothing, yet
-					break;
-
-				case 'uploads' :
-					this.page = parseInt(this.$route.query?.page) || 1;
-					this.count = parseInt(this.$route.query?.count) || 64;
-
-					if (window.history.state.uploads) {
-						this.posts = window.history.state.uploads;
-						return;
-					}
-
-					this.posts = null;
-
-					khatch(`${host}/v1/posts/mine`, {
-						handleError: true,
-						method: 'POST',
-						body: {
-							sort: 'hot',
-							page: this.page,
-							count: this.count,
-						},
-					}).then(r => r.json())
-					.then(r => {
-						saveToHistory({ uploads: r });
-						this.posts = r;
-					});
-					break;
-			}
-		},
-		toggleEdit(editing) {
-			this.isEditing = editing;
-			if (editing) {
-				this.update = {
-					name: this.user?.name,
-					website: this.user?.website,
-					description: this.user?.description,
-				};
-
-				if (this.availableBadges === null) {
-					khatch(`${users}/v1/users/badges`, {
-						method: 'GET',
-						errorMessage: 'Failed to fetch available badges',
-					}).then(r => r.json())
-					.then(response => this.availableBadges = response);
-				}
-			}
-		},
-		updateProfile() {
-			// name: str = None
-			// privacy: UserPrivacy = None
-			// icon: str = None
-			// website: str = None
-			// description: str = None
-
-			khatch(`${host}/v1/user/self`, {
-				method: 'PATCH',
-				body: this.update,
-				handleError: true,
-			}).then(() => {
-				this.user = Object.assign(this.user, this.update);
-				this.isEditing = false;
-				saveToHistory({ user: this.user });
-			});
-		},
-		toggleIconUpload() {
-			this.isUploadIcon = true;
-			this.runSearchQuery();
-			document.body.style.overflow = 'hidden';
-		},
-		toggleBannerUpload() {
-			this.isUploadBanner = true;
-			this.runSearchQuery();
-			document.body.style.overflow = 'hidden';
-		},
-		disableUploads() {
-			this.isUploadBanner = this.isUploadIcon = false;
-			document.body.style.overflow = this.uploadLoading = this.cropperImage = this.uploadablePosts = this.uploadPostId = null;
-		},
-		onImageCrop({ coordinates, canvas }) {
-			console.log(coordinates, canvas);
-		},
-		showData() {
-			const results = this.$refs.cropper.getResult();
-			console.log({
-				post_id: this.uploadPostId,
-				coordinates: results.coordinates,
-				transformation: results.imageTransforms,
-			});
-		},
-		updateProfileImage() {
-			this.uploadLoading = true;
-			let endpoint = null;
-
-			if (this.isUploadIcon)
-			{ endpoint = 'set_icon'; }
-
-			if (this.isUploadBanner)
-			{ endpoint = 'set_banner'; }
-
-			khatch(`${host}/v1/upload/${endpoint}`, {
-				errorMessage: 'Failed to update user image!',
-				method: 'POST',
-				body: {
-					post_id: this.uploadPostId,
-					coordinates: this.$refs.cropper.getResult().coordinates,
-				},
-			})
-			.then(() => {
-				if (this.isUploadIcon) {
-					this.user.icon = this.uploadPostId;
-					this.$store.state.user.icon = this.uploadPostId;
-				}
-				else if (this.isUploadBanner) {
-					this.user.banner = this.uploadPostId;
-				}
-			})
-			.finally(this.disableUploads);
-		},
-		runSearchQuery(page=null) {
-			this.uploadablePosts = 0;
-			this.uploadLoading = true;
-			this.uploadablePage = page || 1;
-			if (this.searchValue) {
-				khatch(`${host}/v1/posts`, {
-					errorMessage: 'Failed to fetch posts for profile.',
-					method: 'POST',
-					body: {
-						sort: 'new',
-						tags: tagSplit(this.searchValue),
-						page: this.uploadablePage,
-						count: 64,
-					},
-				}).then(r => r.json())
-				.then(r => {
-					this.total_results = r.total;
-					this.uploadablePosts = r.posts;
-					this.uploadLoading = null;
-				}).catch(this.disableUploads);
-			}
-			else {
-				khatch(`${host}/v1/posts/user`, {
-					errorMessage: 'Failed to fetch posts for profile.',
-					method: 'POST',
-					body: {
-						handle: this.handle,
-						page: this.uploadablePage,
-						count: 64,
-					},
-				}).then(r => r.json())
-				.then(r => {
-					this.total_results = r.total;
-					this.uploadablePosts = r.posts;
-					this.uploadLoading = null;
-				}).catch(this.disableUploads);
-			}
-		},
-		pageLink(page) {
-			let query = [];
-
-			if (this.tab)
-			{ query.push(`tab=${this.tab}`); }
-
-			if (page !== 1)
-			{ query.push(`page=${page}`); }
-
-			if (this.count !== 64)
-			{ query.push(`count=${this.count}`); }
-
-			return '/' + this.user.handle + '?' + query.join('&');
-		},
-		setPage(page) {
-			this.page = page;
-			this.$router.push(this.pageLink(page));
-		},
-	},
-	watch: {
-		uploadPostId(value) {
-			if (!value)
-			{ return; }
-
-			khatch(`${host}/v1/post/${value}`, {
-				errorMessage: 'Failed to fetch post for profile.',
-			}).then(r => r.json())
-			.then(r => {
-				this.cropperImage = getMediaUrl(r.post_id, r.filename);
-			});
-		},
-		tiles(value) {
-			this.$store.commit('searchResultsTiles', value);
-		},
-	},
+		khatch(`${host}/v1/posts/mine`, {
+			handleError: true,
+			method: 'POST',
+			body: {
+				sort: 'hot',
+				page: page.value,
+				count: count.value,
+			},
+		}).then(r => r.json())
+		.then(r => {
+			saveToHistory({ uploads: r });
+			posts.value = r;
+		});
+		break;
+	}
 }
+
+function toggleEdit(editing: boolean) {
+	isEditing.value = editing;
+	if (editing) {
+		update.value = {
+			name: user.value?.name,
+			website: user.value?.website,
+			description: user.value?.description,
+		};
+
+		if (!availableBadges.value) {
+			khatch(`${host}/v1/users/badges`, {
+				method: 'GET',
+				errorMessage: 'Failed to fetch available badges',
+			}).then(r => r.json())
+			.then(response => availableBadges.value = response);
+		}
+	}
+}
+
+function updateProfile() {
+	// name: str = None
+	// privacy: UserPrivacy = None
+	// icon: str = None
+	// website: str = None
+	// description: str = None
+
+	khatch(`${host}/v1/user/self`, {
+		method: 'PATCH',
+		body: update.value,
+		handleError: true,
+	}).then(() => {
+		user.value = Object.assign(user.value as object, update) as unknown as FullUser;
+		isEditing.value = false;
+		saveToHistory({ user: toRaw(user.value) });
+	});
+}
+
+function toggleIconUpload() {
+	isUploadIcon.value = true;
+	runSearchQuery();
+	document.body.style.overflow = 'hidden';
+}
+
+function toggleBannerUpload() {
+	isUploadBanner.value = true;
+	runSearchQuery();
+	document.body.style.overflow = 'hidden';
+}
+
+function disableUploads() {
+	isUploadBanner.value = isUploadIcon.value = false;
+	uploadLoading.value = cropperImage.value = uploadablePosts.value = uploadPostId.value = null;
+	document.body.style.overflow = "";
+}
+
+function showData() {
+	const results = cropper.value.getResult();
+	console.log({
+		post_id: uploadPostId.value,
+		coordinates: results.coordinates,
+		transformation: results.imageTransforms,
+	});
+}
+
+function updateProfileImage() {
+	uploadLoading.value = true;
+	let endpoint = null;
+
+	if (isUploadIcon.value)
+	{ endpoint = 'set_icon'; }
+
+	else if (isUploadBanner.value)
+	{ endpoint = 'set_banner'; }
+
+	khatch(`${host}/v1/upload/${endpoint}`, {
+		errorMessage: 'Failed to update user image!',
+		method: 'POST',
+		body: {
+			post_id: uploadPostId.value,
+			coordinates: cropper.value.getResult().coordinates,
+		},
+	})
+	.then(() => {
+		if (!user.value) return;
+
+		if (isUploadIcon.value) {
+			user.value.icon = uploadPostId.value;
+			globals.user.icon = uploadPostId.value;
+		}
+		else if (isUploadBanner.value) {
+			user.value.banner = uploadPostId.value;
+		}
+	})
+	.finally(disableUploads);
+}
+
+function runSearchQuery(p: number | null = null) {
+	// TODO: old line: uploadablePosts = 0;
+	uploadablePosts.value = null;
+	uploadLoading.value = true;
+	uploadablePage.value = p || 1;
+	if (searchValue.value) {
+		khatch(`${host}/v1/posts`, {
+			errorMessage: 'Failed to fetch posts for profile.',
+			method: 'POST',
+			body: {
+				sort: 'new',
+				tags: tagSplit(searchValue.value),
+				page: uploadablePage.value,
+				count: 64,
+			},
+		}).then(r => r.json())
+		.then(r => {
+			total_results.value = r.total;
+			uploadablePosts.value = r.posts;
+			uploadLoading.value = null;
+		}).catch(disableUploads);
+	}
+	else {
+		khatch(`${host}/v1/posts/user`, {
+			errorMessage: 'Failed to fetch posts for profile.',
+			method: 'POST',
+			body: {
+				handle: props.handle,
+				page: uploadablePage.value,
+				count: 64,
+			},
+		}).then(r => r.json())
+		.then(r => {
+			total_results.value = r.total;
+			uploadablePosts.value = r.posts;
+			uploadLoading.value = null;
+		}).catch(disableUploads);
+	}
+}
+
+function pageLink(p: number) {
+	let query = [];
+
+	if (tab.value)
+	{ query.push(`tab=${tab.value}`); }
+
+	if (p !== 1)
+	{ query.push(`page=${p}`); }
+
+	if (count.value !== 64)
+	{ query.push(`count=${count.value}`); }
+
+	return '/' + user.value?.handle + '?' + query.join('&');
+}
+
+function setPage(p: number) {
+	page.value = p;
+	router.push(pageLink(page.value));
+}
+
+watch(() => route.query, fetchData);
+watch(tiles, globals.searchResultsTiles);
+watch(uploadPostId, (value: string | null) => {
+	if (!value) return;
+
+	khatch(`${host}/v1/post/${value}`, {
+		errorMessage: 'Failed to fetch post for profile.',
+	}).then(r => r.json())
+	.then(r => {
+		cropperImage.value = getMediaUrl(r.post_id, r.filename);
+	});
+});
+
 </script>
 
 <style>
@@ -1306,7 +1250,6 @@ html.mobile.winter .active-tab {
 }
 
 .result-buttons {
-	margin: 0 var(--margin);
 	display: flex;
 	justify-content: end;
 }

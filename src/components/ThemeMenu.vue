@@ -6,16 +6,8 @@
 	<!-- <label class='themebutton' for='themecheck'><a>theme</a></label> -->
 </template>
 
-<script>
+<script setup lang="ts">
 import ThemeSelector from '@/components/ThemeSelector.vue';
-
-
-export default {
-	name: 'ThemeMenu',
-	components: {
-		ThemeSelector,
-	},
-}
 </script>
 
 <style scoped>

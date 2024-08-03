@@ -62,8 +62,8 @@
 			<div>
 				<h2>Inherited Tags</h2>
 				<Loading v-if='isLoading'>default</Loading>
-				<ul v-else-if='tagData.inherited_tags.length'>
-					<li v-for='tag in tagData?.inherited_tags'>
+				<ul v-else-if='tagData?.inherited_tags.length'>
+					<li v-for='tag in tagData.inherited_tags'>
 						<router-link :to='`/t/${tag}`'>
 							{{tag.replace(/_/g, ' ')}}
 						</router-link>
@@ -79,8 +79,8 @@
 		</div>
 		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i><span>Update</span></Button>
 		<div class='markdown-block' v-else>
-			<Markdown :content='showingMore ? tagData.description : tagDescription'/>
-			<button v-show='showMore && !showingMore' class='show-more' @click='showingMore=true'>show more</button>
+			<Markdown :content='tagDescription'/>
+			<button v-show='showMore === false' class='show-more' @click='showMore = true'>show more</button>
 		</div>
 		<div class='buttons'>
 			<div>
@@ -124,7 +124,10 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, ref, watch, type Ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import store from '@/globals';
 import { khatch, saveToHistory, setTitle } from '@/utilities';
 import { apiErrorMessage, host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -140,283 +143,246 @@ import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
 
 
-const path = '/t/';
-export default {
-	name: 'Tag',
-	props: {
-		tag: String,
-	},
-	components: {
-		ThemeMenu,
-		Loading,
-		Post,
-		Profile,
-		Button,
-		Markdown,
-		MarkdownEditor,
-		DropDown,
-		ResultsNavigation,
-		CheckBox,
-		PostTile,
-	},
-	data() {
-		return {
-			colorMap: {
-				artist: '--pink',
-				sponsor: '--green',
-				subject: '--violet',
-				species: '--orange',
-				gender: '--blue',
-				misc: '--subtle',
-			},
-			tagData: null,
-			posts: null,
-			editing: null,
-			updateBody: { },
-			newInheritedTag: null,
-			newInheritLoading: null,
-			pendingUpdate: false,
-			sort: null,
-			page: null,
-			count: null,
-			tiles: this.$store.state.searchResultsTiles,
-			showMore: false,
-			showingMore: false,
-			total_results: 0,
-		}
-	},
-	created() {
-		this.fetchPosts();
+const path = "/t/";
+const route = useRoute();
+const router = useRouter();
+const globals = store();
+const props = defineProps<{
+	tag: string,
+}>();
 
-		khatch(`${host}/v1/tag/${encodeURIComponent(this.tag)}`, {
-			errorMessage: "Could not fetch tag details!",
-			errorHandlers: {
-				404: r => r.json().then(r => this.$store.commit("error", r.error || "NotFound: the provided tag does not exist.")),
+const tiles: Ref<boolean> = ref(globals.tiles);
+const tagData: Ref<Tag | null> = ref(null);
+const posts: Ref<any[] | null | void> = ref();
+const editing: Ref<boolean> = ref(false);
+const showMore: Ref<boolean | null> = ref(null);
+const page: Ref<number> = ref(1);
+const count: Ref<number> = ref(64);
+const sort: Ref<string | null> = ref(null);
+const total_results: Ref<number> = ref(1);
+
+const updateBody: Ref<any> = ref({ });
+const pendingUpdate: Ref<boolean> = ref(false);
+const newInheritedTag: Ref<string> = ref("");
+const newInheritLoading: Ref<boolean> = ref(false);
+
+fetchPosts();
+
+khatch(`${host}/v1/tag/${encodeURIComponent(props.tag)}`, {
+	errorMessage: "Could not fetch tag details!",
+	errorHandlers: {
+		404: r => r.json().then(r => globals.setError(r.error || "NotFound: the provided tag does not exist.")),
+	},
+}).then(r => r.json())
+.then(r => {
+	tagData.value = r;
+	setTitle(`${r.tag}, ${r.group} tag | fuzz.ly`);
+});
+
+const isLoading = computed(() => !tagData.value);
+const editable = computed(() => (globals.user && tagData.value?.owner?.handle === globals.user?.handle) || Boolean(globals.auth?.scope?.includes("admin")));
+const tagDescription = computed(() => {
+	if (!tagData.value?.description) return null;
+
+	const newline = tagData.value.description.indexOf("\n", tagData.value.description.indexOf("\n") + 1);
+	if (newline >= 0 && !showMore.value) {
+		showMore.value = false;
+		return tagData.value.description.substring(0, newline);
+	}
+
+	return tagData.value.description;
+});
+
+function fetchPosts() {
+	if (!route.path.startsWith(path + props.tag)) return;
+
+	page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
+	count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
+	sort.value = route.query?.sort ? route.query?.sort.toString() : "hot";
+
+	if (window.history.state.posts) {
+		posts.value = window.history.state.posts;
+		total_results.value = window.history.state.total;
+		return;
+	}
+
+	posts.value = null;
+
+	khatch(`${host}/v1/posts`, {
+			method: "POST",
+			body: {
+				sort: sort.value,
+				tags: [props.tag],
+				page: page.value,
+				count: count.value,
 			},
-		}).then(r => r.json())
-		.then(r => {
-			this.tagData = r;
-			setTitle(`${r.tag}, ${r.group} tag | fuzz.ly`);
+		})
+		.then(response => {
+			response.json().then(r => {
+				if (response.status < 300) {
+					saveToHistory(r)
+					posts.value = r.posts;
+					total_results.value = r.total;
+				}
+				else if (response.status === 400)
+				{ globals.setError(r.error); }
+				else if (response.status === 401)
+				{ globals.setError(r.error); }
+				else if (response.status === 404)
+				{ globals.setError(r.error); }
+				else
+				{ globals.setError(apiErrorMessage, r); }
+
+			});
+		})
+		.catch(error => {
+			globals.setError(apiErrorMessage, error);
+			console.error(error);
 		});
+}
+function editToggle() {
+	editing.value = !editing.value;
+	if (!editing.value || !tagData.value) return;
 
-		this.$watch(
-			() => this.$route.query,
-			this.fetchPosts,
-		);
-	},
-	computed: {
-		isLoading()
-		{ return this.tagData === null; },
-		tagDescription() {
-			if (this.tagData === null || !this.tagData.description)
-			{ return null; }
-
-			const newline = this.tagData.description.indexOf('\n', 2);
-			if (newline >= 0)
-			{
-				this.showMore = true;
-				return this.tagData.description.substring(0, newline);
-			}
-
-			return this.tagData.description;
+	updateBody.value.name = props.tag;
+	updateBody.value.group = tagData.value.group;
+	updateBody.value.description = tagData.value.description;
+	updateBody.value.owner = tagData.value.owner?.handle;
+}
+function inheritTag() {
+	if (!newInheritedTag.value) return;
+	newInheritLoading.value = true;
+	khatch(`${host}/v1/tag/inherit`, {
+		method: "POST",
+		errorMessage: "Could not create inheritance.",
+		body: {
+			parent_tag: props.tag,
+			child_tag: newInheritedTag.value,
 		},
-		editable() {
-			return (this.$store.state.user && this.tagData?.owner?.handle === this.$store.state.user?.handle) || Boolean(this.$store.state.auth?.scope?.includes('admin'));
+	}).then(() => {
+		if (!tagData.value) return;
+		tagData.value.inherited_tags.push(newInheritedTag.value);
+		newInheritedTag.value = "";
+	}).finally(() => newInheritLoading.value = false);
+}
+function removeInheritance(tag_to_remove: string) {
+	khatch(`${host}/v1/tag/remove_inheritance`, {
+		method: "POST",
+		errorMessage: "Could not remove inherited tag.",
+		body: {
+			parent_tag: props.tag,
+			child_tag: tag_to_remove,
 		},
-		isAdmin() {
-			return Boolean(this.$store.state.auth?.scope?.includes('admin'));
-		},
-	},
-	methods: {
-		fetchPosts() {
-			if (!this.$route.path.startsWith(path))
-			{ return; }
+	}).then(() => {
+		if (!tagData.value) return;
+		tagData.value.inherited_tags.splice(tagData.value.inherited_tags.indexOf(tag_to_remove), 1);
+	});
+}
+function updateTag() {
+	pendingUpdate.value = true;
 
-			this.page = parseInt(this.$route.query?.page) || 1;
-			this.count = parseInt(this.$route.query?.count) || 64;
-			this.sort = this.$route.query?.sort || 'hot';
+	let body: any = { tag: props.tag };
 
-			if (window.history.state.posts) {
-				this.posts = window.history.state.posts;
-				this.total_results = window.history.state.total;
+	if (updateBody.value?.name && updateBody.value.name !== props.tag)
+	{ body.name = updateBody.value.name; }
+
+	if (updateBody.value?.group && updateBody.value.group !== tagData.value?.group)
+	{ body.group = updateBody.value.group; }
+
+	if (updateBody.value?.owner && updateBody.value.owner !== tagData.value?.owner?.handle)
+	{ body.owner = updateBody.value.owner; }
+
+	if (updateBody.value?.description && updateBody.value.description !== tagData.value?.description)
+	{ body.description = updateBody.value.description; }
+
+	khatch(`${host}/v1/tag/${props.tag}`, {
+		method: "PATCH",
+		body,
+	})
+	.then(response => {
+		if (response.status < 400) {
+			if (body.name) {
+				router.push("/t/" + body.name);
 				return;
 			}
 
-			this.posts = null;
+			if (!tagData.value) return;
 
-			khatch(`${host}/v1/posts`, {
-					method: 'POST',
-					body: {
-						sort: this.sort,
-						tags: [this.tag],
-						page: this.page,
-						count: this.count,
-					},
-				})
-				.then(response => {
-					response.json().then(r => {
-						if (response.status < 300) {
-							saveToHistory(r)
-							this.posts = r.posts;
-							this.total_results = r.total;
-						}
-						else if (response.status === 400)
-						{ this.$store.commit('error', r.error); }
-						else if (response.status === 401)
-						{ this.$store.commit('error', r.error); }
-						else if (response.status === 404)
-						{ this.$store.commit('error', r.error); }
-						else
-						{ this.$store.commit('error', apiErrorMessage, r); }
+			tagData.value.group = body?.group ?? tagData.value?.group;
+			tagData.value.description = body?.description ?? tagData.value?.description;
 
-					});
-				})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
-		},
-		editToggle() {
-			this.editing = !this.editing;
-			if (this.editing) {
-				this.updateBody.name = this.tag;
-				this.updateBody.group = this.tagData.group;
-				this.updateBody.description = this.tagData.description;
-				this.updateBody.owner = this.tagData.owner?.handle;
+			if (body.hasOwnProperty("owner")) {
+				if (!body.owner) {
+					tagData.value.owner = null;
+				}
+				else {
+					khatch(`${host}/v1/user/${body.owner}`, {
+						errorMessage: "Failed to retrieve new tag owner.",
+					}).then(r => r.json())
+					.then(r => {
+						if (!tagData.value) return;
+						tagData.value.owner = {
+							handle:    r.handle,
+							name:      r.name,
+							icon:      r.icon,
+							privacy:   r.privacy,
+							verified:  r.verified,
+							following: r.following,
+						};
+					}).catch(() => { });
+				}
 			}
-		},
-		inheritTag() {
-			if (this.newInheritedTag) {
-				this.newInheritLoading = true;
-				khatch(`${host}/v1/tag/inherit`, {
-					method: 'POST',
-					errorMessage: 'Could not create inheritance.',
-					body: {
-						parent_tag: this.tag,
-						child_tag: this.newInheritedTag,
-					},
-				})
-				.then(_ => {
-					this.tagData.inherited_tags.push(this.newInheritedTag);
-					this.newInheritLoading = this.newInheritedTag = null;
-				})
-				.catch(_ => this.newInheritLoading = null);
-			}
-		},
-		removeInheritance(tag_to_remove) {
-			khatch(`${host}/v1/tag/remove_inheritance`, {
-				method: 'POST',
-				errorMessage: 'Could not remove inherited tag.',
-				body: {
-					parent_tag: this.tag,
-					child_tag: tag_to_remove,
-				},
-			})
-			.then(_ => {
-				this.tagData.inherited_tags.splice(this.tagData.inherited_tags.indexOf(tag_to_remove), 1);
-			})
-			.catch(() => { });
-		},
-		updateTag() {
-			this.pendingUpdate = true;
 
-			let body = { tag: this.tag };
-
-			if (this.updateBody?.name && this.updateBody.name !== this.tag)
-			{ body.name = this.updateBody.name; }
-
-			if (this.updateBody?.group && this.updateBody.group !== this.tagData?.group)
-			{ body.group = this.updateBody.group; }
-
-			if (this.updateBody?.owner && this.updateBody.owner !== this.tagData?.owner?.handle)
-			{ body.owner = this.updateBody.owner; }
-
-			if (this.updateBody?.description && this.updateBody.description !== this.tagData?.description)
-			{ body.description = this.updateBody.description; }
-
-			khatch(`${host}/v1/tag/${this.tag}`, {
-					method: 'PATCH',
-					body,
-				})
-				.then(response => {
-					if (response.status < 400) {
-						if (body.name) {
-							this.$router.push('/t/' + body.name);
-							return;
-						}
-						this.tagData.group = body?.group ?? this.tagData?.group;
-						this.tagData.description = body?.description ?? this.tagData?.description;
-
-						if (body.hasOwnProperty('owner')) {
-							if (!body.owner) {
-								this.tagData.owner = null;
-							}
-							else {
-								khatch(`${host}/v1/user/${body.owner}`, {
-									errorMessage: 'Failed to retrieve new tag owner.',
-								}).then(response => {
-									response.json().then(r => {
-										this.tagData.owner = {
-											handle: r.handle,
-											name: r.name,
-											icon: r.icon,
-										};
-									});
-								}).catch(() => { });
-							}
-						}
-
-						this.pendingUpdate = false;
-						this.editing = false;
-					}
-					else {
-						response.json().then(r => {
-							if (response.status === 400)
-							{ this.$store.commit('error', r.error); }
-							else if (response.status === 401)
-							{ this.$store.commit('error', r.error); }
-							else if (response.status === 404)
-							{ this.$store.commit('error', r.error); }
-							else
-							{ this.$store.commit('error', apiErrorMessage, r); }
-						});
-					}
-				})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
-		},
-		pageLink(page) {
-			let query = [];
-
-			if (page !== 1)
-			{ query.push(`page=${page}`); }
-
-			if (this.count !== 64)
-			{ query.push(`count=${this.count}`); }
-
-			if (this.sort !== 'hot')
-			{ query.push(`sort=${this.sort}`); }
-
-			return '/t/' + encodeURIComponent(this.tag) + '?' + query.join('&');
-		},
-		setPage(page) {
-			this.page = page;
-			this.$router.push(this.pageLink(page));
-		},
-	},
-	watch: {
-		sort() {
-			if (this.$route.name !== 'tag')
-			{ return; }
-			this.$router.push(this.pageLink(this.page));
-		},
-		tiles(value) {
-			this.$store.commit('searchResultsTiles', value);
-		},
-	},
+			pendingUpdate.value = false;
+			editing.value = false;
+			showMore.value = null;
+		}
+		else {
+			response.json().then(r => {
+				if (response.status === 400)
+				{ globals.setError(r.error); }
+				else if (response.status === 401)
+				{ globals.setError(r.error); }
+				else if (response.status === 404)
+				{ globals.setError(r.error); }
+				else
+				{ globals.setError(apiErrorMessage, r); }
+			});
+		}
+	})
+	.catch(error => {
+		globals.setError(apiErrorMessage, error);
+		console.error(error);
+	});
 }
+
+function pageLink(p: number) {
+	let query = [];
+
+	if (p !== 1)
+	{ query.push(`page=${p}`); }
+
+	if (count.value !== 64)
+	{ query.push(`count=${count.value}`); }
+
+	if (sort.value !== "hot")
+	{ query.push(`sort=${sort.value}`); }
+
+	return path + encodeURIComponent(props.tag) + "?" + query.join("&");
+}
+
+function setPage(p: number) {
+	page.value = p;
+	router.push(pageLink(page.value));
+}
+
+watch(tiles, globals.searchResultsTiles);
+watch(() => route.query, fetchPosts);
+watch(sort, () => {
+	if (route.name !== "tag")
+	{ return; }
+	router.push(pageLink(page.value));
+});
 </script>
 
 <style scoped>
@@ -516,7 +482,6 @@ ol > :last-child {
 }
 
 .buttons {
-	margin: 0 var(--margin);
 	display: flex;
 	justify-content: space-between;
 }

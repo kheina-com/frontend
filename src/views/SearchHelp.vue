@@ -68,15 +68,8 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
 import ThemeMenu from '@/components/ThemeMenu.vue';
-
-export default {
-	name: 'SearchHelp',
-	components: {
-		ThemeMenu,
-	},
-}
 </script>
 
 <style scoped>

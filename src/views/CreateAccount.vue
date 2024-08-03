@@ -20,76 +20,52 @@
 	</main>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { khatch } from '@/utilities';
 import { apiErrorMessage, host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
+import store from '@/globals';
 
+const router = useRouter();
+const globals = store();
+const email = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
+const name = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
+const isLoading: Ref<boolean> = ref(false);
 
-export default {
-	name: 'CreateAccount',
-	components: {
-		ThemeMenu,
-		Loading,
-		Title,
-	},
-	setup() {
-		const email = ref(null);
-		const name = ref(null);
-
-		return {
-			email,
-			name,
-		};
-	},
-	data() {
-		return {
-			isLoading: false,
-			typingTimer: null,
-			typingInterval: 1000,
-			passwordIcon: null,
-			passwordColor: null,
-			passwordRepeatClass: null,
-			queriedPasswords: { },
-		};
-	},
-	methods: {
-		sendCreate() {
-			this.isLoading = true;
-			khatch(`${host}/v1/account/create`, {
-				method:'POST',
-				body: {
-					name: this.$refs.name.value.trim(),
-					email: this.$refs.email.value.trim(),
-				},
-			})
-			.then(response => {
-				if (response.status < 300)
-				{ this.$router.push('/account/finalize'); }
-				else
-				{
-					response.json().then(r => {
-						if (response.status === 400)
-						{ this.$store.commit('error', r.error); }
-						else if (response.status === 401)
-						{ this.$store.commit('error', r.error); }
-						else if (response.status === 404)
-						{ this.$store.commit('error', r.error); }
-						else
-						{ this.$store.commit('error', apiErrorMessage, r); }
-					});
-				}
-				this.isLoading = false;
-			})
-			.catch(error => {
-				this.$store.commit('error', apiErrorMessage, error);
-				console.error(error);
-			});
+function sendCreate() {
+	isLoading.value = true;
+	khatch(`${host}/v1/account/create`, {
+		method: "POST",
+		body: {
+			name: name.value.value.trim(),
+			email: email.value.value.trim(),
 		},
-	},
+	})
+	.then(response => {
+		if (response.status < 300)
+		{ router.push("/a/finalize"); }
+		else {
+			response.json().then(r => {
+				if (response.status === 400)
+				{ globals.setError(r.error); }
+				else if (response.status === 401)
+				{ globals.setError(r.error); }
+				else if (response.status === 404)
+				{ globals.setError(r.error); }
+				else
+				{ globals.setError(apiErrorMessage, r); }
+			});
+		}
+		isLoading.value = false;
+	})
+	.catch(error => {
+		globals.setError(apiErrorMessage, error);
+		console.error(error);
+	});
 }
 </script>
 

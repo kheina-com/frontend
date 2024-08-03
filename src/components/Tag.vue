@@ -1,7 +1,7 @@
 <template>
-	<router-link :to='`/t/${encodeURIComponent(tag)}`' :class='divClass'>
-		<h2>{{tag}}</h2>
-		<Profile v-bind='owner' v-if='owner' :link='owner.handle !== $route.path.substring(1)'/>
+	<router-link :to='`/t/${encodeURIComponent(props.tag)}`' ref='tag' class='tag'>
+		<h2>{{props.tag}}</h2>
+		<Profile v-bind='owner' v-if='owner' :unlink='owner.handle === $route.path.substring(1)'/>
 		<p :class='group'>{{group}}</p>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
 		<p>Inherited Tags: {{inheritedTags.length === 0 ? 'None' : inheritedTags.join(', ')}}</p>
@@ -9,34 +9,28 @@
 	</router-link>
 </template>
 
-<script>
+<script setup lang="ts">
+import { onMounted, ref, type Ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 
+const props = withDefaults(defineProps<{
+	tag: string,
+	group: string,
+	deprecated: boolean,
+	inheritedTags: string[],
+	description: string | null,
+	owner: User | null,
+	nested: boolean,
+}>(), {
+	nested: false,
+});
 
-export default {
-	name: 'Tag',
-	props: {
-		tag: String,
-		group: String,
-		deprecated: Boolean,
-		inheritedTags: Array[String],
-		description: String,
-		owner: Object[String],
-		nested: {
-			type: Boolean,
-			default: true,
-		},
-	},
-	components: {
-		Markdown,
-		Profile,
-	},
-	computed: {
-		divClass()
-		{ return 'tag' + (this.nested ? ' nested' : ''); },
-	},
-}
+const tag = ref<HTMLAnchorElement | null>(null) as Ref<HTMLAnchorElement>;
+
+onMounted(() => {
+	if (props.nested) tag.value.classList.add("nested");
+});
 </script>
 
 <style scoped>

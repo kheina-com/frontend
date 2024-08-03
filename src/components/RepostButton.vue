@@ -7,33 +7,28 @@
 	</button>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import store from '@/globals';
 import { abbreviate } from '@/utilities';
+import { ref } from 'vue';
 
-export default {
-	name: 'CopyText',
-	props: {
-		postId: String,
-		count: {
-			type: Number,
-			default: null,
-		},
-	},
-	emits: [
-		'update:count',
-	],
-	methods: {
-		abbreviate,
-		fav() {
-			this.$emit(`update:count`, (this.count || 0) + 1);
-			this.$store.commit('createToast', {
-				title: 'This function does not exist yet',
-				description: 'Sorry!',
-				icon: 'repeat',
-			});
-		},
-	},
+const props = withDefaults(defineProps<{
+	postId?: string | null,
+	count: number,
+}>(), {
+	count: 0,
+});
+const count = ref(props.count);
+const emits = defineEmits(["update:count"]);
+const globals = store();
+
+function fav() {
+	emits("update:count", ++count.value);
+	globals.createToast({
+		title: "This function does not exist yet",
+		description: "Sorry!",
+		icon: "repeat",
+	});
 }
 </script>
 

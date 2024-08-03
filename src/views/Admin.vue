@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<main v-if='$store.state.auth?.isAdmin'>
+	<main v-if='globals.auth?.isAdmin'>
 		<Title>Admin Shit</Title>
 		<div class='container'>
 			<span class='container-title'>Set Monthly Cost</span>
@@ -22,46 +22,36 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
 import { createToast, khatch } from '@/utilities';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
+import store from '@/globals';
 
-export default {
-	name: 'Admin',
-	components: {
-		ThemeMenu,
-		Title,
-	},
-	data() {
-		return {
-			monthlyCost: null,
-		};
-	},
-	methods: {
-		setMonthlyCost() {
-			const costs = parseInt(this.monthlyCost.trim().replace('.', ''));
-			khatch(`${host}/v1/config`, {
-				method: 'PATCH',
-				handleError: true,
-				body: {
-					config: 'costs',
-					value: {
-						costs,
-					},
-				},
-			}).then(response => {
-				createToast({
-					icon: 'done',
-					title: 'Updated Value!',
-					description: 'Set value to ' + costs,
-					color: 'green',
-					time: 5,
-				});
-			});
+
+const globals = store();
+let monthlyCost: string = "";
+function setMonthlyCost() {
+	const costs = parseInt(monthlyCost.trim().replace(".", ""));
+	khatch(`${host}/v1/config`, {
+		method: "PATCH",
+		handleError: true,
+		body: {
+			config: "costs",
+			value: {
+				costs,
+			},
 		},
-	},
+	}).then(response => {
+		createToast({
+			icon: "done",
+			title: "Updated Value!",
+			description: "Set value to " + costs,
+			color: "green",
+			time: 5,
+		});
+	});
 }
 </script>
 

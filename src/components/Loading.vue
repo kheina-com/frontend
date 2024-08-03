@@ -1,8 +1,9 @@
 <template>
 	<div v-if='type === "block"' ref='content'>
 		<div class='loadingicon' v-show='isLoading'>
-			<img src='/assets/loading.webp' alt='Loading...'/>
-			<slot name='onLoad'/>
+			<slot name='onLoad'>
+				<img src='/assets/loading.webp' alt='Loading...'/>
+			</slot>
 		</div>
 		<slot name='default'/>
 	</div>
@@ -14,65 +15,48 @@
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang='ts'>
+import { onMounted, ref, watch, type Ref } from 'vue';
 
-export default {
-	name: 'Loading',
-	props: {
-		isLoading: {
-			type: Boolean,
-			default: true,
-		},
-		span: {
-			type: Boolean,
-			default: false,
-		},
-		type: {
-			type: String,
-			default: 'wave',
-		},
-	},
-	setup() {
-		const content = ref(null);
-		return {
-			content,
-		};
-	},
-	mounted() {
-		this.setLoadingClass(this.isLoading);
-	},
-	methods: {
-		setLoadingClass(value) {
-			switch (this.type) {
-				case 'block':
-					if (value)
-					{ this.$refs.content.classList.add('loading', 'block'); }
-					else
-					{ this.$refs.content.classList.remove('loading', 'block'); }
-					break;
-				case 'stripes':
-					if (value)
-					{ this.$refs.content.classList.add('loading', 'stripes'); }
-					else
-					{ this.$refs.content.classList.remove('loading', 'stripes'); }
-					break;
-				case 'wave':
-				default:
-					if (value)
-					{ this.$refs.content.classList.add('loading', 'wave'); }
-					else
-					{ this.$refs.content.classList.remove('loading', 'wave'); }
-					break;
-			}
-		},
-	},
-	watch: {
-		isLoading(value) {
-			this.setLoadingClass(value);
-		},
-	},
+const props = withDefaults(defineProps<{
+	isLoading: boolean,
+	span: boolean,
+	type: "block" | "stripes" | "wave",
+}>(), {
+	isLoading: true,
+	span: false,
+	type: "wave",
+});
+
+const content = ref<HTMLDivElement | HTMLSpanElement | null>(null) as Ref<HTMLDivElement | HTMLSpanElement>;
+
+onMounted(() => setLoadingClass(props.isLoading));
+
+function setLoadingClass(value: boolean) {
+	switch (props.type) {
+	case "block":
+		if (value)
+		{ content.value.classList.add("loading", "block"); }
+		else
+		{ content.value.classList.remove("loading", "block"); }
+		break;
+	case "stripes":
+		if (value)
+		{ content.value.classList.add("loading", "stripes"); }
+		else
+		{ content.value.classList.remove("loading", "stripes"); }
+		break;
+	case "wave":
+	default:
+		if (value)
+		{ content.value.classList.add("loading", "wave"); }
+		else
+		{ content.value.classList.remove("loading", "wave"); }
+		break;
+	}
 }
+
+watch(() => props.isLoading, setLoadingClass);
 </script>
 
 <style scoped>

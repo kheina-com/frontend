@@ -57,20 +57,21 @@
 				</div>
 			</div>
 			<div class='markdown-block'>
-				<Markdown :content='setData?.description'/>
+				<Markdown :content='setDescription'/>
+				<!-- TODO: add a button here to toggle showMore -->
 			</div>
 		</div>
 		<div class='buttons'>
 			<div>
 				<button v-if='false'><i class='material-icons'>notification_add</i></button>
-				<DropDown v-model:value='sort' :options="[
-					{ html: 'Newest', value: 'new' },
-					{ html: 'Oldest', value: 'old' },
-					{ html: 'Top', value: 'top' },
-					{ html: 'Hot', value: 'hot' },
-					{ html: 'Best', value: 'best' },
-					{ html: 'Controversial', value: 'controversial' },
-				]">
+				<DropDown v-model:value='sort' :options='[
+					{ html: "Newest",        value: "new" },
+					{ html: "Oldest",        value: "old" },
+					{ html: "Top",           value: "top" },
+					{ html: "Hot",           value: "hot" },
+					{ html: "Best",          value: "best" },
+					{ html: "Controversial", value: "controversial" },
+				]'>
 					<span class='sort-by'>
 						<i class='material-icons-round'>sort</i>
 						sort by
@@ -89,8 +90,8 @@
 			</div>
 		</div>
 		<ol class='results'>
-			<p v-if='posts?.length === 0' style='text-align: center'>No posts found in set <em>{{ setData?.title ?? setId }}</em></p>
-			<li v-for='post in posts || sets?.count || 20' v-else-if='tiles'>
+			<p v-if='posts?.length === 0' style='text-align: center'>No posts found in set <em>{{ setData?.title ?? props.setId }}</em></p>
+			<li v-for='post in posts || setData?.count || 20' v-else-if='tiles'>
 				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
 			<li v-for='post in posts || 3' v-else>
@@ -102,7 +103,10 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, ref, watch, type Ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import store from '@/globals';
 import { khatch, saveToHistory, setTitle, createToast } from '@/utilities';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -120,237 +124,204 @@ import Title from '@/components/Title.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import ShareLink from '@/components/ShareLink.vue';
 
+const path = "/s/";
+const route = useRoute();
+const router = useRouter();
+const globals = store();
+const props = defineProps<{
+	setId: string,
+}>();
 
-const path = '/s/';
-export default {
-	name: 'Set',
-	props: {
-		setId: String,
-	},
-	components: {
-		ThemeMenu,
-		Loading,
-		Post,
-		Profile,
-		Button,
-		Markdown,
-		MarkdownEditor,
-		DropDown,
-		ResultsNavigation,
-		CheckBox,
-		PostTile,
-		Title,
-		Timestamp,
-		ShareLink,
-	},
-	data() {
-		return {
-			setData: null,
-			posts: null,
-			editing: null,
-			updateBody: { },
-			pendingUpdate: false,
-			page: null,
-			count: null,
-			tiles: this.$store.state.searchResultsTiles,
-			showMore: false,
-			showingMore: false,
-			total_results: 0,
-		}
-	},
-	created() {
-		this.fetchPosts();
+const tiles: Ref<boolean> = ref(globals.tiles);
+const setData: Ref<PostSet | null> = ref(null);
+const posts: Ref<any[] | null | void> = ref();
+const editing: Ref<boolean> = ref(false);
+const showMore: Ref<boolean> = ref(false);
+const page: Ref<number> = ref(1);
+const count: Ref<number> = ref(64);
+const sort: Ref<string | null> = ref(null);
+const total_results: Ref<number> = ref(1);
 
-		khatch(`${host}/v1/sets/${this.setId}`, {
-			errorMessage: 'Could not retrieve set with id: ' + this.setId,
-		}).then(response => {
-			response.json().then(r => {
-				this.setData = r;
-				setTitle(`Set: ${r.title} | fuzz.ly`);
-			});
+const updateBody: Ref<any> = ref();
+const pendingUpdate: Ref<boolean> = ref(false);
+
+fetchPosts();
+khatch(`${host}/v1/sets/${props.setId}`, {
+	errorMessage: "Could not retrieve set with id: " + props.setId,
+}).then(response => {
+	response.json().then(r => {
+		setData.value = r;
+		setTitle(`Set: ${r.title} | fuzz.ly`);	
+	});
+});
+
+const isLoading = computed(() => !setData.value);
+const editable = computed(() => (globals.user && setData.value?.owner?.handle === globals.user?.handle) || Boolean(globals.auth?.scope?.includes("admin")));
+const setDescription = computed(() => {
+	if (!setData.value?.description) return null;
+
+	const newline = setData.value.description.indexOf("\n", setData.value.description.indexOf("\n") + 1);
+	if (newline >= 0) {
+		showMore.value = true;
+		return setData.value.description.substring(0, newline);
+	}
+
+	return setData.value.description;
+});
+
+function fetchPosts() {
+	if (!route.path.startsWith(path + props.setId)) return;
+
+	page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
+	count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
+	sort.value = route.query?.sort ? route.query?.sort.toString() : "old";
+
+	if (window.history.state.posts) {
+		posts.value = window.history.state.posts;
+		total_results.value = window.history.state.total;
+		return;
+	}
+
+	posts.value = null;
+
+	khatch(`${host}/v1/posts`, {
+		errorMessage: "Could not retrieve posts from set!", 
+		method: "POST",
+		body: {
+			sort: sort.value,
+			tags: ["set:" + props.setId],
+			page: page.value,
+			count: count.value,
+		},
+	}).then(response => {
+		response.json().then(r => {
+			saveToHistory(r)
+			posts.value = r.posts;
+			total_results.value = r.total;
 		});
+	});
+}
 
-		this.$watch(
-			() => this.$route.query,
-			this.fetchPosts,
-		);
-	},
-	computed: {
-		isLoading()
-		{ return this.setData === null; },
-		tagDescription() {
-			if (this.setData === null || !this.setData.description)
-			{ return null; }
+function editToggle() {
+	editing.value = !editing.value;
+	if (editing.value && setData.value) {
+		updateBody.value.title = setData.value.title;
+		updateBody.value.description = setData.value.description;
+		updateBody.value.owner = setData.value.owner.handle;
+		updateBody.value.privacy = setData.value.privacy
+	}
+}
 
-			const newline = this.setData.description.indexOf('\n', 2);
-			if (newline >= 0)
-			{
-				this.showMore = true;
-				return this.setData.description.substring(0, newline);
-			}
+function updateSet() {
+	pendingUpdate.value = true;
 
-			return this.setData.description;
-		},
-		editable() {
-			return (this.$store.state.user && this.setData?.owner?.handle === this.$store.state.user?.handle) || Boolean(this.$store.state.auth?.scope?.includes('admin'));
-		},
-		isAdmin() {
-			return Boolean(this.$store.state.auth?.scope?.includes('admin'));
-		},
-	},
-	methods: {
-		fetchPosts() {
-			if (!this.$route.path.startsWith(path))
-			{ return; }
+	const body: any = { mask: [] };
 
-			this.page = parseInt(this.$route.query?.page) || 1;
-			this.count = parseInt(this.$route.query?.count) || 64;
-			this.sort = this.$route.query?.sort || 'old';
+	if (updateBody.value?.title && updateBody.value.title !== setData.value?.title) {
+		body.title = updateBody.value.title;
+		body.mask.push("title");
+	}
 
-			if (window.history.state.posts)
-			{
-				this.posts = window.history.state.posts;
-				this.total_results = window.history.state.total;
-				return;
-			}
+	if (updateBody.value?.owner && updateBody.value.owner !== setData.value?.owner?.handle) {
+		body.owner = updateBody.value.owner;
+		body.mask.push("owner");
+	}
 
-			this.posts = null;
+	if (updateBody.value?.description && updateBody.value.description !== setData.value?.description) {
+		body.description = updateBody.value.description;
+		body.mask.push("description");
+	}
 
-			khatch(`${host}/v1/posts`, {
-				errorMessage: 'Could not retrieve posts from set!', 
-				method: 'POST',
-				body: {
-					sort: this.sort,
-					tags: ['set:' + this.setId],
-					page: this.page,
-					count: this.count,
-				},
+	if (updateBody.value?.privacy && updateBody.value.privacy !== setData.value?.privacy) {
+		body.privacy = updateBody.value.privacy;
+		body.mask.push("privacy");
+	}
+
+	if (body.mask.length === 0) {
+		pendingUpdate.value = false;
+		editing.value = false;
+		createToast({
+			title: "Could not update set!",
+			description: "nothing to update.",
+		});
+		return;
+	}
+
+	khatch(`${host}/v1/sets/${props.setId}`, {
+		errorMessage: "Could not update set!",
+		method: "PATCH",
+		body,
+	}).then(() => {
+		if (body.hasOwnProperty("owner")) {
+			khatch(`${host}/v1/user/${body.owner}`, {
+				errorMessage: "Failed to retrieve new set owner.",
 			}).then(response => {
 				response.json().then(r => {
-					saveToHistory(r)
-					this.posts = r.posts;
-					this.total_results = r.total;
+					if (!setData.value) return;
+					setData.value.owner = {
+						handle:    r.handle,
+						name:      r.name,
+						icon:      r.icon,
+						privacy:   r.privacy,
+						verified:  r.verified,
+						following: r.following,
+					};
 				});
 			});
-		},
-		editToggle() {
-			this.editing = !this.editing;
-			if (this.editing)
-			{
-				this.updateBody.title = this.setData.title;
-				this.updateBody.description = this.setData.description;
-				this.updateBody.owner = this.setData.owner.handle;
-				this.updateBody.privacy = this.setData.privacy
-			}
-		},
-		updateSet() {
-			this.pendingUpdate = true;
+		}
 
-			const body = { mask: [] };
+		setData.value = {
+			...setData.value,
+			...body,
+		};
 
-			if (this.updateBody?.title && this.updateBody.title !== this.setData?.title) {
-				body.title = this.updateBody.title;
-				body.mask.push('title');
-			}
-
-			if (this.updateBody?.owner && this.updateBody.owner !== this.setData?.owner?.handle) {
-				body.owner = this.updateBody.owner;
-				body.mask.push('owner');
-			}
-
-			if (this.updateBody?.description && this.updateBody.description !== this.setData?.description) {
-				body.description = this.updateBody.description;
-				body.mask.push('description');
-			}
-
-			if (this.updateBody?.privacy && this.updateBody.privacy !== this.setData?.privacy) {
-				body.privacy = this.updateBody.privacy;
-				body.mask.push('privacy');
-			}
-
-			if (body.mask.length === 0) {
-				this.pendingUpdate = false;
-				this.editing = false;
-				createToast({
-					title: 'Could not update set!',
-					description: 'nothing to update.',
-				});
-				return;
-			}
-
-			khatch(`${host}/v1/sets/${this.setId}`, {
-				errorMessage: 'Could not update set!',
-				method: 'PATCH',
-				body,
-			}).then(() => {
-				if (body.hasOwnProperty('owner')) {
-					khatch(`${host}/v1/user/${body.owner}`, {
-						errorMessage: 'Failed to retrieve new set owner.',
-					}).then(response => {
-						response.json().then(r => {
-							this.setData.owner = {
-								handle: r.handle,
-								name: r.name,
-								icon: r.icon,
-							};
-						});
-					});
-				}
-
-				this.setData = {
-					...this.setData,
-					...body,
-				};
-
-				if (body.title)
-				{ setTitle(`Set: ${body.title} | fuzz.ly`); }
-			}).finally(() => {
-				this.pendingUpdate = false;
-				this.editing = false;
-			});
-		},
-		deleteSet() {
-			this.pendingUpdate = true;
-			khatch(`${host}/v1/sets/${this.setId}`, {
-				errorMessage: 'Could not delete set!',
-				method: 'DELETE',
-			}).then(() => {
-				this.setData = { };
-			}).finally(() => {
-				this.pendingUpdate = false;
-				this.editing = false;
-			});
-		},
-		pageLink(page) {
-			let query = [];
-
-			if (page !== 1)
-			{ query.push(`page=${page}`); }
-
-			if (this.count !== 64)
-			{ query.push(`count=${this.count}`); }
-
-			if (this.sort !== 'hot')
-			{ query.push(`sort=${this.sort}`); }
-
-			return path + this.setId + '?' + query.join('&');
-		},
-		setPage(page) {
-			this.page = page;
-			this.$router.push(this.pageLink(page));
-		},
-	},
-	watch: {
-		sort() {
-			if (this.$route.name !== 'set')
-			{ return; }
-			this.$router.push(this.pageLink(this.page));
-		},
-		tiles(value) {
-			this.$store.commit('searchResultsTiles', value);
-		},
-	},
+		if (body.title)
+		{ setTitle(`Set: ${body.title} | fuzz.ly`); }
+	}).finally(() => {
+		pendingUpdate.value = editing.value = false;
+	});
 }
+
+function deleteSet() {
+	pendingUpdate.value = true;
+	khatch(`${host}/v1/sets/${props.setId}`, {
+		errorMessage: "Could not delete set!",
+		method: "DELETE",
+	}).then(() => {
+		setData.value = { } as PostSet;
+	}).finally(() => {
+		pendingUpdate.value = false;
+		editing.value = false;
+	});
+}
+
+function pageLink(p: number) {
+	let query = [];
+
+	if (p !== 1)
+	{ query.push(`page=${p}`); }
+
+	if (count.value !== 64)
+	{ query.push(`count=${count.value}`); }
+
+	if (sort.value !== "hot")
+	{ query.push(`sort=${sort.value}`); }
+
+	return path + encodeURIComponent(props.setId) + "?" + query.join("&");
+}
+
+function setPage(p: number) {
+	page.value = p;
+	router.push(pageLink(page.value));
+}
+
+watch(tiles, globals.searchResultsTiles);
+watch(() => route.query, fetchPosts);
+watch(sort, () => {
+	if (route.name !== "set")
+	{ return; }
+	router.push(pageLink(page.value));
+});
 </script>
 
 <style scoped>

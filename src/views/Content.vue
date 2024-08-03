@@ -20,15 +20,8 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
 import ThemeMenu from '@/components/ThemeMenu.vue';
-
-export default {
-	name: 'Content',
-	components: {
-		ThemeMenu,
-	},
-}
 </script>
 
 <style scoped>

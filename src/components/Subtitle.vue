@@ -1,29 +1,22 @@
 <template>
-	<p :class='titleClass' :style='titleStyle'><slot name='default'/></p>
+	<p ref='title'><slot name='default'/></p>
 </template>
 
-<script>
-export default {
-	name: 'LastUpdated',
-	props: {
-		static: {
-			type: String,
-			default: null,
-		},
-		size: {
-			type: String,
-			default: '1em',
-		}
-	},
-	computed: {
-		titleClass() {
-			return this.static ? '' : 'subtitle';
-		},
-		titleStyle() {
-			return `font-size: ${this.size}; text-align: ${this.static}`
-		},
-	},
-}
+<script setup lang="ts">
+import { onMounted, ref, type Ref } from 'vue';
+
+const props = defineProps<{
+	static: "left" | "center" | "right",
+	size?: string,
+}>();
+
+const title = ref<HTMLAnchorElement | null>(null) as Ref<HTMLAnchorElement>;
+
+onMounted(() => {
+	title.value.style.textAlign = props.static;
+	if (props.size) title.value.style.fontSize = props.size;
+	if (props.static) title.value.classList.add("subtitle");
+});
 </script>
 
 <style scoped>

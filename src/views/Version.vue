@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<main>
 		<h3 class='swagger'>
-			<a :href='`https://${environment != "prod" ? "dev." : ""}fuzz.ly/docs`' target='_blank'>swagger docs</a>
+			<a :href='`${host}/docs`' target='_blank'>swagger docs</a>
 		</h3>
 		<div class='clicky-things'>
 			<table>
@@ -16,7 +16,7 @@
 					<td>:&nbsp;</td>
 					<td>
 						<Loading :isLoading='hash === null'>
-							<a :href='`https://github.com/kheina-com/${service}/commit/${hash}`' target='_target'><code>{{hash || 'abcdef0'}}</code></a>
+							<a :href='`https://github.com/kheina-com/${service}/commit/${hash}`' target='_target'><code>{{hash || "xxxxxxx"}}</code></a>
 						</Loading>
 					</td>
 				</tr>
@@ -26,59 +26,22 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, type Ref } from 'vue';
 import { khatch } from '@/utilities';
-import { host, environment } from '@/config/constants';
+import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
+const versioning: Ref<{ [k: string]: string | null }> = ref({
+	// key must be the repo name on github
+	frontend: __SHORT_COMMIT_HASH__,
+	backend: null,
+});
 
-export default {
-	name: 'Version',
-	components: {
-		Loading,
-		ThemeMenu,
-	},
-	data() {
-		return {
-			versioning: {
-				// key must be the repo name on github
-				frontend: __SHORT_COMMIT_HASH__,
-				account: null,
-				configs: null,
-				posts: null,
-				tagger: null,
-				uploader: null,
-				users: null,
-			},
-			environment,
-		}
-	},
-	created() {
-		khatch(`${host}/`, {
-			// errorMessage: 'Error occurred while retrieving post deployment hash.',
-			method: 'GET',
-		})
-		.then(response => this.versioning.posts = response.headers.get('kh-hash'))
-		.catch(() => { });
-	},
-	computed: {
-		cookie() {
-			try
-			{
-				const c = authCookie(this.content);
-				if (c)
-				{ delete c.token; }
-				return '```json\n' + JSON.stringify(c, null, 4) + '\n```';
-			}
-			catch (e)
-			{
-				console.error(e);
-				return 'could not decode token';
-			}
-		},
-	},
-}
+khatch(host)
+.then(response => versioning.value.backend = response.headers.get('kh-hash'))
+.catch(() => { });
 </script>
 
 <style scoped>

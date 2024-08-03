@@ -10,52 +10,27 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, type Ref } from 'vue';
+import store from '@/globals';
 import { khatch } from '@/utilities';
 import { apiErrorMessage, host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Tag from '@/components/Tag.vue';
 
+const globals = store();
+const tags: Ref<Tag[] | null> = ref(null);
 
-export default {
-	name: 'Tags',
-	components: {
-		ThemeMenu,
-		Tag,
-	},
-	data() {
-		return {
-			tags: null,
-			errorDump: null,
-			errorMessage: null,
-		}
-	},
-	mounted() {
-		khatch(`${host}/v1/tags/lookup`, {
-				method: 'POST',
-				body: { },
-			})
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300)
-					{ this.tags = r; }
-					else if (response.status === 400)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 401)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 404)
-					{ this.$store.commit('error', r.error); }
-					else
-					{ this.$store.commit('error', apiErrorMessage, r); }
-					console.log(this.tags);
-				});
-			})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
-	},
-}
+khatch(`${host}/v1/tags/lookup`, {
+	method: "POST",
+	handleError: true,
+	body: { },
+}).then(response => response.json())
+.then(r => tags.value = r)
+.catch(error => {
+	globals.setError(apiErrorMessage, error);
+	console.error(error);
+});
 </script>
 
 <style scoped>

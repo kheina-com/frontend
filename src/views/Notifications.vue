@@ -12,22 +12,11 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
 import Button from '@/components/Button.vue';
 import notify from '$/sounds/notify.ogg';
 
-
-export default {
-	name: 'Notifications',
-	components: {
-		Button,
-	},
-	data() {
-		return {
-			audio: new Audio(notify),
-		}
-	},
-}
+const audio = new Audio(notify);
 </script>
 
 <style scoped>

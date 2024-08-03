@@ -2,63 +2,45 @@
 	<img ref='media' :data-src='src' @load='loaded' @error='onError'>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { getIconUrl, lazyObserver } from '@/utilities';
-import { defaultUserIcon } from '@/config/constants';
+import defaultUserIcon from '$/default-icon.png?url';
 
-export default {
-	name: 'UserIcon',
-	props: {
-		isLoading: Boolean,
-		handle: String,
-		post: String,
-	},
-	setup() {
-		const media = ref(null);
-		return {
-			media,
-		};
-	},
-	data() {
-		return {
-			webp: true,
-		};
-	},
-	mounted() {
-		if (this.handle)
-		{ lazyObserver.observe(this.$refs.media); }
-	},
-	computed: {
-		src() {
-			if (!this.handle)
-			{ return null; }
+const props = defineProps<{
+	isLoading?: boolean,
+	handle?: string,
+	post?: string | null,
+}>();
+const media = ref<HTMLImageElement | null>(null) as Ref<HTMLImageElement>;
+const emits = defineEmits(["update:isLoading"]);
 
-			if (this.post)
-			{ return getIconUrl(this.post, this.handle.toLowerCase()); }
-			else
-			{ return defaultUserIcon; }
-		},
-	},
-	methods: {
-		loaded(event) {
-			if (this.handle)
-			{ this.$emit('update:isLoading', false); }
-		},
-		onError() {
-			if (!this.handle)
-			{ return; }
+onMounted(() => {
+	if (props.handle) lazyObserver.observe(media.value);
+});
 
-			this.$emit('update:isLoading', false);
-		},
-	},
-	watch: {
-		handle(value) {
-			if (value)
-			{ lazyObserver.observe(this.$refs.media); }
-		},
-	},
+const src = computed(() => {
+	if (!props.handle) return null;
+
+	if (props.post)
+	{ return getIconUrl(props.post, props.handle.toLowerCase()); }
+	else
+	{ return defaultUserIcon; }
+});
+
+function loaded(_: Event) {
+	if (props.handle) emits("update:isLoading", false);
 }
+
+function onError() {
+	if (props.handle) emits("update:isLoading", false);
+}
+watch(() => props.handle, (value?: string) => {
+	if (value) lazyObserver.observe(media.value);
+});
+watch(() => props.post, (value?: string | null) => {
+	if (value) lazyObserver.observe(media.value);
+});
 </script>
 
 <style scoped>

@@ -1,8 +1,8 @@
 <template>
-	<a :href='link' target='_blank' v-if='newTab'>
+	<a :href='props.link' target='_blank' v-if='props.newTab'>
 		<slot/>
 	</a>
-	<a :href='link' v-else-if='link'>
+	<a :href='props.link' v-else-if='props.link'>
 		<slot/>
 	</a>
 	<div v-else>
@@ -10,20 +10,17 @@
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'DivLink',
-	props: {
-		link: {
-			type: String,
-			default: null,
-		},
-		newTab: {
-			type: Boolean,
-			default: false,
-		},
-	}
-}
+<script setup lang="ts">
+const props = defineProps({
+	link: {
+		type: String,
+		default: null,
+	},
+	newTab: {
+		type: Boolean,
+		default: false,
+	},
+});
 </script>
 
 <style scoped>

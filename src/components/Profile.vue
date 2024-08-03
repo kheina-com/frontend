@@ -35,89 +35,69 @@
 	</div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, ref, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Loading from '@/components/Loading.vue';
 import UserIcon from '@/components/UserIcon.vue';
 import Markdown from '@/components/Markdown.vue';
 
-export default {
-	name: 'Post',
-	components: {
-		Loading,
-		UserIcon,
-		Markdown,
-	},
-	props: {
-		name: {
-			type: String,
-			default: 'user name',
-		},
-		handle: {
-			type: String,
-			default: null,
-		},
-		icon: {
-			type: String,
-			default: null,
-		},
-		isLoading: {
-			type: Boolean,
-			default: false,
-		},
-		link: {
-			type: Boolean,
-			default: true,
-		},
-		verified: {
-			type: String,
-			default: null,
-		},
-	},
-	data() {
-		return {
-			iconLoading: true,
-		};
-	},
-	computed: {
-		iconClass() {
-			switch (this.verified) {
-				case 'mod' :
-					return 'material-icons';
-				case 'admin' :
-					return 'kheina-icons';
-				default :
-					return 'material-icons-round';
-			}
-		},
-		iconName() {
-			switch (this.verified) {
-				case 'mod' :
-					return 'verified_user';
-				case 'admin' :
-					return 'sword';
-				default :
-					return 'brush';
-			}
-		},
-		verifiedDescription() {
-			switch (this.verified) {
-				case 'verified' :
-				case 'artist' :
-					return `@${this.handle} is a verified artist`;
-				case 'mod' :
-					return `@${this.handle} is a moderator`;
-				case 'admin' :
-					return `@${this.handle} is an admin`;
-				default :
-					return `@${this.handle}`;
-			}
-		},
-	},
-	methods: {
-		navigateToUser() {
-			this.$router.push('/' + this.handle);
-		},
-	},
+const router = useRouter();
+const props = withDefaults(defineProps<{
+	name: string,
+	handle?: string,
+	icon: string | null,
+	isLoading: boolean,
+	link: boolean,
+	verified: string | null,
+}>(), {
+	name: "user name",
+	icon: null,
+	isLoading: false,
+	link: true,
+	verified: null,
+});
+
+const iconLoading: Ref<boolean> = ref(true);
+
+const iconClass = computed(() => {
+	switch (props.verified) {
+		case "mod" :
+			return "material-icons";
+		case "admin" :
+			return "kheina-icons";
+		default :
+			return "material-icons-round";
+	}
+});
+
+const iconName = computed(() => {
+	switch (props.verified) {
+		case "mod" :
+			return "verified_user";
+		case "admin" :
+			return "sword";
+		default :
+			return "brush";
+	}
+});
+
+const verifiedDescription = computed(() => {
+	switch (props.verified) {
+		case "verified" :
+		case "artist" :
+			return `@${props.handle} is a verified artist`;
+		case "mod" :
+			return `@${props.handle} is a moderator`;
+		case "admin" :
+			return `@${props.handle} is an admin`;
+		default :
+			return `@${props.handle}`;
+	}
+});
+
+function navigateToUser() {
+	router.push("/" + props.handle);
 }
 </script>
 
@@ -137,6 +117,9 @@ export default {
 	margin: -0.25em;
 	border-radius: var(--border-radius);
 	border-radius: calc(var(--border-radius) + 0.25em) var(--border-radius) var(--border-radius) calc(var(--border-radius) + 0.25em);
+}
+a.profile:hover {
+	background: var(--bg1color);
 }
 .profile .inner {
 	display: flex;

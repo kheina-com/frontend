@@ -1,17 +1,18 @@
 import vue from '@vitejs/plugin-vue';
-import { minifyHtml } from './vite-plugins.js';
+import { defineConfig } from 'vite'
+import { minifyHtml } from './vite-plugins';
+import path from 'path';
+import child_process from 'child_process';
 
-const path = require('path');
-
-const fullCommit = require('child_process')
+const fullCommit = child_process
 	.execSync('git rev-parse HEAD')
 	.toString();
 
-const shortCommit = require('child_process')
+const shortCommit = child_process
 	.execSync('git rev-parse --short HEAD')
 	.toString();
 
-export default {
+export default defineConfig({
 	plugins: [
 		vue(),
 		minifyHtml(),
@@ -22,6 +23,7 @@ export default {
 		assetsInlineLimit: 0,
 	},
 	define: {
+		// these must also be defined in env.d.ts
 		__COMMIT_HASH__: JSON.stringify(fullCommit.trim()),
 		__SHORT_COMMIT_HASH__: JSON.stringify(shortCommit.trim()),
 	},
@@ -32,7 +34,7 @@ export default {
 		},
 	},
 	resolve: {
-		extensions: ['.js', '.vue', '.json', '.*'],
+		extensions: ['.ts', '.vue', '.json', '.*'],
 		alias: {
 			'@': path.resolve(__dirname, './src'),
 			'$': path.resolve(__dirname, './assets'),
@@ -41,4 +43,4 @@ export default {
 	assetsInclude: [
 		'src/swagger.html',
 	],
-}
+})

@@ -30,10 +30,10 @@
 	<main>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
-			<li v-for='post in posts || 20' v-else-if='tiles'>
+			<li v-for='post in posts || count' v-else-if='tiles'>
 				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
-			<li v-for='post in posts || 3' v-else>
+			<li v-for='post in posts || count' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
 		</ol>
@@ -42,15 +42,13 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, watch, type Ref } from 'vue';
 import { khatch, saveToHistory, tagSplit } from '@/utilities';
+import { useRoute, useRouter } from 'vue-router';
+import store, { Rating } from '@/globals';
 import { host } from '@/config/constants';
-import Loading from '@/components/Loading.vue';
-import Title from '@/components/Title.vue';
-import Subtitle from '@/components/Subtitle.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
-import Sidebar from '@/components/Sidebar.vue';
-import Timestamp from '@/components/Timestamp.vue';
 import Post from '@/components/Post.vue';
 import DropDown from '@/components/DropDown.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
@@ -58,143 +56,114 @@ import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
 
 
-const path = '/q/';
-const routes = new Set(['home', 'search']);
+const path = "/q/";
+const routes: Set<string | void> = new Set(["home", "search"]);
+const route = useRoute();
+const router = useRouter();
+const globals = store();
 
-
-export default {
-	name: 'Search',
-	components: {
-		Timestamp,
-		ThemeMenu,
-		Loading,
-		Sidebar,
-		Subtitle,
-		Title,
-		Post,
-		DropDown,
-		ResultsNavigation,
-		CheckBox,
-		PostTile,
+const props = defineProps({
+	query: {
+		type: String,
+		default: null,
 	},
-	props: {
-		query: {
-			type: String,
-			default: null,
-		},
-	},
-	data() {
-		return {
-			// undefined for on pageload stuff
-			posts: undefined,
-			page: null,
-			count: null,
-			sort: null,
-			tiles: this.$store.state.searchResultsTiles,
-			total_results: 0,
-		}
-	},
-	setup() {
-	},
-	created() {
-		this.fetchPosts();
+});
 
-		// this.$watch(
-		// 	() => this.$route.hash,
-		// 	hash => history.replaceState(window.history.state, '', this.$route.path.replace('#', '')),
-		// );
+// undefined for on pageload stuff
+const posts: Ref<any[] | null | void> = ref(undefined);
+const page: Ref<number> = ref(1);
+const count: Ref<number> = ref(64);
+const sort: Ref<string | null> = ref(null);
+const total_results: Ref<number> = ref(1);
+const tiles: Ref<boolean> = ref(globals.tiles);
 
-		this.$watch(
-			() => this.$route.query,
-			this.fetchPosts,
-		);
-	},
-	methods: {
-		defaultSearch() {
-			switch (this.$store.state.maxRating) {
-				case 1 :
-					return ['-explicit'];
-				case 2 :
-					return [];
-				default :
-					return ['general'];
-			}
-		},
-		fetchPosts() {
-			if (this.$route.path.length > 1 && !this.$route.path.startsWith(path))
-			{ return; }
+fetchPosts();
 
-			if (this.posts === null || !routes.has(this.$route.name))
-			{ return; }
 
-			this.page = parseInt(this.$route.query?.page) || 1;
-			this.count = parseInt(this.$route.query?.count) || 64;
-			this.sort = this.$route.query?.sort || 'hot';
-
-			// console.log(window.history.state)
-			if (window.history.state.posts)
-			{
-				this.posts = window.history.state.posts;
-				this.total_results = window.history.state.total;
-				return;
-			}
-
-			this.posts = null;
-
-			khatch(`${host}/v1/posts`, {
-					method: 'POST',
-					body: {
-						sort: this.sort,
-						tags: this.query ? tagSplit(this.query) : this.defaultSearch(),
-						page: this.page,
-						count: this.count,
-					},
-					handleError: true,
-				})
-				.then(response => {
-					response.json().then(r => {
-						// if (this.$route.hash)
-						// {}
-						// console.log(this.$route)
-						saveToHistory(r)
-						this.posts = r.posts;
-						this.total_results = r.total;
-					});
-				})
-				.catch(() => { });
-		},
-		pageLink(page) {
-			let url = this.query ? `/q/${this.query}` : '/';
-
-			let query = [];
-
-			if (page !== 1)
-			{ query.push(`page=${page}`); }
-
-			if (this.count !== 64)
-			{ query.push(`count=${this.count}`); }
-
-			if (this.sort !== 'hot')
-			{ query.push(`sort=${this.sort}`); }
-
-			return url + '?' + query.join('&');
-		},
-		setPage(page) {
-			this.page = page;
-			this.$router.push(this.pageLink(page));
-		},
-	},
-	watch: {
-		sort() {
-			if (!routes.has(this.$route.name))
-			{ return; }
-			this.$router.push(this.pageLink(this.page));
-		},
-		tiles(value) {
-			this.$store.commit('searchResultsTiles', value);
-		},
-	},
+function defaultSearch() {
+	switch (globals.rating) {
+	case Rating.mature :
+		return ["-explicit"];
+	case Rating.explicit :
+		return [];
+	default :
+		return ["general"];
+	}
 }
+
+function fetchPosts() {
+	if (route.path.length > 1 && !route.path.startsWith(path)) return;
+	if (posts.value === null || !routes.has(route.name?.toString())) return;
+
+	page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
+	count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
+	sort.value = route.query?.sort ? route.query?.sort.toString() : "hot";
+
+	// console.log(window.history.state)
+	if (window.history.state.posts) {
+		posts.value = window.history.state.posts;
+		total_results.value = window.history.state.total;
+		return;
+	}
+
+	posts.value = null;
+
+	khatch(`${host}/v1/posts`, {
+		method: "POST",
+		body: {
+			sort: sort.value,
+			tags: props.query ? tagSplit(props.query) : defaultSearch(),
+			page: page.value,
+			count: count.value,
+		},
+		handleError: true,
+	})
+	.then(response => {
+		response.json().then(r => {
+			// if (this.$route.hash)
+			// {}
+			// console.log(this.$route)
+			saveToHistory(r)
+			posts.value = r.posts;
+			total_results.value = r.total;
+		});
+	})
+	.catch(() => { });
+}
+
+function pageLink(p: number) {
+	let url = props.query ? `/q/${props.query}` : "/";
+
+	let query = [];
+
+	if (p !== 1)
+	{ query.push(`page=${p}`); }
+
+	if (count.value !== 64)
+	{ query.push(`count=${count.value}`); }
+
+	if (sort.value !== "hot")
+	{ query.push(`sort=${sort.value}`); }
+
+	return url + "?" + query.join("&");
+}
+
+function setPage(p: number) {
+	page.value = p;
+	router.push(pageLink(page.value));
+}
+
+// this.$watch(
+// 	() => this.$route.hash,
+// 	hash => history.replaceState(window.history.state, "", this.$route.path.replace("#", "")),
+// );
+
+watch(() => route.query, fetchPosts);
+watch(tiles, globals.searchResultsTiles);
+watch(sort, (_: string | null): void => {
+	if (!routes.has(route.name?.toString())) return;
+	router.push(pageLink(page.value));
+});
 </script>
 
 <style scoped>

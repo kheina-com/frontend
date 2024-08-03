@@ -2,15 +2,15 @@
 	<div>
 		<router-link v-show='!hideGuide' class='guide' to='/md'>markdown guide</router-link>
 		<div v-if='preview' class='markdown-container'>
-			<Markdown :content='value'/>
+			<Markdown :content='content'/>
 		</div>
 		<textarea
 			ref='mdTextArea'
 			class='interactable text'
 			v-show='!preview'
-			:value='value'
+			v-model='content'
 			spellcheck='true'
-			@input='$emit(`update:value`, $event.target.value)'
+			@input='emit'
 			@keydown.tab.prevent='tab'
 			@keydown='quote'
 		>
@@ -19,106 +19,85 @@
 	</div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { tab } from '@/utilities';
-import { ref } from 'vue';
+import { onMounted, ref, toRef, watch, type Ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 
-export default {
-	name: 'MarkdownEditor',
-	components: {
-		Markdown,
-	},
-	setup() {
-		const mdTextArea = ref(null);
-		return {
-			mdTextArea,
-		};
-	},
-	props: {
-		value: {
-			type: String,
-			default: '',
-		},
-		height: {
-			type: String,
-			default: '5rem',
-		},
-		resize: {
-			type: String,
-			default: 'both',
-		},
-		initRendered: {
-			type: Boolean,
-			default: false,
-		},
-		hideGuide: {
-			type: Boolean,
-			default: false,
-		},
-		hidePreview: {
-			type: Boolean,
-			default: false,
-		},
-	},
-	emits: [
-		'update:value',
-	],
-	data() {
-		return {
-			preview: this.initRendered,
-		};
-	},
-	mounted() {
-		this.$refs.mdTextArea.style=`min-height: ${this.height}; resize: ${this.resize}`;
-	},
-	methods: {
-		tab,
-		selection(e) {
-			return e.target.value.substring(e.target.selectionStart, e.target.selectionEnd);
-		},
-		quote(e) {
-			e.target.focus();
-			let text;
-			switch (e.key) {
-				case "(":
-					text = "(" + this.selection(e) + ")";
-					break;
-				case "[":
-					text = "[" + this.selection(e) + "]";
-					break;
-				case "{":
-					text = "{" + this.selection(e) + "}";
-					break;
-				case '"':
-				case "'":
-				case "*":
-				case "_":
-					if (e.target.selectionStart !== e.target.selectionEnd) {
-						text = e.key + this.selection(e) + e.key;
-					}
-					else {
-						text = e.key;
-					}
-					break;
-				default:
-					return;
-			}
+const mdTextArea = ref<HTMLTextAreaElement | null>(null) as Ref<HTMLTextAreaElement>;
+const props = withDefaults(defineProps<{
+	value: string | null,
+	height: string,
+	resize: string,
+	initRendered: boolean,
+	hideGuide: boolean,
+	hidePreview: boolean,
+}>(), {
+	height: "5rem",
+	resize: "both",
+	initRendered: false,
+	hideGuide: false,
+	hidePreview: false,
+});
+const emits = defineEmits(["update:value"]);
+const content = toRef(props, "value");
+const preview: Ref<boolean> = ref(props.initRendered);
 
-			e.preventDefault();
+onMounted(() => {
+	mdTextArea.value.style.minHeight = props.height;
+	mdTextArea.value.style.resize = props.resize;
+})
 
-			const start = e.target.selectionStart;
-			const end = e.target.selectionEnd;
-			if (!document.execCommand || !document.execCommand("insertText", false, text)) {
-				e.target.value = e.target.value.substring(0, start) + text + e.target.value.substring(end);
+function emit(e: Event): void {
+	return emits("update:value", (e.target as HTMLTextAreaElement).value);
+}
+
+function selection(target: HTMLTextAreaElement) {
+	return target.value.substring(target.selectionStart, target.selectionEnd);
+}
+
+function quote(e: KeyboardEvent) {
+	const target = e.target as HTMLTextAreaElement;
+	target.focus();
+	let text;
+	switch (e.key) {
+		case "(":
+			text = "(" + selection(target) + ")";
+			break;
+		case "[":
+			text = "[" + selection(target) + "]";
+			break;
+		case "{":
+			text = "{" + selection(target) + "}";
+			break;
+		case '"':
+		case "'":
+		case "*":
+		case "_":
+			if (target.selectionStart !== target.selectionEnd) {
+				text = e.key + selection(target) + e.key;
 			}
-			e.target.selectionStart = start + 1;
-			e.target.selectionEnd = end + 1;
-		},
-		togglePreview() {
-			this.preview = !this.preview;
-		},
-	},
+			else {
+				text = e.key;
+			}
+			break;
+		default:
+			return;
+	}
+
+	e.preventDefault();
+
+	const start = target.selectionStart ?? 0;
+	const end = target.selectionEnd ?? 0;
+	if (!document.execCommand || !document.execCommand("insertText", false, text)) {
+		target.value = target.value.substring(0, start) + text + target.value.substring(end);
+	}
+	target.selectionStart = start + 1;
+	target.selectionEnd = end + 1;
+}
+ 
+function togglePreview() {
+	preview.value = !preview.value;
 }
 </script>
 

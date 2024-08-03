@@ -8,9 +8,9 @@
 					name='rating'
 					v-model:value='maxRating'
 					:data="[
-						{ content: 'general' },
-						{ content: 'mature' },
-						{ content: 'explicit' },
+						{ value: Rating.general },
+						{ value: Rating.mature },
+						{ value: Rating.explicit },
 					]"
 				/>
 			</li>
@@ -59,7 +59,7 @@
 						class='checkbox'
 						id='animated-accents'
 						name='animated-accents'
-						v-model:checked='$store.state.animatedAccents'
+						v-model:checked='globals.animations'
 					>Animated Accents</CheckBox>
 				</div>
 			</li>
@@ -72,11 +72,11 @@
 		<ul class='settings'>
 			<li>
 				<span>Query Used to Retrieve Posts on Your Profile Page</span>
-				<input class='interactable text' :placeholder='`@${$store.state.user?.handle} sort:new`'>
+				<input class='interactable text' :placeholder='`@${globals.user?.handle} sort:new`'>
 			</li>
 			<li>
 				<span>Change Your @handle</span>
-				<input class='interactable text' :placeholder='`${$store.state.user?.handle}`'>
+				<input class='interactable text' :placeholder='`${globals.user?.handle}`'>
 			</li>
 			<li>
 				<span>Blocked Users</span>
@@ -107,8 +107,8 @@
 					name='media-quality'
 					v-model:value='mediaQuality'
 					:data="[
-						{ content: 'compressed' },
-						{ content: 'fullsize' },
+						{ value: 'compressed' },
+						{ value: 'fullsize' },
 					]"
 				/>
 			</li>
@@ -130,106 +130,98 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
 import { getCookie, khatch, setCookie, createToast, tagSplit } from '@/utilities';
-import { cookieFailedError } from '@/global';
+import { cookieFailedError } from '@/globals';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import CheckBox from '@/components/CheckBox.vue';
+import { onMounted, ref, watch, type Ref } from 'vue';
+import store, { Rating } from '@/globals';
 
 
-export default {
-	name: 'Account',
-	components: {
-		ThemeMenu,
-		RadioButtons,
-		CheckBox,
-	},
-	data() {
-		return {
-			maxRating: getCookie('max-rating', 'general'),
-			fontFamily: getCookie('font-family'),
-			blockBehavior: getCookie('block-behavior'),
-			mediaQuality: getCookie('media-quality'),
-			animatedEmoji: Boolean(getCookie('animated-emoji', true)),
-			CssTransitions: this.$store.state.cssTransitions,
-			saveTimeout: null,
-			isLoading: true,
-			localConfig: { },
+const globals = store();
+const maxRating: Ref<Rating> = ref(getCookie("max-rating", "general"));
+const fontFamily: Ref<string> = ref(getCookie("font-family"));
+const blockBehavior: Ref<string> = ref(getCookie("block-behavior"));
+const mediaQuality: Ref<string> = ref(getCookie("media-quality"));
+const animatedEmoji: Ref<boolean> = ref(getCookie("animated-emoji", true, "boolean"));
+const CssTransitions: Ref<boolean> = ref(globals.transitions);
+const isLoading: Ref<boolean> = ref(true);
+const localConfig: Ref<any> = ref({ });
+
+let saveTimeout: number | null = null;
+
+onMounted(retrieve);
+
+function retrieve() {
+	return khatch(`${host}/v1/config/user`, {
+		errorMessage: "Could Not Retrieve User Config!",
+		errorHandlers: {
+			// do nothing, we don't care
+			401: () => { },
+		},
+	}).then(response => response.json().then(r => {
+		globals.userConfig(r);
+		localConfig.value = {
+			...r,
+			blocked_tags: r.blocked_tags ? r.blocked_tags.map((x: string[]) => x.join(" ")).join("\n") : null,
+			blocked_users: r.blocked_users ? r.blocked_users.join(" ") : null,
 		};
-	},
-	mounted() {
-		this.retrieve();
-	},
-	methods: {
-		retrieve() {
-			return khatch(`${host}/v1/config/user`, {
-				errorMessage: 'Could Not Retrieve User Config!',
-				errorHandlers: {
-					// do nothing, we don't care
-					401: () => { },
-				},
-			}).then(response => response.json().then(r => {
-				this.$store.commit('userConfig', r);
-				this.localConfig = {
-					...r,
-					blocked_tags: r.blocked_tags ? r.blocked_tags.map(x => x.join(' ')).join('\n') : null,
-					blocked_users: r.blocked_users ? r.blocked_users.join(' ') : null,
-				};
-				this.isLoading = false;
-			}));
-		},
-		save() {
-			clearTimeout(this.saveTimeout);
-			this.saveTimeout = setTimeout(() => {
-				khatch(`${host}/v1/config/user`, {
-					method: 'PATCH',
-					errorMessage: 'Could Not Save User Config!',
-					body: {
-						blocking_behavior: this.localConfig?.blocking_behavior,
-						blocked_tags: this.localConfig?.blocked_tags ? this.localConfig.blocked_tags.split('\n').map(tagSplit) : null,
-						blocked_users: this.localConfig?.blocked_users ? tagSplit(this.localConfig.blocked_users) : null,
-						wallpaper: this.localConfig?.wallpaper ? this.localConfig.wallpaper.trim() : null,
-					},
-				})
-				.then(this.retrieve)
-				.then(() => {
-					createToast({
-						icon: 'done',
-						title: 'Saved Config!',
-						color: 'green',
-						time: 5,
-					});
-				});
-			}, 1000);
-		},
-	},
-	watch: {
-		maxRating(value) {
-			this.$store.commit('maxRating', value);
-		},
-		fontFamily(value) {
-			setCookie('font-family', value, 3155695200);
-			const fontFamily = document.getElementById('font-family');
-			if (value)
-			{ fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
-			else
-			{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
-
-			if (!this.$store.state.cookiesAllowed)
-			{
-				createToast({
-					title: 'Could could not set font family cookie',
-					description: cookieFailedError,
-				});
-			}
-		},
-		CssTransitions(value) {
-			this.$store.commit('cssTransitions', value);
-		},
-	},
+		isLoading.value = false;
+	}));
 }
+function save() {
+	if (saveTimeout) clearTimeout(saveTimeout);
+
+	saveTimeout = setTimeout(() => {
+		khatch(`${host}/v1/config/user`, {
+			method: "PATCH",
+			errorMessage: "Could Not Save User Config!",
+			body: {
+				blocking_behavior: localConfig.value?.blocking_behavior,
+				blocked_tags: localConfig.value?.blocked_tags ? localConfig.value.blocked_tags.split("\n").map(tagSplit) : null,
+				blocked_users: localConfig.value?.blocked_users ? tagSplit(localConfig.value.blocked_users) : null,
+				wallpaper: localConfig.value?.wallpaper ? localConfig.value.wallpaper.trim() : null,
+			},
+		})
+		.then(retrieve)
+		.then(() => {
+			createToast({
+				icon: "done",
+				title: "Saved Config!",
+				color: "green",
+				time: 5,
+			});
+		});
+	}, 1000);
+}
+
+watch(maxRating, (value: Rating) => {
+	globals.maxRating(value);
+});
+
+watch(fontFamily, (value: string) => {
+	setCookie("font-family", value, 3155695200);
+
+	const fontFamily = document.getElementById("font-family") as HTMLStyleElement;
+	if (value)
+	{ fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+	else
+	{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+
+	if (!globals.cookies) {
+		createToast({
+			title: "Could could not set font family cookie",
+			description: cookieFailedError,
+		});
+	}
+});
+
+watch(CssTransitions, (value: boolean) => {
+	globals.cssTransitions(value);
+});
 </script>
 
 <style scoped>

@@ -4,7 +4,7 @@
 	<div>
 		<div :class='divClass' ref='self'>
 			<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
-			<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && link'/>
+			<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && !unlink'/>
 			<div class='labels' v-show='!isLoading'>
 				<DropDown class='more-button' v-show='!hideButtons' :options="[
 					{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
@@ -51,11 +51,11 @@
 				<Subtitle static='left' v-else>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
 			</Loading>
 			<div class='buttons' v-if='!isLoading' v-show='!hideButtons'>
-				<Report :data='{ post: postId }' v-if='!isLoading'/>
+				<ReportButton :data='{ post: postId }' v-if='!isLoading'/>
 				<RepostButton :postId='postId' v-bind:count='reposts'/>
 				<FavoriteButton :postId='postId' v-bind:count='favorites'/>
 				<ShareLink class='post-buttons' :content='`/p/${postId}`' v-if='!unpublishedPrivacy.has(privacy)'/>
-				<button class='reply-button' @click.prevent.stop='$store.state.user ? replying = true : $router.push(`/account/login?path=${$route.fullPath}`)'>
+				<button class='reply-button' @click.prevent.stop='globals.user ? replying = true : $router.push(`/a/login?path=${$route.fullPath}`)'>
 					<i class='material-icons'>reply</i>
 				</button>
 			</div>
@@ -69,20 +69,21 @@
 				</div>
 			</li>
 			<li v-for='reply in replies'>
-				<Post :postId='reply.post_id' v-bind='reply' reply @loaded='onLoad'/> <!-- :loadTrigger='childTrigger' -->
+				<Post :postId='reply.post_id' v-bind='reply' reply/> <!-- @loaded='onLoad' :loadTrigger='childTrigger' -->
 			</li>
 		</ol>
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
-import { getMediaThumbnailUrl, khatch } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, host } from '@/config/constants';
-import Report from '@/components/Report.vue';
+<script setup lang="ts">
+import { computed, ref, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
+import store from '@/globals';
+import { khatch } from '@/utilities';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, host, apiErrorMessage } from '@/config/constants';
+import ReportButton from '@/components/ReportButton.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
-import Title from '@/components/Title.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
 import Score from '@/components/Score.vue';
@@ -95,340 +96,218 @@ import FavoriteButton from '@/components/FavoriteButton.vue';
 import RepostButton from '@/components/RepostButton.vue';
 import DropDown from '@/components/DropDown.vue';
 
-export default {
-	name: 'Post',
-	components: {
-		Report,
-		Title,
-		Loading,
-		Profile,
-		Markdown,
-		Score,
-		Timestamp,
-		Subtitle,
-		MarkdownEditor,
-		Button,
-		Thumbnail,
-		ShareLink,
-		FavoriteButton,
-		RepostButton,
-		DropDown,
-	},
-	props: {
-		postId: {
-			type: String,
-			default: null,
-		},
-		link: {
-			type: Boolean,
-			default: true,
-		},
-		labels: {
-			type: Boolean,
-			default: false,
-		},
-		concise: {
-			type: Boolean,
-			default: true,
-		},
-		nested: {
-			type: Boolean,
-			default: false,
-		},
-		parent: {
-			type: String,
-			default: null,
-		},
-		reply: {
-			type: Boolean,
-			default: false,
-		},
-		// loadTrigger: {
-		// 	type: Boolean,
-		// 	default: null,
-		// },
-		media_type: {
-			type: Object,
-			default: { },
-		},
-		replies: {
-			type: Array[Object],
-			default: null,
-		},
-		rating: {
-			type: String,
-			default: 'explicit',
-		},
-
-		// post fields
-		user: Object,
-		score: Object,
-		title: {
-			type: String,
-			default: null,
-		},
-		description: {
-			type: String,
-			default: null,
-		},
-		privacy: {
-			type: String,
-			default: null,
-		},
-		tags: {
-			type: Array[String],
-			default: null,
-		},
-		userIsUploader: {
-			type: Boolean,
-			default: false,
-		},
-		created: {
-			type: String,
-			default: null,
-		},
-		updated: {
-			type: String,
-			default: null,
-		},
-		filename: {
-			type: String,
-			default: null,
-		},
-		size: {
-			type: Object,
-			default: { width: 0, height: 0 },
-		},
-		blocked: {
-			type: Boolean,
-			default: false,
-		},
-		favorites: {
-			type: Number,
-			default: 0, // this value needs to be updated to null when api is updated
-		},
-		reposts: {
-			type: Number,
-			default: 0, // this value needs to be updated to null when api is updated
-		},
-		hideButtons: {
-			type: Boolean,
-			default: false,
-		},
-		to: {
-			type: String,
-			default: null,
-		},
-		thumbhash: {
-			type: String,
-			default: null,
-		},
-	},
-	emits: [
-		'loaded',
-	],
-	setup() {
-		const unpublishedPrivacy = new Set(['unpublished', 'draft']);
-		const guide = ref(null);
-		const self = ref(null);
-
-		return {
-			unpublishedPrivacy,
-			guide,
-			self,
-		};
-	},
-	data() {
-		return {
-			isMobile,
-			editing: false,
-			guideHeight: null,
-			// parentElement: null,
-			// childTrigger: null,
-			replying: null,
-			replyMessage: null,
-			acceptedMature: this.$store.state.maxRating >= ratingMap[this.rating],
-		};
-	},
-	// mounted() {
-	// 	let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
-	// 	if (parentElement.classList.contains('reply'))
-	// 	{ this.parentElement = parentElement; }
-	// 	this.onLoad();
+const props = withDefaults(defineProps<{
+	postId: string | null,
+	unlink: boolean,
+	labels: boolean,
+	concise: boolean,
+	nested: boolean,
+	parent: string | null,
+	reply: boolean,
+	// loadTrigger: {
+	// 	type: Boolean,
+	// 	default: null,
 	// },
-	computed: {
-		mediaUrl()
-		{ return this.postId !== null ? getMediaUrl(this.postId, this.filename) : ''; },
-		hasMedia()
-		{ return this.tags !== null ? !this.tags.includes('text') : true; },
-		isLoading()
-		{ return this.postId === null; },
-		divClass()
-		{ return 'post' + (!this.isLoading && this.link ? ' link' : '') + (this.nested ? ' nested' : ' unnested') + (this.reply ? ' reply' : ''); },
-		showPrivacy()
-		{ return this.privacy && this.privacy.toLowerCase() !== 'public'; },
-		isUpdated()
-		{ return this.postId !== null ? this.created !== this.updated : false; },
-		target()
-		{ return this.to || '/p/' + this.postId; },
-	},
-	methods: {
-		getMediaThumbnailUrl,
-		nav() {
-			console.log("nav:", this.target);
-			// this needs to match the fingerprint of the api:
-			/*{
-				"post_id": "string",
-				"title": "string",
-				"description": "string",
-				"user": {
-					"name": "string",
-					"handle": "string",
-					"privacy": "public",
-					"icon": "string",
-					"verified": "artist",
-					"following": true,
-				},
-				"score": {
-					"up": 0,
-					"down": 0,
-					"total": 0,
-					"user_vote": 0,
-				},
-				"rating": "general",
-				"parent": "string",
-				"privacy": "public",
-				"created": "2022-12-08T17:45:00.119Z",
-				"updated": "2022-12-08T17:45:00.119Z",
-				"filename": "string",
-				"media_type": {
-					"file_type": "string",
-					"mime_type": "string",
-				},
-				"size": {
-					"width": 0,
-					"height": 0,
-				},
-				"thumbhash": "string",
-				"blocked": true,
-			}*/
-			this.$store.state.postCache = {
-				post_id: this.postId,
-				title: this.title,
-				description: this.description,
-				user: this.user,
-				score: this.score,
-				rating: this.rating,
-				parent: this.parent,
-				privacy: this.privacy,
-				created: this.created,
-				updated: this.updated,
-				filename: this.filename,
-				media_type: this.media_type,
-				size: this.size,
-				blocked: this.blocked,
-				favorites: this.favorites,
-				reposts: this.reposts,
-				thumbhash: this.thumbhash,
-			};
-			this.$router.push(this.target);
-		},
-		followUser() {
-			khatch(`${host}/v1/user/${this.user.handle}/follow`, {
-				method: this.user.following ? 'DELETE' : 'PUT',
-			})
-			.then(response => {
-				if (response.status < 300)
-				{
-					this.user.following = !this.user.following;
-					this.$store.commit('createToast', {
-						icon: this.user.following ? 'person_add_alt' : 'person_remove',
-						title: `Successfully ${this.user.following ? 'Followed' : 'Unfollowed'} @${this.user.handle}`,
-						time: 5,
-					});
-				}
-				else if (response.status < 500)
-				{
-					response.json().then(r => {
-						this.$store.commit('createToast', {
-							title: apiErrorMessageToast,
-							description: r.error,
-						});
-					});
-				}
-				else
-				{
-					response.json().then(r => {
-						this.$store.commit('createToast', {
-							title: apiErrorMessageToast,
-							description: apiErrorDescriptionToast,
-							dump: r,
-						});
-					});
-				}
-			})
-		},
-		missingFeature() {
-			this.$store.commit('createToast', {
-				icon: 'sentiment_dissatisfied',
-				title: 'This function does not exist yet',
-				description: 'Sorry!',
-			});
-		},
-		postComment() {
-			let created = new Date();
-			let updated = created;
+	media_type: MediaType | null,
+	replies: Post[] | null,
+	rating: "general" | "mature" | "explicit",
 
-			khatch(`${host}/v1/upload/post`, {
-					method: 'PUT',
-					body: {
-						reply_to: this.postId,
-						description: this.replyMessage.trim(),
-						rating: 'general',
-						privacy: 'public',
-					},
-				})
-				.then(response => {
-					response.json()
-						.then(r => {
-							this.replies?.unshift({
-								...r,
-								replies: [],
-							});
-							this.replyMessage = null;
-							this.replying = null;
-						});
-				})
-				.catch(error => {
-					this.$store.commit('error', apiErrorMessage, error);
-					console.error(error);
-				});
-		},
-		navigateToPost(postId) {
-			this.$router.push('/p/' + postId);
-		},
-		editToggle() {
-			this.editing = !this.editing;
-		},
-		// onLoad() {
-		// 	if (this.parentElement)
-		// 	{
-		// 		let self = this.$refs.self.getBoundingClientRect();
-		// 		this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
-		// 	}
-		// 	this.$emit('loaded');
-		// 	// this.childTrigger = !this.childTrigger;
-		// },
-		updatePost() {
-			// actually update the post
-		},
-	},
-	watch: {
-		// loadTrigger() {
-		// 	this.onLoad();
-		// },
-	},
+	// post fields
+	user: User,
+	score: Score | null,
+	title: string | null,
+	description: string | null,
+	privacy: "public" | "unlisted" | "private" | "unpublished" | "draft",
+	tags: string[] | null,
+	userIsUploader: boolean,
+	created: Date,
+	updated: Date,
+	filename: string | null,
+	size: Size | null,
+	blocked: boolean,
+	favorites: number,
+	reposts: number,
+	hideButtons: boolean,
+	to: string | null,
+	thumbhash: string | null,
+}>(), {
+	postId: null,
+	unlink: false,
+	labels: false,
+	concise: true,
+	nested: false,
+	parent: null,
+	reply: false,
+	// loadTrigger: {
+	// 	type: Boolean,
+	// 	default: null,
+	// },
+	media_type: null,
+	replies: null,
+	rating: "explicit",
+
+	// post fields
+	// user: Object,
+	// score: Object,
+	title: null,
+	description: null,
+	privacy: "draft",
+	tags: null,
+	userIsUploader: false,
+	// created: null,
+	// updated: null,
+	filename: null,
+	size: null,
+	blocked: false,
+	favorites: 0, // this value needs to be updated to null when api is updated
+	reposts: 0, // this value needs to be updated to null when api is updated
+	hideButtons: false,
+	to: null,
+	thumbhash: null,
+});
+const globals = store();
+const emits = defineEmits(["loaded"]);
+const unpublishedPrivacy = new Set(["unpublished", "draft"]);
+// const guide = ref(null);
+const self = ref(null);
+const router = useRouter();
+
+let editing = false;
+// let guideHeight: number = 0;
+// parentElement: null,
+// childTrigger: null,
+const replying: Ref<boolean> = ref(false);
+const replyMessage: Ref<string> = ref("");
+const acceptedMature: Ref<boolean> = ref(ratingMap[globals.rating] >= ratingMap[props.rating]);
+// mounted() {
+// 	let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
+// 	if (parentElement.classList.contains("reply"))
+// 	{ this.parentElement = parentElement; }
+// 	this.onLoad();
+// },
+
+// const hasMedia = computed(() => { return props.tags !== null ? !props.tags.includes("text") : true; });
+const isLoading = computed(() => !props.postId);
+const divClass = computed(() => "post" + (props.postId && !props.unlink ? " link" : "") + (props.nested ? " nested" : " unnested") + (props.reply ? " reply" : ""));
+const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
+const isUpdated = computed(() => !props.postId ? props.created !== props.updated : false);
+const target = computed(() => props.to || "/p/" + props.postId	);
+
+function nav() {
+	console.log("nav:", target);
+	globals.postCache = {
+		post_id: props.postId as string,
+		title: props.title,
+		description: props.description,
+		user: props.user,
+		score: props.score,
+		rating: props.rating,
+		parent: props.parent,
+		privacy: props.privacy,
+		created: props.created,
+		updated: props.updated,
+		filename: props.filename,
+		media_type: props.media_type,
+		size: props.size,
+		blocked: props.blocked,
+		// favorites: props.favorites,
+		// reposts: props.reposts,
+		thumbhash: props.thumbhash,
+	};
+	router.push(target.value);
 }
+
+function followUser() {
+	khatch(`${host}/v1/user/${props.user.handle}/follow`, {
+		method: props.user.following ? "DELETE" : "PUT",
+	})
+	.then(response => {
+		if (response.status < 300)
+		{
+			props.user.following = !props.user.following;
+			globals.createToast({
+				icon: props.user.following ? "person_add_alt" : "person_remove",
+				title: `Successfully ${props.user.following ? "Followed" : "Unfollowed"} @${props.user.handle}`,
+				time: 5,
+			});
+		}
+		else if (response.status < 500)
+		{
+			response.json().then(r => {
+				globals.createToast({
+					title: apiErrorMessageToast,
+					description: r.error,
+				});
+			});
+		}
+		else
+		{
+			response.json().then(r => {
+				globals.createToast({
+					title: apiErrorMessageToast,
+					description: apiErrorDescriptionToast,
+					dump: r,
+				});
+			});
+		}
+	})
+}
+
+function missingFeature() {
+	globals.createToast({
+		icon: "sentiment_dissatisfied",
+		title: "This function does not exist yet",
+		description: "Sorry!",
+	});
+}
+
+function postComment() {
+	khatch(`${host}/v1/upload/post`, {
+		method: "PUT",
+		body: {
+			reply_to: props.postId,
+			description: replyMessage.value.trim(),
+			rating: "general",
+			privacy: "public",
+		},
+	})
+	.then(response => {
+		response.json()
+			.then(r => {
+				props.replies?.unshift({
+					...r,
+					replies: [],
+				});
+				replyMessage.value = "";
+				replying.value = false;
+			});
+	})
+	.catch(error => {
+		globals.setError(apiErrorMessage, error);
+		console.error(error);
+	});
+}
+
+function editToggle() {
+	editing = !editing;
+}
+// onLoad() {
+// 	if (this.parentElement)
+// 	{
+// 		let self = this.$refs.self.getBoundingClientRect();
+// 		this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
+// 	}
+// 	this.$emit("loaded");
+// 	// this.childTrigger = !this.childTrigger;
+// },
+// function updatePost() {
+// 	// actually update the post
+// }
+// watch: {
+// 	loadTrigger() {
+// 		this.onLoad();
+// 	},
+// }
 </script>
 
 <style>

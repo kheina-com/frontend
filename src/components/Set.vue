@@ -1,5 +1,5 @@
 <template>
-	<router-link :to='`/s/${setId}`' :class='divClass'>
+	<router-link :to='`/s/${setId}`' ref='set' class='set'>
 		<h2>{{title}}</h2>
 		<Profile v-bind='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p>posts: {{ commafy(count) }}</p>
@@ -9,38 +9,32 @@
 	</router-link>
 </template>
 
-<script>
+<script setup lang="ts">
+import { onMounted, ref, type Ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import { commafy } from '@/utilities';
 
+const props = withDefaults(defineProps<{
+	setId: string,
+	owner: User,
+	count: number,
+	title: string | null,
+	description: string | null,
+	privacy: string,
+	created: string,
+	updated: string,
+	nested: boolean,
+}>(), {
+	nested: false,
+});
 
-export default {
-	name: 'Set',
-	props: {
-		setId: String,
-		owner: Object[String],
-		count: Number,
-		title: String,
-		description: String,
-		privacy: String,
-		created: Date,
-		updated: Date,
-	},
-	components: {
-		Markdown,
-		Profile,
-		Timestamp,
-	},
-	methods: {
-		commafy,
-	},
-	computed: {
-		divClass()
-		{ return 'set' + (this.nested ? ' nested' : ''); },
-	},
-}
+const set = ref<HTMLAnchorElement | null>(null) as Ref<HTMLAnchorElement>;
+
+onMounted(() => {
+	if (props.nested) set.value.classList.add("nested");
+});
 </script>
 
 <style scoped>

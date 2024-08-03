@@ -21,7 +21,9 @@
 	</main>
 </template>
 
-<script>
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import store from '@/globals';
 import { khatch } from '@/utilities';
 import { apiErrorMessage, host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -29,44 +31,33 @@ import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 
+const globals = store();
 
-export default {
-	name: 'Tags',
-	components: {
-		ThemeMenu,
-		Profile,
-		Markdown,
-		Timestamp,
-	},
-	data() {
-		return {
-			users: null,
-		}
-	},
-	mounted() {
-		khatch(`${host}/v1/users/all`)
-			.then(response => {
-				response.json().then(r => {
-					console.log(r);
-					console.log(Object.values(r));
-					if (response.status < 300)
-					{ this.users = r; }
-					else if (response.status === 400)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 401)
-					{ this.$store.commit('error', r.error); }
-					else if (response.status === 404)
-					{ this.$store.commit('error', r.error); }
-					else
-					{ this.$store.commit('error', apiErrorMessage, r); }
-				});
-			})
-			.catch(error => {
-				this.$store.commit('error', apiErrorMessage, error);
-				console.error(error);
-			});
-	},
-}
+let users: FullUser[] | null = null;
+
+onMounted(() => {
+khatch(`${host}/v1/users/all`)
+	.then(response => {
+		response.json().then(r => {
+			console.log(r);
+			console.log(Object.values(r));
+			if (response.status < 300)
+			{ users = r; }
+			else if (response.status === 400)
+			{ globals.setError(r.error); }
+			else if (response.status === 401)
+			{ globals.setError(r.error); }
+			else if (response.status === 404)
+			{ globals.setError(r.error); }
+			else
+			{ globals.setError(apiErrorMessage, r); }
+		});
+	})
+	.catch(error => {
+		globals.setError(apiErrorMessage, error);
+		console.error(error);
+	});
+});
 </script>
 
 <style scoped>

@@ -3,7 +3,7 @@ export default null;
 export const minifyHtml = () => {
 	return {
 		name: 'html-transform',
-		transformIndexHtml(html) {
+		transformIndexHtml(html: string) {
 			return html.replace(
 				// remove formatting/tabbing
 				/[\t\r\n]/g, ''

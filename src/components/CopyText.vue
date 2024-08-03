@@ -9,59 +9,52 @@
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, ref, type Ref, onMounted } from 'vue';
 
-export default {
-	name: 'CopyText',
-	setup() {
-		const main = ref(null);
-		const popup = ref(null);
-		return {
-			main,
-			popup,
-		};
-	},
-	props: {
-		content: Object,
-		inline: {
-			type: Boolean,
-			default: false,
-		},
-	},
-	mounted() {
-		this.$refs.main.firstElementChild.innerText = this.copyValue;
-		if (this.inline) {
-			this.$refs.main.classList.add('inline');
+const main  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const popup = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const props = withDefaults(defineProps<{
+	content: any,
+	inline: boolean,
+}>(), {
+	inline: false,
+});
+
+const copyValue = computed((): string => {
+	if (props.content instanceof Error) {
+		return JSON.stringify({ 'error': props.content.toString(), 'stacktrace': props.content?.stack?.split('\n').filter(x => x) });
+	}
+	if (props.content instanceof Object) {
+		return JSON.stringify(props.content);
+	}
+	return props.content;
+});
+
+onMounted(() => {
+	(main.value.firstElementChild as HTMLElement).innerText = copyValue.value;
+	if (props.inline) {
+		main.value.classList.add('inline');
+	}
+	else {
+		main.value.classList.add('block');
+	}
+});
+
+let t: number | null = null;
+function copy() {
+	navigator.clipboard.writeText(copyValue.value)
+	// don't even bother supporting old shit anymore
+	.then(() => {
+		popup.value.style.display = 'block';
+		if (t) {
+			clearTimeout(t);
 		}
-		else {
-			this.$refs.main.classList.add('block');
-		}
-	},
-	computed: {
-		copyValue() {
-			if (this.content instanceof Error) {
-				return JSON.stringify({ 'error': this.content.toString(), 'stacktrace': this.content.stack.split('\n').filter(x => x) });
-			}
-			if (this.content instanceof Object) {
-				return JSON.stringify(this.content);
-			}
-			return this.content;
-		},
-	},
-	methods: {
-		copy() {
-			navigator.clipboard.writeText(this.copyValue)
-			// don't even bother supporting old shit anymore
-			.then(() => {
-				this.$refs.popup.style.display = 'block';
-				if (this.t) {
-					clearTimeout(this.t);
-				}
-				this.t = setTimeout(() => { this.$refs.popup.style.display = this.t = null }, 5000);
-			});
-		},
-	},
+		t = setTimeout(() => {
+			popup.value.style.display = "";
+			t = null;
+		}, 5000);
+	});
 }
 </script>
 

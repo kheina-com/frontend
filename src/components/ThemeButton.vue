@@ -2,10 +2,7 @@
 	<label class='themebutton' for='themecheck'><a>theme</a></label>
 </template>
 
-<script>
-export default {
-	name: 'ThemeButton',
-}
+<script setup lang="ts">
 </script>
 
 <style scoped>

@@ -32,14 +32,14 @@
 				<div class='field'>
 					<div>
 						<span>File</span>
-						<FileField v-model:file='file' :showSlot='uploadDone && file === null' v-model:width='width' v-model:height='height'>
+						<FileField v-model:file='file' :showSlot='uploadDone && !file' v-model:width='width' v-model:height='height'>
 							<Media :key='postId' :mime='mime' :src='mediaUrl' :link='false' v-model:width='width' v-model:height='height'/>
 						</FileField>
-						<div class='field flex' v-if='file !== null'>
+						<div class='field flex' v-if='file'>
 							<div>
 								width: {{width ? commafy(width) : '...'}}px height: {{height ? commafy(height) : '...'}}px
 								<br>
-								size: {{abbreviate(file.size)}}
+								size: {{abbreviateBytes(file.size)}}
 							</div>
 							<div class='actions'>
 								<CheckBox
@@ -61,7 +61,7 @@
 					</div>
 					<div>
 						<span>Resized Dimensions</span>
-						<div v-show='resized'>
+						<div v-if='resized'>
 							width: {{resized ? commafy(resized?.width) : '...'}}px height: {{resized ? commafy(resized?.height) : '...'}}px
 							<br>
 							size: {{resized.scale.toFixed(2)}}%
@@ -69,10 +69,11 @@
 					</div>
 				</div>
 				<template v-slot:onLoad>
-					<ProgressBar :fill='uploadProgress'/>
+					<Spinner :loaded='uploadLoaded' :total='uploadTotal'/>
+					<!-- <ProgressBar :fill='uploadProgress'/> -->
 				</template>
 			</Loading>
-			<!-- <Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: var(--margin)' v-else/> -->
+			<!-- <Media :mime='mime' :src='mediaUrl' v-model:	width='width' v-model:height='height' style='margin-top: var(--margin)' v-else/> -->
 			<div class='field'>
 				<div>
 					<span>Title</span>
@@ -119,9 +120,9 @@
 						name='privacy'
 						v-model:value='update.privacy'
 						:data="[
-							{ content: 'public' },
-							{ content: 'unlisted' },
-							{ content: 'private' },
+							{ value: 'public' },
+							{ value: 'unlisted' },
+							{ value: 'private' },
 						]"
 					/>
 				</div>
@@ -140,9 +141,9 @@
 						name='rating'
 						v-model:value='update.rating'
 						:data="[
-							{ content: 'general' },
-							{ content: 'mature' },
-							{ content: 'explicit' },
+							{ value: 'general' },
+							{ value: 'mature' },
+							{ value: 'explicit' },
 						]"
 					/>
 				</div>
@@ -230,622 +231,588 @@
 	</main>
 </template>
 
-<script>
-import { ref } from 'vue';
-import { commafy, createToast, khatch, tab, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
-import { cdnHost, host, tagGroups, environment, isMobile } from '@/config/constants';
+<script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import store from '@/globals';
+import { abbreviateBytes, commafy, createToast, khatch, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
+import { cdnHost, host, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
+import Spinner from '@/components/Spinner.vue';
 import Button from '@/components/Button.vue';
 import Title from '@/components/Title.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Media from '@/components/Media.vue';
-import ProgressBar from '@/components/ProgressBar.vue';
 import FileField from '@/components/FileField.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
-import CopyText from '@/components/CopyText.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import Post from '@/components/Post.vue';
 
-const PublishedPrivacies = new Set(['public', 'unlisted', 'private']);
+const globals = store();
+const route = useRoute();
+const router = useRouter();
+const PublishedPrivacies: Set<string | null> = new Set(["public", "unlisted", "private"]);
+const path = "/create";
+const postIdRegex = /^[a-zA-Z0-9_-]{8}$/;
 
-const path = '/create';
-export default {
-	name: 'Upload',
-	components: {
-		ThemeMenu,
-		Loading,
-		Subtitle,
-		Title,
-		Media,
-		ProgressBar,
-		FileField,
-		RadioButtons,
-		Markdown,
-		Button,
-		CopyText,
-		MarkdownEditor,
-		CheckBox,
-		Post,
+const tagDiv = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const draftsPanel = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+
+// serverTags: null;
+const savedTags: Ref<Set<string>> = ref(new Set());
+const activeTags: Ref<Set<string>> = ref(new Set());
+const tagSuggestions: Ref<{ [k: string]: string[] } | null> = ref(null);
+const showSuggestions: Ref<boolean> = ref(true);
+const showUpload: Ref<boolean> = ref(false);
+const showResize: Ref<boolean> = ref(false);
+const resized: Ref<{ height: number, width: number, scale: number } | null> = ref(null);
+const isUploading: Ref<boolean> = ref(false);
+const saving: Ref<boolean> = ref(false);
+
+const uploadLoaded: Ref<number> = ref(0);
+let uploadTotal: number = 0;  // only loaded needs to be a ref since they're updated together
+// uploadUnavailable: false;
+const uploadDone: Ref<boolean> = ref(false);
+const mime: Ref<string | undefined> = ref();
+const file: Ref<File | undefined> = ref();
+const width: Ref<number> = ref(0);
+const height: Ref<number> = ref(0);
+const update: Ref<any> = ref({ });
+const mediaUrl: Ref<string | undefined> = ref();
+
+let filename: string | null = null;
+
+// request fields
+const postId: Ref<string | undefined> = ref("");  // this must start as not-undefined as route.query?.post?.toString() returns undefined with no query
+const description: Ref<string | null> = ref(null);
+const title: Ref<string | null> = ref(null);
+const privacy: Ref<string | null> = ref(null);
+const rating: Ref<string | null> = ref(null);
+const parent: Ref<string | null> = ref(null);
+
+// drafts
+const drafts: Ref<any[] | null> = ref(null);
+const showDrafts: Ref<boolean> = ref(false);
+
+// parent post
+const parentPost: Ref<Post | null> = ref(null);
+const validParent: Ref<boolean | null> = ref(null);
+
+// active tag tracking
+let tagTrackerTimeout: number | null = null;
+
+interface RouterEvent {
+	query: {
+		post?: string,
 	},
-	setup() {
-		const tagRecommendations = ref(null);
-		const tagDiv = ref(null);
-		const draftsPanel = ref(null);
+}
 
-		return {
-			tagRecommendations,
-			tagDiv,
-			draftsPanel,
-		};
-	},
-	data() {
-		return {
-			isMobile,
-			environment,
-			tagGroups,
-			PublishedPrivacies,
-			serverTags: null,
-			savedTags: new Set(),
-			activeTags: new Set(),
-			tagSuggestions: null,
-			showSuggestions: true,
-			postIdRegex: /^[a-zA-Z0-9_-]{8}$/,
+onMounted(() => {
+	postWatcher(route.query?.post?.toString());
+	document.addEventListener("router-event", queryListener);
+});
 
-			showUpload: false,
-			showResize: false,
-			resized: null,
-			isUploading: false,
-			uploadProgress: 0,
-			// uploadUnavailable: false,
-			uploadDone: false,
-			mime: null,
-			filename: null,
-			file: null,
-			width: null,
-			height: null,
-			update: { },
-			mediaUrl: null,
+onUnmounted(() =>
+	document.removeEventListener("router-event", queryListener)
+);
 
-			saving: false,
+const emojiPlaceholder = computed(() => ":" +
+	(update.value.title || title.value || postId.value)
+		.toLowerCase()
+		.split(/\s+/)
+		.filter((x: string) => x)
+		.join("-")
+		.replaceAll(/[^a-z-]/gi, "") +
+	"-" +
+	globals.user.handle +
+	":"
+);
 
-			// request fields
-			postId: null,
-			description: null,
-			title: null,
-			privacy: null,
-			rating: null,
-			parent: null,
-
-			// drafts
-			drafts: null,
-			showDrafts: false,
-
-			// parent post
-			parentPost: { },
-			validParent: null,
-
-			// active tag tracking
-			tagTrackerTimeout: null,
-		};
-	},
-	mounted() {
-		this.postWatcher(this.$route.query?.post);
-		document.addEventListener("router-event", this.queryListener);
-
-		this.$watch(
-			() => this.$route.query?.post,
-			this.postWatcher,
-		);
-
-		this.$watch(
-			() => this.update?.webResize,
-			this.calcResize,
-		);
-
-		this.$watch(
-			() => this.width * this.height,
-			this.calcResize,
-		);
-
-		this.$watch(
-			() => this.update.parent,
-			this.fetchParent,
-		);
-	},
-	unmounted() {
-		document.removeEventListener("router-event", this.queryListener);
-	},
-	computed: {
-		emojiPlaceholder() {
-			return ':' +
-				(this.update.title || this.title || this.postId)
-					.toLowerCase()
-					.split(/\s+/)
-					.filter(x => x)
-					.join('-')
-					.replaceAll(/[^a-z-]/gi, '') +
-				'-' +
-				this.$store.state.user.handle +
-				':';
-		},
-	},
-	methods: {
-		commafy,
-		tab,
-		sortTagGroups,
-		fetchParent(postId) {
-			if (this.postIdRegex.exec(postId)) {
-				this.validParent = true;
-				if (this.$store.state.postCache?.post_id === postId) {
-					this.parentPost = this.$store.state.postCache;
-				}
-				else {
-					khatch(`${host}/v1/post/${postId}`, {
-						errorMessage: 'Unable To Retrieve Post Data!',
-					}).then(r => r.json())
-					.then(r => this.parentPost = r);
-				}
-			}
-			else {
-				this.validParent = false;
-				this.parentPost = { };
-			}
-		},
-		calcResize() {
-			if (!this.update.webResize)
-			{ this.resized = null; }
-
-			if (this.width > this.height) {
-				const size = Math.min(parseInt(this.update.webResize), this.width);
-				this.resized = {
-					width: size,
-					height: Math.round((this.height / this.width) * size),
-					scale: size / this.width * 100,
-				};
-			}
-			else {
-				const size = Math.min(parseInt(this.update.webResize), this.height);
-				this.resized = {
-					height: size,
-					width: Math.round((this.width / this.height) * size),
-					scale: size / this.height * 100,
-				};
-			}
-		},
-		abbreviate(bytes) {
-			const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-			let count = 0;
-			while (bytes > 1024) {
-				bytes /= 1024;
-				count += 1;
-			}
-			if (bytes < 100)
-			{ return `${Math.round(bytes * 100) / 100}${units[count]}`; }
-			return `${Math.round(bytes * 10) / 10}${units[count]}`;
-		},
-		toggleDrafts() {
-			this.showDrafts = !this.showDrafts;
-			if (this.showDrafts)
-			{ this.$refs.draftsPanel.classList.add('open'); }
-			else
-			{ this.$refs.draftsPanel.classList.remove('open'); }
-
-			if (this.drafts === null) {
-				this.fetchDrafts();
-			}
-		},
-		fetchDrafts() {
-			this.drafts = null;
-			khatch(`${host}/v1/posts/drafts`, {
-				handleError: true,
+function fetchParent(parentId: string) {
+	if (postIdRegex.exec(parentId)) {
+		validParent.value = true;
+		if (globals.postCache?.post_id === parentId) {
+			parentPost.value = globals.postCache;
+		}
+		else {
+			khatch(`${host}/v1/post/${parentId}`, {
+				errorMessage: "Unable To Retrieve Post Data!",
 			}).then(r => r.json())
-			.then(r => this.drafts = r.toSorted((a, b) => new Date(b.updated) - new Date(a.updated)));
+			.then(r => parentPost.value = r);
+		}
+	}
+	else {
+		validParent.value = false;
+		parentPost.value = null;
+	}
+}
+
+function calcResize() {
+	if (!update.value.webResize)
+	{ resized.value = null; }
+
+	if (width.value > height.value) {
+		const size = Math.min(parseInt(update.value.webResize), width.value);
+		resized.value = {
+			width: size,
+			height: Math.round((height.value / width.value) * size),
+			scale: size / width.value * 100,
+		};
+	}
+	else {
+		const size = Math.min(parseInt(update.value.webResize), height.value);
+		resized.value = {
+			height: size,
+			width: Math.round((width.value / height.value) * size),
+			scale: size / height.value * 100,
+		};
+	}
+}
+
+function toggleDrafts() {
+	showDrafts.value = !showDrafts.value;
+	if (showDrafts.value)
+	{ draftsPanel.value.classList.add("open"); }
+	else
+	{ draftsPanel.value.classList.remove("open"); }
+
+	if (drafts.value === null) {
+		fetchDrafts();
+	}
+}
+
+function fetchDrafts() {
+	drafts.value = null;
+	khatch(`${host}/v1/posts/drafts`, {
+		handleError: true,
+	}).then(r => r.json())
+	.then(r => drafts.value = r.toSorted((a: Post, b: Post) => new Date(b.updated).valueOf() - new Date(a.updated).valueOf()));
+}
+function closeDrafts() {
+	showDrafts.value = false;
+	draftsPanel.value.classList.remove("open");
+}
+
+function markDraft() {
+	saving.value = true;
+	uploadFile()
+	.then(() => saveData())
+	.then(() => khatch(`${host}/v1/upload/privacy`, {
+		handleError: true,
+		method: "PATCH",
+		body: {
+			post_id: postId.value,
+			privacy: "draft",
 		},
-		closeDrafts() {
-			this.showDrafts = false;
-			this.$refs.draftsPanel.classList.remove('open');
+	})).then(() => {
+		privacy.value = "draft";
+		createToast({
+			icon: "done",
+			title: "Saved as Draft!",
+			color: "green",
+			time: 5,
+		});
+	}).finally(() => saving.value = false);
+}
+
+function savePost() {
+	saving.value = true;
+	uploadFile()
+	.then(() => saveData())
+	.finally(() => saving.value = false);
+}
+
+function publishPost() {
+	if (!PublishedPrivacies.has(update.value.privacy)) {
+		createToast({
+			title: "Privacy Not Set!",
+			time: 5,
+		});
+		return;
+	}
+	saving.value = true;
+	uploadFile()
+	.then(() => saveData(true))
+	.then(() => khatch(`${host}/v1/upload/privacy`, {
+		handleError: true,
+		method: "PATCH",
+		body: {
+			post_id: postId.value,
+			privacy: update.value.privacy,
 		},
-		markDraft() {
-			this.saving = true;
-			this.uploadFile()
-			.then(this.saveData)
-			.then(() => khatch(`${host}/v1/upload/privacy`, {
-				handleError: true,
-				method: 'PATCH',
-				body: {
-					post_id: this.postId,
-					privacy: 'draft',
-				},
-			})).then(() => {
-				this.privacy = 'draft';
+	})).then(() => {
+		privacy.value = update.value.privacy;
+		router.push(`/p/${postId.value}`);
+	}).catch(() => saving.value = false);
+}
+
+function addTag(tag: string) {
+	if (activeTags.value.has(tag)) {
+		activeTags.value.delete(tag);
+		tagDiv.value.innerText = Array.from(activeTags.value).join(" ");
+		(document.getElementById(tag) as HTMLElement).style.borderColor = "";
+	} else {
+		activeTags.value.add(tag);
+		tagDiv.value.innerText = Array.from(activeTags.value).join(" ");
+		(document.getElementById(tag) as HTMLElement).style.borderColor = "var(--interact)";
+	}
+}
+
+function showData() {
+	console.log({
+		// errorDump: this.errorDump,
+		file: file.value,
+		update: JSON.parse(JSON.stringify(update.value)),
+		title: title.value,
+		description: description.value,
+		privacy: privacy.value,
+		rating: rating.value,
+		activeTags: activeTags.value,
+		savedTags: savedTags.value,
+		tagSuggestions: tagSuggestions.value,
+		meta: {
+			filename: filename,
+			showUpload: showUpload.value,
+			isUploading: isUploading.value,
+			uploadLoaded: uploadLoaded.value,
+			uploadTotal: uploadTotal,
+			// uploadUnavailable: this.uploadUnavailable,
+			uploadDone: uploadDone.value,
+		},
+	});
+}
+
+function uploadFile(finish=false) {
+	saving.value = true;
+	return new Promise<void>((resolve, reject) => {
+		if (isUploading.value || !file.value /* || this.uploadUnavailable */) return resolve();
+
+		if (!postId.value) return reject("postId has no value");
+
+		isUploading.value = true;
+
+		let formdata = new FormData();
+		formdata.append("file", file.value);
+		formdata.append("post_id", postId.value);
+
+		if (update.value.webResize) formdata.append("web_resize", parseInt(update.value.webResize.trim()).toString());
+
+		const complete = () => {
+			showResize.value = false;
+			uploadDone.value = true;
+			isUploading.value = false;
+			uploadLoaded.value = 0;
+			uploadTotal = 0;
+			if (finish)
+			{ saving.value = false; }
+		};
+
+		const errorHandler = (event: XMLHttpRequestEventMap["load"]) => {
+			createToast({
+				title: "Something broke during upload",
+				description: "If you submit a bug report, please include the data below.",
+				dump: ajax?.responseType === "text" ? ajax.responseText : event,
+			});
+			console.error("error:", event);
+			complete();
+		};
+
+		const ajax = new XMLHttpRequest();
+
+		ajax.upload.addEventListener("progress", event => {
+			uploadLoaded.value = event.loaded;
+			uploadTotal = event.total;
+		}, false);
+		ajax.addEventListener("load", (event) => {
+			if (ajax.response.status >= 400) return complete(), reject(errorHandler(event));
+			const response = JSON.parse(ajax.responseText);
+			mediaUrl.value = `${cdnHost}/${encodeURIComponent(response.url)}`;
+			if (!file.value) return complete(), reject("file was unset during upload, please refresh the page");
+			mime.value = file.value.type;
+			file.value = undefined;
+			complete();
+			resolve();
+		}, false);
+		ajax.addEventListener("error", e => reject(errorHandler(e)), false);
+
+		const auth = globals.auth?.token;
+		ajax.open("POST", `${host}/v1/upload/image`);
+		ajax.setRequestHeader("authorization", "bearer " + auth);
+
+		ajax.send(formdata);
+	});
+}
+
+function saveData(publish=false) {
+	return new Promise<void>((resolve, reject) => {
+		let sendUpdate = false;
+		let requiredSuccesses = 0;
+		let successes = 0;
+
+		if (title.value !== update.value.title) {
+			sendUpdate = true;
+			title.value = update.value.title = update.value.title.trim();
+		}
+
+		if (description.value !== update.value.description) {
+			sendUpdate = true;
+			description.value = update.value.description;
+		}
+
+		if (rating.value !== update.value.rating) {
+			sendUpdate = true;
+			rating.value = update.value.rating;
+		}
+
+		if (parent.value !== update.value.parent) {
+			sendUpdate = true;
+			parent.value = update.value.parent;
+		}
+
+		const success = () => {
+			successes++;
+			if (successes >= requiredSuccesses) {
 				createToast({
-					icon: 'done',
-					title: 'Saved as Draft!',
-					color: 'green',
+					icon: "done",
+					title: "Post Updated!",
+					color: "green",
 					time: 5,
 				});
-			}).finally(() => this.saving = false);
-		},
-		savePost() {
-			this.saving = true;
-			this.uploadFile()
-			.then(this.saveData)
-			.finally(() => this.saving = false);
-		},
-		publishPost() {
-			if (!PublishedPrivacies.has(this.update.privacy)) {
+				resolve();
+			}
+		};
+
+		if (sendUpdate) {
+			requiredSuccesses++;
+			khatch(`${host}/v1/upload/post`, {
+				method: "PATCH",
+				errorMessage: "failed to update post!",
+				body: {
+					post_id: postId.value,
+					title: title.value,
+					description: description.value,
+					rating: rating.value,
+					parent: parent.value,
+				},
+			}).then(success)
+			.catch(reject);
+		}
+
+		const aTags = new Set(activeTags.value);
+
+		let rTags: string[] = [];
+		savedTags.value.forEach(tag => {
+			if (!aTags.has(tag))
+			{ rTags.push(tag); }
+		});
+
+		if (rTags.length > 0) {
+			requiredSuccesses++;
+			khatch(`${host}/v1/tags/remove`, {
+				errorMessage: "failed to remove tags!",
+				method: "POST",
+				body: {
+					post_id: postId.value,
+					tags: rTags,
+				},
+			}).then(success)
+			.catch(reject);
+		}
+
+		let newTags: string[] = [];
+		aTags.forEach(tag => {
+			if (!savedTags.value.has(tag))
+			{ newTags.push(tag); }
+		});
+
+		if (newTags.length > 0) {
+			requiredSuccesses++;
+			khatch(`${host}/v1/tags/add`, {
+				errorMessage: "failed to add tags!",
+				method: "POST",
+				body: {
+					post_id: postId.value,
+					tags: newTags,
+				},
+			}).then(success)
+			.catch(reject);
+		}
+
+		if (requiredSuccesses === 0) {
+			if (!publish && privacy.value !== update.value.privacy) {
 				createToast({
-					title: 'Privacy Not Set!',
+					title: "Post Not Updated!",
+					description: "privacy was not updated, click Publish to update privacy.",
 					time: 5,
 				});
-				return;
 			}
-			this.saving = true;
-			this.uploadFile()
-			.then(() => this.saveData(true))
-			.then(() => khatch(`${host}/v1/upload/privacy`, {
-				handleError: true,
-				method: 'PATCH',
-				body: {
-					post_id: this.postId,
-					privacy: this.update.privacy,
-				},
-			})).then(() => {
-				this.privacy = this.update.privacy;
-				this.$router.push(`/p/${this.postId}`);
-			}).catch(() => this.saving = false);
-		},
-		addTag(tag) {
-			if (this.activeTags.has(tag)) {
-				this.activeTags.delete(tag);
-				this.$refs.tagDiv.innerText = Array.from(this.activeTags).join(" ");
-				document.getElementById(tag).style.borderColor = null;
-			} else {
-				this.activeTags.add(tag);
-				this.$refs.tagDiv.innerText = Array.from(this.activeTags).join(" ");
-				document.getElementById(tag).style.borderColor = "var(--interact)";
-			}
-		},
-		showData() {
-			console.log({
-				errorDump: this.errorDump,
-				file: this.file,
-				update: JSON.parse(JSON.stringify(this.update)),
-				title: this.title,
-				description: this.description,
-				privacy: this.privacy,
-				rating: this.rating,
-				activeTags: this.activeTags,
-				savedTags: this.savedTags,
-				tagSuggestions: this.tagSuggestions,
-				meta: {
-					filename: this.filename,
-					showUpload: this.showUpload,
-					isUploading: this.isUploading,
-					uploadProgress: this.uploadProgress,
-					// uploadUnavailable: this.uploadUnavailable,
-					uploadDone: this.uploadDone,
-				},
-			});
-		},
-		uploadFile(finish=false) {
-			this.saving = true;
-			return new Promise((resolve, reject) => {
-				if (this.isUploading || !this.file) // || this.uploadUnavailable
-				{ return resolve(); }
+			resolve();
+		}
 
-				this.isUploading = true;
+		console.debug(JSON.parse(JSON.stringify({
+			aTags,
+			newTags,
+			rTags,
+			savedTags: savedTags.value,
+		})));
 
-				let formdata = new FormData();
-				formdata.append('file', this.file);
-				formdata.append('post_id', this.postId);
+		savedTags.value = aTags;
+	});
+}
 
-				if (this.update.webResize)
-				{ formdata.append('web_resize', parseInt(this.update.webResize.trim())); }
+function queryListener(event: Event): void {
+	const query = (event as CustomEvent<RouterEvent | null>).detail?.query;
+	if (postId.value === query?.post) return;
 
-				const complete = () => {
-					this.showResize = false;
-					this.uploadDone = true;
-					this.isUploading = false;
-					this.uploadProgress = 0;
-					if (finish)
-					{ this.saving = false; }
-				};
+	let p = route.path;
+	if (query) {
+		p += "?" + Object.entries(query).map(e => e[0] + "=" + encodeURIComponent(e[1])).join("&");
+	}
+	history.replaceState(null, "", p);
+	return postWatcher(query?.post);
+}
 
-				const errorHandler = (event) => {
-					createToast({
-						title: 'Something broke during upload',
-						description: 'If you submit a bug report, please include the data below.',
-						dump: event?.target?.responseText ?? event,
-					});
-					console.error('error:', event);
-					complete();
-				};
+function postWatcher(value?: string) {
+	if (route.path !== path || postId.value === value) return;
+	console.debug("postWatcher:", value);
 
-				const ajax = new XMLHttpRequest();
+	postId.value = value;
+	const unset = () => {
+		uploadDone.value = false;
+		filename = null;
+		mediaUrl.value = undefined;
+		isUploading.value = false;
+		uploadLoaded.value = 0;
+		uploadTotal = 0;
+	};
 
-				ajax.upload.addEventListener('progress', event => this.uploadProgress = (event.loaded / event.total), false);
-				ajax.addEventListener('load', (event) => {
-					if (event.target.status >= 400)
-					{ return reject(errorHandler(event)); }
-					const response = JSON.parse(event.target.responseText);
-					this.mediaUrl = `${cdnHost}/${encodeURIComponent(response.url)}`;
-					this.mime = this.file.type;
-					this.file = null;
-					complete();
-					resolve();
-				}, false);
-				ajax.addEventListener('error', e => reject(errorHandler(e)), false);
+	if (postId.value?.length === 8) {
+		if (globals.postCache?.post_id === postId.value) {
+			const r = globals.postCache;
+			description.value = update.value.description = r.description;
+			title.value = update.value.title = r.title;
+			privacy.value = update.value.privacy = r.privacy;
+			rating.value = update.value.rating = r.rating;
+			parent.value = update.value.parent = r.parent;
+			mime.value = r.media_type?.mime_type;
 
-				const auth = this.$store.state.auth?.token;
-				ajax.open('POST', `${host}/v1/upload/image`);
-				ajax.setRequestHeader('authorization', 'bearer ' + auth);
-
-				ajax.send(formdata);
-			});
-		},
-		saveData(publish=false) {
-			return new Promise((resolve, reject) => {
-				let sendUpdate = false;
-				let requiredSuccesses = 0;
-				let successes = 0;
-
-				if (this.title !== this.update.title) {
-					sendUpdate = true;
-					this.title = this.update.title = this.update.title.trim();
-				}
-
-				if (this.description !== this.update.description) {
-					sendUpdate = true;
-					this.description = this.update.description;
-				}
-
-				if (this.rating !== this.update.rating) {
-					sendUpdate = true;
-					this.rating = this.update.rating;
-				}
-
-				if (this.parent !== this.update.parent) {
-					sendUpdate = true;
-					this.parent = this.update.parent;
-				}
-
-				const success = () => {
-					successes++;
-					if (successes >= requiredSuccesses) {
-						createToast({
-							icon: 'done',
-							title: 'Post Updated!',
-							color: 'green',
-							time: 5,
-						});
-						resolve();
-					}
-				};
-
-				if (sendUpdate) {
-					requiredSuccesses++;
-					khatch(`${host}/v1/upload/post`, {
-						method: 'PATCH',
-						errorMessage: 'failed to update post!',
-						body: {
-							post_id: this.postId,
-							title: this.title,
-							description: this.description,
-							rating: this.rating,
-							parent: this.parent,
-						},
-					}).then(success)
-					.catch(reject);
-				}
-
-				const activeTags = new Set(this.activeTags);
-
-				let removedTags = [];
-				this.savedTags.forEach(tag => {
-					if (!activeTags.has(tag))
-					{ removedTags.push(tag); }
-				});
-
-				if (removedTags.length > 0) {
-					requiredSuccesses++;
-					khatch(`${host}/v1/tags/remove`, {
-						errorMessage: 'failed to remove tags!',
-						method: 'POST',
-						body: {
-							post_id: this.postId,
-							tags: removedTags,
-						},
-					}).then(success)
-					.catch(reject);
-				}
-
-				let newTags = [];
-				activeTags.forEach(tag => {
-					if (!this.savedTags.has(tag))
-					{ newTags.push(tag); }
-				});
-
-				if (newTags.length > 0) {
-					requiredSuccesses++;
-					khatch(`${host}/v1/tags/add`, {
-						errorMessage: 'failed to add tags!',
-						method: 'POST',
-						body: {
-							post_id: this.postId,
-							tags: newTags,
-						},
-					}).then(success)
-					.catch(reject);
-				}
-
-				if (requiredSuccesses === 0) {
-					if (!publish && this.privacy !== this.update.privacy) {
-						createToast({
-							title: 'Post Not Updated!',
-							description: 'privacy was not updated, click Publish to update privacy.',
-							time: 5,
-						});
-					}
-					resolve();
-				}
-
-				console.debug(JSON.parse(JSON.stringify({
-					activeTags,
-					newTags,
-					removedTags,
-					savedTags: this.savedTags,
-				})));
-
-				this.savedTags = activeTags;
-			});
-		},
-		queryListener(event) {
-			const query = event?.detail?.query;
-			if (this.postId === query?.post) {
-				return;
-			}
-			let path = this.$route.path;
-			if (query) {
-				path += "?" + Object.entries(query).map(e => e[0] + "=" + encodeURIComponent(e[1])).join("&");
-			}
-			history.replaceState(null, "", path);
-			return this.postWatcher(query?.post);
-		},
-		postWatcher(value) {
-			if (this.$route.path !== path || this.postId === value)
-			{ return; }
-			console.debug("postWatcher:", value);
-
-			this.postId = value;
-			const unset = () => {
-				this.uploadDone = false;
-				this.filename = null;
-				this.mediaUrl = null;
-				this.isUploading = false;
-				this.uploadProgress = 0;
-			};
-
-			if (this.postId?.length === 8) {
-				if (this.$store.state.postCache?.post_id === this.postId) {
-					const r = this.$store.state.postCache;
-					this.description = this.update.description = r.description;
-					this.title = this.update.title = r.title;
-					this.privacy = this.update.privacy = r.privacy;
-					this.rating = this.update.rating = r.rating;
-					this.parent = this.update.parent = r.parent;
-					this.mime = r.media_type?.mime_type;
-
-					if (r.filename) {
-						this.uploadDone = true;
-						this.filename = r.filename;
-						this.mediaUrl = getMediaUrl(this.postId, this.filename);
-						this.width = r?.size?.width;
-						this.height = r?.size?.height;
-					}
-					else {
-						unset();
-					}
-					this.$store.state.postCache = null;
-				}
-				else {
-					khatch(`${host}/v1/post/${this.postId}`, {
-						errorMessage: 'Unable To Retrieve Post Data!',
-					}).then(r => r.json())
-					.then(r => {
-						this.description = this.update.description = r.description ?? "";
-						this.title = this.update.title = r.title ?? "";
-						this.privacy = this.update.privacy = r.privacy;
-						this.rating = this.update.rating = r.rating;
-						this.parent = this.update.parent = r.parent ?? "";
-						this.mime = r.media_type?.mime_type;
-						if (r.filename) {
-							this.uploadDone = true;	
-							this.filename = r.filename;
-							this.mediaUrl = getMediaUrl(this.postId, this.filename);
-							this.width = r?.size?.width;
-							this.height = r?.size?.height;
-						}
-						else {
-							unset();
-						}
-						// if (this.privacy !== 'unpublished' && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
-						// { this.uploadUnavailable = true; }
-					});
-				}
-
-				khatch(`${host}/v1/tags/${this.postId}`, {
-					errorMessage: 'Unable To Retrieve Post Tags!',
-				}).then(r => r.json())
-				.then(r => {
-					this.savedTags = new Set(Object.values(r).flat());
-					this.colorizeTags(this.savedTags);
-					this.$refs.tagDiv.innerText = Array.from(this.savedTags).join(' ');
-				});
-
-				khatch(`${host}/v1/tags/frequently_used`, {
-					errorMessage: 'Unable To Retrieve Your Recommended Tags!',
-					errorHandlers: { 404: () => { } },
-				}).then(r => r.json())
-				.then(r => {
-					this.tagSuggestions = { };
-					for (let [group, tags] of Object.entries(r)) {
-						if (Object.values(tags).length !== 0) {
-							this.tagSuggestions[group] = tags;
-						}
-					}
-					setTimeout(this.colorizeTags);
-				});
+			if (r.filename) {
+				uploadDone.value = true;
+				filename = r.filename;
+				mediaUrl.value = getMediaUrl(postId.value, filename);
+				console.log("mediaUrl:", mediaUrl.value);
+				width.value = r?.size?.width ?? 0;
+				height.value = r?.size?.height ?? 0;
 			}
 			else {
 				unset();
-				khatch(`${host}/v1/upload/post`, {
-					method: 'PUT',
-					errorMessage: 'Unable To Create New Post Draft!',
-					body: { },
-				}).then(r => r.json())
-				.then(r => document.dispatchEvent(new CustomEvent("router-event", { detail: { query: { post: r.post_id } } })));
 			}
-		},
-		tagTracker() {
-			if (this.tagTrackerTimeout) {
-				clearTimeout(this.tagTrackerTimeout);
+			globals.postCache = null;
+		}
+		else {
+			khatch(`${host}/v1/post/${postId.value}`, {
+				errorMessage: "Unable To Retrieve Post Data!",
+			}).then(r => r.json())
+			.then(r => {
+				description.value = update.value.description = r.description ?? "";
+				title.value = update.value.title = r.title ?? "";
+				privacy.value = update.value.privacy = r.privacy;
+				rating.value = update.value.rating = r.rating;
+				parent.value = update.value.parent = r.parent ?? "";
+				mime.value = r.media_type?.mime_type;
+				if (r.filename) {
+					uploadDone.value = true;	
+					filename = r.filename;
+					mediaUrl.value = getMediaUrl(r.post_id, r.filename);
+					console.log("mediaUrl:", mediaUrl.value, "r:", r);
+					width.value = r?.size?.width;
+					height.value = r?.size?.height;
+				}
+				else {
+					unset();
+				}
+				// if (privacy.value !== "unpublished" && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
+				// { this.uploadUnavailable = true; }
+			});
+		}
+
+		khatch(`${host}/v1/tags/${postId.value}`, {
+			errorMessage: "Unable To Retrieve Post Tags!",
+		}).then(r => r.json())
+		.then(r => {
+			savedTags.value = new Set(Object.values(r).flat()) as Set<string>;
+			colorizeTags(savedTags.value);
+			tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
+		});
+
+		khatch(`${host}/v1/tags/frequently_used`, {
+			errorMessage: "Unable To Retrieve Your Recommended Tags!",
+			errorHandlers: { 404: () => { } },
+		}).then(r => r.json())
+		.then((r: { [k: string]: string[] }) => {
+			tagSuggestions.value = { };
+			for (let [group, tags] of Object.entries(r)) {
+				if (Object.values(tags).length !== 0) {
+					tagSuggestions.value[group] = tags;
+				}
 			}
-			this.tagTrackerTimeout = setTimeout(() => {
-				this.colorizeTags();
-				this.tagTrackerTimeout = null;
-			}, 300);
-		},
-		colorizeTags(tags) {
-			tags = tags || new Set(tagSplit(this.$refs.tagDiv.innerText));
-			tags.forEach(e => {
-				const b = document.getElementById(e);
-				if (b && !b.style.borderColor) {
-					// for every new tag, set border color
-					b.style.borderColor = "var(--interact)";
-				}
-			});
-			this.activeTags.forEach(e => {
-				if (!tags.has(e)) {
-					// for every old tag, unset border color
-					const b = document.getElementById(e);
-					if (b) {
-						b.style.borderColor = null;
-					}
-				}
-			});
-			this.activeTags = new Set(tags);
-		},
-	},
-	// watch: {
-	// 	activeTags(value) {
-	// 		const tags = new Set(tagSplit(this.$refs.tagDiv.innerText));
-	// 	},
-	// },
+			setTimeout(colorizeTags);
+		});
+	}
+	else {
+		unset();
+		khatch(`${host}/v1/upload/post`, {
+			method: "PUT",
+			errorMessage: "Unable To Create New Post Draft!",
+			body: { },
+		}).then(r => r.json())
+		.then(r => document.dispatchEvent(new CustomEvent<RouterEvent>("router-event", { detail: { query: { post: r.post_id } } })));
+	}
 }
+
+function tagTracker() {
+	if (tagTrackerTimeout) clearTimeout(tagTrackerTimeout);
+
+	tagTrackerTimeout = setTimeout(() => {
+		colorizeTags();
+		tagTrackerTimeout = null;
+	}, 300);
+}
+
+function colorizeTags(tags: Set<string> | null = null) {
+	tags = tags || new Set(tagSplit(tagDiv.value.innerText));
+	tags.forEach(e => {
+		const b = document.getElementById(e);
+		if (b && !b.style.borderColor) {
+			// for every new tag, set border color
+			b.style.borderColor = "var(--interact)";
+		}
+	});
+	activeTags.value.forEach(e => {
+		if (!tags.has(e)) {
+			// for every old tag, unset border color
+			const b = document.getElementById(e);
+			if (b) {
+				b.style.borderColor = "";
+			}
+		}
+	});
+	activeTags.value = new Set(tags);
+}
+
+// watch: {
+// 	activeTags(value) {
+// 		const tags = new Set(tagSplit(tagDiv.value.innerText));
+// 	},
+// },
+
+watch(() => route.query?.post?.toString(), postWatcher);
+watch(() => update.value?.webResize, calcResize);
+watch(() => width.value ** height.value, calcResize);
+watch(() => update.value.parent, fetchParent);
 </script>
 
 <style scoped>

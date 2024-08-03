@@ -1,60 +1,59 @@
 <template>
-	<DivLink class='progressbar' :style='barColors' :link='link' :newTab='newTab'>
+	<DivLink class='progressbar' :style='barColors' :link='props.link' :newTab='props.newTab'>
 		<span :style='spanFill'>
-			<div>{{target ? target : (fill * 100).toFixed(2) + '%'}}</div>
+			<div>{{props.target ? props.target : (props.fill * 100).toFixed(2) + '%'}}</div>
 		</span>
 		<p :class='pClass'><slot/></p>
 	</DivLink>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from 'vue';
 import DivLink from '@/components/DivLink.vue';
 
-export default {
-	name: 'ProgressBar',
-	components: {
-		DivLink,
+const props = defineProps({
+	fill: {
+		type: Number,
+		required: true,
 	},
-	props: {
-		fill: Number,
-		target: {
-			type: String,
-			default: null
-		},
-		textColor: {
-			type: String,
-			default: null
-		},
-		fillColor: {
-			type: String,
-			default: null
-		},
-		link: {
-			type: String,
-			default: null,
-		},
-		newTab: {
-			type: Boolean,
-			default: false,
-		},
+	target: {
+		type: String,
+		default: null
 	},
-	computed: {
-		spanFill() {
-			return 'width:' + (this.fill * 100).toString() + '%;';
-		},
-		pClass() {
-			if (this.fill >= 1)
-			{ return 'center'; }
-			else if (this.fill > 0.5)
-			{ return 'left'; }
-			else
-			{ return 'right'; }
-		},
-		barColors() {
-			return (this.textColor ? ('--bartextcolor:' + this.textColor + ';') : '') + (this.fillColor ? ('--barfillcolor:' + this.fillColor + ';') : '');
-		},
+	textColor: {
+		type: String,
+		default: null
 	},
-}
+	fillColor: {
+		type: String,
+		default: null
+	},
+	link: {
+		type: String,
+		default: null,
+	},
+	newTab: {
+		type: Boolean,
+		default: false,
+	},
+})
+
+const spanFill = computed(() =>
+	'width:' + (props.fill * 100).toString() + '%;'
+);
+
+const pClass = computed(() => {
+	if (props.fill >= 1)
+	{ return 'center'; }
+	else if (props.fill > 0.5)
+	{ return 'left'; }
+	else
+	{ return 'right'; }
+});
+
+const barColors = computed(() =>
+	(props.textColor ? ('--bartextcolor:' + props.textColor + ';') : '') + (props.fillColor ? ('--barfillcolor:' + props.fillColor + ';') : '')
+);
 </script>
 
 <style scoped>

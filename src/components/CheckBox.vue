@@ -6,7 +6,7 @@
 			:name='name'
 			:value='checked'
 			:id='id'
-			@click='emitValue'
+			@click='emit'
 			:checked='checked'
 			v-if='!skipInput'
 		>
@@ -19,68 +19,55 @@
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, type Ref, onMounted, watch } from 'vue';
 
-export default {
-	name: 'CheckBox',
-	props: {
-		name: String,
-		checked: Boolean,
-		id: String,
-		skipInput: {
-			type: Boolean,
-			default: null,
-		},
-		border: {
-			type: Boolean,
-			default: true,
-		},
-		nested: {
-			type: Boolean,
-			default: false,
-		},
+const label = ref<HTMLLabelElement | null>(null) as Ref<HTMLLabelElement>;
+const props = defineProps({
+	name: String,
+	checked: {
+		type: Boolean,
+		required: true,
 	},
-	emits: [
-		'update:checked',
-	],
-	setup() {
-		const label = ref(null);
+	id: String,
+	skipInput: {
+		type: Boolean,
+		default: null,
+	},
+	border: {
+		type: Boolean,
+		default: true,
+	},
+	nested: {
+		type: Boolean,
+		default: false,
+	},
+});
 
-		return {
-			label,
-		};
-	},
-	created() {
-		this.$emit('update:checked', this.checked);
-	},
-	mounted() {
-		if (this.checked)
-		{ this.$refs.label.classList.add('checked'); }
-		else
-		{ this.$refs.label.classList.remove('checked'); }
-		if (this.border)
-		{ this.$refs.label.classList.add('border'); }
-		if (this.nested)
-		{ this.$refs.label.classList.add('nested'); }
-	},
-	methods: {
-		getName(index) {
-			return index.split(/[\-\_]/).join(' ');
-		},
-		emitValue(event) {
-			this.$emit('update:checked', event.target.checked);
-		}
-	},
-	watch: {
-		checked(value) {
-			if (value)
-			{ this.$refs.label.classList.add('checked'); }
-			else
-			{ this.$refs.label.classList.remove('checked'); }
-		},
-	},
+const emits = defineEmits(['update:checked']);
+
+emits('update:checked', props.checked);
+onMounted(() => {
+	if (props.checked)
+	{ label.value.classList.add('checked'); }
+	else
+	{ label.value.classList.remove('checked'); }
+	if (props.border)
+	{ label.value.classList.add('border'); }
+	if (props.nested)
+	{ label.value.classList.add('nested'); }
+});
+
+function emit(event: Event) {
+	emits('update:checked', (event.target as HTMLInputElement).checked);
 }
+
+watch(() => props.checked, (value: boolean) => {
+	if (value)
+	{ label.value.classList.add('checked'); }
+	else
+	{ label.value.classList.remove('checked'); }
+})
 </script>
 
 <style scoped>

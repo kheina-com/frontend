@@ -1,29 +1,30 @@
 <template>
 	<div class='search-bar'>
 		<div class='search-input'>
-			<input :value='value' @input='$emit(`update:value`, $event.target.value)' placeholder='Search' class='interactable text' @keydown.enter='func'>
+			<input :value='props.value' @input='emit' placeholder='Search' class='interactable text' @keydown.enter='props.func'>
 			<div class='cover'/>
-			<button @click='func'><i class='material-icons-round'>search</i></button>
+			<button @click='props.func'><i class='material-icons-round'>search</i></button>
 		</div>
 		<div class='search-help'>
-			<router-link to='/search-help' class='icon'>
+			<router-link to='/sh' class='icon'>
 				<i class='material-icons-round' title='Search help'>help_outline</i>
 			</router-link>
 		</div>
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'SearchBar',
-	props: {
-		func: Function,
-		value: String,
-	},
-	emits: [
-		'update:value',
-	],
+<script setup lang="ts">
+const props = defineProps<{
+	func: { (): void },
+	value: string | null,
+}>();
+
+const emits = defineEmits(["update:value"]);
+
+function emit(e: Event) {
+	return emits("update:value", (e.target as HTMLInputElement).value);
 }
+
 </script>
 
 <style scoped>

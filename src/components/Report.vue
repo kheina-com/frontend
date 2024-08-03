@@ -1,71 +1,72 @@
 <template>
-	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report' v-if='$store.state.auth?.isMod'>
-		<i class='material-icons'>security</i>
-		<span>Moderate</span>
-	</router-link>
-	<router-link :to='destination' @click.prevent.stop='$router.push(destination)' class='report' v-else>
-		<i class='kheina-icons'>report_content</i>
-		<span>Report Content</span>
+	<router-link :to='`/r/${encodeURIComponent(report_id)}`' class='_report'>
+		<div class='_header'>
+			<Profile v-bind='reporter' v-if='reporter'/>
+			<div class='report-info'>
+				<h3>type: {{report_type}}</h3>
+				<p v-if='data.post'>Post: {{ data.post }}</p>
+				<p>URL: {{ data.url }}</p>
+			</div>
+		</div>
+		<Markdown :content='data.message'/>
+		<div style='margin-top: var(--margin)'>
+			<h3>Assignee:</h3>
+			<Profile v-bind='assignee' v-if='assignee'/>
+			<p v-else>unassigned</p>
+		</div>
+		<div>
+			<h3>Response:</h3>
+			<Markdown :content='response ?? "none"'/>
+		</div>
+		<Subtitle class='_ts' static='left'>created <Timestamp :datetime='created'/></Subtitle>
 	</router-link>
 </template>
 
-<script>
-export default {
-	name: 'Report',
-	props: {
-		data: Object,
-	},
-	computed: {
-		destination() {
-			const params = Object.entries(Object.assign({ url: this.$route.fullPath }, this.data)).map(x => `${x[0]}=${encodeURIComponent(x[1])}`).join('&');
-			if (this.$store.state.auth?.isMod)
-			{ return '/mod?' + params; }
-			return '/report?' + params;
-		},
-	},
-}
+<script setup lang="ts">
+import { type Report } from '@/utilities/report';
+import Markdown from '@/components/Markdown.vue';
+import Profile from '@/components/Profile.vue';
+import Timestamp from '@/components/Timestamp.vue';
+import Subtitle from '@/components/Subtitle.vue';
+
+defineProps<Report>();
 </script>
 
 <style scoped>
-.report {
+._header {
+	margin-bottom: var(--margin);
 	display: flex;
-	align-items: center;
-	color: var(--subtle);
-	margin: -0.1em -0.25em -0.25em;
-	position: relative;
-	z-index: 1;
+	flex-flow: row;
+	align-items: flex-start;
 }
-.mobile .report {
-	padding: 0;
+._header > .report-info {
+	margin-left: var(--margin);
 }
-.desktop .report {
-	padding: 0.25em 0.5em 0.25em 0.25em;
+._report {
+	padding: var(--margin);
+	background: var(--bg2color);
+	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 }
-.desktop .report:hover {
-	color: var(--interact);
+._report:hover {
+	border-color: var(--interact);
+}
+
+h3 {
+	margin: 0;
+}
+
+._ts {
+	margin-top: var(--margin);
+}
+
+a.profile:hover {
 	background: var(--bg1color);
 }
-.mobile .report:hover i, .tile .report:hover i {
-	color: var(--interact);
-	background: var(--bg1color);
-}
-i {
-	margin-right: 0.25em;
-	font-size: 1.2em;
-}
-.mobile i, .tile i {
-	margin-right: 0;
-}
-.tile .report {
-	padding: 0.375em;
-}
-.mobile i {
-	border-radius: var(--border-radius);
-	padding: 0.25em;
-	font-size: 1.5em;
-}
-.mobile span, .tile span {
-	display: none;
+._report.nested a.profile:hover {
+	background: var(--bg2color);
 }
 </style>

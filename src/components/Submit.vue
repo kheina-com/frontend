@@ -5,17 +5,13 @@
 	</label>
 </template>
 
-<script>
-export default {
-	name: 'Submit',
-	props: {
-		value: String,
-		onClick: {
-			type: Function,
-			default: () => { },
-		},
-	}
-}
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+	value: string,
+	onClick: { (payload: MouseEvent): void },
+}>(), {
+	onClick: () => { },
+});
 </script>
 
 <style scoped>

@@ -1,19 +1,21 @@
 <template>
 	<input type='checkbox' name='animated-accents' value='animated-accents' id='animated-accents' @click='setAnimated' v-show='false'>
 	<Banner :onResize='onResize'/>
-	<div ref='content' id='content'>
-		<router-view :key='$route.path' v-if='$store.state?.error === null'/>
-		<Error v-bind='$store.state.error' v-else/>
+	<div id='content'>
+		<Error v-bind='globals.error' v-if='globals?.error !== null'/>
+		<router-view :key='route.path' v-else/>
 		<Footer/>
 	</div>
 	<Toast/>
 	<Cookies/>
 </template>
 
-<script>
-import { ref } from 'vue';
-import { authCookie, getCookie, isDarkMode, khatch } from '@/utilities';
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { authCookie, getCookie, khatch, isDarkMode } from '@/utilities';
 import { host, isMobile } from '@/config/constants';
+import store from '@/globals';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
@@ -31,152 +33,142 @@ import dark128 from '$/favicon/dark/128.png';
 import dark256 from '$/favicon/dark/256.png';
 
 
-export default {
-	name: 'App',
-	components: {
-		Footer,
-		Cookies,
-		Banner,
-		Toast,
-		Error,
-	},
-	setup() {
-		const content = ref(null);
-		return {
-			content,
-		};
-	},
-	data() {
-		return {
-			banner: null,
-		};
-	},
-	async created() {
-		this.$store.commit('cookiesAllowed', getCookie('cookies', false, Boolean));
-		this.$store.commit('theme', getCookie('theme', 'kheina'));
-		this.$store.commit('accent', getCookie('accent', 'none'));
-		this.$store.commit('animatedAccents', getCookie('animated-accents', true, Boolean));
-		this.$store.commit('cssTransitions', getCookie('css-transitions', true, Boolean));
-		this.$store.commit('searchResultsTiles', getCookie('search-results-tiles', !isMobile, Boolean));
-		this.$store.commit('maxRating', getCookie('max-rating', 'general'));
+const globals = store();
+const route = useRoute();
 
-		const auth = authCookie();
-		if (auth)
-		{ this.$store.commit('setAuth', auth); }
-		document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
+globals.cookiesAllowed(getCookie('cookies', false, "boolean"));
+globals.setTheme(getCookie('theme', 'kheina'));
+globals.setAccent(getCookie('accent', 'none'));
+globals.animatedAccents(getCookie('animated-accents', true, "boolean"));
+globals.cssTransitions(getCookie('css-transitions', true, "boolean"));
+globals.searchResultsTiles(getCookie('search-results-tiles', !isMobile, "boolean"));
+globals.maxRating(getCookie('max-rating', 'general'));
 
-		// khatch(`${host}/v1/config/user`, {
-		// 	errorMessage: 'Could Not Retrieve User Config!',
-		// 	errorHandlers: {
-		// 		// do nothing, we don't care
-		// 		401: () => { },
-		// 	},
-		// }).then(response => response.json().then(r => {
-		// 	this.$store.commit('userConfig', r);
-		// }));
+const auth = authCookie();
+if (auth) {
+	globals.setAuth(auth);
 
-		const fontFamily = document.getElementById('font-family');
-		const customFont = getCookie('font-family');
-		if (customFont)
-		{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`; }
+	khatch(`${host}/v1/config/user`, {
+		errorMessage: 'Could Not Retrieve User Config!',
+		errorHandlers: {
+			// do nothing, we don't care
+			401: () => { },
+		},
+	}).then(response => response.json().then(r => {
+		globals.userConfig(r);
+	}));
+}
+document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
 
-		// sadly, these must be strings for vite to catch assets
-		const favicons = { };
-		if (isDarkMode()) {
-			favicons[32] = dark32;
-			favicons[64] = dark64;
-			favicons[128] = dark128;
-			favicons[256] = dark256;
+
+const fontFamily = document.getElementById('font-family') as HTMLStyleElement;
+const customFont = getCookie('font-family');
+if (customFont)
+{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`; }
+
+// sadly, these must be strings for vite to catch assets
+const favicons: { [k: number]: string } = { };
+if (isDarkMode()) {
+	favicons[32]  = dark32;
+	favicons[64]  = dark64;
+	favicons[128] = dark128;
+	favicons[256] = dark256;
+}
+else {
+	favicons[32]  = light32;
+	favicons[64]  = light64;
+	favicons[128] = light128;
+	favicons[256] = light256;
+}
+
+Object.entries(favicons).forEach(([key, value]) => {
+	const link = document.createElement("link");
+
+	link.rel = "icon";
+	link.type = "image/png";
+	link.setAttribute("sizes", `${key}x${key}`);
+	link.href = value;
+
+	document.head.appendChild(link);
+});
+
+const link = document.createElement('link');
+link.rel = 'stylesheet';	
+link.href = `${host}/v1/config/theme.css`;
+document.head.appendChild(link);
+
+let content: HTMLDivElement | undefined;
+let banner:  HTMLDivElement | undefined;
+
+onMounted(() => {
+	banner = document.getElementById("banner") as HTMLDivElement;
+	content = document.getElementById("content") as HTMLDivElement;
+
+	ResizeSensor(content, onResize);
+	onResize();
+
+	(document.getElementById('animated-accents') as HTMLInputElement).checked = globals.animations;
+
+	// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
+	globals.init = false;
+})
+
+function setAnimated(e: MouseEvent) {
+	globals.animatedAccents((e.target as HTMLInputElement).checked);
+}
+
+function onResize() {
+	document.dispatchEvent(new CustomEvent('resize'));
+
+	if (globals.error || (route.meta.applyOffset ?? true)) {
+		const offset = Math.max((banner as HTMLDivElement).clientHeight + 25, (window.innerHeight - (content as HTMLDivElement).clientHeight) / 2);
+		(content as HTMLDivElement).style.top = `${offset}px`;
+	}
+	else
+	{ (content as HTMLDivElement).style.top = `${(banner as HTMLDivElement).clientHeight}px`; }
+}
+
+function ResizeSensor(element: HTMLElement, callback: Function)
+{ // https://stackoverflow.com/a/47965966
+	const expand = document.createElement('div');
+	expand.className = 'expand';
+	expand.appendChild(document.createElement('div'));
+
+	const shrink = document.createElement('div');
+	shrink.className = 'shrink';
+	shrink.appendChild(document.createElement('div'));
+
+	element.appendChild(expand);
+	element.appendChild(shrink);
+
+	const setScroll = () => {
+		expand.scrollLeft = 10000000;
+		expand.scrollTop = 10000000;
+
+		shrink.scrollLeft = 10000000;
+		shrink.scrollTop = 10000000;
+	};
+	setScroll();
+
+	let s = element.getBoundingClientRect();
+	let currentWidth = s.width;
+	let currentHeight = s.height;
+
+	const onScroll = () => {
+		const size = element.getBoundingClientRect();
+
+		if (size.width !== currentWidth || size.height !== currentHeight) {
+			currentWidth = size.width;
+			currentHeight = size.height;
+
+			callback();
 		}
-		else {
-			favicons[32] = light32;
-			favicons[64] = light64;
-			favicons[128] = light128;
-			favicons[256] = light256;
-		}
 
-		Object.entries(favicons).forEach(([key, value]) => {
-			const link = document.createElement('link');
+		setScroll();
+	};
 
-			link.rel = 'icon';
-			link.type = 'image/png';
-			link.sizes = `${key}x${key}`;
-			link.href = value;
-
-			document.head.appendChild(link);
-		});
-
-		const link = document.createElement('link');
-		link.rel = 'stylesheet';
-		link.href = `${host}/v1/config/theme.css`;
-		document.head.appendChild(link);
-	},
-	mounted() {
-		this.banner = document.getElementsByClassName('banner')[0];
-		this.ResizeSensor(this.$refs.content, this.onResize);
-		this.onResize();
-		document.getElementById('animated-accents').checked = this.$store.state.animatedAccents;
-
-		// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
-		delete this.$store.state.init;
-	},
-	methods: {
-		setAnimated(e) {
-			this.$store.commit('animatedAccents', e.target.checked);
-		},
-		onResize() {
-			// document.dispatchEvent(new CustomEvent('resize'));
-			// console.debug('resize');
-			if (this.$store.state.error || (this.$route?.meta.applyOffset ?? true)) {
-				const offset = Math.max(this.banner.clientHeight + 25, (window.innerHeight - this.$refs.content.clientHeight) / 2);
-				this.$refs.content.style.top = `${offset}px`;
-			}
-			else
-			{ this.$refs.content.style.top = `${this.banner.clientHeight}px`; }
-		},
-		ResizeSensor(element, callback)
-		{ // https://stackoverflow.com/a/47965966
-			const expand = document.createElement('div');
-			expand.className = 'expand';
-			expand.appendChild(document.createElement('div'));
-
-			const shrink = document.createElement('div');
-			shrink.className = 'shrink';
-			shrink.appendChild(document.createElement('div'));
-
-			element.appendChild(expand);
-			element.appendChild(shrink);
-
-			const setScroll = () => {
-				expand.scrollLeft = 10000000;
-				expand.scrollTop = 10000000;
-
-				shrink.scrollLeft = 10000000;
-				shrink.scrollTop = 10000000;
-			};
-			setScroll();
-
-			let s = element.getBoundingClientRect();
-			let currentWidth = s.width;
-			let currentHeight = s.height;
-
-			const onScroll = () => {
-				const size = element.getBoundingClientRect();
-
-				if (size.width !== currentWidth || size.height !== currentHeight) {
-					currentWidth = size.width;
-					currentHeight = size.height;
-
-					callback();
-				}
-
-				setScroll();
-			};
-
-			expand.addEventListener('scroll', onScroll);
-			shrink.addEventListener('scroll', onScroll);
-		},
-	},
+	expand.addEventListener('scroll', onScroll);
+	shrink.addEventListener('scroll', onScroll);
 }
 </script>
 
@@ -425,7 +417,7 @@ html {
 	--bg0color: #000000;
 	--bg1color: #1e1f25;
 	--bg2color: #151416;
-	--bg3color: var(--bordercolor);
+	--bg3color: #1B1B20;
 	--blockquote: var(--bordercolor);
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;

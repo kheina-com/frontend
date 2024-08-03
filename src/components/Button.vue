@@ -3,52 +3,49 @@
 	<button :class='buttonClass' v-else><slot/></button>
 </template>
 
-<script>
-export default {
-	name: 'Button',
-	props: {
-		href: {
-			type: String,
-			default: null,
-		},
-		red: {
-			type: Boolean,
-			default: false,
-		},
-		yellow: {
-			type: Boolean,
-			default: false,
-		},
-		green: {
-			type: Boolean,
-			default: false,
-		},
-		nested: {
-			type: Boolean,
-			default: true,
-		},
-		isLoading: {
-			type: Boolean,
-			default: false,
-		},
+<script setup lang="ts">
+import { computed } from 'vue';
+
+const props = defineProps({
+	href: {
+		type: String,
+		default: null,
 	},
-	computed: {
-		buttonClass() {
-			let buttonClass = 'interactable';
-			if (!this.nested)
-			{ buttonClass += ' unnested'; }
-			if (this.isLoading)
-			{ buttonClass += ' loading stripes'; }
-			if (this.red)
-			{ return buttonClass + ' red'; }
-			else if (this.yellow)
-			{ return buttonClass + ' yellow'; }
-			else if (this.green)
-			{ return buttonClass + ' green'; }
-			return buttonClass;
-		},
+	red: {
+		type: Boolean,
+		default: false,
 	},
-}
+	yellow: {
+		type: Boolean,
+		default: false,
+	},
+	green: {
+		type: Boolean,
+		default: false,
+	},
+	nested: {
+		type: Boolean,
+		default: true,
+	},
+	isLoading: {
+		type: Boolean,
+		default: false,
+	},
+})
+const buttonClass = computed(() => {
+	let buttonClass = 'interactable';
+	if (!props.nested)
+	{ buttonClass += ' unnested'; }
+	if (props.isLoading)
+	{ buttonClass += ' loading stripes'; }
+	if (props.red)
+	{ return buttonClass + ' red'; }
+	else if (props.yellow)
+	{ return buttonClass + ' yellow'; }
+	else if (props.green)
+	{ return buttonClass + ' green'; }
+	return buttonClass;
+});
 </script>
 
 <style scoped>

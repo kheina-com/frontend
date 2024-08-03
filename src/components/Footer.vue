@@ -18,47 +18,40 @@
 	</footer>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, type Ref } from 'vue';
 import ThemeButton from '@/components/ThemeButton.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import { host } from '@/config/constants';
 import { khatch } from '@/utilities';
 
-export default {
-	name: 'Footer',
-	components: {
-		ThemeButton,
-		ProgressBar,
-	},
-	data() {
-		return {
-			funding: 0,
-			target: "Loading...",
-		}
-	},
-	created() {
-		this.updateLoop();
-	},
-	methods: {
-		updateLoop() {
-			khatch(`${host}/v1/config/funding`, {
-				errorMessage: 'Error Occurred While Fetching Funding',
-			}).then(response => {
-				response.json().then(r => {
-					this.funding = Math.min(r.funds / r.costs, 1);
+let funding: Ref<number> = ref(0);
+let target: Ref<string> = ref("Loading...");
 
-					// if for some fucking reason, our costs/funds exceed 52 bits of float precision, we can uncomment this.
-					// const funds = r.funds.toString();
-					// const costs = r.costs.toString();
-					// this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
-
-					this.target = `$${(r.funds / 100).toFixed(2)} / $${(r.costs / 100).toFixed(2)}`;
-				});
-			});
-			setTimeout(this.updateLoop, 300000);
+function updateLoop() {
+	khatch(`${host}/v1/config/funding`, {
+		errorMessage: 'Error Occurred While Fetching Funding',
+		errorHandlers: {
+			404: () => {
+				target.value = "Unavailable";
+			},
 		},
-	},
+	}).then(response => {
+		response.json().then(r => {
+			funding.value = Math.min(r.funds / r.costs, 1);
+
+			// if for some fucking reason, our costs/funds exceed 52 bits of float precision, we can uncomment this.
+			// const funds = r.funds.toString();
+			// const costs = r.costs.toString();
+			// this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
+
+			target.value = `$${(r.funds / 100).toFixed(2)} / $${(r.costs / 100).toFixed(2)}`;
+		});
+	});
+	setTimeout(updateLoop, 300000);
 }
+
+updateLoop();
 </script>
 
 <style scoped>

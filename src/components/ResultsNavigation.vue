@@ -25,37 +25,34 @@
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'ResultsNavigation',
-	props: {
-		navigate: Function,
-		activePage: Number,
-		totalPages: Number,
-		pagesToShow: {
-			type: Number,
-			default: 3,
-		},
-	},
-	computed: {
-		pagesBeforeCurrent() {
-			const pages = [];
-			const min = Math.max(this.activePage - this.pagesToShow, 1);
-			for (let i = min; i < this.activePage; i++) {
-				pages.push(i);
-			}
-			return pages;
-		},
-		pagesAfterCurrent() {
-			const pages = [];
-			const max = Math.min(this.activePage + this.pagesToShow, this.totalPages);
-			for (let i = this.activePage + 1; i <= max; i++) {
-				pages.push(i);
-			}
-			return pages;
-		},
-	},
-}
+<script setup lang="ts">
+import { computed } from 'vue';
+
+const props = withDefaults(defineProps<{
+	navigate: { (page: number): void },
+	activePage: number,
+	totalPages: number,
+	pagesToShow: number,
+}>(), {
+	pagesToShow: 3,
+});
+
+const pagesBeforeCurrent = computed(() => {
+	const pages = [];
+	const min = Math.max(props.activePage - props.pagesToShow, 1);
+	for (let i = min; i < props.activePage; i++) {
+		pages.push(i);
+	}
+	return pages;
+});
+const pagesAfterCurrent = computed(() => {
+	const pages = [];
+	const max = Math.min(props.activePage + props.pagesToShow, props.totalPages);
+	for (let i = props.activePage + 1; i <= max; i++) {
+		pages.push(i);
+	}
+	return pages;
+});
 </script>
 
 <style scoped>

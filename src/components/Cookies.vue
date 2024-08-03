@@ -1,29 +1,21 @@
 <template>
-	<div class='cookies' v-show='!cookiesAllowed'>
+	<div class='cookies' v-show='!cookies'>
 		<div>
 			<p>This website uses cookies.</p>
 			<p><a href='https://en.wikipedia.org/wiki/HTTP_cookie'>what are cookies?</a></p>
 		</div>
-		<button id='cookies' class='interactable' @click='cookiesAllowed=true'>coolio</button>
+		<button id='cookies' class='interactable' @click='globals.cookiesAllowed(true)'>coolio</button>
 	</div>
 </template>
 
-<script>
-import { getCookie } from '@/utilities'
+<script setup lang="ts">
+import { toRef } from 'vue';
+import store from '@/globals';
 
-export default {
-	name: 'Cookies',
-	data() {
-		return {
-			cookiesAllowed: this.$store.state.cookiesAllowed,
-		}
-	},
-	watch: {
-		cookiesAllowed(value) {
-			this.$store.commit('cookiesAllowed', value);
-		},
-	},
-}
+const globals = store();
+
+const cookies = toRef(globals.cookies);
+// const cookies: Ref<boolean> = ref(globals.cookies);
 </script>
 
 <style scoped>
@@ -31,7 +23,7 @@ export default {
 	position: fixed;
 	left: var(--margin);
 	bottom: var(--margin);
-	background: var(--bg1color);
+	background: var(--bg2color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
 	padding: var(--margin);
@@ -46,5 +38,8 @@ export default {
 .cookies a:link, .cookies a:visited {
 	font-size: 0.8em;
 	color: var(--subtle);
+}
+#cookies {
+	background: var(--bg3color);
 }
 </style>

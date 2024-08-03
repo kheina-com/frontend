@@ -5,95 +5,71 @@
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'Countdown',
-	components: { },
-	props: {
-		endtime: String,
-		endstring: {
-			type: String,
-			default: 'ended',
-		},
-		live: {
-			type: Boolean,
-			default: true,
-		},
-	},
-	data() {
-		return {
-			displayAbsolute: false,
-		}
-	},
-	mounted() {
-		if (this.live)
-		{ setTimeout(this.updateSelf, 1000); }
-	},
-	computed: {
-		date() {
-			return new Date(this.endtime);
-		},
-		absoluteTime() {
-			return this.date
-				.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })
-				.replace(`, ${new Date().getFullYear()}`, '')
-				+ ', '
-				+ this.date.toLocaleTimeString()
-				.toLowerCase();
-		},
-	},
-	methods: {
-		updateSelf() {
-			if (this.displayAbsolute)
-			{ return; }
-			this.$forceUpdate();
-			if (this.date.valueOf() - Date.now() > 0)
-			{ setTimeout(this.updateSelf, this.timeout()); }
-		},
-		relativeTime() {
-			let time = (this.date.valueOf() - Date.now()) / 1000;
-			if (time <= 0)
-			{ return this.endstring; }
-			time = Math.round(time)
-			let seconds = time % 60;
-			time -= seconds;
-			let minutes = time % 3600;
-			time -= minutes;
-			let hours = time % 86400;
-			time -= hours;
-			// days is now the time left in `time`
-			return `${String(time/86400).padStart(2, '0')}:${String(hours/3600).padStart(2, '0')}:${String(minutes/60).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-		},
-		toggleDisplayType() {
-			this.displayAbsolute = !this.displayAbsolute;
-			if (!this.displayAbsolute && this.live)
-			{ setTimeout(this.updateSelf, this.timeout()); }
-		},
-		timeout() {
-			return (this.date.valueOf() - Date.now()) % 1000;
-		},
-		conversion(time) {
-			let conversion = 1;
-			if (time > 31556952)
-			{ conversion = 1 / 31556952; }
-			else if (time > 2592000)
-			{ conversion = 1 / 2592000; }
-			else if (time > 86400)
-			{ conversion = 1 / 86400; }
-			else if (time > 3600)
-			{ conversion = 1 / 3600; }
-			else if (time > 60)
-			{ conversion = 1 / 60; }
-			else if (time < 0.000001)
-			{ conversion = 1000000000; }
-			else if (time < 0.001)
-			{ conversion = 1000000; }
-			else if (time < 1)
-			{ conversion = 1000; }
-			return conversion;
-		},
-	},
+<script setup lang="ts">
+import { computed, getCurrentInstance, onMounted, ref, type Ref } from 'vue';
+
+const displayAbsolute: Ref<boolean> = ref(false);
+const props = withDefaults(defineProps<{
+	endtime: string | Date,
+	endstring: string,
+	live: boolean,
+}>(), {
+	endstring: "ended",
+	live: true,
+});
+
+onMounted(() => {
+	if (props.live)
+	{ setTimeout(updateSelf, 1000); }
+});
+
+const date = computed(() => {
+	return new Date(props.endtime);
+});
+
+const absoluteTime = computed(() => {
+	return date.value
+	.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })
+	.replace(`, ${new Date().getFullYear()}`, '')
+	+ ', '
+	+ date.value.toLocaleTimeString()
+	.toLowerCase();
+});
+
+const instance = getCurrentInstance();
+function updateSelf(): void {
+	if (displayAbsolute.value) return;
+
+	instance?.proxy?.$forceUpdate();
+	if (date.value.valueOf() - Date.now() > 0)
+	{ setTimeout(updateSelf, timeout()); }
 }
+
+function relativeTime(): string {
+	let time = (date.value.valueOf() - Date.now()) / 1000;
+	if (time <= 0)
+	{ return props.endstring; }
+	time = Math.round(time)
+	let seconds = time % 60;
+	time -= seconds;
+	let minutes = time % 3600;
+	time -= minutes;
+	let hours = time % 86400;
+	time -= hours;
+	// days is now the time left in `time`
+	return `${String(time/86400).padStart(2, '0')}:${String(hours/3600).padStart(2, '0')}:${String(minutes/60).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function toggleDisplayType(): void {
+	displayAbsolute.value = !displayAbsolute.value;
+	if (!displayAbsolute.value && props.live)
+	{ setTimeout(updateSelf, timeout()); }
+}
+
+function timeout(): number {
+	return (date.value.valueOf() - Date.now()) % 1000;
+}
+
 </script>
 
 <style scoped>

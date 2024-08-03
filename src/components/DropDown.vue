@@ -5,9 +5,9 @@
 		<div class='dropdown-menu' ref='dropdownMenu' v-click-outside='() => toggleDropdown(false)'>
 			<div>
 				<button
-					v-for='option in options'
+					v-for='option in props.options'
 					@click.prevent.stop='option.action ? runAction(option) : setValue(option)'
-					:class='option?.value === value ? "selected" : null'
+					:class='option?.value === props.value ? "selected" : null'
 					v-html='option.html'
 				/>
 			</div>
@@ -15,69 +15,61 @@
 	</div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, type Ref } from 'vue';
 
-export default {
-	name: 'DropDown',
-	props: {
-		value: {
-			type: String,
-			default: null,
-		},
-		options: Object[String, Function],
-	},
-	setup() {
-		const dropdownMenu = ref(null);
-		const dropdownButton = ref(null);
-		return {
-			dropdownMenu,
-			dropdownButton,
-		};
-	},
-	data() {
-		return {
- 			dropdownOpen: false,
-		};
-	},
-	methods: {
-		toggleDropdown(state = null) {
-			if (this.dropdownOpen === state ?? !this.dropdownOpen)
-			{ return; }
+export interface DropDownOption {
+	value?: string,
+	html?: string,
+	action?: { (): void },
+}
 
-			this.dropdownOpen = state ?? !this.dropdownOpen;
-			if (this.dropdownOpen)
-			{
-				this.$refs.dropdownMenu.style.display = 'block'; 
-				const buttonRect = this.$refs.dropdownButton.getBoundingClientRect();
+const props = withDefaults(defineProps<{
+	value: string | null,
+	options?: DropDownOption[],
+}>(), {
+	value: null,
+})
 
-				if (this.$refs.dropdownMenu.clientHeight > window.innerHeight - buttonRect.bottom)
-				{ this.$refs.dropdownMenu.style.bottom = '100%'; }
-				else
-				{ this.$refs.dropdownMenu.style.top = '100%'; }
+const emits = defineEmits(["update:value", "change"]);
+const dropdownMenu = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const dropdownButton = ref<HTMLButtonElement | null>(null) as Ref<HTMLButtonElement>;
+let open = false;
 
-				if (this.$refs.dropdownMenu.clientWidth > window.innerWidth - buttonRect.right)
-				{ this.$refs.dropdownMenu.style.right = 0; }
-			}
-			else
-			{
-				this.$refs.dropdownMenu.style.top =
-					this.$refs.dropdownMenu.style.bottom =
-					this.$refs.dropdownMenu.style.right = null;
+function toggleDropdown(state: boolean | null = null) {
+	if (open === (state ?? !open)) return;
 
-				this.$refs.dropdownMenu.style.display = 'none';
-			}
-		},
-		setValue(option) {
-			this.$emit(`update:value`, option.value);
-			this.$emit(`change`, option.value);
-			this.toggleDropdown(false);
-		},
-		runAction(option) {
-			option.action();
-			this.toggleDropdown(false);
-		},
-	},
+	open = state ?? !open;
+	if (open) {
+		dropdownMenu.value.style.display = 'block'; 
+		const buttonRect = dropdownButton.value.getBoundingClientRect();
+
+		if (dropdownMenu.value.clientHeight > window.innerHeight - buttonRect.bottom)
+		{ dropdownMenu.value.style.bottom = '100%'; }
+		else
+		{ dropdownMenu.value.style.top = '100%'; }
+
+		if (dropdownMenu.value.clientWidth > window.innerWidth - buttonRect.right)
+		{ dropdownMenu.value.style.right = "0"; }
+	}
+	else {
+		dropdownMenu.value.style.top = "";
+		dropdownMenu.value.style.bottom = "";
+		dropdownMenu.value.style.right = "";
+
+		dropdownMenu.value.style.display = 'none';
+	}
+}
+
+function setValue(option: DropDownOption) {
+	emits("update:value", option.value);
+	emits("change", option.value);
+	toggleDropdown(false);
+}
+
+function runAction(option: DropDownOption) {
+	(option.action as { (): void })();
+	toggleDropdown(false);
 }
 </script>
 
