@@ -26,8 +26,7 @@ onMounted(() => {
 	if (route.hash) setTimeout(() => document.getElementById(route?.hash?.substring(1))?.scrollIntoView(), 0);
 });
 
-const mdGuide = `
-# Markdown Guide
+const mdGuide = `# Markdown Guide
 There are many fantastic guides available for markdown! fuzz.ly recommends [markdownguide.org](https://www.markdownguide.org/basic-syntax/) for learning the ins and outs of markdown. Soon, markdown will become as familiar to you as writing your own name!
 In addition to all the base markdown features, fuzz.ly has many [extra features](#additional-features) to make linking to other parts of the website faster and easier.
 
@@ -134,7 +133,7 @@ initial and trailing | pipes (\`\\|\`) can be omitted, | if you so choose
 These are features unique to fuzz.ly's implementation of markdown.
 
 ## User Linking
-to link to a user, you can simply precede the user's handle with an \`@\` character: @dani
+to link to a user, you can simply precede the user's handle with an \`@\` character: @kheina
 this is pretty common on other websites, however fuzz.ly also supports linking to external websites with this syntax.
 for example, twitter can be linked to like so: t@Twitter. there are many websites with similar syntax. the complete list is below.
 
@@ -197,8 +196,7 @@ Text can be aligned by adding \`<\`, \`>\` characters onto either end of your te
 \`\`\`
 > centered text <
 > right-aligned text >
-< left-aligned text <
-`.trim();
+< left-aligned text <`;
 const content: Ref<string> = ref(mdGuide);
 
 </script>

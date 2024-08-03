@@ -102,16 +102,17 @@ function mdString(): string {
 
 function render() {
 	rendered.value =  props.content ? (
-		props.inline ? (
-			marked.parse(mdString()) as string
-		) : (
-			marked.parse(mdString()) + (cut ? "	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>" : '')
+		DOMPurify.sanitize(
+			props.inline ? (
+				marked.parse(mdString()) as string
+			) : (
+				marked.parse(mdString()) + (cut ? "	<i class='material-icons-round' title='This text has been cut short'>more_horiz</i>" : '')
+			)
 		)
-	) : '';
+	) : null;
 }
 watch(() => props.content, () => {
-	if (rendered.value !== null)
-	{ render(); }
+	if (!rendered.value) render();
 });
 </script>
 
