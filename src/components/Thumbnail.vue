@@ -1,15 +1,15 @@
 <template>
-	<Loading class='thumbnail' :isLoading='isLoading && !thumbhash'>
+	<div class='thumbnail loading wave'>
 		<img ref='media' :data-src='src' @load='loaded' @error='onError'>
-	</Loading>
+	</div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { base64ToBytes, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
 import { isMobile } from '@/config/constants';
-import Loading from '@/components/Loading.vue';
 import { thumbHashToDataURL } from 'thumbhash';
+import lightnoise from '$/lightnoise.png?url';
 
 const props = withDefaults(defineProps<{
 	post: string | null,
@@ -42,9 +42,9 @@ onMounted(() => {
 		lazyObserver.observe(media.value);
 	}
 
-	const parentStyle = getComputedStyle(media.value.parentElement as HTMLElement);
+	const parentStyle = getComputedStyle((media.value.parentElement as HTMLDivElement));
 	const maxWidth = props.maxWidth ?? (parentStyle.maxWidth.endsWith('%') ? (
-		(((media.value.parentElement as HTMLElement).parentElement as HTMLElement).parentElement as HTMLElement).getBoundingClientRect().width - 50 * (parseFloat(parentStyle.maxWidth) / 100)
+		(((media.value.parentElement as HTMLDivElement).parentElement as HTMLElement).parentElement as HTMLElement).getBoundingClientRect().width - 50 * (parseFloat(parentStyle.maxWidth) / 100)
 		) : parseFloat(parentStyle.maxWidth));
 
 	if (!props.width || !props.height) {
@@ -75,7 +75,7 @@ onMounted(() => {
 
 function loaded(event: Event) {
 	if (!media.value) return;
-
+	(media.value.parentElement as HTMLDivElement).classList.remove("loading");
 	isLoading.value = false;
 	emits("load", event);
 }
@@ -86,31 +86,25 @@ function onError() {
 
 	if (props.post && webp) {
 		webp = false;
-		media.value.src = getMediaThumbnailUrl(props.post, 1200, 'jpg');
+		media.value.src = getMediaThumbnailUrl(props.post, 1200, "jpg");
 	}
 	else {
 		isLoading.value = false;
-		media.value.alt = 'failed to load media thumbnail';
+		media.value.alt = "failed to load media thumbnail";
 		isError = true;
 	}
 }
 
-// const instance = getCurrentInstance();
 function th(value: string | null) {
 	// this.isLoading = !this.thumbhash;
 	if (!value) return;
 
 	let dataurl: string = "";
 	try {
-		const th = document.createElement("img");
-		dataurl = th.src = thumbHashToDataURL(base64ToBytes(value));
-		th.style.width = media.value.style.width;
-		th.style.height = media.value.style.height;
-		for (let data in media.value.dataset) {
-			th.dataset[data] = "";
-		}
-		th.className = "th-hash";
-		(media.value.parentNode as HTMLElement).prepend(th);
+		const th = (media.value.parentElement as HTMLDivElement);
+		dataurl = thumbHashToDataURL(base64ToBytes(value));
+		th.style.background = "url('" + lightnoise + "') repeat center, url('" + dataurl + "') 0% 0% / cover";
+		th.classList.remove("loading");
 
 		media.value.style.opacity = "0";
 		media.value.classList.add("th");
@@ -120,18 +114,13 @@ function th(value: string | null) {
 				isLoading.value = false;
 
 				media.value.style.opacity = "";
-				setTimeout(() => {
-					th.style.opacity = "0";
-					setTimeout(() => media.value && (media.value.parentNode as HTMLElement).removeChild(th), 500);
-				}, 50);
+				setTimeout(() => th.style.background = "", 500);
 			}, { once: true });
 		}
 		else {
-			th.style.opacity = "0";
 			media.value.style.opacity = "";
-			setTimeout(() => media.value && (media.value.parentNode as HTMLElement).removeChild(th), 500);
+			setTimeout(() => th.style.background = "", 500);
 		}
-
 	}
 	catch (e) {
 		console.error("thumbhash:", value, "dataurl:", dataurl, "error:", e);
@@ -141,6 +130,7 @@ function th(value: string | null) {
 watch(() => props.post, (value: string | null) => {
 	// reset state
 	isLoading.value = true;
+	(media.value.parentElement as HTMLDivElement).classList.add("loading");
 	webp = true;
 	isError = false;
 
@@ -163,32 +153,16 @@ watch(() => props.load, (value: boolean) => {
 	position: relative;
 	pointer-events: none;
 }
+
 .th {
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 	position: relative;
-}
-.th-hash {
-	-webkit-transition: var(--transition) var(--fadetime);
-	-moz-transition: var(--transition) var(--fadetime);
-	-o-transition: var(--transition) var(--fadetime);
-	transition: var(--transition) var(--fadetime);
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
 	border-radius: var(--border-radius);
 }
-.hash {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
+
 img {
 	/* object-fit: cover; */
 	display: block;

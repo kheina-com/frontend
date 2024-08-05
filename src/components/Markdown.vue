@@ -101,7 +101,7 @@ function mdString(): string {
 }
 
 function render() {
-	rendered.value =  props.content ? (
+	rendered.value = props.content ? (
 		DOMPurify.sanitize(
 			props.inline ? (
 				marked.parse(mdString()) as string
@@ -111,9 +111,7 @@ function render() {
 		)
 	) : null;
 }
-watch(() => props.content, () => {
-	if (!rendered.value) render();
-});
+watch(() => props.content, render);
 </script>
 
 <style>
