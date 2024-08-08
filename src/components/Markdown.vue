@@ -119,12 +119,13 @@ a.external-link::after {
 	font-family: 'Material Icons Round' !important;
 	content: "open_in_new";
 	position: relative;
-	font-size: 1.2em;
-	bottom: -0.2em;
+	font-size: 0.8em;
+	bottom: -0.25em;
 	margin-top: -0.31em;
 	text-decoration: none;
 	display: inline-block;
 	margin-left: 0.2em;
+	color: var(--subtle);
 }
 .markdown.block {
 	width: 100%;

@@ -148,8 +148,8 @@ const url = new RegExp(`^${tempUrl.source}\/|^\/`);
 
 export function htmlEscape(html: string): string {
 	return html.replaceAll(htmlRegex, match => {
-		if (match.length > 1 && htmlEscapeCharacters.has(match))
-		{ return match; }
+		if (match.length > 1 && htmlEscapeCharacters.has(match)) return match;
+
 		return htmlReplace[match];
 	});
 };
@@ -190,8 +190,9 @@ const mdEmojiUrl = (emoji: string) => {
 }
 
 const mdMakeRequest = (url: string, silent=false) => {
-	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit)
-	{ delete mdRequestCache[Object.keys(mdRequestCache)[0]]; }
+	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit) {
+		delete mdRequestCache[Object.keys(mdRequestCache)[0]];
+	}
 
 	return new Promise<object | void>(resolve => {
 		if (mdRequestCache.hasOwnProperty(url)) {
@@ -207,8 +208,7 @@ const mdMakeRequest = (url: string, silent=false) => {
 				if (response.status < 300) {
 					// description exists in a lot of responses, and is almost always the biggest one
 					// delete it just in case it exists to avoid taking up too much storage
-					if (r.hasOwnProperty('description'))
-					{ delete r.description; }
+					if (r.hasOwnProperty('description')) delete r.description;
 					mdRequestCache[url] = r;
 					return resolve(r);
 				}
@@ -369,7 +369,7 @@ interface HandleToken extends Tokens.Generic {
 	title:    string,
 	href:     string,
 	code:     string,
-	icon:     string,
+	icon:     string | null,
 	username: string,
 }
 
@@ -421,15 +421,15 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 			if (match) {
 				if (userLinks.hasOwnProperty(match[1])) {
-					const link = userLinks[match[1]];
+					const [site, emoji] = userLinks[match[1]];
 					return {
 						type: 'handle',
 						raw: match[0],
-						text: link[1] ? match[2] : match[0],
+						text: emoji ? match[2] : match[0],
 						title: match[0],
-						href: link[0] + match[2],
+						href: site + match[2],
 						code: match[1],
-						icon: link[1] ? getEmojiUrl(link[1]) : defaultUserIcon,
+						icon: emoji,
 						username: match[2],
 					};
 				}
@@ -449,8 +449,10 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				mdMakeRequest(`${host}/v1/user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element) return;
-					if (r)
-					{ element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); }) }
+
+					if (r) {
+						element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
+					}
 					else {
 						const span = document.createElement("span");
 						span.id = id;
@@ -465,12 +467,12 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			else if (token.code === iconShortcode) {
 				mdMakeRequest(`${host}/v1/user/${token.username}`, true).then((r: any) => {
 					const element = document.getElementById(id);
-					if (!element)
-					{ return; }
+					if (!element) return;
+
 					if (r) {
-						const response = r as { handle: string , icon?: string};
+						// const response = r as { handle: string , icon?: string};
 						const img = document.createElement("img");
-						img.className = "profile-user-icon loading wave"
+						img.className = "profile-user-icon loading wave";
 						img.src = r.icon ? getIconUrl(r.icon, r.handle.toLowerCase()) : defaultUserIcon;
 						img.addEventListener("load", e => img.className = "profile-user-icon");
 						element.appendChild(img);
@@ -490,16 +492,40 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			else {
 				const imgId = mdRefId();
 
-				setTimeout(() => {
-					const element = document.getElementById(id) as HTMLAnchorElement;
+				mdEmojiUrl(token.text)
+				.then(r => {	
 					const img = document.getElementById(imgId) as HTMLImageElement;
 
-					if (!element || !img) return;
+					if (!img) return;
+
+					img.addEventListener("error", e => img.src = defaultEmoji, { once: true });
+					img.addEventListener("load", e => img.className = "emoji");
+					img.src = getEmojiUrl(r.filename);
+					img.alt = r.alt ?? img.alt;
+				}).catch(() => {
+					const img = document.getElementById(imgId) as HTMLImageElement;
+
+					if (!img) return;
+
+					img.addEventListener("load", e => img.className = "emoji");
+					img.src = defaultEmoji;
+				}).finally(() => {
+					const element = document.getElementById(id) as HTMLImageElement;
+					if (!element) return;
 
 					element.addEventListener("click", e => e.stopPropagation());
-					img.addEventListener("load", e => img.className = "emoji");
-					img.src = token.icon;
-				}, 0);
+				});
+
+				// setTimeout(() => {
+				// 	const element = document.getElementById(id) as HTMLAnchorElement;
+				// 	const img = document.getElementById(imgId) as HTMLImageElement;
+
+				// 	if (!element || !img) return;
+
+				// 	element.addEventListener("click", e => e.stopPropagation());
+				// 	img.addEventListener("load", e => img.className = "emoji");
+				// 	img.src = token.icon;
+				// }, 0);
 
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle" target="_blank"><img id="${imgId}" class="emoji loading wave">${token.text}</a>`;
 			}
@@ -553,14 +579,11 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 			mdEmojiUrl(token.text)
 			.then(r => {
-				if (!r) return;
-
 				const element = document.getElementById(id) as HTMLImageElement;
 				if (!element) return;
 
 				element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
 				element.addEventListener("load", e => element.className = "emoji");
-
 
 				element.src = getEmojiUrl(r.filename);
 				element.alt = r.alt ?? element.alt;
@@ -673,8 +696,9 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			src = match[2];
 			const tokens: (EmojiToken | Tokens.Text)[] = [];
 
-			if (match[1])
-			{ tokens.push({ type: 'text', raw: match[1], text: match[1] }); }
+			if (match[1]) {
+				tokens.push({ type: 'text', raw: match[1], text: match[1] });
+			}
 
 			while (src) {
 				match = mdRules.gigamoji.single.exec(src);
@@ -688,8 +712,9 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 					title: match[1],
 				});
 
-				if (match[3])
-				{ tokens.push({ type: 'text', raw: match[3], text: match[3] }); }
+				if (match[3]) {
+					tokens.push({ type: 'text', raw: match[3], text: match[3] });
+				}
 			}
 			return {
 				type: 'gigamoji',
@@ -706,29 +731,27 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 					mdEmojiUrl(t.text)
 					.then(r => {
-						if (!r) return;
-		
 						const element = document.getElementById(id) as HTMLImageElement;
 						if (!element) return;
-		
+
 						element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
 						element.addEventListener("load", e => element.className = "emoji");
-		
-		
+
 						element.src = getEmojiUrl(r.filename);
 						element.alt = r.alt ?? element.alt;
 					}).catch(() => {
 						const element = document.getElementById(id) as HTMLImageElement;
 						if (!element) return;
-		
+
 						element.addEventListener("load", e => element.className = "emoji");
 						element.src = defaultEmoji;
 					});
-		
+
 					rendered += `<img id="${id}" alt="${t.text}" title="${t.title}" class="loading wave">`;
 				}
-				else
-				{ rendered += `<span>${t.text}</span>`; }
+				else {
+					rendered += `<span>${t.text}</span>`;
+				}
 			}
 			return rendered + '</p>';
 		},
@@ -753,8 +776,9 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (!align) return;
 
 			if (match[4]) {
-				for (const m of match[4].trim().matchAll(mdRules.alignment[align]))
-				{ text += '\n' + (m[2] || m[1]).trim(); }
+				for (const m of match[4].trim().matchAll(mdRules.alignment[align])) {
+					text += '\n' + (m[2] || m[1]).trim();
+				}
 			}
 
 			const token: AlignmentToken = {
