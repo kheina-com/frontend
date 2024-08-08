@@ -179,9 +179,9 @@ if (route.query?.post) {
 if (props?.id) {
 	data.value.report_id = parseInt(props.id.toString());
 	khatch(`${host}/v1/report/${props.id}`)
-	.then(res => res.json())
-	.then(res => {
-		report.value = res as Report;
+	.then(r => r.json())
+	.then(r => {
+		report.value = r as Report;
 	});	
 }
 

@@ -209,36 +209,23 @@ function fetchPosts() {
 	posts.value = null;
 
 	khatch(`${host}/v1/posts`, {
-			method: "POST",
-			body: {
-				sort: sort.value,
-				tags: [props.tag],
-				page: page.value,
-				count: count.value,
-			},
-		})
-		.then(response => {
-			response.json().then(r => {
-				if (response.status < 300) {
-					saveToHistory(r)
-					posts.value = r.posts;
-					total_results.value = r.total;
-				}
-				else if (response.status === 400)
-				{ globals.setError(r.error); }
-				else if (response.status === 401)
-				{ globals.setError(r.error); }
-				else if (response.status === 404)
-				{ globals.setError(r.error); }
-				else
-				{ globals.setError(apiErrorMessage, r); }
-
-			});
-		})
-		.catch(error => {
-			globals.setError(apiErrorMessage, error);
-			console.error(error);
-		});
+		method: "POST",
+		handleError: true,
+		body: {
+			sort: sort.value,
+			tags: [props.tag],
+			page: page.value,
+			count: count.value,
+		},
+	}).then(r => r.json())
+	.then(r => {
+		saveToHistory(r)
+		posts.value = r.posts;
+		total_results.value = r.total;
+	}).catch(error => {
+		globals.setError(apiErrorMessage, error);
+		console.error(error);
+	});
 }
 function editToggle() {
 	editing.value = !editing.value;
@@ -297,60 +284,45 @@ function updateTag() {
 
 	khatch(`${host}/v1/tag/${props.tag}`, {
 		method: "PATCH",
+		handleError: true,
 		body,
-	})
-	.then(response => {
-		if (response.status < 400) {
-			if (body.name) {
-				router.push("/t/" + body.name);
-				return;
-			}
-
-			if (!tagData.value) return;
-
-			tagData.value.group = body?.group ?? tagData.value?.group;
-			tagData.value.description = body?.description ?? tagData.value?.description;
-
-			if (body.hasOwnProperty("owner")) {
-				if (!body.owner) {
-					tagData.value.owner = null;
-				}
-				else {
-					khatch(`${host}/v1/user/${body.owner}`, {
-						errorMessage: "Failed to retrieve new tag owner.",
-					}).then(r => r.json())
-					.then(r => {
-						if (!tagData.value) return;
-						tagData.value.owner = {
-							handle:    r.handle,
-							name:      r.name,
-							icon:      r.icon,
-							privacy:   r.privacy,
-							verified:  r.verified,
-							following: r.following,
-						};
-					}).catch(() => { });
-				}
-			}
-
-			pendingUpdate.value = false;
-			editing.value = false;
-			showMore.value = null;
+	}).then(() => {
+		if (body.name) {
+			router.push("/t/" + body.name);
+			return;
 		}
-		else {
-			response.json().then(r => {
-				if (response.status === 400)
-				{ globals.setError(r.error); }
-				else if (response.status === 401)
-				{ globals.setError(r.error); }
-				else if (response.status === 404)
-				{ globals.setError(r.error); }
-				else
-				{ globals.setError(apiErrorMessage, r); }
-			});
+
+		if (!tagData.value) return;
+
+		tagData.value.group = body?.group ?? tagData.value?.group;
+		tagData.value.description = body?.description ?? tagData.value?.description;
+
+		if (body.hasOwnProperty("owner")) {
+			if (!body.owner) {
+				tagData.value.owner = null;
+			}
+			else {
+				khatch(`${host}/v1/user/${body.owner}`, {
+					errorMessage: "Failed to retrieve new tag owner.",
+				}).then(r => r.json())
+				.then(r => {
+					if (!tagData.value) return;
+					tagData.value.owner = {
+						handle:    r.handle,
+						name:      r.name,
+						icon:      r.icon,
+						privacy:   r.privacy,
+						verified:  r.verified,
+						following: r.following,
+					};
+				}).catch(() => { });
+			}
 		}
-	})
-	.catch(error => {
+
+		pendingUpdate.value = false;
+		editing.value = false;
+		showMore.value = null;
+	}).catch(error => {
 		globals.setError(apiErrorMessage, error);
 		console.error(error);
 	});

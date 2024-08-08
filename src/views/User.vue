@@ -74,17 +74,16 @@
 								<i class='kheina-icons' v-if='user.verified === "admin"' :title='`@${user?.handle} is an admin`'>sword</i>
 								<i class='material-icons' v-else-if='user.verified === "mod"' :title='`@${user?.handle} is a moderator`'>verified_user</i>
 								<i class='material-icons-round' v-else-if='user.verified === "artist"' :title='`@${user?.handle} is a verified artist`'>verified</i>
-								{{user.verified}}
+								{{user.verified}}	
 							</p>
-							<p v-for='badge in user?.badges'>
-								<img class='emoji' :src='getEmojiUrl(badge.emoji)'>
-								{{badge.label}}
-								<button v-if='isEditing' @click='removeBadge(badge)'>
+							<p v-for='(badge, i) in badges'>
+								<span v-html='badge'></span>
+								<button v-if='isEditing' @click='removeBadge(i)'>
 									<i class='material-icons'>close</i>
 								</button>
 							</p>
 							<DropDown v-if='isEditing' class='dropdown' :options='availableBadges?.map((badge: Badge): DropDownOption => {
-								return { html: `<img class="emoji" src="${getEmojiUrl(badge.emoji)}">${badge.label}`, value: `${badge.label}:${badge.emoji}`, action: () => addBadge(badge) };
+								return { html: emoji(badge.emoji) + badge.label, value: `${badge.label}:${badge.emoji}`, action: () => addBadge(badge) };
 							})'>
 								<p>
 									<i class='material-icons'>add</i>
@@ -266,8 +265,9 @@ import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { getBannerUrl, getEmojiUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
-import { demarkdown } from '@/utilities/markdown';
+import { demarkdown, emoji } from '@/utilities/markdown';
 import { isMobile, host, tabs } from '@/config/constants';
+import store from '@/globals';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -284,8 +284,6 @@ import DropDown, { type DropDownOption } from '@/components/DropDown.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import ShareLink from '@/components/ShareLink.vue';
 import Set from '@/components/Set.vue';
-import store from '@/globals';
-
 
 const globals = store();
 const route = useRoute();
@@ -321,6 +319,8 @@ const bannerWebpFailed: Ref<boolean | null> = ref(null);
 const availableBadges: Ref<Badge[] | null> = ref(null);
 const total_results: Ref<number> = ref(0);
 
+const badges: Ref<string[]> = ref([]);
+
 let tabElement: HTMLElement | null = null;
 
 if (tabs.has(route.query?.tab?.toString())) {
@@ -342,8 +342,14 @@ const setUserTitle = (u?: User | null) => {
 	}
 }
 
+const setBadges = () => {
+	if (!user.value) return badges.value = [];
+	badges.value = user.value.badges.map(badge => emoji(badge.emoji) + badge.label);
+}
+
 if (window.history.state.user) {
-	user.value = window.history.state.user;
+	user.value = window.history.state.user as FullUser;
+	setBadges();
 	setUserTitle(user.value);
 }
 else {
@@ -352,6 +358,7 @@ else {
 	}).then(r => r.json())
 	.then(r => {
 		user.value = r as FullUser;
+		setBadges();
 		setUserTitle(user.value);
 		saveToHistory({ user: toRaw(user.value) });
 		router.replace(route.fullPath.replace(props.handle, user.value.handle));
@@ -380,28 +387,30 @@ const banner = computed(() => {
 
 function addBadge(badge: Badge) {
 	console.log('adding', badge);
-	khatch(`${host}/v1/users/add_badge`, {
-		method: 'POST',
+	khatch(`${host}/v1/user/badge`, {
+		method: 'PUT',
 		errorMessage: 'Failed to add badge.',
 		body: badge,
 	})
 	.then(() => {
 		if (!user.value) return;
 		user.value.badges.push(badge);
+		badges.value.push(emoji(badge.emoji) + badge.label);
 	})
 	.catch(() => { });
 }
 
-function removeBadge(badge: Badge) {
-	khatch(`${host}/v1/users/remove_badge`, {
-		method: 'POST',
+function removeBadge(badge: number) {
+	if (!user.value) return;
+	khatch(`${host}/v1/user/badge`, {
+		method: 'DELETE',
 		errorMessage: 'Failed to remove badge.',
-		body: badge,
+		body: user.value.badges[badge],
 	})
 	.then(() => {
 		if (!user.value) return;
-		const index = user.value.badges.indexOf(badge);
-		user.value.badges.splice(index, 1);
+		user.value.badges.splice(badge, 1);
+		badges.value.splice(badge, 1);
 	})
 	.catch(() => { });
 }
@@ -687,7 +696,6 @@ watch(uploadPostId, (value: string | null) => {
 		cropperImage.value = getMediaUrl(r.post_id, r.filename);
 	});
 });
-
 </script>
 
 <style>
@@ -1227,6 +1235,8 @@ html.mobile.winter .active-tab {
 	padding: 0.25em 0.5em;
 	background: var(--bg2color);
 	border-radius: var(--border-radius);
+}
+.badges p, .badges p span, .badges button, .badges .dropdown button {
 	display: flex;
 	align-items: center;
 }

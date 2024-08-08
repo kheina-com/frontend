@@ -25,7 +25,7 @@ khatch(`${host}/v1/tags/lookup`, {
 	method: "POST",
 	handleError: true,
 	body: { },
-}).then(response => response.json())
+}).then(r => r.json())
 .then(r => tags.value = r)
 .catch(error => {
 	globals.setError(apiErrorMessage, error);

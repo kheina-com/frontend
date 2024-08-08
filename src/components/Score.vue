@@ -54,14 +54,13 @@ function vote(vote: number) {
 			post_id: props.postId,
 			vote,
 		},
-	}).then(response => {
-		response.json().then(r => {
-			setElementVote(vote);
-			if (!props.score) return;
-			props.score.user_vote = vote;
-			props.score.up = r.up;
-			props.score.down = r.down;
-		});
+	}).then(r => r.json())
+	.then(r => {
+		setElementVote(vote);
+		if (!props.score) return;
+		props.score.user_vote = vote;
+		props.score.up = r.up;
+		props.score.down = r.down;
 	});
 }
 

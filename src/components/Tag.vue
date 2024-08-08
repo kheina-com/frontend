@@ -36,15 +36,12 @@ onMounted(() => {
 <style scoped>
 .tag {
 	padding: var(--margin);
-	background: var(--bg1color);
+	background: var(--bg2color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-}
-.tag.nested {
-	background: var(--bg2color);
 }
 .tag:hover {
 	border-color: var(--interact);

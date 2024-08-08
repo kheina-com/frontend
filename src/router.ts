@@ -19,7 +19,7 @@ meta formatting:
 meta: {
 	title: string or function returning string,
 	metaTags: {
-		meta name: object containing meta key/value pairs or function returning meta key/value pairs,
+		meta name: object containing meta key/value pairs,
 		EX:
 		description: {
 			property: "og:description",
@@ -30,6 +30,7 @@ meta: {
 */
 
 // NOTE: root paths MUST start with "/", child paths CANNOT start with "/"
+// NOTE: names MUST be defined for route logic
 const routes: RouteRecordRaw[] = [
 	{
 		path: "/",
@@ -111,6 +112,9 @@ const routes: RouteRecordRaw[] = [
 		component: Post,
 		meta: {
 			title: "Loading...",
+			metaTags: {
+				viewport: undefined,
+			},
 		},
 	},
 	{

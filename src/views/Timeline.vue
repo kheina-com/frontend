@@ -67,7 +67,7 @@ function fetchPosts() {
 			page: page.value,
 			count: count.value,
 		},
-	}).then(response => response.json())
+	}).then(r => r.json())
 	.then(r => {
 		saveToHistory({ posts: r })
 		posts.value = r;

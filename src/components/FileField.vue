@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { onMounted, onUnmounted, ref, toRef, watch, type Ref } from 'vue';
 import { isMobile } from '@/config/constants';
 import Media from '@/components/Media.vue';
 
@@ -21,6 +21,8 @@ const props = withDefaults(defineProps<{
 	file?: File,
 	showSlot: boolean,
 	id: string,
+	width: number,
+	height: number,
 }>(), {
 	showSlot: true,
 	id: "file-field",
@@ -28,8 +30,8 @@ const props = withDefaults(defineProps<{
 
 const file: Ref<File | undefined> = ref(props.file);
 const src: Ref<string | undefined> = ref(undefined);
-const width: Ref<number | undefined> = ref(undefined);
-const height: Ref<number | undefined> = ref(undefined);
+const width: Ref<number> = ref(props.width);
+const height: Ref<number> = ref(props.height);
 
 const emits = defineEmits([
 	"update:file",

@@ -38,8 +38,9 @@ p .super {
 	font-size: 1rem;
 	font-weight: bold;
 }
-.super, .super *
-{ color: var(--subtle) !important; }
+.super, .super * {
+	color: var(--subtle);
+}
 .title {
 	padding: 0;
 	overflow: hidden;

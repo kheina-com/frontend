@@ -374,14 +374,13 @@ const cookie = computed(() => {
 watch(postId, (value: string | null) => {
 	console.log(value);
 	if (value && value.length === 8) {
-			khatch(`${host}/v1/post/${value}`, {
+		khatch(`${host}/v1/post/${value}`, {
 			errorMessage: 'Could not retrieve post!',
-		}).then(response => {
-			response.json().then(r => {
-				r.favorites = 0;
-				r.reposts = 0;
-				post = r;
-			});
+		}).then(r => r.json())
+		.then(r => {
+			r.favorites = 0;
+			r.reposts = 0;
+			post = r;
 		});
 	}
 });

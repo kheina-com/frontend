@@ -3,23 +3,26 @@ import Router from '@/router';
 import App from '@/App.vue';
 import { routerMetaTag } from '@/config/constants';
 import { setMeta } from '@/utilities';
-import vClickOutside from 'click-outside-vue3';
+// import vClickOutside from 'click-outside-vue3';
 import { createPinia } from 'pinia';
 
 
 Router.afterEach((to, from) => {
 	// we let views handle self-updates
-	if (from.path === to.path) return;
+	if (from.name && from.path === to.path) return;
 
 	// This goes through the matched routes from last to first, combining routes metadata.
 	// eg. if we have /some/nested/route, route's metadata will be prioritized, with nested, some, and / being used for fallback
 
-	let meta = {
+	const meta = {
 		// these are global defaults, routes will overwrite these with their own, if they exist
 		title: "A new home for all things fluff, scaled, and feathered! | fuzz.ly",
 		metaTags: {
 			["theme-color"]: {
 				content: "#1E1F25",
+			},
+			viewport: {
+				content: "width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0",
 			},
 		},
 	};
@@ -44,9 +47,8 @@ Router.afterEach((to, from) => {
 	});
 
 	// Turn the meta tag definitions into actual elements in the head.
-	Object.entries(meta.metaTags).forEach(([name, tag]) => {
-		setMeta(Object.assign({ name, }, tag));
-	});
+	Object.entries(meta.metaTags)
+	.forEach(([name, tag]) => setMeta(Object.assign({ name }, tag)));
 });
 
 

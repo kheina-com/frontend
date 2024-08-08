@@ -14,7 +14,7 @@
 				</svg>
 			</a>
 		</div>
-		<p style='text-align: center'>Found a bug? <router-link :to='`/bug?url=${encodeURIComponent($route.fullPath)}`'>Report it here</router-link>.</p>
+		<p>Found a bug? <router-link :to='`/bug?url=${encodeURIComponent($route.fullPath)}`'>Report it here</router-link>.</p>
 	</footer>
 </template>
 
@@ -32,21 +32,18 @@ function updateLoop() {
 	khatch(`${host}/v1/config/funding`, {
 		errorMessage: "Error Occurred While Fetching Funding",
 		errorHandlers: {
-			404: () => {
-				target.value = "Unavailable";
-			},
+			404: () => target.value = "Unavailable",
 		},
-	}).then(response => {
-		response.json().then(r => {
-			funding.value = Math.min(r.funds / r.costs, 1);
+	}).then(r => r.json())
+	.then(r => {
+		funding.value = Math.min(r.funds / r.costs, 1);
 
-			// if for some fucking reason, our costs/funds exceed 52 bits of float precision, we can uncomment this.
-			// const funds = r.funds.toString();
-			// const costs = r.costs.toString();
-			// this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
+		// if for some fucking reason, our costs/funds exceed 52 bits of float precision, we can uncomment this.
+		// const funds = r.funds.toString();
+		// const costs = r.costs.toString();
+		// this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
 
-			target.value = `$${(r.funds / 100).toFixed(2)} / $${(r.costs / 100).toFixed(2)}`;
-		});
+		target.value = `$${(r.funds / 100).toFixed(2)} / $${(r.costs / 100).toFixed(2)}`;
 	});
 	setTimeout(updateLoop, 300000);
 }
@@ -55,8 +52,7 @@ updateLoop();
 </script>
 
 <style scoped>
-.footer span
-{
+.footer span {
 	cursor: pointer;
 	pointer-events: all;
 	text-decoration: none;
@@ -66,38 +62,37 @@ updateLoop();
 	transition: var(--transition) var(--fadetime);
 }
 
-.footer
-{
+.footer {
 	min-height: 1.5em;
-	margin: 4px 0 0;
+	margin: 0.25rem 0 0;
 	font-size: 0.9rem;
 	white-space: nowrap;
 	padding: 0 var(--margin) var(--margin);
 	text-align: center;
 }
-.footer .anchor
-{
+.footer p {
+	text-align: center;
+	position: relative;
+}
+.footer .anchor {
 	left: 50%;
-	left: calc(50% - 0.5px);
+	left: calc(50% - var(--border-size));
 	position: relative;
 	height: 1.2em;
-	width: 1px;
+	width: var(--border-size);
 	background: var(--textcolor);
 }
-.footer .anchor img, .header img
-{
+.footer .anchor img, .header img {
 	height: 1em;
 	margin-bottom: -0.2em;
 }
-.footer .anchor .left
-{
+.footer .anchor .left {
 	position: absolute;
-	right: 8px;
+	right: 0.5rem;
 }
-.footer .anchor .right
-{
+.footer .anchor .right {
 	position: absolute;
-	left: 8px;
+	left: 0.5rem;
 }
 .external-logo {
 	display: inline-block;

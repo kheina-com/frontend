@@ -91,29 +91,29 @@ const userLinks: { [k: string]: [string, string | null]} = {
 	// links get formatted as url + username
 	'': ['/', null], // default
 	[iconShortcode]: ['/', null],  // unique case, this loads icons
-	t:  ['https://twitter.com/', 'twitter'],
+	t:  ['https://twitter.com/',              'twitter'],
 	fa: ['https://www.furaffinity.net/user/', 'furaffinity'],
-	f:  ['https://www.facebook.com/', 'facebook'],
-	u:  ['https://www.reddit.com/u/', 'reddit'],
-	tw: ['https://www.twitch.tv/', 'twitch'],
-	yt: ['https://www.youtube.com/c/', 'youtube'],
-	tt: ['https://www.tiktok.com/@', 'tiktok'],
-	tg: ['https://t.me/', 'telegram'],
-	p:  ['https://www.patreon.com/', 'patreon'],
-	pi: ['https://www.picarto.tv/', 'picarto'],
-	kf: ['https://ko-fi.com/', 'ko-fi'],
-	gr: ['https://gumroad.com/', 'gumroad'],
-	st: ['https://subscribestar.adult/', 'subscribestar'],
-	rf: ['https://ref.st/', 'refsheet'],
-	pp: ['https://www.paypal.me/', 'paypal'],
-	fn: ['https://www.furrynetwork.com/', 'furrynetwork'],
-	w:  ['https://www.weasyl.com/~', 'weasyl'],
-	b:  ['https://boosty.to/', 'boosty'],
-	th: ['https://toyhou.se/', 'toyhouse'],
-	cm: ['https://commiss.io/', 'commissio'],
-	ig: ['https://www.instagram.com/', 'instagram'],
-	tm: ['https://www.tumblr.com/', 'tumblr'],
-	vk: ['https://vk.com/', 'vk'],
+	f:  ['https://www.facebook.com/',         'facebook'],
+	u:  ['https://www.reddit.com/u/',         'reddit'],
+	tw: ['https://www.twitch.tv/',            'twitch'],
+	yt: ['https://www.youtube.com/c/',        'youtube'],
+	tt: ['https://www.tiktok.com/@',          'tiktok'],
+	tg: ['https://t.me/',                     'telegram'],
+	p:  ['https://www.patreon.com/',          'patreon'],
+	pi: ['https://www.picarto.tv/',           'picarto'],
+	kf: ['https://ko-fi.com/',                'ko-fi'],
+	gr: ['https://gumroad.com/',              'gumroad'],
+	st: ['https://subscribestar.adult/',      'subscribestar'],
+	rf: ['https://ref.st/',                   'refsheet'],
+	pp: ['https://www.paypal.me/',            'paypal'],
+	fn: ['https://www.furrynetwork.com/',     'furrynetwork'],
+	w:  ['https://www.weasyl.com/~',          'weasyl'],
+	b:  ['https://boosty.to/',                'boosty'],
+	th: ['https://toyhou.se/',                'toyhouse'],
+	cm: ['https://commiss.io/',               'commissio'],
+	ig: ['https://www.instagram.com/',        'instagram'],
+	tm: ['https://www.tumblr.com/',           'tumblr'],
+	vk: ['https://vk.com/',                   'vk'],
 };
 
 const mdMaxId = 0xffffffff;
@@ -193,6 +193,31 @@ const mdEmojiUrl = (emoji: string) => {
 	});
 }
 
+// return a rendered html img element as a string containing the formatted emoji
+export const emoji = (emoji: string): string => {
+	const id = mdRefId();
+
+	mdEmojiUrl(emoji)
+	.then(r => {
+		const element = document.getElementById(id) as HTMLImageElement;
+		if (!element) return;
+
+		element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
+		element.addEventListener("load", e => element.className = "emoji");
+
+		element.src = getEmojiUrl(r.filename);
+		element.alt = r.alt ?? element.alt;
+	}).catch(() => {
+		const element = document.getElementById(id) as HTMLImageElement;
+		if (!element) return;
+
+		element.addEventListener("load", e => element.className = "emoji");
+		element.src = defaultEmoji;
+	});
+
+	return `<img id="${id}" alt="${emoji}" title=":${emoji}:" class="emoji loading wave">`;
+};
+
 const mdMakeRequest = (url: string, silent=false) => {
 	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit) {
 		delete mdRequestCache[Object.keys(mdRequestCache)[0]];
@@ -257,9 +282,9 @@ export function demarkdown(string: string): Promise<string> {
 			emojis++;
 			const id = "<" + mdRefId() + ">";
 
-			mdEmojiUrl(m[1])
-			.then(r => str.replace(id, r.alt ?? "❌"))
-			.catch(() => str.replace(id, "❌"))
+			mdEmojiUrl(m.slice(1, -1))
+			.then(r => str = str.replace(id, r.alt ?? "❌"))
+			.catch(() => str = str.replace(id, "❌"))
 			.finally(() => {
 				if (!--emojis) resolve(str);
 			});
@@ -422,28 +447,27 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 		tokenizer(src: string): HandleToken | Tokens.Text | undefined {
 			const match = mdRules.handle.rule.exec(src);
+			if (!match) return;
 
-			if (match) {
-				if (userLinks.hasOwnProperty(match[1])) {
-					const [site, emoji] = userLinks[match[1]];
-					return {
-						type: 'handle',
-						raw: match[0],
-						text: emoji ? match[2] : match[0],
-						title: match[0],
-						href: site + match[2],
-						code: match[1],
-						icon: emoji,
-						username: match[2],
-					};
-				}
-				else {
-					return {
-						type: 'text',
-						raw: match[0],
-						text: match[0],
-					};
-				}
+			if (userLinks.hasOwnProperty(match[1])) {
+				const [site, emoji] = userLinks[match[1]];
+				return {
+					type: 'handle',
+					raw: match[0],
+					text: emoji ? match[2] : match[0],
+					title: match[0],
+					href: site + match[2],
+					code: match[1],
+					icon: emoji,
+					username: match[2],
+				};
+			}
+			else {
+				return {
+					type: 'text',
+					raw: match[0],
+					text: match[0],
+				};
 			}
 		},
 		renderer(token: Tokens.Generic) {
@@ -494,33 +518,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="@${token.username}"><span class="profile-user-icon loading wave"/></a>`;
 			}
 			else {
-				const imgId = mdRefId();
-
-				mdEmojiUrl(token.icon)
-				.then(r => {
-					const img = document.getElementById(imgId) as HTMLImageElement;
-
-					if (!img) return;
-
-					img.addEventListener("error", e => img.src = defaultEmoji, { once: true });
-					img.addEventListener("load", e => img.className = "emoji");
-					img.src = getEmojiUrl(r.filename);
-					img.alt = r.alt ?? img.alt;
-				}).catch(() => {
-					const img = document.getElementById(imgId) as HTMLImageElement;
-
-					if (!img) return;
-
-					img.addEventListener("load", e => img.className = "emoji");
-					img.src = defaultEmoji;
-				}).finally(() => {
-					const element = document.getElementById(id) as HTMLImageElement;
-					if (!element) return;
-
-					element.addEventListener("click", e => e.stopPropagation());
-				});
-
-				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle" target="_blank"><img id="${imgId}" class="emoji loading wave">${token.text}</a>`;
+				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle" target="_blank">${emoji(token.icon)}${token.text}</a>`;
 			}
 		},
 	},
@@ -533,19 +531,18 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 		tokenizer(src: string) {
 			const match = mdRules.icon.rule.exec(src);
+			if (!match) return;
 
-			if (match) {
-				return {
-					type: 'handle',
-					raw: match[0],
-					text: '@' + match[1],
-					title: '@' + match[1],
-					href: '/' + match[1],
-					code: iconShortcode,
-					icon: null,
-					username: match[1],
-				};
-			}
+			return {
+				type: 'handle',
+				raw: match[0],
+				text: '@' + match[1],
+				title: '@' + match[1],
+				href: '/' + match[1],
+				code: iconShortcode,
+				icon: null,
+				username: match[1],
+			};
 		},
 	},
 	{
@@ -557,39 +554,16 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 		tokenizer(src: string): EmojiToken | undefined {
 			const match = mdRules.emoji.rule.exec(src);
+			if (!match) return;
 
-			if (match) {
-				return {
-					type: 'emoji',
-					raw: match[0],
-					text: match[1],
-					title: match[0],
-				};
-			}
+			return {
+				type: 'emoji',
+				raw: match[0],
+				text: match[1],
+				title: match[0],
+			};
 		},
-		renderer(token: Tokens.Generic) {
-			const id = mdRefId();
-
-			mdEmojiUrl(token.text)
-			.then(r => {
-				const element = document.getElementById(id) as HTMLImageElement;
-				if (!element) return;
-
-				element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
-				element.addEventListener("load", e => element.className = "emoji");
-
-				element.src = getEmojiUrl(r.filename);
-				element.alt = r.alt ?? element.alt;
-			}).catch(() => {
-				const element = document.getElementById(id) as HTMLImageElement;
-				if (!element) return;
-
-				element.addEventListener("load", e => element.className = "emoji");
-				element.src = defaultEmoji;
-			});
-
-			return `<img id="${id}" alt="${token.text}" title="${token.title}" class="emoji loading wave">`;
-		},
+		renderer: (token: Tokens.Generic) => emoji(token.text),
 	},
 	{
 		name: 'post',
@@ -600,43 +574,42 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 		tokenizer(src: string): PostToken | undefined {
 			const match = mdRules.post.rule.exec(src);
+			if (!match) return;
 
-			if (match) {
-				return {
-					type: 'post',
-					raw: match[0],
-					text: match[1],
-					href: getMediaThumbnailUrl(match[1]),
-				};
-			}
+			return {
+				type: 'post',
+				raw: match[0],
+				text: match[1],
+				href: getMediaThumbnailUrl(match[1]),
+			};
 		},
 		renderer(token: Tokens.Generic) {
 			const id = mdRefId();
 
 			mdMakeRequest(`${host}/v1/post/${token.text}`)
-				.then(r => {
-					const response = r as { title?: string };
-					const title = response?.title ? htmlEscape(response.title) : "";
-					const element = document.getElementById(id);
+			.then(r => {
+				const element = document.getElementById(id);
+				if (!element || !r) return;
 
-					if (!element || !r) return;
+				const response = r as { title?: string };
+				const title = response?.title ? htmlEscape(response.title) : "";
 
-					const a = document.createElement("a") as HTMLAnchorElement;
-					a.id = id;
-					a.className = "post";
-					a.href = "/p/" + token.text;
-					const img = document.createElement("img") as HTMLImageElement;
-					img.src = token.href;
-					img.alt = title;
-					img.title = title;
-					a.appendChild(img);
-					a.appendChild(document.createTextNode("\n"));
-					const p = document.createElement("p") as HTMLParagraphElement;
-					p.innerText = title;
-					a.appendChild(p);
-					element.appendChild(a);
-					element.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); router.push("/p/" + token.text); });
-				});
+				const a = document.createElement("a") as HTMLAnchorElement;
+				a.id = id;
+				a.className = "post";
+				a.href = "/p/" + token.text;
+				const img = document.createElement("img") as HTMLImageElement;
+				img.src = token.href;
+				img.alt = title;
+				img.title = title;
+				a.appendChild(img);
+				a.appendChild(document.createTextNode("\n"));
+				const p = document.createElement("p") as HTMLParagraphElement;
+				p.innerText = title;
+				a.appendChild(p);
+				element.appendChild(a);
+				element.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); router.push("/p/" + token.text); });
+			});
 
 			return `<span id="${id}">${token.raw}</span>`;
 		},
@@ -650,15 +623,14 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 		tokenizer(src: string): TagToken | undefined {
 			const match = mdRules.tag.rule.exec(src);
+			if (!match) return;
 
-			if (match) {
-				return {
-					type: 'tag',
-					raw: match[0],
-					text: match[1],
-					href: `/t/${encodeURIComponent(match[1])}`,
-				};
-			}
+			return {
+				type: 'tag',
+				raw: match[0],
+				text: match[1],
+				href: `/t/${encodeURIComponent(match[1])}`,
+			};
 		},
 		renderer(token: Tokens.Generic) {
 			const id = mdRefId();
@@ -682,7 +654,6 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 		tokenizer(src: string): GigamojiToken | undefined {
 			let match = mdRules.gigamoji.rule.exec(src);
-
 			if (!match) return;
 
 			const raw = match[0];
@@ -720,27 +691,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			let rendered = '<p class="gigamoji">';
 			for (const t of token.tokens) {
 				if (t.type === 'emoji') {
-					const id = mdRefId();
-
-					mdEmojiUrl(t.text)
-					.then(r => {
-						const element = document.getElementById(id) as HTMLImageElement;
-						if (!element) return;
-
-						element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
-						element.addEventListener("load", e => element.className = "emoji");
-
-						element.src = getEmojiUrl(r.filename);
-						element.alt = r.alt ?? element.alt;
-					}).catch(() => {
-						const element = document.getElementById(id) as HTMLImageElement;
-						if (!element) return;
-
-						element.addEventListener("load", e => element.className = "emoji");
-						element.src = defaultEmoji;
-					});
-
-					rendered += `<img id="${id}" alt="${t.text}" title="${t.title}" class="loading wave">`;
+					rendered += emoji(t.text);
 				}
 				else {
 					rendered += `<span>${t.text}</span>`;

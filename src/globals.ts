@@ -95,7 +95,8 @@ export default defineStore("globals", {
 			if (config.wallpaper) {
 				khatch(`${host}/v1/post/${config.wallpaper}`, {
 					errorMessage: 'Failed to Retrieve User Wallpaper!',
-				}).then(r => r.json()).then(r => {
+				}).then(r => r.json())
+				.then(r => {
 					document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.filename)})`;
 					document.documentElement.style.backgroundAttachment = 'fixed';
 					document.documentElement.style.backgroundPosition = 'top center';
@@ -184,11 +185,10 @@ export default defineStore("globals", {
 								{ deleteCookie('kh-auth'); }
 							},
 						},
-					}).then(response => {
-						response.json().then(r => {
-							r.created = new Date(r.created);
-							this.user = r;
-						});
+					}).then(r => r.json())
+					.then(r => {
+						r.created = new Date(r.created);
+						this.user = r;
 					});
 
 					khatch(`${host}/v1/config/user`, {
@@ -198,9 +198,8 @@ export default defineStore("globals", {
 							401: () => { },
 							404: () => { },
 						},
-					}).then(response => response.json().then(r => {
-						this.userConfig(r);
-					}));
+					}).then(r => r.json())
+					.then(r => this.userConfig);
 				}
 			}
 			else 

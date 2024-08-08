@@ -528,9 +528,12 @@ function uploadFile(finish=false) {
 		}, false);
 		ajax.addEventListener("load", (event) => {
 			if (ajax.response.status >= 400) return complete(), reject(errorHandler(event));
+
 			const response = JSON.parse(ajax.responseText);
 			mediaUrl.value = `${cdnHost}/${encodeURIComponent(response.url)}`;
+
 			if (!file.value) return complete(), reject("file was unset during upload, please refresh the page");
+
 			mime.value = file.value.type;
 			file.value = undefined;
 			complete();
@@ -703,7 +706,6 @@ function postWatcher(value?: string) {
 				uploadDone.value = true;
 				filename = r.filename;
 				mediaUrl.value = getMediaUrl(postId.value, filename);
-				console.log("mediaUrl:", mediaUrl.value);
 				width.value = r?.size?.width ?? 0;
 				height.value = r?.size?.height ?? 0;
 			}
@@ -727,7 +729,6 @@ function postWatcher(value?: string) {
 					uploadDone.value = true;	
 					filename = r.filename;
 					mediaUrl.value = getMediaUrl(r.post_id, r.filename);
-					console.log("mediaUrl:", mediaUrl.value, "r:", r);
 					width.value = r?.size?.width;
 					height.value = r?.size?.height;
 				}
@@ -811,8 +812,9 @@ function colorizeTags(tags: Set<string> | null = null) {
 
 watch(() => route.query?.post?.toString(), postWatcher);
 watch(() => update.value?.webResize, calcResize);
-watch(() => width.value ** height.value, calcResize);
 watch(() => update.value.parent, fetchParent);
+watch(width, calcResize);
+watch(height, calcResize);
 </script>
 
 <style scoped>

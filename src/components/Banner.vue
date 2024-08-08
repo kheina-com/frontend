@@ -277,16 +277,15 @@ function updateLoop() {
 				banner.value.style.background = "none";
 			},
 		},
-	}).then(response => {
-		response.json().then(r => {
-			if (!r.banner) {
-				banner.value.style.background = "none";
-			} else {
-				banner.value.style.background = "";
-			}
-			message.value = r.banner;
-			setTimeout(props.onResize, 0);
-		});
+	}).then(r => r.json())
+	.then(r => {
+		if (!r.banner) {
+			banner.value.style.background = "none";
+		} else {
+			banner.value.style.background = "";
+		}
+		message.value = r.banner;
+		setTimeout(props.onResize, 0);
 	});
 	setTimeout(updateLoop, 300e3);
 }

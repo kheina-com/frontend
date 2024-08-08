@@ -162,7 +162,8 @@ function retrieve() {
 			// do nothing, we don't care
 			401: () => { },
 		},
-	}).then(response => response.json().then(r => {
+	}).then(r => r.json())
+	.then(r => {
 		globals.userConfig(r);
 		localConfig.value = {
 			...r,
@@ -170,7 +171,7 @@ function retrieve() {
 			blocked_users: r.blocked_users ? r.blocked_users.join(" ") : null,
 		};
 		isLoading.value = false;
-	}));
+	});
 }
 function save() {
 	if (saveTimeout) clearTimeout(saveTimeout);

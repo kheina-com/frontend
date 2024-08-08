@@ -118,17 +118,15 @@ function fetchPosts() {
 		},
 		handleError: true,
 	})
-	.then(response => {
-		response.json().then(r => {
-			// if (this.$route.hash)
-			// {}
-			// console.log(this.$route)
-			saveToHistory(r)
-			posts.value = r.posts;
-			total_results.value = r.total;
-		});
-	})
-	.catch(() => { });
+	.then(r => r.json())
+	.then(r => {
+		// if (this.$route.hash)
+		// {}
+		// console.log(this.$route)
+		saveToHistory(r)
+		posts.value = r.posts;
+		total_results.value = r.total;
+	}).catch(() => { });
 }
 
 function pageLink(p: number) {

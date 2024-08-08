@@ -241,17 +241,17 @@ const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
 khatch(`${host}/v1/tags/${props.postId}`, {
 	errorMessage: "Could not retrieve post tags!",
-}).then(response => response.json())
-.then(response => {
-	tags.value = response;
+}).then(r => r.json())
+.then(r => {
+	tags.value = r;
 	if (post.value) setPageTitle();
 });
 
 khatch(`${host}/v1/sets/post/${props.postId}`, {
 	errorMessage: "Could not retrieve post sets!",
-}).then(response => response.json())
-.then(response => {
-	sets.value = response;
+}).then(r => r.json())
+.then(r => {
+	sets.value = r;
 });
 
 fetchComments();
@@ -273,7 +273,7 @@ else {
 	// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
 	khatch(`${host}/v1/post/${props.postId}`, {
 		errorMessage: "Could not retrieve post!",
-	}).then(response => response.json())
+	}).then(r => r.json())
 	.then(r => {
 		r.favorites = 0;
 		r.reposts = 0;
@@ -497,7 +497,7 @@ function postComment() {
 			privacy: "public",
 		},
 	})
-	.then(response => response.json())
+	.then(r => r.json())
 	.then(response => {
 		if (!replies.value) replies.value = [];
 
@@ -541,7 +541,7 @@ function updatePost() {
 			description: post.value.description?.trim(),
 		},
 	})
-	.then(response => response.json())
+	.then(r => r.json())
 	.then(r => console.log(r))
 	.catch(error => {
 		globals.setError(apiErrorMessage, error);

@@ -15,7 +15,7 @@
 				<i class='material-icons'>reply</i>
 			</div>
 			<Loading span v-if='isLoading'>this is an example title</Loading>
-			<h3 class='title' v-else><Markdown :content='title' inline/></h3>
+			<h4 class='title' v-else><Markdown :content='title || postId' inline/></h4>
 			<Markdown :content='description' :concise='true' class='description'/>
 		</div>
 		<p class='privacy' v-show='privacy !== "public"'>
@@ -106,10 +106,8 @@ onMounted(() => {
 		khatch(`${host}/v1/post/${props.parent}`, {
 			method: "GET",
 			errorMessage: "Failed to retrieve post parent.",
-		})
-		.then(response => {
-			response.json().then(r => parentData.value = r);
-		})
+		}).then(r => r.json())
+		.then(r => parentData.value = r)
 		.catch(() => { });
 	}
 });
@@ -214,10 +212,8 @@ watch(props, (value) => {
 		khatch(`${host}/v1/posts/${value.parent}`, {
 			method: "GET",
 			errorMessage: "Failed to retrieve post parent.",
-		})
-		.then(response => {
-			response.json().then(r => parentData.value = r);
-		})
+		}).then(r => r.json())
+		.then(r => parentData.value = r)
 		.catch(() => { });
 	}
 });

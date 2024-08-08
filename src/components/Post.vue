@@ -194,7 +194,6 @@ const isUpdated = computed(() => !props.postId ? props.created !== props.updated
 const target = computed(() => props.to || "/p/" + props.postId	);
 
 function nav() {
-	console.log("nav:", target);
 	globals.postCache = {
 		post_id: props.postId as string,
 		title: props.title,
@@ -222,8 +221,7 @@ function followUser() {
 		method: props.user.following ? "DELETE" : "PUT",
 	})
 	.then(response => {
-		if (response.status < 300)
-		{
+		if (response.status < 300) {
 			props.user.following = !props.user.following;
 			globals.createToast({
 				icon: props.user.following ? "person_add_alt" : "person_remove",
@@ -231,8 +229,7 @@ function followUser() {
 				time: 5,
 			});
 		}
-		else if (response.status < 500)
-		{
+		else if (response.status < 500) {
 			response.json().then(r => {
 				globals.createToast({
 					title: apiErrorMessageToast,
@@ -240,8 +237,7 @@ function followUser() {
 				});
 			});
 		}
-		else
-		{
+		else {
 			response.json().then(r => {
 				globals.createToast({
 					title: apiErrorMessageToast,
@@ -270,19 +266,15 @@ function postComment() {
 			rating: "general",
 			privacy: "public",
 		},
-	})
-	.then(response => {
-		response.json()
-			.then(r => {
-				props.replies?.unshift({
-					...r,
-					replies: [],
-				});
-				replyMessage.value = "";
-				replying.value = false;
-			});
-	})
-	.catch(error => {
+	}).then(r => r.json())
+	.then(r => {
+		props.replies?.unshift({
+			...r,
+			replies: [],
+		});
+		replyMessage.value = "";
+		replying.value = false;
+	}).catch(error => {
 		globals.setError(apiErrorMessage, error);
 		console.error(error);
 	});

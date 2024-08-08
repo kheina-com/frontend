@@ -148,11 +148,10 @@ const pendingUpdate: Ref<boolean> = ref(false);
 fetchPosts();
 khatch(`${host}/v1/sets/${props.setId}`, {
 	errorMessage: "Could not retrieve set with id: " + props.setId,
-}).then(response => {
-	response.json().then(r => {
-		setData.value = r;
-		setTitle(`Set: ${r.title} | fuzz.ly`);	
-	});
+}).then(r => r.json())
+.then(r => {
+	setData.value = r;
+	setTitle(`Set: ${r.title} | fuzz.ly`);	
 });
 
 const isLoading = computed(() => !setData.value);
@@ -193,12 +192,11 @@ function fetchPosts() {
 			page: page.value,
 			count: count.value,
 		},
-	}).then(response => {
-		response.json().then(r => {
-			saveToHistory(r)
-			posts.value = r.posts;
-			total_results.value = r.total;
-		});
+	}).then(r => r.json())
+	.then(r => {
+		saveToHistory(r)
+		posts.value = r.posts;
+		total_results.value = r.total;
 	});
 }
 
@@ -255,18 +253,17 @@ function updateSet() {
 		if (body.hasOwnProperty("owner")) {
 			khatch(`${host}/v1/user/${body.owner}`, {
 				errorMessage: "Failed to retrieve new set owner.",
-			}).then(response => {
-				response.json().then(r => {
-					if (!setData.value) return;
-					setData.value.owner = {
-						handle:    r.handle,
-						name:      r.name,
-						icon:      r.icon,
-						privacy:   r.privacy,
-						verified:  r.verified,
-						following: r.following,
-					};
-				});
+			}).then(r => r.json())
+			.then(r => {
+				if (!setData.value) return;
+				setData.value.owner = {
+					handle:    r.handle,
+					name:      r.name,
+					icon:      r.icon,
+					privacy:   r.privacy,
+					verified:  r.verified,
+					following: r.following,
+				};
 			});
 		}
 
@@ -346,6 +343,7 @@ ul {
 	margin: 0 auto var(--margin);
 	display: flex;
 	justify-content: space-between;
+	align-items: start;
 }
 .set h2, .editing h2 {
 	margin: 0;

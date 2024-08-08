@@ -36,24 +36,14 @@ const globals = store();
 let users: FullUser[] | null = null;
 
 onMounted(() => {
-khatch(`${host}/v1/users/all`)
-	.then(response => {
-		response.json().then(r => {
-			console.log(r);
-			console.log(Object.values(r));
-			if (response.status < 300)
-			{ users = r; }
-			else if (response.status === 400)
-			{ globals.setError(r.error); }
-			else if (response.status === 401)
-			{ globals.setError(r.error); }
-			else if (response.status === 404)
-			{ globals.setError(r.error); }
-			else
-			{ globals.setError(apiErrorMessage, r); }
-		});
-	})
-	.catch(error => {
+	khatch(`${host}/v1/users/all`, {
+		handleError: true,
+	}).then(r => r.json())
+	.then(r => {
+		console.log(r);
+		console.log(Object.values(r));
+		users = r;
+	}).catch(error => {
 		globals.setError(apiErrorMessage, error);
 		console.error(error);
 	});

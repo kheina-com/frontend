@@ -177,7 +177,7 @@ function fetchPost(postId: string) {
 	post.value = null;
 	khatch(`${host}/v1/post/${postId}`, {
 		handleError: true,
-	}).then(response => response.json())
+	}).then(r => r.json())
 	.then(response => {
 		response.favorites = 0;
 		response.reposts = 0;

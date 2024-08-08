@@ -70,7 +70,7 @@ Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, 
 
 	if (url.startsWith("blob:")) {
 		this.src = url;
-		return this.dispatchEvent(new Event("render"));
+		return this.addEventListener("load", () => this.dispatchEvent(new Event("render")));
 	}
 
 	if (url.match(cdnRegex)) {
