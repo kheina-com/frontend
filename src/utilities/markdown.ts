@@ -492,8 +492,8 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			else {
 				const imgId = mdRefId();
 
-				mdEmojiUrl(token.text)
-				.then(r => {	
+				mdEmojiUrl(token.icon)
+				.then(r => {
 					const img = document.getElementById(imgId) as HTMLImageElement;
 
 					if (!img) return;
@@ -515,17 +515,6 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 					element.addEventListener("click", e => e.stopPropagation());
 				});
-
-				// setTimeout(() => {
-				// 	const element = document.getElementById(id) as HTMLAnchorElement;
-				// 	const img = document.getElementById(imgId) as HTMLImageElement;
-
-				// 	if (!element || !img) return;
-
-				// 	element.addEventListener("click", e => e.stopPropagation());
-				// 	img.addEventListener("load", e => img.className = "emoji");
-				// 	img.src = token.icon;
-				// }, 0);
 
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle" target="_blank"><img id="${imgId}" class="emoji loading wave">${token.text}</a>`;
 			}
