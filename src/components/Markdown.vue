@@ -52,7 +52,8 @@ const props = withDefaults(defineProps<{
 });
 const markdown = ref<HTMLDivElement | HTMLSpanElement | null>(null) as Ref<HTMLDivElement | HTMLSpanElement>;
 let cut = false;
-let rendered: Ref<string | null> = ref(null);
+const rendered: Ref<string | null> = ref(null);
+
 onMounted(() => {
 	if (props.lazy) {
 		const observer = new IntersectionObserver(

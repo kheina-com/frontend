@@ -168,10 +168,14 @@ const mdEmojiUrl = (emoji: string) => {
 	return new Promise<Emoji>((resolve, reject) => {
 		const cached = mdEmojiCache[emoji];
 		if (cached) {
-			return resolve(cached);
+			// a render must occur, queue the execution
+			setTimeout(() => resolve(cached), 0);
+			return;
 		}
 		else if (cached === null) {
-			return reject();
+			// a render must occur, queue the execution
+			setTimeout(reject, 0);
+			return;
 		}
 
 		khatch(`${host}/v1/emoji/${emoji}`, {

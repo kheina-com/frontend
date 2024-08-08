@@ -347,16 +347,14 @@ if (window.history.state.user) {
 	setUserTitle(user.value);
 }
 else {
-	khatch(
-		`${host}/v1/user/${props.handle}`,
-		{ handleError: true },
-	).then(response => {
-		response.json().then(r => {
-			user.value = r as FullUser;
-			setUserTitle(user.value);
-			saveToHistory({ user: r });
-			router.replace(route.fullPath.replace(props.handle, user.value.handle));
-		});
+	khatch(`${host}/v1/user/${props.handle}`, {
+		handleError: true,
+	}).then(r => r.json())
+	.then(r => {
+		user.value = r as FullUser;
+		setUserTitle(user.value);
+		saveToHistory({ user: toRaw(user.value) });
+		router.replace(route.fullPath.replace(props.handle, user.value.handle));
 	})
 	.catch(() => { });
 }
@@ -458,13 +456,11 @@ function fetchData(query: LocationQuery | null = null) {
 				sort: 'new',
 				tags: [`@${props.handle}`]
 			},
-		})
-		.then(response => {
-			response.json().then(r => {
-				saveToHistory(r);
-				total_results.value = r.total;
-				posts.value = r.posts;
-			});
+		}).then(r => r.json())
+		.then(r => {
+			saveToHistory(r);
+			total_results.value = r.total;
+			posts.value = r.posts;
 		})
 		.catch(() => { });
 		break;
@@ -554,7 +550,7 @@ function updateProfile() {
 		body: update.value,
 		handleError: true,
 	}).then(() => {
-		user.value = Object.assign(user.value as object, update) as unknown as FullUser;
+		user.value = Object.assign(user.value as object, update.value) as unknown as FullUser;
 		isEditing.value = false;
 		saveToHistory({ user: toRaw(user.value) });
 	});

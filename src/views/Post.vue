@@ -267,7 +267,7 @@ if (globals.postCache?.post_id === props.postId) {
 		parent.value = null;
 		fetchParent(post.value.parent);
 	}
-	setLeft(scalar.value);
+	setLeft();
 }
 else {
 	// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
@@ -286,7 +286,7 @@ else {
 		}
 
 		if (tags.value) setPageTitle();
-		setLeft(scalar.value);
+		setLeft();
 	});
 }
 
@@ -563,11 +563,11 @@ function deletePost() {
 	editing = false;
 }
 
-function setLeft(scalar?: boolean) {
+function setLeft() {
 	if (isMobile || !media.value) return;
-	console.debug("(Post) scalar:", scalar);
+	console.debug("(Post) scalar:", scalar.value);
 
-	if (scalar) {
+	if (scalar.value) {
 		media.value.style.left = `calc(max(10vw, 50% - ${(window.innerHeight - 90) * ((width.value ?? 1) / (height.value ?? 1)) / 2}px) - 10vw)`;
 	}
 	else {
@@ -577,6 +577,7 @@ function setLeft(scalar?: boolean) {
 
 watch(commentSort, fetchComments);
 watch(scalar, setLeft);
+watch(width, setLeft);
 </script>
 
 <style scoped>

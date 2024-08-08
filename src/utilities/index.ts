@@ -117,8 +117,8 @@ export function createToast(options: ToastOptions): void {
 }
 
 export function saveToHistory(data: any): void {
-	if (!window.history.state)
-	{ return; }
+	if (!window.history.state) return;
+
 	history.replaceState(Object.assign(window.history.state, data), "");
 }
 
