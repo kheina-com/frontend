@@ -2,6 +2,10 @@
 // import 'pinia';
 declare module 'click-outside-vue3';
 
+interface ResizeDetails {
+	offset: number,
+}
+
 interface User {
 	name:         string,
 	handle:       string,

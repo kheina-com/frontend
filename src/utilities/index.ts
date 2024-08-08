@@ -39,14 +39,15 @@ export function getCookie(cookieName: string, default_value: any = null, type: s
 export function deleteCookie(cookieName: string)
 { document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`; };
 
-export function setTitle(title: string): void
-{ document.title = title; }
+export function setTitle(title: string): void {
+	document.title = title;
+}
 
 import { routerMetaTag } from "@/config/constants"
 export function setMeta(content: object): void {
 	const tag = document.createElement("meta");
 
-	Object.entries(content).forEach(pair => tag.setAttribute(pair[0], pair[1]));
+	Object.entries(content).forEach(([k, v]) => tag.setAttribute(k, v));
 
 	// We use this to track which meta tags we create, so we don't interfere with other ones.
 	tag.setAttribute(routerMetaTag, "");
@@ -82,8 +83,8 @@ else {
 export const getMediaUrl = _getMediaUrl;
 export const getMediaThumbnailUrl = _getMediaThumbnailUrl;
 
-export function getEmojiUrl(emojiName: string): string {
-	return `${cdnHost}/emoji/${encodeURIComponent(emojiName)}.webp`;
+export function getEmojiUrl(filename: string): string {
+	return `${cdnHost}/emoji/${filename}`;
 }
 
 export function getIconUrl(postId: string, handle: string, extension="webp") {
@@ -344,36 +345,6 @@ export function authCookie(cookie: string | null = null) {
 	};
 
 	return auth;
-}
-
-const mdRegex = /\[.+?\]\((.+?)\)|#{1,6}\s*|`+/gi;
-const mdRegex2 = /(\_{1,2}|\*{1,2})(.+?)\1/gi;
-
-const linkRegex = /\((.+)\)/;
-
-import emojiMap from "@/config/emoji";
-
-const emojiRegex = new RegExp(
-	":(?:" +
-	Object.keys(emojiMap).join("|")
-	+ "):",
-	"gi"
-)
-
-export function demarkdown(string: string): string {
-	let str = string
-		.replaceAll(emojiRegex, x => emojiMap[x.substring(1, x.length - 1)])
-		.replaceAll(mdRegex, x => {
-			const match = linkRegex.exec(x);
-			if (match)
-			{ return match[1]; }
-			return "";
-		});
-
-	for (const m of str.matchAll(mdRegex2))
-	{ str = str.replace(m[0], m[2]); }
-
-	return str;
 }
 
 export function isDarkMode() {

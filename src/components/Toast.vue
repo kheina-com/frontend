@@ -84,7 +84,7 @@ const globals = store();
 	padding: 0;
 }
 .close:hover {
-	color: var(--error);
+	color: var(--red);
 }
 
 .close i {

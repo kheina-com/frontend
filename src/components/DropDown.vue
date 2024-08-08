@@ -2,7 +2,8 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div class='dropdown'>
 		<button @click.prevent.stop='() => toggleDropdown()' ref='dropdownButton'><slot/></button>
-		<div class='dropdown-menu' ref='dropdownMenu' v-click-outside='() => toggleDropdown(false)'>
+		<!-- <div class='dropdown-menu' ref='dropdownMenu' v-click-outside='() => toggleDropdown(false)'> -->
+		<div @click.stop class='dropdown-menu' ref='dropdownMenu'>
 			<div>
 				<button
 					v-for='option in props.options'
@@ -36,11 +37,14 @@ const dropdownMenu = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const dropdownButton = ref<HTMLButtonElement | null>(null) as Ref<HTMLButtonElement>;
 let open = false;
 
+const closeDropdown = () => toggleDropdown(false);
+
 function toggleDropdown(state: boolean | null = null) {
 	if (open === (state ?? !open)) return;
 
 	open = state ?? !open;
 	if (open) {
+		window.addEventListener("click", closeDropdown, { once: true });
 		dropdownMenu.value.style.display = 'block'; 
 		const buttonRect = dropdownButton.value.getBoundingClientRect();
 
@@ -53,6 +57,7 @@ function toggleDropdown(state: boolean | null = null) {
 		{ dropdownMenu.value.style.right = "0"; }
 	}
 	else {
+		window.removeEventListener("click", closeDropdown);
 		dropdownMenu.value.style.top = "";
 		dropdownMenu.value.style.bottom = "";
 		dropdownMenu.value.style.right = "";

@@ -265,7 +265,8 @@ import { computed, onMounted, ref, toRaw, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { demarkdown, getBannerUrl, getEmojiUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
+import { getBannerUrl, getEmojiUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
+import { demarkdown } from '@/utilities/markdown';
 import { isMobile, host, tabs } from '@/config/constants';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -329,9 +330,21 @@ else {
 	router.replace(route.path + '?tab=posts');
 }
 
+const setUserTitle = (u?: User | null) => {
+	if (u?.name) {
+		demarkdown(u.name)
+		.then(title => {
+			setTitle(`${title} (@${u.handle}) | fuzz.ly`)
+		});
+	}
+	else {
+		setTitle(`@${props.handle} | fuzz.ly`);
+	}
+}
+
 if (window.history.state.user) {
 	user.value = window.history.state.user;
-	setTitle(user.value?.name ? `${demarkdown(user.value.name)} (@${user.value.handle}) | fuzz.ly` : `@${props.handle} | fuzz.ly`);
+	setUserTitle(user.value);
 }
 else {
 	khatch(
@@ -340,7 +353,7 @@ else {
 	).then(response => {
 		response.json().then(r => {
 			user.value = r as FullUser;
-			setTitle(user.value.name ? `${demarkdown(user.value.name)} (@${user.value.handle}) | fuzz.ly` : `@${user.value.handle} | fuzz.ly`);
+			setUserTitle(user.value);
 			saveToHistory({ user: r });
 			router.replace(route.fullPath.replace(props.handle, user.value.handle));
 		});

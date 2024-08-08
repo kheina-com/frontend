@@ -5,10 +5,10 @@
 		<Post :postId='parent?.post_id' v-bind='parent' nested labels/>
 	</div>
 	<div class='container' v-if='!isMobile'>
-		<Sidebar :tags='tags' :post='post' v-model:scalarWidth='scalarWidth' class='sidebar'/>
+		<Sidebar :tags='tags' :post='post' v-model:scalar='scalar' class='sidebar'/>
 		<div class='content'>
-			<div class='media-container' :style='`left: calc(max(10vw, 50% - ${(width ?? 0) / 2}px) - 10vw);`' v-show='post'>
-				<Media class='media' v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :thumbhash='post?.thumbhash' v-model:width='width' v-model:height='height' bg/>
+			<div ref='media' class='media-container' v-show='post'>
+				<Media class='media' v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :thumbhash='post?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
 				<div class='set-controls' v-for='set in sets'>
 					<p>
 						<a class='disabled'><i class='material-icons'>first_page</i></a>
@@ -111,7 +111,7 @@
 			</div>
 		</div>
 		<div class='container'>
-			<Sidebar :tags='tags' :post='post' :scalarWidth='scalarWidth' class='sidebar'/>
+			<Sidebar :tags='tags' :post='post' :scalar='scalar' class='sidebar'/>
 			<div class='main'>
 				<main>
 					<div class='post-header'>
@@ -197,7 +197,8 @@
 <script setup lang="ts">
 import { computed, ref, watch, type Ref } from 'vue';
 import store from '@/globals';
-import { demarkdown, khatch, getMediaUrl, setTitle, createToast } from '@/utilities';
+import { khatch, getMediaUrl, setTitle, createToast } from '@/utilities';
+import { demarkdown } from '@/utilities/markdown';
 import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host } from '@/config/constants';
 import ReportButton from '@/components/ReportButton.vue';
 import Button from '@/components/Button.vue';
@@ -235,7 +236,8 @@ const width: Ref<number | undefined> = ref(undefined);
 const height: Ref<number | undefined> = ref(undefined);
 const sets: Ref<PostSet[] | null> = ref(null);
 const commentSort: Ref<string> = ref("best");
-const scalarWidth: Ref<boolean> = ref(true);
+const scalar: Ref<boolean | undefined> = ref(undefined);
+const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
 khatch(`${host}/v1/tags/${props.postId}`, {
 	errorMessage: "Could not retrieve post tags!",
@@ -265,6 +267,7 @@ if (globals.postCache?.post_id === props.postId) {
 		parent.value = null;
 		fetchParent(post.value.parent);
 	}
+	setLeft(scalar.value);
 }
 else {
 	// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
@@ -275,7 +278,7 @@ else {
 		r.favorites = 0;
 		r.reposts = 0;
 		post.value = r;
-		width.value = r.size?.width;		
+		width.value = r.size?.width;
 		height.value = r.size?.height;
 		if (r.parent) {
 			parent.value = null;
@@ -283,9 +286,9 @@ else {
 		}
 
 		if (tags.value) setPageTitle();
+		setLeft(scalar.value);
 	});
 }
-
 
 const isLoading = computed(() => !post.value);
 const isUpdated = computed(() => post.value ? post.value.created !== post.value.updated : false);
@@ -304,31 +307,32 @@ const countComments = computed(() => {
 });
 
 function setPageTitle() {
-	let title = demarkdown(post.value?.title || props.postId);
+	demarkdown(post.value?.title || props.postId)
+	.then(title => {
+		if (tags.value?.artist) {
+			const artists = tags.value.artist.map(x => x.endsWith("_(artist)") ? x.slice(0, -9).replaceAll("_", " ") : x.replaceAll("_", " "));
 
-	if (tags.value?.artist) {
-		const artists = tags.value.artist.map(x => x.endsWith("_(artist)") ? x.slice(0, -9).replaceAll("_", " ") : x.replaceAll("_", " "));
+			if (artists.length > 2)
+			{ title += " by " + artists.slice(0, -1).join(", ") + ", and " + artists.slice(-1)[0]; }
+			else if (artists.length === 2)
+			{ title += " by " + artists[0] + " and " + artists[1]; }
+			else
+			{ title += " by " + artists[0]; }
+		}
 
-		if (artists.length > 2)
-		{ title += " by " + artists.slice(0, -1).join(", ") + ", and " + artists.slice(-1)[0]; }
-		else if (artists.length === 2)
-		{ title += " by " + artists[0] + " and " + artists[1]; }
-		else
-		{ title += " by " + artists[0]; }
-	}
+		if (tags.value?.subject) {
+			const subjects = tags.value.subject.map(x => x.endsWith("_(subject)") ? x.slice(0, -10).replaceAll("_", " ") : x.replaceAll("_", " "));
 
-	if (tags.value?.subject) {
-		const subjects = tags.value.subject.map(x => x.endsWith("_(subject)") ? x.slice(0, -10).replaceAll("_", " ") : x.replaceAll("_", " "));
+			if (subjects.length > 2)
+			{ title += " featuring " + subjects.slice(0, -1).join(", ") + ", and " + subjects.slice(-1)[0]; }
+			else if (subjects.length === 2)
+			{ title += " featuring " + subjects[0] + " and " + subjects[1]; }
+			else
+			{ title += " featuring " + subjects[0]; }
+		}
 
-		if (subjects.length > 2)
-		{ title += " featuring " + subjects.slice(0, -1).join(", ") + ", and " + subjects.slice(-1)[0]; }
-		else if (subjects.length === 2)
-		{ title += " featuring " + subjects[0] + " and " + subjects[1]; }
-		else
-		{ title += " featuring " + subjects[0]; }
-	}
-
-	setTitle(title);
+		setTitle(title);
+	});
 }
 
 function followUser() {
@@ -559,8 +563,20 @@ function deletePost() {
 	editing = false;
 }
 
+function setLeft(scalar?: boolean) {
+	if (isMobile || !media.value) return;
+	console.debug("(Post) scalar:", scalar);
+
+	if (scalar) {
+		media.value.style.left = `calc(max(10vw, 50% - ${(window.innerHeight - 90) * ((width.value ?? 1) / (height.value ?? 1)) / 2}px) - 10vw)`;
+	}
+	else {
+		media.value.style.left = `calc(max(10vw, 50% - ${(width.value ?? 1) / 2}px) - 10vw)`;
+	}
+}
+
 watch(commentSort, fetchComments);
-watch(scalarWidth, (value: boolean) => console.log("scalarWidth:", value));
+watch(scalar, setLeft);
 </script>
 
 <style scoped>

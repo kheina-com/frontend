@@ -162,7 +162,7 @@ a.external-link::after {
 	max-width: 1.2em;
 	max-height: 1.2em;
 	position: relative;
-	margin-top: -0.25em;
+	margin-top: -0.2em;
 	vertical-align: middle;
 	/* transform: translateY(calc(50% - 0.6em)) */
 }

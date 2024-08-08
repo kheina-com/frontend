@@ -25,12 +25,12 @@ import ProgressBar from '@/components/ProgressBar.vue';
 import { host } from '@/config/constants';
 import { khatch } from '@/utilities';
 
-let funding: Ref<number> = ref(0);
-let target: Ref<string> = ref("Loading...");
+const funding: Ref<number> = ref(0);
+const target: Ref<string> = ref("Loading...");
 
 function updateLoop() {
 	khatch(`${host}/v1/config/funding`, {
-		errorMessage: 'Error Occurred While Fetching Funding',
+		errorMessage: "Error Occurred While Fetching Funding",
 		errorHandlers: {
 			404: () => {
 				target.value = "Unavailable";

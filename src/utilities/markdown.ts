@@ -1,7 +1,9 @@
 import { getMediaThumbnailUrl, getEmojiUrl, getIconUrl, khatch } from '@/utilities';
+import { type Emoji } from '@/utilities/emoji';
 import { host, apiErrorDescriptionToast, apiErrorMessageToast, environment, iconShortcode } from '@/config/constants';
 import { type Tokens, type TokenizerAndRendererExtension } from 'marked';
 import defaultUserIcon from '$/default-icon.png?url';
+import defaultEmoji from '$/default-emoji.png?url';
 import store from '@/globals';
 import router from '@/router';
 
@@ -122,6 +124,8 @@ const mdRequestCache: { [url: string]: any } = { };
 
 const mdRequestCacheLimit = 100;
 
+const mdEmojiCache: { [emoji: string]: Emoji | null } = { };
+
 let tempUrl = null;
 
 switch (environment) {
@@ -153,12 +157,37 @@ export function htmlEscape(html: string): string {
 
 export function mdEscape(md: string): string {
 	return md.replaceAll(mdRegex, match => {
-		if (match.length > 1 && mdEscapeCharacters.has(match))
-		{ return match; }
+		if (match.length > 1 && mdEscapeCharacters.has(match)) return match;
+
 		return match.length > 1 ? match.substring(0, 1) + mdReplace[match.substring(1)] : mdReplace[match];
 	});
 };
 
+const mdEmojiUrl = (emoji: string) => {
+	// TODO: this is a PRIME candidate for an indexeddb
+	return new Promise<Emoji>((resolve, reject) => {
+		const cached = mdEmojiCache[emoji];
+		if (cached) {
+			return resolve(cached);
+		}
+		else if (cached === null) {
+			return reject();
+		}
+
+		khatch(`${host}/v1/emoji/${emoji}`, {
+			errorHandlers: {	
+				404: () => {
+					mdEmojiCache[emoji] = null;
+					reject();
+				},
+			},
+		}).then(r => r.json())
+		.then(r => {
+			mdEmojiCache[emoji] = r;
+			resolve(r);
+		}).catch(reject);
+	});
+}
 
 const mdMakeRequest = (url: string, silent=false) => {
 	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit)
@@ -212,12 +241,41 @@ const mdMakeRequest = (url: string, silent=false) => {
 	});
 };
 
+
+const mdRegex1 = /\[.+?\]\((.+?)\)|#{1,6}\s*|`+/gi;
+const mdRegex2 = /(\_{1,2}|\*{1,2})(.+?)\1/gi;
+const linkRegex = /\((.+)\)/;
+
+export function demarkdown(string: string): Promise<string> {
+	return new Promise<string>(resolve => {
+		let emojis = 0;
+		let str = string.replaceAll(mdRules.emoji.standalone, m => {
+			emojis++;
+			const id = "<" + mdRefId() + ">";
+
+			mdEmojiUrl(m[1])
+			.then(r => str.replace(id, r.alt ?? "❌"))
+			.catch(() => str.replace(id, "❌"))
+			.finally(() => {
+				if (!--emojis) resolve(str);
+			});
+
+			return id;
+		}).replaceAll(mdRegex1, m => {
+			const match = linkRegex.exec(m);
+			if (match) return match[1];
+			return "";
+		}).replaceAll(mdRegex2, m => m[2]);
+
+		if (!emojis) resolve(str);
+	});
+}
+
+
 export const mdTokenizer = {
 	emStrong(src: string) {
 		// this prevents marked from rendering *furry rp text*
-		if (!src.match(/^\*[^\*]/)) {
-			return false;
-		}
+		if (!src.match(/^\*[^\*]/)) return false;
 
 		return {
 			type: "text",
@@ -235,9 +293,7 @@ export const mdRenderer = {
 		if (href.match(url)) {
 			setTimeout(() => {
 				const element = document.getElementById(id) as HTMLAnchorElement;
-
-				if (!element)
-				{ return; }
+				if (!element) return;
 
 				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(href); });
 			}, 0);
@@ -247,9 +303,7 @@ export const mdRenderer = {
 		else if (href.startsWith("#")) {
 			setTimeout(() => {
 				const element = document.getElementById(id) as HTMLAnchorElement;
-
-				if (!element)
-				{ return; }
+				if (!element) return;
 
 				element.addEventListener('click', e => e.stopPropagation());
 			}, 0);
@@ -259,9 +313,7 @@ export const mdRenderer = {
 		else {
 			setTimeout(() => {
 				const element = document.getElementById(id) as HTMLAnchorElement;
-
-				if (!element)
-				{ return; }
+				if (!element) return;
 
 				element.target = '_blank';
 				element.addEventListener('click', e => e.stopPropagation());
@@ -283,8 +335,9 @@ const mdRules = {
 		rule: /^\[@\](\w+)/,
 	},
 	emoji: {
-		start: /(^|\s*):([a-z0-9\-]+):/,
-		rule: /^:([a-z0-9\-]+):/,
+		start: /(^|\s*):([a-z0-9\-\.]+):/,
+		rule: /^:([a-z0-9\-\.]+):/,
+		standalone: /:([a-z0-9\-\.]+):/g,
 	},
 	post: {
 		start: /(^|\s*)\^/,
@@ -292,8 +345,8 @@ const mdRules = {
 	},
 	gigamoji: {
 		start: /(\s*\n):/,
-		rule: /^\n?([^\S\n]*)((?::[a-z0-9\-]+:[^\S\n]*)+)(?:$|\n)/,
-		single: /^(:([a-z0-9\-]+):)(\s*)/,
+		rule: /^\n?([^\S\n]*)((?::[a-z0-9\-\.]+:[^\S\n]*)+)(?:$|\n)/,
+		single: /^(:([a-z0-9\-\.]+):)(\s*)/,
 	},
 	alignment: {
 		start: /(?:^|\n)[><]/,
@@ -307,8 +360,6 @@ const mdRules = {
 		rule: /^\#([^\s0-9\#][^\s\#]*)/i,
 	},
 };
-
-import emojiMap from '@/config/emoji';
 
 
 interface HandleToken extends Tokens.Generic {
@@ -341,7 +392,6 @@ interface EmojiToken extends Tokens.Generic {
 	raw:   string,
 	text:  string,
 	title: string,
-	href:  string,
 }
 
 interface GigamojiToken extends Tokens.Generic {
@@ -398,8 +448,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (token.raw[0] === '@') {
 				mdMakeRequest(`${host}/v1/user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
-					if (!element)
-					{ return; }
+					if (!element) return;
 					if (r)
 					{ element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); }) }
 					else {
@@ -445,8 +494,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 					const element = document.getElementById(id) as HTMLAnchorElement;
 					const img = document.getElementById(imgId) as HTMLImageElement;
 
-					if (!element || !img)
-					{ return; }
+					if (!element || !img) return;
 
 					element.addEventListener("click", e => e.stopPropagation());
 					img.addEventListener("load", e => img.className = "emoji");
@@ -497,23 +545,34 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 					raw: match[0],
 					text: match[1],
 					title: match[0],
-					href: getEmojiUrl(match[1]),
 				};
 			}
 		},
 		renderer(token: Tokens.Generic) {
 			const id = mdRefId();
 
-			setTimeout(() => {
-				const element = document.getElementById(id) as HTMLImageElement;
-				if (!element)
-				{ return; }
-				element.addEventListener("error", e => element.src = getEmojiUrl("cross-mark"), { once: true });
-				element.addEventListener("load", e => element.className = "emoji");
-				element.src = token.href;
-			}, 0);
+			mdEmojiUrl(token.text)
+			.then(r => {
+				if (!r) return;
 
-			return `<img id="${id}" alt="${emojiMap[token.text] || token.text}" title="${token.title}" class="emoji loading wave">`;
+				const element = document.getElementById(id) as HTMLImageElement;
+				if (!element) return;
+
+				element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
+				element.addEventListener("load", e => element.className = "emoji");
+
+
+				element.src = getEmojiUrl(r.filename);
+				element.alt = r.alt ?? element.alt;
+			}).catch(() => {
+				const element = document.getElementById(id) as HTMLImageElement;
+				if (!element) return;
+
+				element.addEventListener("load", e => element.className = "emoji");
+				element.src = defaultEmoji;
+			});
+
+			return `<img id="${id}" alt="${token.text}" title="${token.title}" class="emoji loading wave">`;
 		},
 	},
 	{
@@ -544,8 +603,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 					const title = response?.title ? htmlEscape(response.title) : "";
 					const element = document.getElementById(id);
 
-					if (!element || !r)
-					{ return; }
+					if (!element || !r) return;
 
 					const a = document.createElement("a") as HTMLAnchorElement;
 					a.id = id;
@@ -591,8 +649,8 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 			setTimeout(() => {
 				const element = document.getElementById(id);
-				if (!element)
-				{ return; }
+				if (!element) return;
+
 				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
 			}, 0);
 
@@ -609,8 +667,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		tokenizer(src: string): GigamojiToken | undefined {
 			let match = mdRules.gigamoji.rule.exec(src);
 
-			if (!match)
-			{ return; }
+			if (!match) return;
 
 			const raw = match[0];
 			src = match[2];
@@ -621,7 +678,6 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 			while (src) {
 				match = mdRules.gigamoji.single.exec(src);
-
 				if (!match) continue;
 
 				src = src.substr(match[0].length);
@@ -630,7 +686,6 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 					raw: match[1],
 					text: match[2],
 					title: match[1],
-					href: getEmojiUrl(match[2]),
 				});
 
 				if (match[3])
@@ -649,16 +704,28 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				if (t.type === 'emoji') {
 					const id = mdRefId();
 
-					setTimeout(() => {
+					mdEmojiUrl(t.text)
+					.then(r => {
+						if (!r) return;
+		
 						const element = document.getElementById(id) as HTMLImageElement;
-						if (!element)
-						{ return; }
-						element.addEventListener("error", e => element.src = getEmojiUrl("cross-mark"), { once: true });
-						element.addEventListener("load", e => element.className = "");
-						element.src = t.href;
-					}, 0);
-
-					rendered += `<img id="${id}" alt="${emojiMap[t.text] || t.text}" title="${t.title}" class="loading wave">`;
+						if (!element) return;
+		
+						element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
+						element.addEventListener("load", e => element.className = "emoji");
+		
+		
+						element.src = getEmojiUrl(r.filename);
+						element.alt = r.alt ?? element.alt;
+					}).catch(() => {
+						const element = document.getElementById(id) as HTMLImageElement;
+						if (!element) return;
+		
+						element.addEventListener("load", e => element.className = "emoji");
+						element.src = defaultEmoji;
+					});
+		
+					rendered += `<img id="${id}" alt="${t.text}" title="${t.title}" class="loading wave">`;
 				}
 				else
 				{ rendered += `<span>${t.text}</span>`; }
@@ -672,9 +739,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		start: (src: string): number | void => mdRules.alignment.start.exec(src)?.index,
 		tokenizer(src: string): AlignmentToken | undefined {
 			const match = mdRules.alignment.rule.exec(src);
-
-			if (!match)
-			{ return; }
+			if (!match) return;
 
 			let text = match[2].trim();
 			const align = match[1] === '>' ? (
@@ -685,8 +750,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				match[3] === '>' ? null : 'left'
 			);
 
-			if (!align)
-			{ return; }
+			if (!align) return;
 
 			if (match[4]) {
 				for (const m of match[4].trim().matchAll(mdRules.alignment[align]))

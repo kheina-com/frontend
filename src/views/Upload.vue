@@ -949,7 +949,6 @@ main {
 	padding-right: 0.25em;
 }
 .drafts-button i {
-	max-width: var(--margin);
 	width: var(--margin);
 }
 .mobile .drafts-button i {

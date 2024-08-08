@@ -36,20 +36,20 @@ import dark256 from '$/favicon/dark/256.png';
 const globals = store();
 const route = useRoute();
 
-globals.cookiesAllowed(getCookie('cookies', false, "boolean"));
-globals.setTheme(getCookie('theme', 'kheina'));
-globals.setAccent(getCookie('accent', 'none'));
-globals.animatedAccents(getCookie('animated-accents', true, "boolean"));
-globals.cssTransitions(getCookie('css-transitions', true, "boolean"));
-globals.searchResultsTiles(getCookie('search-results-tiles', !isMobile, "boolean"));
-globals.maxRating(getCookie('max-rating', 'general'));
+globals.cookiesAllowed(getCookie("cookies", false, "boolean"));
+globals.setTheme(getCookie("theme", "kheina"));
+globals.setAccent(getCookie("accent", "none"));
+globals.animatedAccents(getCookie("animated-accents", true, "boolean"));
+globals.cssTransitions(getCookie("css-transitions", true, "boolean"));
+globals.searchResultsTiles(getCookie("search-results-tiles", !isMobile, "boolean"));
+globals.maxRating(getCookie("max-rating", "general"));
 
 const auth = authCookie();
 if (auth) {
 	globals.setAuth(auth);
 
 	khatch(`${host}/v1/config/user`, {
-		errorMessage: 'Could Not Retrieve User Config!',
+		errorMessage: "Could Not Retrieve User Config!",
 		errorHandlers: {
 			// do nothing, we don't care
 			401: () => { },
@@ -58,11 +58,11 @@ if (auth) {
 		globals.userConfig(r);
 	}));
 }
-document.documentElement.classList.add(isMobile ? 'mobile' : 'desktop');
+document.documentElement.classList.add(isMobile ? "mobile" : "desktop");
 
 
-const fontFamily = document.getElementById('font-family') as HTMLStyleElement;
-const customFont = getCookie('font-family');
+const fontFamily = document.getElementById("font-family") as HTMLStyleElement;
+const customFont = getCookie("font-family");
 if (customFont)
 { fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`; }
 
@@ -92,8 +92,8 @@ Object.entries(favicons).forEach(([key, value]) => {
 	document.head.appendChild(link);
 });
 
-const link = document.createElement('link');
-link.rel = 'stylesheet';	
+const link = document.createElement("link");
+link.rel = "stylesheet";	
 link.href = `${host}/v1/config/theme.css`;
 document.head.appendChild(link);
 
@@ -107,7 +107,7 @@ onMounted(() => {
 	ResizeSensor(content, onResize);
 	onResize();
 
-	(document.getElementById('animated-accents') as HTMLInputElement).checked = globals.animations;
+	(document.getElementById("animated-accents") as HTMLInputElement).checked = globals.animations;
 
 	// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
 	globals.init = false;
@@ -118,25 +118,26 @@ function setAnimated(e: MouseEvent) {
 }
 
 function onResize() {
-	document.dispatchEvent(new CustomEvent('resize'));
-
+	let offset: number;
 	if (globals.error || (route.meta.applyOffset ?? true)) {
-		const offset = Math.max((banner as HTMLDivElement).clientHeight + 25, (window.innerHeight - (content as HTMLDivElement).clientHeight) / 2);
-		(content as HTMLDivElement).style.top = `${offset}px`;
+		offset = Math.max((banner as HTMLDivElement).clientHeight + 25, (window.innerHeight - (content as HTMLDivElement).clientHeight) / 2);
 	}
-	else
-	{ (content as HTMLDivElement).style.top = `${(banner as HTMLDivElement).clientHeight}px`; }
+	else {
+		offset = (banner as HTMLDivElement).clientHeight;
+	}
+	(content as HTMLDivElement).style.top = offset.toString() + "px";
+	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
 }
 
 function ResizeSensor(element: HTMLElement, callback: Function)
 { // https://stackoverflow.com/a/47965966
-	const expand = document.createElement('div');
-	expand.className = 'expand';
-	expand.appendChild(document.createElement('div'));
+	const expand = document.createElement("div");
+	expand.className = "expand";
+	expand.appendChild(document.createElement("div"));
 
-	const shrink = document.createElement('div');
-	shrink.className = 'shrink';
-	shrink.appendChild(document.createElement('div'));
+	const shrink = document.createElement("div");
+	shrink.className = "shrink";
+	shrink.appendChild(document.createElement("div"));
 
 	element.appendChild(expand);
 	element.appendChild(shrink);
@@ -167,8 +168,8 @@ function ResizeSensor(element: HTMLElement, callback: Function)
 		setScroll();
 	};
 
-	expand.addEventListener('scroll', onScroll);
-	shrink.addEventListener('scroll', onScroll);
+	expand.addEventListener("scroll", onScroll);
+	shrink.addEventListener("scroll", onScroll);
 }
 </script>
 

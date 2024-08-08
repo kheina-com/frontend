@@ -4,18 +4,17 @@
 			<p>This website uses cookies.</p>
 			<p><a href='https://en.wikipedia.org/wiki/HTTP_cookie'>what are cookies?</a></p>
 		</div>
-		<button id='cookies' class='interactable' @click='globals.cookiesAllowed(true)'>coolio</button>
+		<button id='cookies' class='interactable' @click='cookies = true'>coolio</button>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 import store from '@/globals';
 
 const globals = store();
-
-const cookies = toRef(globals.cookies);
-// const cookies: Ref<boolean> = ref(globals.cookies);
+const cookies: Ref<boolean> = ref(globals.cookies);
+watch(cookies, globals.cookiesAllowed);
 </script>
 
 <style scoped>

@@ -30,9 +30,9 @@
 			<br>
 			description: {{post.description ? `${post.description.length} chars` : 'none'}}
 		</div>
-		<!-- <div class='scalar' v-show='scalarWidth !== null'>
-			scalar: {{ scalarWidth ? "width" : "height" }} <Button @click='toggleScalar'>toggle</Button>
-		</div> -->
+		<div class='scalar' v-show='scalar !== undefined'>
+			<button class='interactable' @click='toggleScalar'>toggle scalar</button>
+		</div>
 	</div>
 </template>
 
@@ -42,21 +42,23 @@ import { tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
 import CopyText from '@/components/CopyText.vue';
+import { ref, toRef, watch, type Ref } from 'vue';
 
 const props = defineProps<{
 	post?: Post,
 	tags?: Tags,
-	scalarWidth?: boolean,
+	scalar?: boolean,
 }>();
 
-let scalarWidth = props.scalarWidth;
+// const scalar: Ref<boolean> = ref(props.scalar);
+const scalar: Ref<boolean> = toRef(props, "scalar");
 
-const emits = defineEmits(["update:scalarWidth"]);
+const emits = defineEmits(["update:scalar"]);
 function toggleScalar() {
-	// console.log("aaa:", this.scalarWidth);
-	scalarWidth = !scalarWidth;
-	emits("update:scalarWidth", scalarWidth);
+	// scalar.value = !scalar.value;
+	emits("update:scalar", !scalar.value);
 }
+
 </script>
 
 <style scoped>
@@ -87,6 +89,15 @@ h4 {
 }
 .rating .explicit a {
 	color: var(--explicit);
+}
+
+.scalar {
+	margin: var(--margin) auto 0;
+}
+.scalar button {
+	margin: auto;
+	background: var(--bg1color);
+	display: block;
 }
 
 /* theme overrides */

@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, toRef, watch, type Ref } from 'vue';
 import { base64ToBytes, createToast } from '@/utilities';
 import { cdnRegex } from '@/config/constants';
 import store from '@/globals';
@@ -36,6 +36,7 @@ const props = withDefaults(defineProps<{
 	height: number,
 	bg: boolean,
 	thumbhash: string | null,
+	scaleHeight?: boolean,
 }>(), {
 	mime: null,
 	src: "",
@@ -52,8 +53,10 @@ const isError: Ref<boolean> = ref(false);
 const media = ref<HTMLImageElement | null>(null) as Ref<HTMLImageElement>;
 const mediaContainer = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const loader = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
-const container = ref<HTMLImageElement | HTMLVideoElement | null>(null) as Ref<HTMLImageElement | HTMLVideoElement>;
+const container = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+defineExpose({ container });
 const loaded: Ref<number> = ref(0);
+const scalar: Ref<boolean> = toRef(props, "scaleHeight");
 let total: number = 0; // don't bother with this one since it's mostly loaded that will be updating
 
 interface Image extends HTMLImageElement {
@@ -64,6 +67,11 @@ Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, 
 	// const img = this;
 	const xhr = new XMLHttpRequest();
 	xhr.open("GET", url, true);
+
+	if (url.startsWith("blob:")) {
+		this.src = url;
+		return this.dispatchEvent(new Event("render"));
+	}
 
 	if (url.match(cdnRegex)) {
 		const auth = globals.auth?.token;
@@ -94,8 +102,17 @@ Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, 
 	xhr.send();
 };
 
+const allowScalar = () => {
+	if (!scalar.value) {
+		emits("update:scaleHeight", mediaContainer.value.getBoundingClientRect().height > window.innerHeight - 90 ? false : undefined);
+	}
+};
+
 onMounted(() => {
 	th(props.thumbhash);
+
+	allowScalar();
+	window.addEventListener("resize", allowScalar);
 
 	media.value.addEventListener("render", onLoad);
 	// return this.$refs.media.src = this.src;
@@ -139,8 +156,9 @@ onUnmounted(() => {
 	// just in case they're not removed during render, for whatever reason
 	window.removeEventListener("scroll", onScroll);
 	window.removeEventListener("resize", onScroll);
+	window.removeEventListener("resize", allowScalar);
 });
-	
+
 const isImage = computed(() => props.mime && props.mime.startsWith("image"));
 const isVideo = computed(() => props.mime && props.mime.startsWith("video"));
 const parentStyle = computed(() => props.width ? `aspect-ratio: ${props.width}/${props.height}; max-width: ${props.width}px` : null);
@@ -155,10 +173,12 @@ const linkStyle = computed(() => {
 const emits = defineEmits([
 	"update:width",
 	"update:height",
-])
+	"update:scaleHeight",
+]);
 
 function onLoad() {
 	if (!media.value) return;
+	allowScalar();
 
 	isLoading.value = false;
 	// this.$refs.loader.style = null;
@@ -244,6 +264,17 @@ function onScroll() {
 	}
 }
 
+watch(scalar, (value: boolean) => {
+	console.debug("scalar:", value ? "height" : "width");
+	if (!mediaContainer.value) return;
+
+	if (value) {
+		(mediaContainer.value.parentElement as HTMLDivElement).style.maxHeight = "calc(100vh - 90px)";
+	}
+	else {
+		(mediaContainer.value.parentElement as HTMLDivElement).style.maxHeight = "";
+	}
+});
 watch(() => props.thumbhash, th);
 watch(() => props.src, (value: string) => {
 	if (!isImage.value) return;

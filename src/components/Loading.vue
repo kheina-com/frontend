@@ -115,6 +115,7 @@ span {
 	width: 1.2em;
 	height: 1.2em;
 	border-radius: 50%;
+	display: inline-block;
 }
 
 .gigamoji .loading.wave {
