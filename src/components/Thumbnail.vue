@@ -157,7 +157,7 @@ watch(() => props.load, (value: boolean) => {
 	overflow: hidden;
 }
 
-.th {
+.th img {
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);

@@ -426,6 +426,7 @@ function addBadge(badge: Badge) {
 		if (!user.value) return;
 		user.value.badges.push(badge);
 		badges.value.push(emoji(badge.emoji) + badge.label);
+		saveToHistory({ user: toRaw(user.value) });
 	})
 	.catch(() => { });
 }
@@ -441,6 +442,7 @@ function removeBadge(badge: number) {
 		if (!user.value) return;
 		user.value.badges.splice(badge, 1);
 		badges.value.splice(badge, 1);
+		saveToHistory({ user: toRaw(user.value) });
 	})
 	.catch(() => { });
 }
@@ -458,6 +460,7 @@ function follow() {
 	.then(() => {
 		if (!user.value) return;
 		user.value.following = !user.value?.following;
+		saveToHistory({ user: toRaw(user.value) });
 	}).catch(() => { });
 }
 
@@ -639,8 +642,7 @@ function updateProfileImage() {
 			post_id: uploadPostId.value,
 			coordinates: cropper.value.getResult().coordinates,
 		},
-	})
-	.then(() => {
+	}).then(() => {
 		if (!user.value) return;
 
 		if (isUploadIcon.value) {
@@ -650,8 +652,8 @@ function updateProfileImage() {
 		else if (isUploadBanner.value) {
 			user.value.banner = uploadPostId.value;
 		}
-	})
-	.finally(disableUploads);
+		saveToHistory({ user: toRaw(user.value) });
+	}).finally(disableUploads);
 }
 
 function runSearchQuery(p: number | null = null) {
