@@ -1,16 +1,16 @@
 <template>
-	<router-link :to='`/s/${setId}`' ref='set' class='set'>
+	<a :href='href' @click.stop.prevent='$router.push(href)' ref='set' class='set'>
 		<h2>{{title}}</h2>
 		<Profile v-bind='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p>posts: {{ commafy(count) }}</p>
 		<p class='dates'>created: <Timestamp :datetime='created'/><span v-show='updated !== created'> (updated: <Timestamp :datetime='updated'/>)</span></p>
 		<p class='privacy' v-show='privacy !== "public"'>{{ privacy }}</p>
 		<Markdown :content='description'/>
-	</router-link>
+	</a>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<{
 });
 
 const set = ref<HTMLAnchorElement | null>(null);
+const href = "/s/" + encodeURIComponent(props.setId);
 
 onMounted(() => {
 	if (props.nested && set.value) set.value.classList.add("nested");
@@ -48,6 +49,9 @@ onMounted(() => {
 	align-items: flex-start;
 	position: relative;
 }
+.set.nested {
+	background: var(--bg3color);
+}
 .set:hover {
 	border-color: var(--interact);
 }
@@ -58,7 +62,7 @@ a.profile:hover {
 	background: var(--bg1color);
 }
 .set.nested a.profile:hover {
-	background: var(--bg1color);
+	background: var(--bg2color);
 }
 .dates {
 	color: var(--subtle);

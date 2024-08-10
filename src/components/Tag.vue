@@ -1,16 +1,16 @@
 <template>
-	<router-link :to='`/t/${encodeURIComponent(props.tag)}`' ref='tag' class='tag'>
+	<a :href='href' @click.stop.prevent='$router.push(href)' ref='tag' class='tag'>
 		<h2>{{props.tag}}</h2>
-		<Profile v-bind='owner' v-if='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p :class='group'>{{group}}</p>
+		<Profile v-bind='owner' v-if='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
 		<p>Inherited Tags: {{inheritedTags.length === 0 ? 'None' : inheritedTags.join(', ')}}</p>
 		<Markdown :content='description'/>
-	</router-link>
+	</a>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 
@@ -27,6 +27,7 @@ const props = withDefaults(defineProps<{
 });
 
 const tag = ref<HTMLAnchorElement | null>(null);
+const href = "/t/" + encodeURIComponent(props.tag);
 
 onMounted(() => {
 	if (props.nested && tag.value) tag.value.classList.add("nested");
@@ -43,6 +44,9 @@ onMounted(() => {
 	flex-direction: column;
 	align-items: flex-start;
 }
+.tag.nested {
+	background: var(--bg3color);
+}
 .tag:hover {
 	border-color: var(--interact);
 }
@@ -53,7 +57,7 @@ a.profile:hover {
 	background: var(--bg1color);
 }
 .tag.nested a.profile:hover {
-	background: var(--bg1color);
+	background: var(--bg2color);
 }
 
 .artist {

@@ -227,7 +227,7 @@
 							<span v-else>@{{handle}}</span>
 							has no sets.
 						</p>
-						<Set v-else v-for='set in sets' :nested='!isMobile' :setId='set.set_id' v-bind='set'/>
+						<Set v-else v-for='set in sets' :nested='isMobile' :setId='set.set_id' v-bind='set'/>
 					</div>
 				</div>
 				<div v-show='tab === "tags"'>
@@ -240,7 +240,7 @@
 						</p>
 						<ul class='tags' v-else>
 							<li v-for='tag in userTags'>
-								<Tag :inheritedTags='tag.inherited_tags' :nested='!isMobile' v-bind='tag'/>
+								<Tag :inheritedTags='tag.inherited_tags' :nested='isMobile' v-bind='tag'/>
 							</li>
 						</ul>
 					</div>
