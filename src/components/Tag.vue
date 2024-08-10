@@ -53,7 +53,7 @@ a.profile:hover {
 	background: var(--bg1color);
 }
 .tag.nested a.profile:hover {
-	background: var(--bg2color);
+	background: var(--bg1color);
 }
 
 .artist {

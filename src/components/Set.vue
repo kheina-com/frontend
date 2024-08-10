@@ -23,17 +23,17 @@ const props = withDefaults(defineProps<{
 	title: string | null,
 	description: string | null,
 	privacy: string,
-	created: string,
+	created: string,	
 	updated: string,
 	nested: boolean,
 }>(), {
 	nested: false,
 });
 
-const set = ref<HTMLAnchorElement | null>(null) as Ref<HTMLAnchorElement>;
+const set = ref<HTMLAnchorElement | null>(null);
 
 onMounted(() => {
-	if (props.nested) set.value.classList.add("nested");
+	if (props.nested && set.value) set.value.classList.add("nested");
 });
 </script>
 
@@ -58,7 +58,7 @@ a.profile:hover {
 	background: var(--bg1color);
 }
 .set.nested a.profile:hover {
-	background: var(--bg2color);
+	background: var(--bg1color);
 }
 .dates {
 	color: var(--subtle);
