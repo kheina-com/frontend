@@ -354,9 +354,9 @@ function editToggle() {
 .post {
 	background: var(--bg1color);
 }
-.post .loading {
-	/* --bg1color: var(--bg2color); */
-}
+/* .post .loading {
+	--bg1color: var(--bg2color);
+} */
 .post .edit-button {
 	background: var(--bg2color);
 }
@@ -364,7 +364,6 @@ function editToggle() {
 .thumbnail {
 	max-width: 100%;
 	max-height: 300px;
-	border-radius: var(--border-radius);
 	margin: 0 auto 0 0;
 	position: relative;
 	pointer-events: none;

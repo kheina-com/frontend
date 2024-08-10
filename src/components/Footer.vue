@@ -82,7 +82,7 @@ updateLoop();
 	width: var(--border-size);
 	background: var(--textcolor);
 }
-.footer .anchor img, .header img {
+.footer .anchor img {
 	height: 1em;
 	margin-bottom: -0.2em;
 }

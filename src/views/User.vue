@@ -945,7 +945,7 @@ ul, ol {
 	border-bottom: none;
 	min-height: 1.75em;
 	min-height: calc(1.5em + 3px);
-	margin-bottom: 2.5em;
+	margin-bottom: 1em;
 }
 
 .header-bar .inner {
@@ -971,11 +971,11 @@ ul, ol {
 	padding-top: var(--margin);
 }
 
-.mobile .selfless .profile-buttons {
+.mobile .profile-buttons {
 	flex-flow: row-reverse;
 }
 
-.mobile .selfless .badges {
+.mobile .badges {
 	flex-flow: column;
 }
 
@@ -985,10 +985,6 @@ ul, ol {
 
 .mobile .badges > p {
 	margin-left: var(--margin);
-}
-
-.mobile .self .badges p {
-	margin-top: 0;
 }
 
 .mobile .badges > p:first-child {

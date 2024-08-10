@@ -2,7 +2,7 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='divClass' :title='title || postId || undefined'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='!unlink'/>
-		<div :to='`/p/${postId}`' class='thumbnail' v-if='media_type || isLoading'>
+		<div :to='`/p/${postId}`'  v-if='media_type || isLoading'>
 			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='acceptedMature' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${size?.width}/${size?.height}`' v-else>
 				this post is <b>{{rating}}</b>, click to show.
@@ -114,7 +114,7 @@ onMounted(() => {
 
 const isLoading = computed(() => !props.postId);
 const divClass = computed(() => "post tile" + (isLoading.value ? " loading" : "") + (props.unlink ? "" : " link") + (props.nested ? " nested" : ""));
-const showPrivacy = computed(() => { return props.privacy && props.privacy.toLowerCase() !== "public"; });
+const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
 
 function nav() {
 	// this needs to match the fingerprint of the api:

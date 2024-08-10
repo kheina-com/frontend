@@ -36,8 +36,9 @@ export function getCookie(cookieName: string, default_value: any = null, type: s
 	return value;
 }
 
-export function deleteCookie(cookieName: string)
-{ document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`; };
+export function deleteCookie(cookieName: string) {
+	document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`;
+}
 
 export function setTitle(title: string): void {
 	document.title = title;

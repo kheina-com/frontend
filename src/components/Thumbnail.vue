@@ -75,6 +75,7 @@ onMounted(() => {
 
 function loaded(event: Event) {
 	if (!media.value) return;
+
 	(media.value.parentElement as HTMLDivElement).classList.remove("loading");
 	isLoading.value = false;
 	emits("load", event);
@@ -104,10 +105,10 @@ function th(value: string | null) {
 		const th = (media.value.parentElement as HTMLDivElement);
 		dataurl = thumbHashToDataURL(base64ToBytes(value));
 		th.style.background = "url('" + lightnoise + "') repeat center, url('" + dataurl + "') 0% 0% / cover";
-		th.classList.remove("loading");
+		th.classList.remove("wave");
 
 		media.value.style.opacity = "0";
-		media.value.classList.add("th");
+		th.classList.add("th");
 		if (isLoading.value) {
 			media.value.addEventListener("load", () => {
 				if (!media.value) return;
@@ -152,6 +153,8 @@ watch(() => props.load, (value: boolean) => {
 .thumbnail {
 	position: relative;
 	pointer-events: none;
+	border-radius: var(--border-radius);
+	overflow: hidden;
 }
 
 .th {
@@ -160,7 +163,6 @@ watch(() => props.load, (value: boolean) => {
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
 	position: relative;
-	border-radius: var(--border-radius);
 }
 
 img {
@@ -171,7 +173,16 @@ img {
 	/* width: 100%;
 	height: 100%; */
 }
-.loading {
-	overflow: hidden;
+.loading.th {
+	animation: fade 1s infinite var(--transition) alternate;
+}
+
+@keyframes fade {
+	0% {
+		filter: brightness(85%);
+	}
+	100% {
+		filter: brightness(100%);
+	}
 }
 </style>
