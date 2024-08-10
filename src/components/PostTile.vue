@@ -235,7 +235,7 @@ watch(props, (value) => {
 	transition: var(--transition) var(--fadetime);
 	text-align: center;
 	max-width: 20em;
-	min-width: 7em;
+	/* min-width: 7em; */
 }
 .background-link {
 	top: 0;
@@ -250,10 +250,6 @@ watch(props, (value) => {
 .thumbnail, .show-mature {
 	max-width: 20em;
 }
-.mobile .thumbnail, .mobile .show-mature {
-	/* all of the magic numbers here are used to calculate 3 columns of tiles when rendering search results on mobile */
-	max-width: calc((100vw - (250px + 6 * var(--border-size))) / 3);
-}
 .text, .loading {
 	overflow: hidden;
 	/* max-width: 10em; */
@@ -266,8 +262,11 @@ watch(props, (value) => {
 	margin: auto;
 }
 .mobile .thumbnail, .mobile .text, .mobile .show-mature {
-  max-width: calc(100vw / 3 - 76px - var(--border-size) * 6);
+	/* all of the magic numbers here are used to calculate 3 columns of tiles when rendering search results on mobile */
+	max-width: calc(100vw / 3 - var(--margin) * 10 / 3 - var(--border-size) * 6);
+	/* max-width: calc((100vw - var(--margin) * 10 - var(--border-size) * 6) / 3); */
 }
+
 .title {
 	margin: 0 0 15px;
 }

@@ -1,7 +1,7 @@
 <template>
 	<router-link :to='`/t/${encodeURIComponent(props.tag)}`' ref='tag' class='tag'>
 		<h2>{{props.tag}}</h2>
-		<Profile v-bind='owner' v-if='owner' :unlink='owner.handle === $route.path.substring(1)'/>
+		<Profile v-bind='owner' v-if='owner' :link='owner.handle !== $route.path.substring(1)'/>
 		<p :class='group'>{{group}}</p>
 		<p>Status: {{deprecated ? 'deprecated' : 'active'}}</p>
 		<p>Inherited Tags: {{inheritedTags.length === 0 ? 'None' : inheritedTags.join(', ')}}</p>
@@ -26,10 +26,10 @@ const props = withDefaults(defineProps<{
 	nested: false,
 });
 
-const tag = ref<HTMLAnchorElement | null>(null) as Ref<HTMLAnchorElement>;
+const tag = ref<HTMLAnchorElement | null>(null);
 
 onMounted(() => {
-	if (props.nested) tag.value.classList.add("nested");
+	if (props.nested && tag.value) tag.value.classList.add("nested");
 });
 </script>
 

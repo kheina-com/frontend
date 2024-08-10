@@ -94,7 +94,37 @@
 					</div>
 				</div>
 			</div>
-			<div class='user-info'>
+			<div class='user-info' v-if='isMobile'>
+				<div class='user-field' v-if='isEditing'>
+					<i class='material-icons'>public</i>
+					<input v-model='update.website' class='interactable text'>
+				</div>
+				<div class='mobile-fields' v-else>
+					<p class='user-field'>
+						<i class='material-icons'>schedule</i>
+						<Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created'/></Loading>
+					</p>
+					<p v-if='user?.website' class='user-field website'>
+						<i class='material-icons'>public</i>
+						<Markdown :content='user?.website' inline/>
+					</p>
+				</div>
+				<div class='user-name'>
+					<input v-model='update.name' class='interactable text' v-if='isEditing'>
+					<h2 v-else>
+						<Markdown :content='user?.name' inline v-if='user'/>
+						<Loading span v-else>username</Loading>
+						<i class='material-icons' v-if='user?.privacy === "private"' :title="`@${user?.handle}'s account is private`">lock</i>
+					</h2>
+					<p>
+						<Loading :isLoading='!user' class='handle' span>
+							<span>@{{user?.handle || 'handle'}}</span>
+							<ShareLink :content='`/${user?.handle}`' v-if='user?.privacy !== "private"'/>
+						</Loading>
+					</p>
+				</div>
+			</div>
+			<div class='user-info' v-else>
 				<p class='user-field' v-if='!isEditing'>
 					<i class='material-icons'>schedule</i>
 					<Loading :isLoading='!user' span>{{isMobile ? '' : 'Joined '}}<Timestamp :datetime='user?.created'/></Loading>
@@ -264,7 +294,7 @@ import { computed, onMounted, ref, toRaw, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { getBannerUrl, getEmojiUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
+import { getBannerUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
 import { demarkdown, emoji } from '@/utilities/markdown';
 import { isMobile, host, tabs } from '@/config/constants';
 import store from '@/globals';
@@ -728,6 +758,15 @@ main {
 .user-name h2 i {
 	font-size: 1em;
 	margin-left: 0.25em;
+}
+.mobile .user-name h2 {
+	position: initial;
+}
+
+.mobile-fields {
+	display: flex;
+	flex-direction: column-reverse;
+	justify-content: space-around;
 }
 
 .user-field {
