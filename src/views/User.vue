@@ -3,14 +3,14 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='selfClass'>
 		<Loading :isLoading='isBannerLoading' class='banner' v-if='user?.banner || !user'>
-			<img :src='banner' ref='bannerImg' @load='isBannerLoading = false'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 			<router-link :to='`/p/${user?.banner}`' class='banner-link' v-else>
 				<i class='material-icons-round' style='display: block'>open_in_new</i>
 			</router-link>
-		</Loading>
+			<img :src='banner' ref='bannerImg' @load='isBannerLoading = false'>
+			</Loading>
 		<div class='banner-missing' v-else>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
@@ -396,24 +396,29 @@ else {
 	.catch(() => { });
 }
 
-const twoFiveRem = parseInt(getComputedStyle(document.body).fontSize) * 2.5;
-const setTop = (event: Event) => (document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, (event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px";
+// TODO: parallax
+// const twoFiveRem = parseInt(getComputedStyle(document.body).fontSize) * 2.5;
+// const setTop = (event: Event) => (document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, (event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px";
 onMounted(() => {
 	if (route.query?.edit)
 	{ toggleEdit(true); }
 
 	fetchData();
-	window.addEventListener("scroll", scrollBanner);
 
-	const b = document.getElementById("banner") as HTMLElement;
-	(document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, b.clientHeight / 2).toString() + "px";
-	document.addEventListener("resize", setTop);
+
+	// TODO: parallax
+	// window.addEventListener("scroll", scrollBanner);
+
+	// const b = document.getElementById("banner") as HTMLElement;
+	// (document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, b.clientHeight / 2).toString() + "px";
+	// document.addEventListener("resize", setTop);
 });
 
-onUnmounted(() => {
-	window.removeEventListener("scroll", scrollBanner);
-	document.removeEventListener("resize", setTop);
-});
+// TODO: parallax
+// onUnmounted(() => {
+// 	window.removeEventListener("scroll", scrollBanner);
+// 	document.removeEventListener("resize", setTop);
+// });
 
 const selfClass = computed(() => {
 	return (globals.user && globals.user?.handle === user.value?.handle) ? 'self' : 'selfless';
@@ -427,11 +432,12 @@ const banner = computed(() => {
 	return getBannerUrl(user.value.banner, user.value.handle);
 });
 
-const bannerImg = ref<HTMLImageElement | null>(null);
-function scrollBanner(): void {
-	if (!bannerImg.value) return;
-	bannerImg.value.style.top = (window.scrollY / 2) + "px";
-}
+// TODO: parallax
+// const bannerImg = ref<HTMLImageElement | null>(null);
+// function scrollBanner(): void {
+// 	if (!bannerImg.value) return;
+// 	bannerImg.value.style.top = (window.scrollY / 2) + "px";
+// }
 
 function addBadge(badge: Badge) {
 	console.log('adding', badge);
@@ -849,7 +855,10 @@ main {
 	min-width: 100%;
 	min-height: 100%;
 	width: 100%;
-	position: absolute;
+
+	/* TODO: parallax */
+	/* this is only for the parallax scroll effect */
+	/* position: absolute; */
 }
 .banner-link {
 	position: absolute;
