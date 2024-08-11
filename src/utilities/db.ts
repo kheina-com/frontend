@@ -41,9 +41,7 @@ export function ConnectDb(): Promise<IDBDatabase> {
 }
 
 export function CacheEmoji(emoji: Emoji): Promise<void> {
-	// @ts-ignore  // typescript is wrong here, this cannot return idb due to final throw
 	return new Promise<void>((resolve, reject) => {
-		
 		const transaction = db.transaction([dbStore], "readwrite");
 		transaction.onabort = transaction.onerror = reject;
 		transaction.oncomplete = () => resolve();
@@ -57,22 +55,16 @@ export function CacheEmoji(emoji: Emoji): Promise<void> {
 		store.add(expiring);
 
 		transaction.commit();
-	}).catch(e =>
-		// attempt to reconnect to the db
-		ConnectDb().finally(() => {
-			throw e; // re-throw error to retry
-		}),
-	);
+	}).catch(() => { ConnectDb() });
 }
 
-export function FetchEmoji(emoji: string): Promise<Emoji | null> {
-	// @ts-ignore  // typescript is wrong here, this cannot return idb due to final throw
-	return new Promise<Emoji | null>(async (resolve, reject) => {
+export function FetchEmoji(emoji: string): Promise<Emoji | void> {
+	return new Promise<Emoji | void>(async (resolve, reject) => {
 		const transaction = db.transaction([dbStore], "readonly");
 		transaction.onabort = transaction.onerror = reject;
 		const store = transaction.objectStore(dbStore);
 
-		const result = await new Promise<Emoji | undefined>((res, rej) => {
+		const result = await new Promise<Emoji | void>((res, rej) => {
 			const req = store.get(emoji);
 			req.onerror = rej;
 			req.onsuccess = () => {
@@ -80,14 +72,9 @@ export function FetchEmoji(emoji: string): Promise<Emoji | null> {
 			};
 		});
 
-		if (result === undefined) return resolve(null);
+		if (result === undefined) return resolve();
 
 		transaction.oncomplete = () => resolve(result);
 		transaction.commit();
-	}).catch(e =>
-		// attempt to reconnect to the db
-		ConnectDb().finally(() => {
-			throw e; // re-throw error to retry
-		}),
-	);
+	}).catch(() => { ConnectDb() });
 }

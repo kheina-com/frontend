@@ -9,7 +9,7 @@
 			<router-link :to='`/p/${user?.banner}`' class='banner-link' v-else>
 				<i class='material-icons-round' style='display: block'>open_in_new</i>
 			</router-link>
-			<img :src='banner' @load='isBannerLoading = false'>
+			<img :src='banner' ref='bannerImg' @load='isBannerLoading = false'>
 		</Loading>
 		<div class='banner-missing' v-else>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
@@ -290,7 +290,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, toRaw, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
@@ -401,6 +401,11 @@ onMounted(() => {
 	{ toggleEdit(true); }
 
 	fetchData();
+	window.addEventListener("scroll", scrollBanner);
+});
+
+onUnmounted(() => {
+	window.removeEventListener("scroll", scrollBanner);
 });
 
 const selfClass = computed(() => {
@@ -414,6 +419,12 @@ const banner = computed(() => {
 	{ return getBannerUrl(user.value.banner, user.value.handle, 'jpg'); }
 	return getBannerUrl(user.value.banner, user.value.handle);
 });
+
+const bannerImg = ref<HTMLImageElement | null>(null);
+function scrollBanner(): void {
+	if (!bannerImg.value) return;
+	bannerImg.value.style.top = (window.scrollY / 2) + "px";
+}
 
 function addBadge(badge: Badge) {
 	console.log('adding', badge);
@@ -822,6 +833,7 @@ main {
 	height: calc(100vw / 3);
 	max-height: 75vh;
 	width: 100%;
+	overflow: hidden;
 	background-size: cover;
 	background-position: center;
 }
@@ -830,6 +842,7 @@ main {
 	min-width: 100%;
 	min-height: 100%;
 	width: 100%;
+	position: relative;
 }
 .banner-link {
 	position: absolute;

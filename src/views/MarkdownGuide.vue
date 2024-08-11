@@ -2,12 +2,14 @@
 	<main id='feature' v-if='isMobile'>
 		<p class='title'>click the <i class='material-icons'>visibility</i> to edit!</p>
 		<MarkdownEditor class='mobile-guide' height='60vh' resize='vertical' initRendered :value='content'/>
+		<ThemeMenu/>
 	</main>
 	<main id='feature' v-else>
 		<div class='guide'>
 			<MarkdownEditor v-model:value='content' :hideGuide='true' :hidePreview='true' style='grid-area: editor' resize='vertical'/>
 			<Markdown :content='content'/>
 		</div>
+		<ThemeMenu/>
 	</main>
 </template>
 		
@@ -17,6 +19,7 @@ import { useRoute } from 'vue-router';
 import { iconShortcode, isMobile } from '@/config/constants';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
 import image from '$/default-icon.png?url';
 
 const route = useRoute();
@@ -164,6 +167,17 @@ for example, twitter can be linked to like so: t@Twitter. there are many website
 | \`th@username\` |    th@username    |      toyhou.se      | https://toyhou.se/username
 | \`cm@username\` |    cm@username    |     commiss.io      | https://commiss.io/username
 | \`tm@username\` |    tm@username    |     tumblr.com      | https://www.tumblr.com/username
+
+## Color
+you can also change the color of text to your liking by putting \`%\` on either side of your text, with a color
+
+\`\`\`
+%blue this is set to blue via a theme-friendly code %
+%0077bb this is set to blue via a static hex-coded color %
+\`\`\`
+
+%blue this is set to blue via a theme-friendly code %
+%0077bb this is set to blue via a static hex-coded color %
 
 ## Post Embedding
 posts (along with a rich preview) can be linked to by preceding the post id (the random characters in the url) with a \`^\` character

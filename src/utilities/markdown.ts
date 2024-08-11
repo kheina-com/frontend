@@ -179,7 +179,7 @@ const mdEmojiUrl = (emoji: string) => {
 		}
 
 		khatch(`${host}/v1/emoji/${emoji}`, {
-			errorHandlers: {	
+			errorHandlers: {
 				404: () => {
 					mdEmojiCache[emoji] = null;
 					reject();
@@ -388,6 +388,10 @@ const mdRules = {
 		start: /(^|\s+)\#/,
 		rule: /^\#([^\s0-9\#][^\s\#]*)/i,
 	},
+	color: {
+		start: /(^|\s+)\%\w+/,
+		rule: /^\%(\w+)\s+(.+?)\s+\%/,
+	},
 };
 
 
@@ -421,6 +425,14 @@ interface EmojiToken extends Tokens.Generic {
 	raw:   string,
 	text:  string,
 	title: string,
+}
+
+interface ColorToken extends Tokens.Generic {
+	type:   "color",
+	raw:    string,
+	text:   string,
+	color:  string,
+	tokens: Tokens.Generic[],
 }
 
 interface GigamojiToken extends Tokens.Generic {
@@ -643,6 +655,35 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			}, 0);
 
 			return `<a id="${id}" href="${token.href}">${token.raw}</a>`;
+		},
+	},
+	{
+		name: "color",
+		level: "inline",
+		start(src: string): number | void {
+			const match = mdRules.color.start.exec(src);
+			return match ? match.index + match[1].length : undefined;
+		},
+		tokenizer(src: string): ColorToken | undefined {
+			const match = mdRules.color.rule.exec(src);
+			if (!match) return;
+
+			const token: ColorToken = {
+				type:   "color",
+				raw:    match[0],
+				text:   match[2],
+				color:  match[1],		
+				tokens: [],
+			};
+
+			this.lexer.inlineTokens(token.text, token.tokens);
+
+			return token;
+		},
+		renderer(token_: Tokens.Generic): string {
+			const token = token_ as ColorToken;
+			const color = token.color.match(/^[a-f0-9]{6}$/i) ? "#" + token.color : "var(--" + token.color + ")";
+			return `<span style="color: ${htmlEscape(color)}">` + this.parser.parseInline(token.tokens) + '</span>';
 		},
 	},
 	{

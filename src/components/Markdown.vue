@@ -112,6 +112,7 @@ function render() {
 		)
 	) : null;
 }
+
 watch(() => props.content, render);
 </script>
 
@@ -121,7 +122,7 @@ a.external-link::after {
 	content: "open_in_new";
 	position: relative;
 	font-size: 0.8em;
-	bottom: -0.25em;
+	bottom: -0.2em;
 	margin-top: -0.31em;
 	text-decoration: none;
 	display: inline-block;
@@ -140,6 +141,7 @@ a.external-link::after {
 .markdown a:link, .markdown a:visited {
 	text-decoration: underline;
 	text-decoration-style: dotted;
+	color: inherit;
 }
 .markdown h1, .markdown h2 {
 	border-bottom: var(--border-size) solid var(--blockquote);
