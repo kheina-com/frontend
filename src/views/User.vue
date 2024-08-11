@@ -396,10 +396,7 @@ else {
 }
 
 const twoFiveRem = parseInt(getComputedStyle(document.body).fontSize) * 2.5;
-const setTop = (event: Event) => {
-	console.log("resize:", event);
-	(document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, (event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px";
-}
+const setTop = (event: Event) => (document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, (event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px";
 onMounted(() => {
 	if (route.query?.edit)
 	{ toggleEdit(true); }
