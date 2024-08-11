@@ -218,7 +218,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, type Ref, onMounted, watch } from 'vue';
+import { computed, ref, type Ref, onMounted, watch, toRaw } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { deleteCookie, khatch } from '@/utilities';
 import { host, environment, isMobile } from '@/config/constants';
@@ -373,7 +373,7 @@ function updateMessage() {
 		body: {
 			config: 'banner',
 			value: {
-				banner: message,
+				banner: toRaw(message.value),
 			},
 		},
 	})

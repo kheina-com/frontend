@@ -121,11 +121,11 @@ function onResize() {
 	let offset: number;
 	if (globals.error || (route.meta.applyOffset ?? true)) {
 		offset = Math.max((banner as HTMLDivElement).clientHeight + 25, (window.innerHeight - (content as HTMLDivElement).clientHeight) / 2);
+		(content as HTMLDivElement).style.top = offset.toString() + "px";
 	}
 	else {
 		offset = (banner as HTMLDivElement).clientHeight;
 	}
-	(content as HTMLDivElement).style.top = offset.toString() + "px";
 	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
 }
 

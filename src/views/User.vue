@@ -348,7 +348,6 @@ const page: Ref<number> = ref(1);
 const bannerWebpFailed: Ref<boolean | null> = ref(null);
 const availableBadges: Ref<Badge[] | null> = ref(null);
 const total_results: Ref<number> = ref(0);
-
 const badges: Ref<string[]> = ref([]);
 
 let tabElement: HTMLElement | null = null;
@@ -396,16 +395,25 @@ else {
 	.catch(() => { });
 }
 
+const setTop = (event: Event) => {
+	console.log("resize:", event);
+	(document.getElementById("content") as HTMLElement).style.top = "max(2.5rem, " + ((event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px)";
+}
 onMounted(() => {
 	if (route.query?.edit)
 	{ toggleEdit(true); }
 
 	fetchData();
 	window.addEventListener("scroll", scrollBanner);
+
+	const b = document.getElementById("banner") as HTMLElement;
+	(document.getElementById("content") as HTMLElement).style.top = "max(2.5rem, " + (b.clientHeight / 2).toString() + "px)";
+	document.addEventListener("resize", setTop);
 });
 
 onUnmounted(() => {
 	window.removeEventListener("scroll", scrollBanner);
+	document.removeEventListener("resize", setTop);
 });
 
 const selfClass = computed(() => {
