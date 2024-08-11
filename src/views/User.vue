@@ -395,9 +395,10 @@ else {
 	.catch(() => { });
 }
 
+const twoFiveRem = parseInt(getComputedStyle(document.body).fontSize) * 2.5;
 const setTop = (event: Event) => {
 	console.log("resize:", event);
-	(document.getElementById("content") as HTMLElement).style.top = "max(2.5rem, " + ((event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px)";
+	(document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, (event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px";
 }
 onMounted(() => {
 	if (route.query?.edit)
@@ -407,7 +408,7 @@ onMounted(() => {
 	window.addEventListener("scroll", scrollBanner);
 
 	const b = document.getElementById("banner") as HTMLElement;
-	(document.getElementById("content") as HTMLElement).style.top = "max(2.5rem, " + (b.clientHeight / 2).toString() + "px)";
+	(document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, b.clientHeight / 2).toString() + "px";
 	document.addEventListener("resize", setTop);
 });
 
