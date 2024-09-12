@@ -1,8 +1,8 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<main>
-		<button @click='toggleDrafts' class='drafts-button'><i class='material-icons'>{{showDrafts ? 'chevron_left' : 'chevron_right'}}</i>Drafts</button>
-		<div ref='draftsPanel' class='drafts-panel'>
+		<button @click.stop.prevent='() => toggleDrafts()' class='drafts-button'><i class='material-icons'>{{showDrafts ? 'chevron_left' : 'chevron_right'}}</i>Drafts</button>
+		<div ref='draftsPanel' @click.stop.prevent class='drafts-panel'>
 			<button @click='fetchDrafts' class='refresh-drafts' title='refresh drafts'><i class='material-icons'>refresh</i></button>
 			<div class='menu-border'/>
 			<ol class='results'>
@@ -372,15 +372,21 @@ function calcResize() {
 	}
 }
 
-function toggleDrafts() {
-	showDrafts.value = !showDrafts.value;
-	if (showDrafts.value)
-	{ draftsPanel.value.classList.add("open"); }
-	else
-	{ draftsPanel.value.classList.remove("open"); }
+const closeDrafts = () => toggleDrafts(false);
 
-	if (drafts.value === null) {
-		fetchDrafts();
+function toggleDrafts(state: boolean | null = null) {
+	showDrafts.value = state ?? !showDrafts.value;
+	if (showDrafts.value) {
+		window.addEventListener("click", closeDrafts, { once: true });
+		draftsPanel.value.classList.add("open");
+
+		if (!drafts.value) {
+			fetchDrafts();
+		}
+	}
+	else {
+		window.removeEventListener("click", closeDrafts);
+		draftsPanel.value.classList.remove("open");
 	}
 }
 
@@ -390,10 +396,6 @@ function fetchDrafts() {
 		handleError: true,
 	}).then(r => r.json())
 	.then(r => drafts.value = r.toSorted((a: Post, b: Post) => new Date(b.updated).valueOf() - new Date(a.updated).valueOf()));
-}
-function closeDrafts() {
-	showDrafts.value = false;
-	draftsPanel.value.classList.remove("open");
 }
 
 function markDraft() {

@@ -10,7 +10,7 @@
 				<i class='material-icons-round' style='display: block'>open_in_new</i>
 			</router-link>
 			<img :src='banner' ref='bannerImg' @load='isBannerLoading = false'>
-			</Loading>
+		</Loading>
 		<div class='banner-missing' v-else>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
@@ -849,6 +849,9 @@ main {
 	overflow: hidden;
 	background-size: cover;
 	background-position: center;
+
+	/* parallax */
+	/* perspective: 1px; */
 }
 .banner img {
 	object-fit: cover;
@@ -856,6 +859,13 @@ main {
 	min-height: 100%;
 	width: 100%;
 
+	/* parallax */
+	transform: translateZ(-1px);
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 	/* TODO: parallax */
 	/* this is only for the parallax scroll effect */
 	/* position: absolute; */
