@@ -1,5 +1,6 @@
 <template>
 	<div class='thumbnail loading wave'>
+		<div class='thumbhash loader'></div>
 		<img ref='media' :data-src='src' @load='loaded' @error='onError'>
 	</div>
 </template>
@@ -33,14 +34,12 @@ const emits = defineEmits(["load"]);
 const media = ref<HTMLImageElement | null>(null) as Ref<HTMLImageElement>;
 const isLoading: Ref<boolean> = ref(true);
 let webp: boolean = true;
-let isError: boolean = false;
+// let isError: boolean = false;
 
 const src = computed(() => props.post ? getMediaThumbnailUrl(props.post, props.size) : null);
 
 onMounted(() => {
-	if (props.load) {
-		lazyObserver.observe(media.value);
-	}
+	if (props.load) lazyObserver.observe(media.value);
 
 	const parentStyle = getComputedStyle((media.value.parentElement as HTMLDivElement));
 	const maxWidth = props.maxWidth ?? (parentStyle.maxWidth.endsWith('%') ? (
@@ -92,7 +91,7 @@ function onError() {
 	else {
 		isLoading.value = false;
 		media.value.alt = "failed to load media thumbnail";
-		isError = true;
+		// isError = true;
 	}
 }
 
@@ -133,17 +132,15 @@ watch(() => props.post, (value: string | null) => {
 	isLoading.value = true;
 	(media.value.parentElement as HTMLDivElement).classList.add("loading");
 	webp = true;
-	isError = false;
+	// isError = false;
 
 	if (!value) return;
-
 	if (media.value.dataset.intersected) {
 		media.value.src = getMediaThumbnailUrl(value, props.size);
 	}
 });
 
 watch(() => props.thumbhash, th);
-
 watch(() => props.load, (value: boolean) => {
 	if (value) lazyObserver.observe(media.value);
 });
@@ -173,16 +170,15 @@ img {
 	/* width: 100%;
 	height: 100%; */
 }
-.loading.th {
-	animation: fade 1s infinite var(--transition) alternate;
-}
-
-@keyframes fade {
-	0% {
-		filter: brightness(85%);
-	}
-	100% {
-		filter: brightness(100%);
-	}
+.loading.th > div {
+	animation: wave 5s infinite linear forwards;
+	-webkit-animation: wave 5s infinite linear forwards;
+	background: linear-gradient(100deg, black 40vw, #fff8 50vw, black 60vw);
+	background-size: auto;
+	background-size: 100vw 100%;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	mix-blend-mode: color-dodge;
 }
 </style>
