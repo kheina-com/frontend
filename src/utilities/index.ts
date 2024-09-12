@@ -225,11 +225,40 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 export function tab(e: KeyboardEvent) {
 	const target = e.target as HTMLInputElement;
 	target.focus();
+
+	const start = target.selectionStart ?? 0;
+	const s = target.value.lastIndexOf("\n", start) + 1;
+	const end = target.selectionEnd ?? 0;
+	const sub = target.value.substring(s, end);
+
+	if (e.shiftKey) {
+		target.selectionStart = s;
+		const text = sub.startsWith("\t") ? sub.replaceAll("\n\t", "\n").substring(1) : sub.replaceAll("\n\t", "\n");
+		if (!document.execCommand || !document.execCommand("insertText", false, text)) {
+			target.value = target.value.substring(0, s) + text + target.value.substring(end);
+		}
+		if (start !== end) {
+			target.selectionStart = s;
+			target.selectionEnd = end - sub.length + text.length;
+		}
+		return;
+	}
+
+	if (sub.includes("\n")) {
+		target.selectionStart = s;
+		const text = "\t" + sub.replaceAll("\n", "\n\t");
+		if (!document.execCommand || !document.execCommand("insertText", false, text)) {
+			target.value = target.value.substring(0, s) + text + target.value.substring(end);
+		}
+		target.selectionStart = s;
+		target.selectionEnd = end - sub.length + text.length;
+		return;
+	}
+
 	if (!document.execCommand || !document.execCommand("insertText", false, "\t")) {
-		const start = target.selectionStart as number;
-		target.value = target.value.substring(0, start) + "\t" + target.value.substring(target.selectionEnd as number);
+		target.value = target.value.substring(0, start) + "\t" + target.value.substring(end);
 		target.selectionStart = target.selectionEnd = start + 1;
-		return "\t";
+		return;
 	}
 }
 

@@ -7,7 +7,7 @@ import defaultEmoji from '$/default-emoji.png?url';
 import store from '@/globals';
 import router from '@/router';
 
-
+// @ts-format-ignore-region
                                                        /*::/++++++++ooo++/:.
                                               -//+yhdNNMMMMMMMMMMMMMMMMMMMMMNNmhyys/.
                                        .-/oymmNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMh
@@ -56,91 +56,93 @@ sMMMm              ```      sMMMNm .mmmm -oss. +MMMMNh.   mMMM+ hMMMN` mMMMd sMM
                      `.-+hdNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNmdhs/-.`
                           `.-:sdhddmNNNMMMMMMMMMMMMNNNmdhyo+--.`
                                    `---:::+++++++++::*/
+// @ts-format-ignore-endregion
 
-
-const htmlReplace: { [k: string]: string } = {
-	// '&': '&amp;',
-	'<': '&lt;',
-	'>': '&gt;',
-	'"': '&quot;',
-	"'": '&#039;',
+const htmlReplace: { [k: string]: string; } = {
+	// "&": "&amp;",
+	"<": "&lt;",
+	">": "&gt;",
+	'"': "&quot;",
+	"'": "&#039;",
 };
 
 const htmlEscapeCharacters = new Set(Object.values(htmlReplace));
 
-const htmlRegex = new RegExp(`(?:${Object.keys(htmlReplace).map(x => '\\' + x).join('|')})(?:.{0,4};)?`, 'g');
+const htmlRegex = new RegExp(`(?:${Object.keys(htmlReplace).map(x => "\\" + x).join("|")})(?:.{0,4};)?`, "g");
 
-const mdReplace: { [k: string]: string } = {
-	'#': '\\#',
-	'|': '\\|',
-	'^': '\\^',
-	'{': '\\{',
-	'}': '\\}',
-	// '-': '\\-',
-	'=': '\\=',
-	'<': '&lt;',
-	'>': '&gt;',
+const mdReplace: { [k: string]: string; } = {
+	"#": "\\#",
+	"|": "\\|",
+	"^": "\\^",
+	"{": "\\{",
+	"}": "\\}",
+	// "-": "\\-",
+	"=": "\\=",
+	"<": "&lt;",
+	">": "&gt;",
 };
 
 const mdEscapeCharacters = new Set(Object.values(mdReplace));
 
-const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => '\\' + x).join('|')})`, 'g');
+const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => "\\" + x).join("|")})`, "g");
 
-const userLinks: { [k: string]: [string, string | null]} = {
+// @ts-format-ignore-region
+const userLinks: { [k: string]: [string, string | null]; } = {
 	// shortcode: [url, emoji]
 	// links get formatted as url + username
-	'': ['/', null], // default
-	[iconShortcode]: ['/', null],  // unique case, this loads icons
-	t:  ['https://twitter.com/',              'twitter'],
-	fa: ['https://www.furaffinity.net/user/', 'furaffinity'],
-	f:  ['https://www.facebook.com/',         'facebook'],
-	u:  ['https://www.reddit.com/u/',         'reddit'],
-	tw: ['https://www.twitch.tv/',            'twitch'],
-	yt: ['https://www.youtube.com/c/',        'youtube'],
-	tt: ['https://www.tiktok.com/@',          'tiktok'],
-	tg: ['https://t.me/',                     'telegram'],
-	p:  ['https://www.patreon.com/',          'patreon'],
-	pi: ['https://www.picarto.tv/',           'picarto'],
-	kf: ['https://ko-fi.com/',                'ko-fi'],
-	gr: ['https://gumroad.com/',              'gumroad'],
-	st: ['https://subscribestar.adult/',      'subscribestar'],
-	rf: ['https://ref.st/',                   'refsheet'],
-	pp: ['https://www.paypal.me/',            'paypal'],
-	fn: ['https://www.furrynetwork.com/',     'furrynetwork'],
-	w:  ['https://www.weasyl.com/~',          'weasyl'],
-	b:  ['https://boosty.to/',                'boosty'],
-	th: ['https://toyhou.se/',                'toyhouse'],
-	cm: ['https://commiss.io/',               'commissio'],
-	ig: ['https://www.instagram.com/',        'instagram'],
-	tm: ['https://www.tumblr.com/',           'tumblr'],
-	vk: ['https://vk.com/',                   'vk'],
+	"": ["/", null], // default
+	[iconShortcode]: ["/", null],  // unique case, this loads icons
+	t:  ["https://twitter.com/",              "twitter"],
+	fa: ["https://www.furaffinity.net/user/", "furaffinity"],
+	f:  ["https://www.facebook.com/",         "facebook"],
+	u:  ["https://www.reddit.com/u/",         "reddit"],
+	tw: ["https://www.twitch.tv/",            "twitch"],
+	yt: ["https://www.youtube.com/c/",        "youtube"],
+	tt: ["https://www.tiktok.com/@",          "tiktok"],
+	tg: ["https://t.me/",                     "telegram"],
+	p:  ["https://www.patreon.com/",          "patreon"],
+	pi: ["https://www.picarto.tv/",           "picarto"],
+	kf: ["https://ko-fi.com/",                "ko-fi"],
+	gr: ["https://gumroad.com/",              "gumroad"],
+	st: ["https://subscribestar.adult/",      "subscribestar"],
+	rf: ["https://ref.st/",                   "refsheet"],
+	pp: ["https://www.paypal.me/",            "paypal"],
+	fn: ["https://www.furrynetwork.com/",     "furrynetwork"],
+	w:  ["https://www.weasyl.com/~",          "weasyl"],
+	b:  ["https://boosty.to/",                "boosty"],
+	th: ["https://toyhou.se/",                "toyhouse"],
+	cm: ["https://commiss.io/",               "commissio"],
+	ig: ["https://www.instagram.com/",        "instagram"],
+	tm: ["https://www.tumblr.com/",           "tumblr"],
+	vk: ["https://vk.com/",                   "vk"],
 };
+// @ts-format-ignore-endregion
 
 const mdMaxId = 0xffffffff;
 
 const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, "0");
 
-const mdRequestCache: { [url: string]: any } = { };
+const mdRequestCache: { [url: string]: any; } = {};
 
 const mdRequestCacheLimit = 100;
 
-const mdEmojiCache: { [emoji: string]: Emoji | null } = { };
+const mdEmojiCache: { [emoji: string]: Emoji | null; } = {};
 
 let tempUrl = null;
 
 switch (environment) {
-	case 'local':
-		tempUrl = /https?:\/\/localhost(?:\:\d{1,4})?/;
-		break;
+case "local":
+	tempUrl = /https?:\/\/localhost(?:\:\d{1,4})?/;
+	break;
 
-	case 'dev':
-		tempUrl = /https:\/\/dev\.fuzz\.ly/;
-		break;
+case "dev":
+	tempUrl = /https:\/\/dev\.fuzz\.ly/;
+	break;
 
-	case 'prod':
-	default:
-		tempUrl = /https:\/\/fuzz\.ly/;
-		break;
+case "prod":
+default:
+	tempUrl = /https:\/\/fuzz\.ly/;
+	break;
 }
 
 const url = new RegExp(`^${tempUrl.source}\/|^\/`);
@@ -185,20 +187,18 @@ const mdEmojiUrl = (emoji: string) => {
 					reject();
 				},
 			},
-		}).then(r => r.json())
-		.then(r => {
+		}).then(r => r.json()).then(r => {
 			mdEmojiCache[emoji] = r;
 			resolve(r);
 		}).catch(reject);
 	});
-}
+};
 
 // return a rendered html img element as a string containing the formatted emoji
 export const emoji = (emoji: string): string => {
 	const id = mdRefId();
 
-	mdEmojiUrl(emoji)
-	.then(r => {
+	mdEmojiUrl(emoji).then(r => {
 		const element = document.getElementById(id) as HTMLImageElement;
 		if (!element) return;
 
@@ -218,7 +218,7 @@ export const emoji = (emoji: string): string => {
 	return `<img id="${id}" alt="${emoji}" title=":${emoji}:" class="emoji loading wave">`;
 };
 
-const mdMakeRequest = (url: string, silent=false) => {
+const mdMakeRequest = (url: string, silent = false) => {
 	while (Object.keys(mdRequestCache).length > mdRequestCacheLimit) {
 		delete mdRequestCache[Object.keys(mdRequestCache)[0]];
 	}
@@ -237,12 +237,11 @@ const mdMakeRequest = (url: string, silent=false) => {
 				if (response.status < 300) {
 					// description exists in a lot of responses, and is almost always the biggest one
 					// delete it just in case it exists to avoid taking up too much storage
-					if (r.hasOwnProperty('description')) delete r.description;
+					if (r.hasOwnProperty("description")) delete r.description;
 					mdRequestCache[url] = r;
 					return resolve(r);
 				}
-				else if (silent)
-				{ }
+				else if (silent) { }
 				else if (response.status < 500) {
 					store().createToast({
 						title: apiErrorMessageToast,
@@ -283,11 +282,11 @@ export function demarkdown(string: string): Promise<string> {
 			const id = "<" + mdRefId() + ">";
 
 			mdEmojiUrl(m.slice(1, -1))
-			.then(r => str = str.replace(id, r.alt ?? "❌"))
-			.catch(() => str = str.replace(id, "❌"))
-			.finally(() => {
-				if (!--emojis) resolve(str);
-			});
+				.then(r => str = str.replace(id, r.alt ?? "❌"))
+				.catch(() => str = str.replace(id, "❌"))
+				.finally(() => {
+					if (!--emojis) resolve(str);
+				});
 
 			return id;
 		}).replaceAll(mdRegex1, m => {
@@ -316,6 +315,7 @@ export const mdTokenizer = {
 
 export const mdRenderer = {
 	html: htmlEscape,
+	text: (src: string) => src.replaceAll(/\t/g, "&nbsp&nbsp&nbsp&nbsp"),
 	link(href: string, title: string, text: string) {
 		const id = mdRefId();
 
@@ -324,7 +324,7 @@ export const mdRenderer = {
 				const element = document.getElementById(id) as HTMLAnchorElement;
 				if (!element) return;
 
-				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(href); });
+				element.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); router.push(href); });
 			}, 0);
 
 			return `<a href="${htmlEscape(href)}" id="${id}" title="${title || href}">${text || href}</a>`;
@@ -334,7 +334,7 @@ export const mdRenderer = {
 				const element = document.getElementById(id) as HTMLAnchorElement;
 				if (!element) return;
 
-				element.addEventListener('click', e => e.stopPropagation());
+				element.addEventListener("click", e => e.stopPropagation());
 			}, 0);
 
 			return `<a href="${htmlEscape(href)}" id="${id}" title="${title || href}">${text || href}</a>`;
@@ -344,8 +344,8 @@ export const mdRenderer = {
 				const element = document.getElementById(id) as HTMLAnchorElement;
 				if (!element) return;
 
-				element.target = '_blank';
-				element.addEventListener('click', e => e.stopPropagation());
+				element.target = "_blank";
+				element.addEventListener("click", e => e.stopPropagation());
 			}, 0);
 
 			return `<a href="${htmlEscape(href)}" id="${id}" class="external-link" title="${title || href}">${text || href}</a>`;
@@ -396,63 +396,64 @@ const mdRules = {
 
 
 interface HandleToken extends Tokens.Generic {
-	type:     "handle",
-	raw:      string,
-	text:     string,
-	title:    string,
-	href:     string,
-	code:     string,
-	icon:     string | null,
+	type: "handle",
+	raw: string,
+	text: string,
+	title: string,
+	href: string,
+	code: string,
+	icon: string | null,
 	username: string,
 }
 
 interface PostToken extends Tokens.Generic {
 	type: "post",
-	raw:  string,
+	raw: string,
 	text: string,
 	href: string,
 }
 
 interface TagToken extends Tokens.Generic {
 	type: "tag",
-	raw:  string,
+	raw: string,
 	text: string,
 	href: string,
 }
 
 interface EmojiToken extends Tokens.Generic {
-	type:  "emoji",
-	raw:   string,
-	text:  string,
+	type: "emoji",
+	raw: string,
+	text: string,
 	title: string,
 }
 
 interface ColorToken extends Tokens.Generic {
-	type:   "color",
-	raw:    string,
-	text:   string,
-	color:  string,
+	type: "color",
+	raw: string,
+	text: string,
+	color: string,
 	tokens: Tokens.Generic[],
 }
 
 interface GigamojiToken extends Tokens.Generic {
-	type:   "gigamoji",
-	raw:    string,
+	type: "gigamoji",
+	raw: string,
 	tokens: (EmojiToken | Tokens.Text)[],
 }
 
 interface AlignmentToken extends Tokens.Generic {
-	type:   "alignment",
-	raw:    string,
-	tokens: any[],
-	align:  "left" | "center" | "right",
-	text:   string,
+	type: "alignment",
+	raw: string,
+	tokens: Tokens.Generic[],
+	align: "left" | "center" | "right",
+	text: string,
 }
+
 
 export const mdExtensions: TokenizerAndRendererExtension[] = [
 	{
-		name: 'handle',
-		level: 'inline',
+		name: "handle",
+		level: "inline",
 		start(src: string): number | void {
 			const match = mdRules.handle.start.exec(src);
 			return match ? match.index + match[1].length : undefined;
@@ -464,7 +465,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (userLinks.hasOwnProperty(match[1])) {
 				const [site, emoji] = userLinks[match[1]];
 				return {
-					type: 'handle',
+					type: "handle",
 					raw: match[0],
 					text: emoji ? match[2] : match[0],
 					title: match[0],
@@ -476,7 +477,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			}
 			else {
 				return {
-					type: 'text',
+					type: "text",
 					raw: match[0],
 					text: match[0],
 				};
@@ -485,13 +486,13 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		renderer(token: Tokens.Generic) {
 			const id = mdRefId();
 
-			if (token.raw[0] === '@') {
+			if (token.raw[0] === "@") {
 				mdMakeRequest(`${host}/v1/user/${token.username}`, true).then(r => {
 					const element = document.getElementById(id);
 					if (!element) return;
 
 					if (r) {
-						element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
+						element.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
 					}
 					else {
 						const span = document.createElement("span");
@@ -535,8 +536,8 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 	},
 	{
-		name: 'icon',
-		level: 'inline',
+		name: "icon",
+		level: "inline",
 		start(src: string): number | void {
 			const match = mdRules.icon.start.exec(src);
 			return match ? match.index + match[1].length : undefined;
@@ -546,11 +547,11 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (!match) return;
 
 			return {
-				type: 'handle',
+				type: "handle",
 				raw: match[0],
-				text: '@' + match[1],
-				title: '@' + match[1],
-				href: '/' + match[1],
+				text: "@" + match[1],
+				title: "@" + match[1],
+				href: "/" + match[1],
 				code: iconShortcode,
 				icon: null,
 				username: match[1],
@@ -558,8 +559,8 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 	},
 	{
-		name: 'emoji',
-		level: 'inline',
+		name: "emoji",
+		level: "inline",
 		start(src: string): number | void {
 			const match = mdRules.emoji.start.exec(src);
 			return match ? match.index + match[1].length : undefined;
@@ -569,7 +570,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (!match) return;
 
 			return {
-				type: 'emoji',
+				type: "emoji",
 				raw: match[0],
 				text: match[1],
 				title: match[0],
@@ -578,8 +579,8 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		renderer: (token: Tokens.Generic) => emoji(token.text),
 	},
 	{
-		name: 'post',
-		level: 'inline',
+		name: "post",
+		level: "inline",
 		start(src: string): number | void {
 			const match = mdRules.post.start.exec(src);
 			return match ? match.index + match[1].length : undefined;
@@ -589,7 +590,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (!match) return;
 
 			return {
-				type: 'post',
+				type: "post",
 				raw: match[0],
 				text: match[1],
 				href: getMediaThumbnailUrl(match[1]),
@@ -598,12 +599,11 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		renderer(token: Tokens.Generic) {
 			const id = mdRefId();
 
-			mdMakeRequest(`${host}/v1/post/${token.text}`)
-			.then(r => {
+			mdMakeRequest(`${host}/v1/post/${token.text}`).then(r => {
 				const element = document.getElementById(id);
 				if (!element || !r) return;
 
-				const response = r as { title?: string };
+				const response = r as { title?: string; };
 				const title = response?.title ? htmlEscape(response.title) : "";
 
 				const a = document.createElement("a") as HTMLAnchorElement;
@@ -627,8 +627,8 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 	},
 	{
-		name: 'tag',
-		level: 'inline',
+		name: "tag",
+		level: "inline",
 		start(src: string): number | void {
 			const match = mdRules.tag.start.exec(src);
 			return match ? match.index + match[1].length : undefined;
@@ -638,7 +638,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (!match) return;
 
 			return {
-				type: 'tag',
+				type: "tag",
 				raw: match[0],
 				text: match[1],
 				href: `/t/${encodeURIComponent(match[1])}`,
@@ -651,7 +651,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				const element = document.getElementById(id);
 				if (!element) return;
 
-				element.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
+				element.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); router.push(token.href); });
 			}, 0);
 
 			return `<a id="${id}" href="${token.href}">${token.raw}</a>`;
@@ -669,10 +669,10 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			if (!match) return;
 
 			const token: ColorToken = {
-				type:   "color",
-				raw:    match[0],
-				text:   match[2],
-				color:  match[1],		
+				type: "color",
+				raw: match[0],
+				text: match[2],
+				color: match[1],
 				tokens: [],
 			};
 
@@ -683,12 +683,12 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		renderer(token_: Tokens.Generic): string {
 			const token = token_ as ColorToken;
 			const color = token.color.match(/^[a-f0-9]{6}$/i) ? "#" + token.color : "var(--" + token.color + ")";
-			return `<span style="color: ${htmlEscape(color)}">` + this.parser.parseInline(token.tokens) + '</span>';
+			return `<span style="color: ${htmlEscape(color)}">` + this.parser.parseInline(token.tokens) + "</span>";
 		},
 	},
 	{
-		name: 'gigamoji',
-		level: 'block',
+		name: "gigamoji",
+		level: "block",
 		start(src: string): number | void {
 			const match = mdRules.gigamoji.start.exec(src);
 			return match ? match.index + match[1].length : undefined;
@@ -711,18 +711,18 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 				src = src.substr(match[0].length);
 				tokens.push({
-					type: 'emoji',
+					type: "emoji",
 					raw: match[1],
 					text: match[2],
 					title: match[1],
 				});
 
 				if (match[3]) {
-					tokens.push({ type: 'text', raw: match[3], text: match[3] });
+					tokens.push({ type: "text", raw: match[3], text: match[3] });
 				}
 			}
 			return {
-				type: 'gigamoji',
+				type: "gigamoji",
 				raw,
 				tokens,
 			};
@@ -731,43 +731,44 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			const token = token_ as GigamojiToken;
 			let rendered = '<p class="gigamoji">';
 			for (const t of token.tokens) {
-				if (t.type === 'emoji') {
+				switch (t.type) {
+				case "emoji":
 					rendered += emoji(t.text);
-				}
-				else {
-					rendered += `<span>${t.text}</span>`;
+					break;
+				default:
+					rendered += "<span>" + t.text + "</span>";
 				}
 			}
-			return rendered + '</p>';
+			return rendered + "</p>";
 		},
 	},
 	{
-		name: 'alignment',
-		level: 'block',
+		name: "alignment",
+		level: "block",
 		start: (src: string): number | void => mdRules.alignment.start.exec(src)?.index,
 		tokenizer(src: string): AlignmentToken | undefined {
 			const match = mdRules.alignment.rule.exec(src);
 			if (!match) return;
 
 			let text = match[2].trim();
-			const align = match[1] === '>' ? (
+			const align = match[1] === ">" ? (
 				// > text ?
-				match[3] === '<' ? 'center' : 'right'
+				match[3] === "<" ? "center" : "right"
 			) : (
 				// < text ?
-				match[3] === '>' ? null : 'left'
+				match[3] === ">" ? null : "left"
 			);
 
 			if (!align) return;
 
 			if (match[4]) {
 				for (const m of match[4].trim().matchAll(mdRules.alignment[align])) {
-					text += '\n' + (m[2] || m[1]).trim();
+					text += "\n" + (m[2] || m[1]).trim();
 				}
 			}
 
 			const token: AlignmentToken = {
-				type: 'alignment',
+				type: "alignment",
 				raw: match[0],
 				tokens: [],
 				align,
@@ -780,7 +781,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		},
 		renderer(token_: Tokens.Generic): string {
 			const token = token_ as AlignmentToken;
-			return `<div class="alignment ${token.align}">` + this.parser.parse(token.tokens) + '</div>';
+			return `<div class="alignment ${token.align}">` + this.parser.parse(token.tokens) + "</div>";
 		},
 	},
 ];

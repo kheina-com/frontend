@@ -61,28 +61,28 @@ function quote(e: KeyboardEvent) {
 	target.focus();
 	let text;
 	switch (e.key) {
-		case "(":
-			text = "(" + selection(target) + ")";
-			break;
-		case "[":
-			text = "[" + selection(target) + "]";
-			break;
-		case "{":
-			text = "{" + selection(target) + "}";
-			break;
-		case '"':
-		case "'":
-		case "*":
-		case "_":
-			if (target.selectionStart !== target.selectionEnd) {
-				text = e.key + selection(target) + e.key;
-			}
-			else {
-				text = e.key;
-			}
-			break;
-		default:
-			return;
+	case "(":
+		text = "(" + selection(target) + ")";
+		break;
+	case "[":
+		text = "[" + selection(target) + "]";
+		break;
+	case "{":
+		text = "{" + selection(target) + "}";
+		break;
+	case '"':
+	case "'":
+	case "*":
+	case "_":
+		if (target.selectionStart !== target.selectionEnd) {
+			text = e.key + selection(target) + e.key;
+		}
+		else {
+			text = e.key;
+		}
+		break;
+	default:
+		return;
 	}
 
 	e.preventDefault();

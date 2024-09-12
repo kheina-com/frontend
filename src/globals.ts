@@ -17,12 +17,12 @@ interface Toast {
 	dump?: any,
 	color: string,
 	icon: string,
-	close: { (): void },
+	close: { (): void; },
 }
 
 export enum Rating {
-	general  = "general",
-	mature   = "mature",
+	general = "general",
+	mature = "mature",
 	explicit = "explicit",
 }
 
@@ -33,11 +33,11 @@ interface Globals {
 	theme: string | null,
 	accent: string | null,
 	scroll: null,
-	toasts: { [k: number]: Toast },
+	toasts: { [k: number]: Toast; },
 	animations: boolean,
 	transitions: boolean,
 	tiles: boolean,
-	error: { message: string, dump: any | null } | null,
+	error: { message: string, dump: any | null; } | null,
 	rating: Rating,
 	notifications: number,
 	postCache: Post | null,
@@ -68,11 +68,11 @@ export default defineStore("globals", {
 		config: null,
 		cookies: false,
 	}),
-	getters: { },
+	getters: {},
 	actions: {
 		createToast(options: ToastOptions): void {
 			const id = toastCounter++;
-			const timeout = setTimeout(() => delete this.toasts[id], (options?.time || 15) * 1000);		
+			const timeout = setTimeout(() => delete this.toasts[id], (options?.time || 15) * 1000);
 			const close = () => {
 				delete this.toasts[id];
 				clearTimeout(timeout);
@@ -88,15 +88,14 @@ export default defineStore("globals", {
 		},
 		userConfig(config: any) {
 			this.config = {
-				...config, 
+				...config,
 				blockingBehavior: config.blocking_behavior,
 				wallpaper: config.wallpaper,
 			};
 			if (config.wallpaper) {
 				khatch(`${host}/v1/post/${config.wallpaper}`, {
 					errorMessage: 'Failed to Retrieve User Wallpaper!',
-				}).then(r => r.json())
-				.then(r => {
+				}).then(r => r.json()).then(r => {
 					document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.filename)})`;
 					document.documentElement.style.backgroundAttachment = 'fixed';
 					document.documentElement.style.backgroundPosition = 'top center';
@@ -115,14 +114,15 @@ export default defineStore("globals", {
 			}
 		},
 		cookiesAllowed(cookies: boolean) {
-			console.log("cookies:", cookies)
+			console.debug("cookies:", cookies);
 			this.cookies = cookies;
 			setCookie("cookies", "true", 31536000);
 		},
 		setTheme(theme: string) {
 			setCookie("theme", theme);
-			if (this.theme)
-			{ document.documentElement.classList.remove(this.theme); }
+			if (this.theme) {
+				document.documentElement.classList.remove(this.theme);
+			}
 			document.documentElement.classList.add(theme);
 			this.theme = theme;
 
@@ -135,8 +135,9 @@ export default defineStore("globals", {
 		},
 		setAccent(accent: string) {
 			setCookie("accent", accent);
-			if (this.accent)
-			{ document.documentElement.classList.remove(this.accent); }
+			if (this.accent) {
+				document.documentElement.classList.remove(this.accent);
+			}
 			document.documentElement.classList.add(accent);
 			this.accent = accent;
 
@@ -168,10 +169,12 @@ export default defineStore("globals", {
 				}
 				else {
 					const maxage = Math.round(auth.expires - new Date().valueOf() / 1000);
-					if (environment !== 'local') // specifically open this cookie to subdomains so that cdn works
-					{ document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=lax; domain=.fuzz.ly; path=/; secure`; }
-					else
-					{ setCookie('kh-auth', auth.token, maxage); }
+					if (environment !== 'local') { // specifically open this cookie to subdomains so that cdn works
+						document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
+					}
+					else {
+						setCookie('kh-auth', auth.token, maxage);
+					}
 					this.auth = authCookie();
 
 					khatch(`${host}/v1/user/self`, {
@@ -179,14 +182,15 @@ export default defineStore("globals", {
 						errorHandlers: {
 							401: () => {
 								// the auth token is no good, so unset it
-								if (environment !== 'local') // specifically open this cookie to subdomains so that cdn works
-								{ document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`; }
-								else
-								{ deleteCookie('kh-auth'); }
+								if (environment !== 'local') { // specifically open this cookie to subdomains so that cdn works
+									document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
+								}
+								else {
+									deleteCookie('kh-auth');
+								}
 							},
 						},
-					}).then(r => r.json())
-					.then(r => {
+					}).then(r => r.json()).then(r => {
 						r.created = new Date(r.created);
 						this.user = r;
 					});
@@ -198,20 +202,22 @@ export default defineStore("globals", {
 							401: () => { },
 							404: () => { },
 						},
-					}).then(r => r.json())
-					.then(r => this.userConfig);
+					}).then(r => r.json()).then(r => this.userConfig);
 				}
 			}
-			else 
-			{ this.auth = this.user = null; }
+			else {
+				this.auth = this.user = null;
+			}
 		},
 		animatedAccents(animatedAccents: boolean) {
 			this.animations = animatedAccents;
 			setCookie('animated-accents', animatedAccents);
-			if (animatedAccents)
-			{ document.documentElement.classList.add('animated'); }
-			else
-			{ document.documentElement.classList.remove('animated'); }
+			if (animatedAccents) {
+				document.documentElement.classList.add('animated');
+			}
+			else {
+				document.documentElement.classList.remove('animated');
+			}
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
@@ -223,10 +229,12 @@ export default defineStore("globals", {
 		cssTransitions(transitions: boolean) {
 			this.transitions = transitions;
 			setCookie('css-transitions', transitions, 3155695200);
-			if (transitions)
-			{ document.documentElement.classList.add('transitions'); }
-			else
-			{ document.documentElement.classList.remove('transitions'); }
+			if (transitions) {
+				document.documentElement.classList.add('transitions');
+			}
+			else {
+				document.documentElement.classList.remove('transitions');
+			}
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
@@ -238,10 +246,12 @@ export default defineStore("globals", {
 		searchResultsTiles(tiles: boolean) {
 			this.tiles = tiles;
 			setCookie('search-results-tiles', tiles, 3155695200);
-			if (tiles)
-			{ document.documentElement.classList.add('tiles'); }
-			else
-			{ document.documentElement.classList.remove('tiles'); }
+			if (tiles) {
+				document.documentElement.classList.add('tiles');
+			}
+			else {
+				document.documentElement.classList.remove('tiles');
+			}
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
@@ -251,10 +261,12 @@ export default defineStore("globals", {
 			}
 		},
 		setError(message: string | null = null, dump: any = null) {
-			if (message)
-			{ this.error = { message, dump }; }
-			else if (this.error !== null)
-			{ this.error = null; }
+			if (message) {
+				this.error = { message, dump };
+			}
+			else if (this.error !== null) {
+				this.error = null;
+			}
 		},
 	},
 });
