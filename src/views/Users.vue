@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref, type Ref } from 'vue';
 import store from '@/globals';
 import { khatch } from '@/utilities';
 import { apiErrorMessage, host } from '@/config/constants';
@@ -31,9 +31,7 @@ import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
 
-const globals = store();
-
-let users: FullUser[] | null = null;
+const users: Ref<FullUser[] | null> = ref(null);
 
 onMounted(() => {
 	khatch(`${host}/v1/users/all`, {
@@ -42,10 +40,7 @@ onMounted(() => {
 	.then(r => {
 		console.log(r);
 		console.log(Object.values(r));
-		users = r;
-	}).catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
+		users.value = r;
 	});
 });
 </script>
