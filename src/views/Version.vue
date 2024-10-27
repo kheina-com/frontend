@@ -6,20 +6,24 @@
 		</h3>
 		<div class='clicky-things'>
 			<table>
-				<tr class='header'>
-					<td>Service</td>
-					<td/>
-					<td>Hash</td>
-				</tr>
-				<tr v-for='(hash, service) in versioning'>
-					<td>{{service}}</td>
-					<td>:&nbsp;</td>
-					<td>
-						<Loading :isLoading='hash === null'>
-							<a :href='`https://github.com/kheina-com/${service}/commit/${hash}`' target='_target'><code>{{hash || "xxxxxxx"}}</code></a>
-						</Loading>
-					</td>
-				</tr>
+				<thead>
+					<tr class='header'>
+						<td>Service</td>
+						<td/>
+						<td>Hash</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for='(hash, service) in versioning'>
+						<td>{{service}}</td>
+						<td>:&nbsp;</td>
+						<td>
+							<Loading :isLoading='hash === null'>
+								<a :href='`https://github.com/kheina-com/${service}/commit/${hash}`' target='_target'><code>{{hash || "xxxxxxx"}}</code></a>
+							</Loading>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
 		<ThemeMenu/>

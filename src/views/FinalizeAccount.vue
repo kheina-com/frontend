@@ -90,33 +90,18 @@ function sendFinalize() {
 	isLoading.value = true;
 	khatch(`${host}/v1/account/finalize`, {
 		method:"POST",
+		errorMessage: "an error occurred while creating your account",
 		body: {
 			token: route.query.token,
 			name: name.value.value,
-			handle: handle.value,
+			handle: handle.value.value,
 			password: password.value.value,
 		},
-	}).then(response => {
-		if (response.status < 300)
-		{ router.push("/a/login"); }
-		else {
-			response.json().then(r => {
-				console.log(r);
-				if (response.status === 400)
-				{ globals.setError(r.error); }
-				else if (response.status === 401)
-				{ globals.setError(r.error); }
-				else if (response.status === 404)
-				{ globals.setError(r.error); }
-				else
-				{ globals.setError(apiErrorMessage, r); }
-			});
-		}
-		isLoading.value = false;
-	}).catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
-	});
+	}).then(() =>
+		router.push("/a/login")
+	).finally(() =>
+		isLoading.value = false
+	);
 }
 
 function checkPassword() {

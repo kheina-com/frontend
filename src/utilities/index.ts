@@ -178,7 +178,9 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 		if (handleError) {
 			if (error) {
 				console.log(error);
-				if (error.toString() === "TypeError: NetworkError when attempting to fetch resource.") { error = "An unexpected error occurred during an API call. (Are you connected to the internet?)"; }
+				if (error.toString() === "TypeError: NetworkError when attempting to fetch resource.") {
+					error = "An unexpected error occurred during an API call. (Are you connected to the internet?)";
+				}
 				createToast({
 					title: errorMessage,
 					description: error.toString(),
@@ -198,9 +200,12 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 				return response;
 			}
 			else if (response.status < 500) {
+				console.log("penis");
+				const r = await response.json();
 				createToast({
 					title: errorMessage,
-					description: (await response.json()).error,
+					description: r?.error ?? apiErrorDescriptionToast,
+					dump: r,
 				});
 			}
 			else {
