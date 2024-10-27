@@ -3,13 +3,13 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='selfClass'>
 		<Loading :isLoading='isBannerLoading' class='banner' v-if='user?.banner || !user'>
+			<img :src='banner' ref='bannerImg' @load='isBannerLoading = false'>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>
 				<i class='material-icons-round'>add_a_photo</i>
 			</a>
 			<router-link :to='`/p/${user?.banner}`' class='banner-link' v-else>
 				<i class='material-icons-round' style='display: block'>open_in_new</i>
 			</router-link>
-			<img :src='banner' ref='bannerImg' @load='isBannerLoading = false'>
 		</Loading>
 		<div class='banner-missing' v-else>
 			<a class='add-image-button' v-if='isEditing' @click='toggleBannerUpload'>

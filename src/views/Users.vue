@@ -23,9 +23,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from 'vue';
-import store from '@/globals';
 import { khatch } from '@/utilities';
-import { apiErrorMessage, host } from '@/config/constants';
+import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -38,8 +37,6 @@ onMounted(() => {
 		handleError: true,
 	}).then(r => r.json())
 	.then(r => {
-		console.log(r);
-		console.log(Object.values(r));
 		users.value = r;
 	});
 });
