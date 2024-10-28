@@ -12,13 +12,11 @@
 
 <script setup lang="ts">
 import { ref, type Ref } from 'vue';
-import store from '@/globals';
 import { khatch } from '@/utilities';
-import { apiErrorMessage, host } from '@/config/constants';
+import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Tag from '@/components/Tag.vue';
 
-const globals = store();
 const tags: Ref<Tag[] | null> = ref(null);
 
 khatch(`${host}/v1/tags/lookup`, {
@@ -26,11 +24,7 @@ khatch(`${host}/v1/tags/lookup`, {
 	handleError: true,
 	body: { },
 }).then(r => r.json())
-.then(r => tags.value = r)
-.catch(error => {
-	globals.setError(apiErrorMessage, error);
-	console.error(error);
-});
+.then(r => tags.value = r);
 </script>
 
 <style scoped>

@@ -117,7 +117,7 @@ function setAnimated(e: MouseEvent) {
 
 function onResize() {
 	let offset: number;
-	if (globals.error || (route.meta.applyOffset ?? true)) {
+	if (route.meta.applyOffset ?? true) {
 		offset = Math.max((banner as HTMLDivElement).clientHeight + 25, (window.innerHeight - (content as HTMLDivElement).clientHeight) / 2);
 	}
 	else {

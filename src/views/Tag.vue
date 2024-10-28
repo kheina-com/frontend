@@ -46,6 +46,9 @@
 			</div>
 			<MarkdownEditor class='markdown-editor' resize='vertical' v-model:value='updateBody.description'/>
 		</Loading>
+		<div v-else-if='notFound'>
+			<p style='text-align: center'>The provided tag: <em>{{tag}}</em>, does not exist.</p>
+		</div>
 		<div class='tag' v-else>
 			<div>
 				<h2>Tag</h2>
@@ -78,11 +81,11 @@
 			</div>
 		</div>
 		<Button @click='updateTag' green v-if='editing' class='update-button'><i class='material-icons-round'>check</i><span>Update</span></Button>
-		<div class='markdown-block' v-else>
+		<div class='markdown-block' v-else-if='!notFound'>
 			<Markdown :content='tagDescription'/>
 			<button v-show='showMore === false' class='show-more' @click='showMore = true'>show more</button>
 		</div>
-		<div class='buttons'>
+		<div class='buttons' v-show='!notFound'>
 			<div>
 				<button v-if='false'><i class='material-icons'>notification_add</i></button>
 				<DropDown v-model:value='sort' :options="[
@@ -110,7 +113,7 @@
 				>Tiles</CheckBox>
 			</div>
 		</div>
-		<ol class='results'>
+		<ol class='results' v-show='!notFound'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{tag}}</em></p>
 			<li v-for='post in posts || 20' v-else-if='tiles'>
 				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
@@ -119,7 +122,7 @@
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
 		</ol>
-		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts'/>
+		<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts && !notFound'/>
 		<ThemeMenu/>
 	</main>
 </template>
@@ -129,7 +132,7 @@ import { computed, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { khatch, saveToHistory, setTitle } from '@/utilities';
-import { apiErrorMessage, host } from '@/config/constants';
+import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Loading from '@/components/Loading.vue';
 import Post from '@/components/Post.vue';
@@ -156,6 +159,8 @@ const tagData: Ref<Tag | null> = ref(null);
 const posts: Ref<any[] | null | void> = ref();
 const editing: Ref<boolean> = ref(false);
 const showMore: Ref<boolean | null> = ref(null);
+const notFound: Ref<boolean> = ref(false);
+
 const page: Ref<number> = ref(1);
 const count: Ref<number> = ref(64);
 const sort: Ref<string | undefined> = ref();
@@ -171,7 +176,7 @@ fetchPosts();
 khatch(`${host}/v1/tag/${encodeURIComponent(props.tag)}`, {
 	errorMessage: "Could not fetch tag details!",
 	errorHandlers: {
-		404: r => r.json().then(r => globals.setError(r.error || "NotFound: the provided tag does not exist.")),
+		404: r => r.json().then(r => notFound.value = true),
 	},
 }).then(r => r.json())
 .then(r => {
@@ -222,9 +227,6 @@ function fetchPosts() {
 		saveToHistory(r)
 		posts.value = r.posts;
 		total_results.value = r.total;
-	}).catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
 	});
 }
 function editToggle() {
@@ -322,9 +324,6 @@ function updateTag() {
 		pendingUpdate.value = false;
 		editing.value = false;
 		showMore.value = null;
-	}).catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
 	});
 }
 

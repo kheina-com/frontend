@@ -40,32 +40,17 @@ function sendCreate() {
 	isLoading.value = true;
 	khatch(`${host}/v1/account/create`, {
 		method: "POST",
+		handleError: true,
 		body: {
 			name: name.value.value.trim(),
 			email: email.value.value.trim(),
 		},
-	})
-	.then(response => {
-		if (response.status < 300)
-		{ router.push("/a/finalize"); }
-		else {
-			response.json().then(r => {
-				if (response.status === 400)
-				{ globals.setError(r.error); }
-				else if (response.status === 401)
-				{ globals.setError(r.error); }
-				else if (response.status === 404)
-				{ globals.setError(r.error); }
-				else
-				{ globals.setError(apiErrorMessage, r); }
-			});
-		}
-		isLoading.value = false;
-	})
-	.catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
-	});
+	}).then(() =>
+		router.push("/a/finalize")
+	)
+	.finally(() =>
+		isLoading.value = false
+	);
 }
 </script>
 

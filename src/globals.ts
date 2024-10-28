@@ -37,7 +37,6 @@ interface Globals {
 	animations: boolean,
 	transitions: boolean,
 	tiles: boolean,
-	error: { message: string, dump: any | null; } | null,
 	rating: Rating,
 	notifications: number,
 	postCache: Post | null,
@@ -61,7 +60,6 @@ export default defineStore("globals", {
 		animations: true,
 		transitions: true,
 		tiles: true,
-		error: null,
 		rating: "general" as Rating,
 		notifications: 0,
 		postCache: null,
@@ -258,14 +256,6 @@ export default defineStore("globals", {
 					title: 'Could not set post tiles cookie',
 					description: cookieFailedError,
 				});
-			}
-		},
-		setError(message: string | null = null, dump: any = null) {
-			if (message) {
-				this.error = { message, dump };
-			}
-			else if (this.error !== null) {
-				this.error = null;
 			}
 		},
 	},

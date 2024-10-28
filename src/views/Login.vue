@@ -34,8 +34,8 @@
 import { onUnmounted, ref, type Ref } from 'vue';
 import store from '@/globals';
 import { useRoute, useRouter } from 'vue-router';
-import { khatch, createToast } from '@/utilities';
-import { apiErrorMessage, host } from '@/config/constants';
+import { createToast, khatch } from '@/utilities';
+import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -64,8 +64,9 @@ onUnmounted(() => {
 function sendLogin() {
 	isLoading.value = true;
 	khatch(`${host}/v1/account/login`, {
-		method: 'POST',
-		credentials: 'include',
+		method: "POST",
+		credentials: "include",
+		handleError: true,
 		body: {
 			email:    email.value,
 			password: password.value,
@@ -84,9 +85,10 @@ function sendLogin() {
 		},
 	}).then(r => r.json())
 	.then(r => {
+		if (r.token.token.length <= 10) return;
 		globals.setAuth(r.token);
 		router.push(route.query?.path ? route.query.path.toString() : '/');
-	}).catch(() => isLoading.value = false);
+	}).finally(() => isLoading.value = false);
 }
 </script>
 

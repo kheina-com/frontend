@@ -273,6 +273,7 @@ function missingFeature() {
 function postComment() {
 	khatch(`${host}/v1/upload/post`, {
 		method: "PUT",
+		handleError: true,
 		body: {
 			reply_to: props.postId,
 			description: replyMessage.value.trim(),
@@ -287,9 +288,6 @@ function postComment() {
 		});
 		replyMessage.value = "";
 		replying.value = false;
-	}).catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
 	});
 }
 

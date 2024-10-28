@@ -199,7 +199,7 @@ import { onMounted, computed, ref, watch, type Ref } from 'vue';
 import store from '@/globals';
 import { khatch, getMediaUrl, setTitle, createToast } from '@/utilities';
 import { demarkdown } from '@/utilities/markdown';
-import { apiErrorMessage, apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host } from '@/config/constants';
 import ReportButton from '@/components/ReportButton.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
@@ -541,18 +541,14 @@ function updatePost() {
 	if (!post.value) return;
 	khatch(`${host}/v1/upload/post`, {
 		method: "PATCH",
+		handleError: true,
 		body: {
 			post_id: props.postId,
 			title: post.value.title?.trim(),
 			description: post.value.description?.trim(),
 		},
-	})
-	.then(r => r.json())
-	.then(r => console.log(r))
-	.catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
-	});
+	}).then(r => r.json())
+	.then(r => console.log(r));
 
 	post.value.title = post.value.title?.trim() ?? null;
 	post.value.description = post.value.description?.trim() ?? null;
