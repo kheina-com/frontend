@@ -4,8 +4,8 @@
 	<Loading :isLoading='!tags'><h4>{{props.group.substr(0, 1).toUpperCase()}}{{props.group.substr(1).toLowerCase()}}</h4></Loading>
 	<ol :class='props.group'>
 		<li v-if='tags' :class='tag' v-for='tag in tags'>
-			<router-link :to='`/t/${encodeURIComponent(tag)}`'>
-				{{tag.replace(new RegExp(`_\\(${props.group}\\)$`), '').replace(/_/g, ' ')}}
+			<router-link :to='`/t/${encodeURIComponent(tag.tag)}`'>
+				{{tag.tag.replace(new RegExp(`_\\(${props.group}\\)$`), '').replace(/_/g, ' ')}}
 			</router-link>
 		</li>
 		<li v-else v-for='i in loadingMap[props.group]'>
@@ -19,17 +19,17 @@ import Loading from '@/components/Loading.vue';
 
 const props = defineProps<{
 	group: "artist" | "sponsor" | "subject" | "species" | "gender" | "misc" | "rating",
-	tags?: null | string[],
+	tags?: null | TagPortable[],
 }>();
 
 const loadingMap = {
-	artist: 1,
+	artist:  1,
 	sponsor: 1,
 	subject: 1,
 	species: 3,
-	gender: 1,
-	misc: 5,
-	rating: 1,
+	gender:  1,
+	misc:    5,
+	rating:  1,
 };
 </script>
 

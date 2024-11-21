@@ -119,7 +119,6 @@ const userLinks: { [k: string]: [string, string | null]; } = {
 // @ts-format-ignore-endregion
 
 const mdMaxId = 0xffffffff;
-
 const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, "0");
 
 const mdRequestCache: { [url: string]: any; } = {};

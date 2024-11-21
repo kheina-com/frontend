@@ -62,7 +62,7 @@
 								<div class='border'/>
 							</button>
 						</div>
-						<Button @click='follow' :red='user?.following' class='follow-button' :nested='isMobile'>
+						<Button @click='follow' :isLoading='followButtonLoading' :red='user?.following' class='follow-button' :nested='isMobile'>
 							<i class='material-icons'>{{user?.following ? 'person_off' : 'person_add_alt'}}</i>
 							<span>{{user?.following ? 'Unfollow' : 'Follow'}}</span>
 						</Button>
@@ -350,6 +350,7 @@ const bannerWebpFailed: Ref<boolean | null> = ref(null);
 const availableBadges: Ref<Badge[] | null> = ref(null);
 const total_results: Ref<number> = ref(0);
 const badges: Ref<string[]> = ref([]);
+const followButtonLoading: Ref<boolean> = ref(false);
 
 let tabElement: HTMLElement | null = null;
 
@@ -461,14 +462,12 @@ function removeBadge(badge: number) {
 		method: 'DELETE',
 		errorMessage: 'Failed to remove badge.',
 		body: user.value.badges[badge],
-	})
-	.then(() => {
+	}).then(() => {
 		if (!user.value) return;
 		user.value.badges.splice(badge, 1);
 		badges.value.splice(badge, 1);
 		saveToHistory({ user: toRaw(user.value) });
-	})
-	.catch(() => { });
+	}).catch(() => { });
 }
 
 function selectTab(event: Event) {
@@ -477,15 +476,16 @@ function selectTab(event: Event) {
 }
 
 function follow() {
+	followButtonLoading.value = true;
 	khatch(`${host}/v1/user/${user.value?.handle}/follow`, {
 		method: user.value?.following ? 'DELETE' : 'PUT',
 		errorMessage: `Failed to ${user.value?.following ? 'unfollow' : 'follow'} user`,
-	})
-	.then(() => {
+	}).then(() => {
 		if (!user.value) return;
 		user.value.following = !user.value?.following;
 		saveToHistory({ user: toRaw(user.value) });
-	}).catch(() => { });
+	}).catch(() => { })
+	.finally(() => followButtonLoading.value = false);
 }
 
 function fetchData(query: LocationQuery | null = null) {
@@ -1310,7 +1310,7 @@ html.mobile.winter .active-tab {
 .badges p, .badges button, .badges .dropdown button {
 	padding: 0.25em 0.5em;
 	background: var(--bg2color);
-	border-radius: var(--border-radius);
+	/* border-radius: var(--border-radius); */
 }
 .badges p, .badges p span, .badges button, .badges .dropdown button {
 	display: flex;

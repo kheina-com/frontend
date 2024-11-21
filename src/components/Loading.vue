@@ -136,7 +136,7 @@ span {
 	background-size: 100vw 100%;
 }
 
-.loading.stripes {
+.loading.stripes, button.loading.stripes {
 	border-radius: var(--border-radius);
 	animation: stripes 1s infinite linear forwards;
 	-webkit-animation: stripes 1s infinite linear forwards;
@@ -144,7 +144,7 @@ span {
 	background: linear-gradient(120deg, var(--bg2color) calc(1.1em - 0.5px), var(--stripe-color) calc(1.1em + 0.5px), var(--stripe-color) calc(2.3em - 0.5px), var(--bg2color) calc(2.3em + 0.5px));
 	background-size: 2.8em 100%;
 }
-.nested .loading.stripes {
+.nested .loading.stripes, .nested button.loading.stripes {
 	background: linear-gradient(120deg, var(--bg1color) 1.1em, var(--stripe-color) 1.1em, var(--stripe-color) 2.3em, var(--bg1color) 2.3em);
 	background: linear-gradient(120deg, var(--bg1color) calc(1.1em - 0.5px), var(--stripe-color) calc(1.1em + 0.5px), var(--stripe-color) calc(2.3em - 0.5px), var(--bg1color) calc(2.3em + 0.5px));
 	background-size: 2.8em 100%;

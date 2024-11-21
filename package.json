@@ -17,6 +17,7 @@
 		"dompurify": "^2.5.7",
 		"marked": "^13.0.3",
 		"pinia": "^2.2.4",
+		"qrcode-generator": "^1.4.4",
 		"thumbhash": "^0.1.1",
 		"vue": "^3.4.29",
 		"vue-advanced-cropper": "^2.8.9",

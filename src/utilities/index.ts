@@ -59,22 +59,13 @@ export function commafy(x: number): string { // from https://stackoverflow.com/a
 	return parts.join(".");
 }
 
-let _getMediaUrl: { (postId: string, filename: string): string; };
-let _getMediaThumbnailUrl: { (postId: string, resolution?: number, extension?: string): string; };
+export function getMediaUrl(postId: string, filename: string) {
+	return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`;
+};
 
-if (environment === "local") {
-	_getMediaUrl = function (postId, filename) { return `${cdnHost}/${postId}/${encodeURIComponent(filename)}?authorization=${store().auth?.token}`; };
-
-	_getMediaThumbnailUrl = function (postId, resolution = 800, extension = "webp") { return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}?authorization=${store().auth?.token}`; };
-}
-else {
-	_getMediaUrl = function (postId, filename) { return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`; };
-
-	_getMediaThumbnailUrl = function (postId, resolution = 800, extension = "webp") { return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`; };
-}
-
-export const getMediaUrl = _getMediaUrl;
-export const getMediaThumbnailUrl = _getMediaThumbnailUrl;
+export function getMediaThumbnailUrl(postId: string, resolution: number = 800, extension: string = "webp") {
+	return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`;
+};
 
 export function getEmojiUrl(filename: string): string {
 	return `${cdnHost}/emoji/${filename}`;
@@ -96,10 +87,10 @@ export function round(num: number, precision: number): number {
 export function tagSplit(tags: string): string[] { return tags.split(/[,\s]/).filter(x => x).map(x => x.trim()); }
 
 import { tagGroups } from '@/config/constants';
-export function sortTagGroups(tags: { [k: string]: string[]; } | Tags): Tags {
-	let sorted: { [k: string]: string[]; } = {};
+export function sortTagGroups(tags: { [k: string]: TagPortable[]; } | Tags): Tags {
+	let sorted: { [k: string]: TagPortable[]; } = {};
 	tagGroups.forEach(i => {
-		if (tags.hasOwnProperty(i)) sorted[i] = (tags as { [k: string]: string[]; })[i];
+		if (tags.hasOwnProperty(i)) sorted[i] = (tags as { [k: string]: TagPortable[]; })[i];
 	});
 	return sorted;
 }

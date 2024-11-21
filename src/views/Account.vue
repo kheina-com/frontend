@@ -7,11 +7,11 @@
 				<RadioButtons
 					name='rating'
 					v-model:value='maxRating'
-					:data="[
+					:data='[
 						{ value: Rating.general },
 						{ value: Rating.mature },
 						{ value: Rating.explicit },
-					]"
+					]'
 				/>
 			</li>
 			<li>
@@ -40,6 +40,58 @@
 			<li>
 				<span>Wallpaper Post Id</span>
 				<input class='interactable text code' v-model='localConfig.wallpaper' @change='save' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'>
+			</li>
+		</ul>
+
+		<h2 style='margin-top: 0'>Security</h2>
+		<ul class='settings security'>
+			<li>
+				<Loading :isLoading='otpLoading' type='block'>
+					<span>Multi-Factor Authentication</span>
+					<div v-show='addOtpStage == -2' class='login'>
+						<div class='final-field'>
+							<span>Enter OTP to Remove Authenticator</span>
+							<div>
+								<input type='text' id='otp' name='otp' v-model='otp' autocomplete='off' class='interactable' @keydown.enter='removeOtp'>
+								<button @click='removeOtp' class='interactable'>Submit »</button>
+							</div>
+						</div>
+					</div>
+					<div class='checkboxes' v-show='addOtpStage == -1'>
+						<Button @click='removeOtp'>remove authenticator</Button>
+					</div>
+					<div class='checkboxes' v-show='addOtpStage == 0'>
+						<Button @click='addOtp'>add authenticator</Button>
+						<!-- <Button>add WebAuthn</Button> -->
+					</div>
+					<div v-show='addOtpStage == 1' class='login'>
+						<div class='field'>
+							<span>Email</span>
+							<input type='email' id='email' name='email' v-model='email' class='interactable' @keydown.enter='addOtp'>
+						</div>
+						<div class='final-field'>
+							<span>Password</span>
+							<div>
+								<input type='password' id='password' name='password' v-model='password' autocomplete='off' class='interactable' @keydown.enter='addOtp'>
+								<button @click='addOtp' class='interactable'>Submit »</button>
+							</div>
+						</div>
+					</div>
+					<div class='qr-code' v-show='addOtpStage == 2'>
+						<QR :content='qrContent'/>
+						<p>Scan this QR code with your authenticor of choice and enter the code below</p>
+						<div class='login final-field'>
+							<div>
+								<input type='text' id='otp' name='otp' v-model='otp' autocomplete='off' class='interactable' @keydown.enter='addOtp'>
+								<button @click='addOtp' class='interactable'>Add OTP »</button>
+							</div>
+						</div>
+					</div>
+					<div class='qr-code' v-if='addOtpStage == 3'>
+						<CopyText :content='otpRecoveryKeys.join("\n")' code nested/>
+						<p>Save these codes in a secure location, they will not be displayed again.</p>
+					</div>
+				</Loading>
 			</li>
 		</ul>
 
@@ -131,15 +183,19 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref, watch, type Ref } from 'vue';
+// import QRCode from 'qrcode';
 import { getCookie, khatch, setCookie, createToast, tagSplit } from '@/utilities';
 import { cookieFailedError } from '@/globals';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
+import Loading from '@/components/Loading.vue';
 import RadioButtons from '@/components/RadioButtons.vue';
 import CheckBox from '@/components/CheckBox.vue';
-import { onMounted, ref, watch, type Ref } from 'vue';
+import Button from '@/components/Button.vue';
 import store, { Rating } from '@/globals';
-
+import CopyText from '@/components/CopyText.vue';
+import QR from '@/components/QR.vue';
 
 const globals = store();
 const maxRating: Ref<Rating> = ref(getCookie("max-rating", "general"));
@@ -149,8 +205,16 @@ const mediaQuality: Ref<string> = ref(getCookie("media-quality"));
 const animatedEmoji: Ref<boolean> = ref(getCookie("animated-emoji", true, "boolean"));
 const CssTransitions: Ref<boolean> = ref(globals.transitions);
 const isLoading: Ref<boolean> = ref(true);
+const otpLoading: Ref<boolean> = ref(false);
 const localConfig: Ref<any> = ref({ });
+const addOtpStage: Ref<number> = ref(0);
+const otpRecoveryKeys: Ref<Array<string> | null> = ref(null);
+const qrContent: Ref<string | null> = ref(null);
 
+let email:       string | null = null;
+let password:    string | null = null;
+let otp:         string | null = null;
+let otpToken:    string | null = null;
 let saveTimeout: number | null = null;
 
 onMounted(retrieve);
@@ -170,9 +234,15 @@ function retrieve() {
 			blocked_tags: r.blocked_tags ? r.blocked_tags.map((x: string[]) => x.join(" ")).join("\n") : null,
 			blocked_users: r.blocked_users ? r.blocked_users.join(" ") : null,
 		};
+		r.otp?.forEach(x => {
+			if (x.type == "totp") {
+				addOtpStage.value = Math.min(addOtpStage.value, -1);
+			}
+		});
 		isLoading.value = false;
 	});
 }
+
 function save() {
 	if (saveTimeout) clearTimeout(saveTimeout);
 
@@ -186,8 +256,7 @@ function save() {
 				blocked_users: localConfig.value?.blocked_users ? tagSplit(localConfig.value.blocked_users) : null,
 				wallpaper: localConfig.value?.wallpaper ? localConfig.value.wallpaper.trim() : null,
 			},
-		})
-		.then(retrieve)
+		}).then(retrieve)
 		.then(() => {
 			createToast({
 				icon: "done",
@@ -199,6 +268,79 @@ function save() {
 	}, 1000);
 }
 
+function addOtp() {
+	switch(addOtpStage.value) {
+	case 2:
+		otpLoading.value = true;
+		khatch(`${host}/v1/account/otp`, {
+			method: "PATCH",
+			errorMessage: "Could Not Add OTP",
+			body: {
+				token: otpToken,
+				otp,
+			},
+		}).then(r => r.json())
+		.then(r => {
+			otpRecoveryKeys.value = (["fuzz.ly OTP recovery codes"]).concat(r.recovery_keys);
+			addOtpStage.value++;
+		}).then(() => {
+			otp      = null;
+			otpToken = null;
+		}).finally(() => otpLoading.value = false);
+		break;
+	case 1:
+		otpLoading.value = true;
+		khatch(`${host}/v1/account/otp`, {
+			method: "PUT",
+			errorMessage: "Could Not Add OTP",
+			body: {
+				email,
+				password,
+			},
+		}).then(r => r.json())
+		.then(r => {
+			otpToken = r.token.token;
+			qrContent.value = r.uri;
+			// QRCode.toCanvas(document.getElementById("qr-code"), r.uri, {
+			// 	errorCorrectionLevel: "L",
+			// 	// maskPattern: 0,
+			// });
+			addOtpStage.value++;
+		}).then(() => {
+			email = null;
+			password = null;
+		}).finally(() => otpLoading.value = false);
+		break;
+	default:
+		addOtpStage.value++;
+	}
+}
+
+function removeOtp() {
+	switch(addOtpStage.value) {
+	case -2:
+		otpLoading.value = true;
+		khatch(`${host}/v1/account/otp`, {
+			method: "DELETE",
+			errorMessage: "Could Not Remove Authenticator",
+			body: {
+				otp,
+			},
+		}).then(() => {
+			createToast({
+				icon: "done",
+				title: "Removed Authenticator!",
+				color: "green",
+				time: 10,
+			});
+			addOtpStage.value = 0;
+		}).finally(() => otpLoading.value = false);
+		break;
+	default:
+		addOtpStage.value--;
+	}
+}
+
 watch(maxRating, (value: Rating) => {
 	globals.maxRating(value);
 });
@@ -207,10 +349,12 @@ watch(fontFamily, (value: string) => {
 	setCookie("font-family", value, 3155695200);
 
 	const fontFamily = document.getElementById("font-family") as HTMLStyleElement;
-	if (value)
-	{ fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
-	else
-	{ fontFamily.innerText = `html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`; }
+	if (value) {
+		fontFamily.innerText = `html * { font-family: ${value}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }`;
+	}
+	else {
+		fontFamily.innerText = "html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }";
+	}
 
 	if (!globals.cookies) {
 		createToast({
@@ -268,7 +412,7 @@ span {
 .checkboxes {
 	display: flex;
 }
-.checkboxes .checkbox {
+.checkboxes .checkbox, .checkboxes button {
 	margin-right: var(--margin);
 }
 .checkboxes:last-child {
@@ -278,6 +422,44 @@ span {
 .warn {
 	margin-top: 10px;
 	text-align: center;
+}
+
+.qr-code {
+	text-align: center;
+}
+.qr-code canvas {
+	display: block;
+	image-rendering: crisp-edges;
+}
+.qr-code > :first-child {
+	margin: 0 auto var(--margin);
+}
+
+.login {
+	max-width: 25em;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	margin: auto;
+}
+
+.field {
+	width: 100%;
+	margin-bottom: var(--margin);
+}
+
+.final-field {
+	width: 100%;
+}
+.final-field div {
+	display: flex;
+}
+.final-field input {
+	margin-right: var(--margin);
+}
+.final-field button {
+	word-wrap: normal;
+	white-space: nowrap;
 }
 
 .mobile .settings {

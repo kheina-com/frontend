@@ -6,13 +6,22 @@
 			<div class='form'>
 				<div class='field'>
 					<span>Email</span>
-					<input ref='email' type='email' id='email' name='email' value='' class='interactable'>
+					<input type='email' id='email' name='email' v-model='email' class='interactable'>
 				</div>
-				<div class='final-field'>
+				<div class='field'>
 					<span>Password</span>
 					<div>
-						<input ref='password' type='password' id='password' name='password' value='' autocomplete='off' class='interactable'>
-						<button @click='sendLogin' class='interactable'>Submit »</button>
+						<router-link to='/a/reset_password'>forgot?</router-link>
+						<input type='password' id='password' name='password' v-model='password' autocomplete='off' class='interactable'>
+						<button @click='sendLogin' @keydown.enter='sendLogin' class='interactable' v-show='!otpRequired'>Submit »</button>
+					</div>
+				</div>
+				<div class='field' v-if='otpRequired'>
+					<span>One-Time Password</span>
+					<div>
+						<router-link to='/a/remove_otp'>lost?</router-link>
+						<input id='otp' name='otp' v-model='otp' autocomplete='off' class='interactable'>
+						<button @click='sendLogin' @keydown.enter='sendLogin' class='interactable'>Submit »</button>
 					</div>
 				</div>
 			</div>
@@ -25,57 +34,59 @@
 import { onUnmounted, ref, type Ref } from 'vue';
 import store from '@/globals';
 import { useRoute, useRouter } from 'vue-router';
-import { khatch } from '@/utilities';
+import { khatch, createToast } from '@/utilities';
 import { apiErrorMessage, host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
-const email = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
-const password = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
 const globals = store();
 const router = useRouter();
 const route = useRoute();
-let isLoading = false;
+
+const email:       Ref<string | null> = ref(null);
+const password:    Ref<string | null> = ref(null);
+const otp:         Ref<string | null> = ref(null);
+const otpRequired: Ref<boolean>       = ref(false);
+const isLoading:   Ref<boolean>       = ref(false);
+
 // mounted() {
 // 	const colors = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#24408E', '#732982', '#FFFFFF', '#FFAFC8', '#74D7EE', '#613915', '#000000', '#E40303', '#FF8C00'].map(e => e + '20').join(', ');
 // 	document.body.style.background = 'linear-gradient(90deg,' + colors + ')';
 // 	document.body.style.backgroundSize = `${100 * 12}%`;
 // 	document.body.style.animation = 'login 10s linear infinite';
 // };
+
 onUnmounted(() => {
 	document.body.style.cssText = "";
 });
+
 function sendLogin() {
-	isLoading = true;
+	isLoading.value = true;
 	khatch(`${host}/v1/account/login`, {
 		method: 'POST',
 		credentials: 'include',
 		body: {
-			email: email.value.value,
-			password: password.value.value,
+			email:    email.value,
+			password: password.value,
+			otp:      otp.value,
 		},
-	})
-	.then(response => {
-		response.json().then(r => {
-			if (response.status < 400 && r.token.token.length > 10) {
-				globals.setAuth(r.token);
-				router.push(route.query?.path ? route.query.path.toString() : '/');
-			}
-			else if (response.status === 400)
-			{ globals.setError(r.error); }
-			else if (response.status === 401)
-			{ globals.setError(r.error); }
-			else if (response.status === 404)
-			{ globals.setError(r.error); }
-			else
-			{ globals.setError(apiErrorMessage, r); }
-		});
-	})
-	.catch(error => {
-		globals.setError(apiErrorMessage, error);
-		console.error(error);
-	});
+		errorHandlers: {
+			401: r => {
+				otp.value = null;
+				r.json().then(r => createToast({
+					title: "Failed to Login",
+					description: r?.error ?? "unknown error occurred",
+					dump: r,
+				}));
+			},
+			422: () => otpRequired.value = true,
+		},
+	}).then(r => r.json())
+	.then(r => {
+		globals.setAuth(r.token);
+		router.push(route.query?.path ? route.query.path.toString() : '/');
+	}).catch(() => isLoading.value = false);
 }
 </script>
 
@@ -118,16 +129,23 @@ input:active, input:focus {
 .field {
 	width: 100%;
 	margin-bottom: var(--margin);
+	position: relative;
 }
-
-.final-field {
-	width: 100%;
-}
-.final-field div {
+.field div {
 	display: flex;
 }
-.final-field input {
-	margin-right: var(--margin);
+.field a {
+	color: var(--subtle);
+	font-size: 0.9em;
+	position: absolute;
+	top: 0;
+	right: var(--margin);
+}
+.field button {
+	margin-left: var(--margin);
+}
+.field:last-child {
+	margin-bottom: 0;
 }
 
 button {
@@ -145,7 +163,8 @@ button {
 	rotate: -30deg;
 	opacity: 20%;
 	pointer-events: none;
-	background: linear-gradient(90deg, #000000, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #FFFFFF, #FFAFC8, #74D7EE, #613915, #000000, #E40303) 0% 0% / 1200%;
+	/* colors from https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg */
+	background: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #004dff, #750787, #FFFFFF, #FFAFC8, #74D7EE, #613915, #000000, #E40303, #FF8C00) 0% 0% / 1200%;
 	animation: 45s linear infinite login;
 }
 

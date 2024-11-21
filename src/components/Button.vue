@@ -31,19 +31,26 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
-})
+});
+
 const buttonClass = computed(() => {
+	console.debug("props.isLoading:", props.isLoading);
 	let buttonClass = 'interactable';
-	if (!props.nested)
-	{ buttonClass += ' unnested'; }
-	if (props.isLoading)
-	{ buttonClass += ' loading stripes'; }
-	if (props.red)
-	{ return buttonClass + ' red'; }
-	else if (props.yellow)
-	{ return buttonClass + ' yellow'; }
-	else if (props.green)
-	{ return buttonClass + ' green'; }
+	if (!props.nested) {
+		buttonClass += ' unnested';
+	}
+	if (props.isLoading) {
+		buttonClass += ' loading stripes';
+	}
+	if (props.red) {
+		return buttonClass + ' red';
+	}
+	else if (props.yellow) {
+		return buttonClass + ' yellow';
+	}
+	else if (props.green) {
+		return buttonClass + ' green';
+	}
 	return buttonClass;
 });
 </script>
@@ -52,7 +59,7 @@ const buttonClass = computed(() => {
 button {
 	background: var(--bg2color);
 }
-button.unnested.interactable, button.unnested {
+button.unnested {
 	background: var(--bg1color);
 }
 button.loading {

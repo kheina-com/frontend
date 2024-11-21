@@ -60,6 +60,18 @@
 				<Button @click='deleteAuth'>delete auth</Button>
 			</div>
 		</div>
+		<div class='qr-code'>
+			<QR :content='qrContent' :level='qrLevel'/>
+			<div>
+				<input type='text' class='interactable text' placeholder='qr content' v-model='qrContent'>
+				<select class='interactable' v-model='qrLevel'>
+					<option value='L'>L (7% error)</option>
+					<option value='M'>M (15% error)</option>
+					<option value='Q'>Q (25% error)</option>
+					<option value='H'>H (30% error)</option>
+				</select>
+			</div>
+		</div>
 		<ol class='results'>
 			<li v-for='post in <any>3'>
 				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
@@ -120,10 +132,12 @@ import { host } from '@/config/constants';
 import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
 import Spinner from '@/components/Spinner.vue';
-
+import QR from '@/components/QR.vue';
 
 const globals = store();
 const ellipse = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const qrContent: Ref<string | null> = ref(null);
+const qrLevel: Ref<"L" | "M" | "Q" | "H"> = ref("L");
 
 let epoch: string = new Date(epoch_).toString();
 let date: string = new Date(Date.now() + 500000000).toString();
@@ -297,16 +311,16 @@ function ctoh(c: number) {
 
 function loadTheme() {
 	const c = [
-		getComputedStyle(document.documentElement).getPropertyValue(`--textcolor`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--interact`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--pink`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--yellow`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--green`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--blue`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--orange`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--red`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--cyan`),
-		getComputedStyle(document.documentElement).getPropertyValue(`--violet`),
+		getComputedStyle(document.documentElement).getPropertyValue("--textcolor"),
+		getComputedStyle(document.documentElement).getPropertyValue("--interact"),
+		getComputedStyle(document.documentElement).getPropertyValue("--pink"),
+		getComputedStyle(document.documentElement).getPropertyValue("--yellow"),
+		getComputedStyle(document.documentElement).getPropertyValue("--green"),
+		getComputedStyle(document.documentElement).getPropertyValue("--blue"),
+		getComputedStyle(document.documentElement).getPropertyValue("--orange"),
+		getComputedStyle(document.documentElement).getPropertyValue("--red"),
+		getComputedStyle(document.documentElement).getPropertyValue("--cyan"),
+		getComputedStyle(document.documentElement).getPropertyValue("--violet"),
 	];
 	colors.value = c.map(e => {
 		const m = e.match(/^\w+$/);
@@ -355,7 +369,7 @@ function toggleThumbhash() {
 	if (post) post.thumbhash = th;
 
 	if (th === null) {
-		document.getElementsByClassName("th")[0].dispatchEvent(new Event('load'));
+		document.getElementsByClassName("th")[0].dispatchEvent(new Event("load"));
 	}
 }
 
@@ -375,7 +389,7 @@ watch(postId, (value: string | null) => {
 	console.log(value);
 	if (value && value.length === 8) {
 		khatch(`${host}/v1/post/${value}`, {
-			errorMessage: 'Could not retrieve post!',
+			errorMessage: "Could not retrieve post!",
 		}).then(r => r.json())
 		.then(r => {
 			r.favorites = 0;
@@ -398,11 +412,11 @@ main>div {
 	margin: 0.5em 0;
 }
 
-main> :first-child {
+main > :first-child {
 	margin-top: 0;
 }
 
-main> :last-child {
+main > :last-child {
 	margin-bottom: 0;
 }
 
@@ -432,7 +446,7 @@ ol > :last-child {
 	border: 4px solid var(--interact);
 	border-radius: 50%;
 }
-.post-tiles {
+.post-tiles, .qr-code {
 	margin-bottom: var(--margin);
 }
 .post-tiles ol {
@@ -554,6 +568,16 @@ i {
 .color-bar,
 .color-text {
 	margin-bottom: var(--margin);
+}
+
+input[type=text] {
+	display: block;
+	width: 100%;
+	margin-right: var(--margin);
+}
+
+.qr-code div {
+	display: flex;
 }
 
 .slider {

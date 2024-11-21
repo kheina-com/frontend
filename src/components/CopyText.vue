@@ -16,9 +16,13 @@ const main  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const popup = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const props = withDefaults(defineProps<{
 	content: any,
-	inline: boolean,
+	inline:  boolean,
+	nested:  boolean,
+	code:    boolean
 }>(), {
 	inline: false,
+	nested: false,
+	code:   false,
 });
 
 const copyValue = computed((): string => {
@@ -38,6 +42,12 @@ onMounted(() => {
 	}
 	else {
 		main.value.classList.add('block');
+	}
+	if (props.code) {
+		main.value.classList.add('code');
+	}
+	if (props.nested) {
+		main.value.classList.add('nested');
 	}
 });
 
@@ -78,11 +88,15 @@ a {
 }
 .block.content {
 	/* margin: 0 auto var(--margin); */
-	width: 400px;
+	max-width: 100%;
 }
 .inline.content {
 	display: inline-block;
 	padding: 0 0.3em;
+}
+
+.nested {
+	background: var(--bg2color);
 }
 
 .block {
@@ -102,6 +116,10 @@ a {
 		padding: 0.4em 0.4em 0.4em 1.5em;
 		height: 1em;
 	}
+}
+
+.block.nested a {
+	background: linear-gradient(to right, #0000 0, var(--bg2color) 50%);
 }
 
 .inline {

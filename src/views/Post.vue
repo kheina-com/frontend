@@ -310,25 +310,31 @@ function setPageTitle() {
 	demarkdown(post.value?.title || props.postId)
 	.then(title => {
 		if (tags.value?.artist) {
-			const artists = tags.value.artist.map(x => x.endsWith("_(artist)") ? x.slice(0, -9).replaceAll("_", " ") : x.replaceAll("_", " "));
+			const artists = tags.value.artist.map(x => x.tag.endsWith("_(artist)") ? x.tag.slice(0, -9).replaceAll("_", " ") : x.tag.replaceAll("_", " "));
 
-			if (artists.length > 2)
-			{ title += " by " + artists.slice(0, -1).join(", ") + ", and " + artists.slice(-1)[0]; }
-			else if (artists.length === 2)
-			{ title += " by " + artists[0] + " and " + artists[1]; }
-			else
-			{ title += " by " + artists[0]; }
+			if (artists.length > 2) {
+				title += " by " + artists.slice(0, -1).join(", ") + ", and " + artists.slice(-1)[0];
+			}
+			else if (artists.length === 2) {
+				title += " by " + artists[0] + " and " + artists[1];
+			}
+			else {
+				title += " by " + artists[0];
+			}
 		}
 
 		if (tags.value?.subject) {
-			const subjects = tags.value.subject.map(x => x.endsWith("_(subject)") ? x.slice(0, -10).replaceAll("_", " ") : x.replaceAll("_", " "));
+			const subjects = tags.value.subject.map(x => x.tag.endsWith("_(subject)") ? x.tag.slice(0, -10).replaceAll("_", " ") : x.tag.replaceAll("_", " "));
 
-			if (subjects.length > 2)
-			{ title += " featuring " + subjects.slice(0, -1).join(", ") + ", and " + subjects.slice(-1)[0]; }
-			else if (subjects.length === 2)
-			{ title += " featuring " + subjects[0] + " and " + subjects[1]; }
-			else
-			{ title += " featuring " + subjects[0]; }
+			if (subjects.length > 2) {
+				title += " featuring " + subjects.slice(0, -1).join(", ") + ", and " + subjects.slice(-1)[0];
+			}
+			else if (subjects.length === 2) {
+				title += " featuring " + subjects[0] + " and " + subjects[1];
+			}
+			else {
+				title += " featuring " + subjects[0];
+			}
 		}
 
 		setTitle(title);

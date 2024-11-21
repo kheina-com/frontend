@@ -227,8 +227,9 @@ html.transitions {
 	height: 200%;
 }
 
-code, code *, .code, .code *, textarea, pre
-{ font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace !important; }
+code, code *, .code, .code *, textarea, pre {
+	font-family: Hack, DejaVu Sans Mono, Inconsolata, monospace;
+}
 html {
 	background: var(--bg0color);	
 	background-size: cover;

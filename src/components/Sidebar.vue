@@ -45,14 +45,13 @@ import CopyText from '@/components/CopyText.vue';
 import { ref, toRef, watch, type Ref } from 'vue';
 
 const props = defineProps<{
-	post?: Post,
-	tags?: Tags,
+	post?:   Post,
+	tags?:   Tags,
 	scalar?: boolean,
 }>();
 
 // const scalar: Ref<boolean> = ref(props.scalar);
 const scalar: Ref<boolean> = toRef(props, "scalar");
-
 const emits = defineEmits(["update:scalar"]);
 function toggleScalar() {
 	// scalar.value = !scalar.value;

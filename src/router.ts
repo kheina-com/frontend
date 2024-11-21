@@ -12,6 +12,7 @@ import Tags from './views/Tags.vue';
 import Timeline from './views/Timeline.vue';
 import Notifications from './views/Notifications.vue';
 import Version from './views/Version.vue';
+import OtpRemoval from './views/OtpRemoval.vue';
 // import ImageSearch from './views/ImageSearch.vue';
 
 /*
@@ -95,6 +96,14 @@ const routes: RouteRecordRaw[] = [
 		component: FinalizeAccount,
 		meta: {
 			title: "Finish creating your account | fuzz.ly",
+		},
+	},
+	{
+		path: "/a/remove_otp",
+		name: "remove-otp",
+		component: OtpRemoval,
+		meta: {
+			title: "Remove account authenticator | fuzz.ly",
 		},
 	},
 	{

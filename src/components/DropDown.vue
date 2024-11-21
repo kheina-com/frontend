@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div class='dropdown'>
-		<button @click.prevent.stop='() => toggleDropdown()' ref='dropdownButton'><slot/></button>
+		<button @click.prevent.stop='toggleDropdown' ref='dropdownButton'><slot/></button>
 		<!-- <div class='dropdown-menu' ref='dropdownMenu' v-click-outside='() => toggleDropdown(false)'> -->
 		<div @click.stop class='dropdown-menu' ref='dropdownMenu'>
 			<div>
@@ -17,25 +17,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
+import { onMounted, ref, type Ref } from 'vue';
 
 export interface DropDownOption {
-	value?: string,
-	html?: string,
+	value?:  string,
+	html?:   string,
 	action?: { (): void },
 }
 
 const props = withDefaults(defineProps<{
-	value: string | null,
-	options?: DropDownOption[],
+	value:        string | null,
+	options?:     DropDownOption[],
+	interactable: boolean,
 }>(), {
-	value: null,
-})
+	value:        null,
+	interactable: false,
+});
 
 const emits = defineEmits(["update:value", "change"]);
 const dropdownMenu = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const dropdownButton = ref<HTMLButtonElement | null>(null) as Ref<HTMLButtonElement>;
 let open = false;
+
+onMounted(() => {
+	if (props.interactable) {
+		dropdownButton.value.classList.add("interactable");
+	}
+});
 
 const closeDropdown = () => toggleDropdown(false);
 

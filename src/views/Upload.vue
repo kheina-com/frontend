@@ -73,7 +73,7 @@
 					<!-- <ProgressBar :fill='uploadProgress'/> -->
 				</template>
 			</Loading>
-			<!-- <Media :mime='mime' :src='mediaUrl' v-model:	width='width' v-model:height='height' style='margin-top: var(--margin)' v-else/> -->
+			<!-- <Media :mime='mime' :src='mediaUrl' v-model:width='width' v-model:height='height' style='margin-top: var(--margin)' v-else/> -->
 			<div class='field'>
 				<div>
 					<span>Title</span>
@@ -103,8 +103,8 @@
 							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
 								<p class='group-title'>{{group}}</p>
 								<li v-for='tag in tags'>
-									<button class='interactable' @click='addTag(tag)' :id='tag'>
-										{{tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
+									<button class='interactable' @click='addTag(tag)' :id='tag.tag'>
+										{{tag.tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
 									</button>
 								</li>
 							</ol>
@@ -351,8 +351,7 @@ function fetchParent(parentId: string) {
 }
 
 function calcResize() {
-	if (!update.value.webResize)
-	{ resized.value = null; }
+	if (!update.value.webResize) resized.value = null;
 
 	if (width.value > height.value) {
 		const size = Math.min(parseInt(update.value.webResize), width.value);
@@ -380,9 +379,7 @@ function toggleDrafts(state: boolean | null = null) {
 		window.addEventListener("click", closeDrafts, { once: true });
 		draftsPanel.value.classList.add("open");
 
-		if (!drafts.value) {
-			fetchDrafts();
-		}
+		if (!drafts.value) fetchDrafts();
 	}
 	else {
 		window.removeEventListener("click", closeDrafts);
@@ -451,15 +448,15 @@ function publishPost() {
 	}).catch(() => saving.value = false);
 }
 
-function addTag(tag: string) {
-	if (activeTags.value.has(tag)) {
-		activeTags.value.delete(tag);
+function addTag(tag: TagPortable) {
+	if (activeTags.value.has(tag.tag)) {
+		activeTags.value.delete(tag.tag);
 		tagDiv.value.innerText = Array.from(activeTags.value).join(" ");
-		(document.getElementById(tag) as HTMLElement).style.borderColor = "";
+		(document.getElementById(tag.tag) as HTMLElement).style.borderColor = "";
 	} else {
-		activeTags.value.add(tag);
+		activeTags.value.add(tag.tag);
 		tagDiv.value.innerText = Array.from(activeTags.value).join(" ");
-		(document.getElementById(tag) as HTMLElement).style.borderColor = "var(--interact)";
+		(document.getElementById(tag.tag) as HTMLElement).style.borderColor = "var(--interact)";
 	}
 }
 
@@ -746,7 +743,7 @@ function postWatcher(value?: string) {
 			errorMessage: "Unable To Retrieve Post Tags!",
 		}).then(r => r.json())
 		.then(r => {
-			savedTags.value = new Set(Object.values(r).flat()) as Set<string>;
+			savedTags.value = new Set(Object.values(r).flat().map(x => x.tag)) as Set<string>;
 			colorizeTags(savedTags.value);
 			tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
 		});
