@@ -50,12 +50,14 @@ onMounted(() => {
 	flex-direction: column;
 	align-items: flex-start;
 	position: relative;
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
 .set.nested {
 	background: var(--bg3color);
 }
 .set:hover {
 	border-color: var(--interact);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 h2 {
 	margin: 0;

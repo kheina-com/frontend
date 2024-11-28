@@ -129,7 +129,7 @@
 			</div>
 			<div class='field' v-else>
 				<span>Sets</span>
-				<div class='set-selector' v-for='set in sets'>
+				<div class='set-selector flex' v-for='set in sets'>
 					<SetComponent :setId='set.set_id' v-bind='set'/>
 					<Button @click='() => removeSet(set.set_id)' :isLoading='saving'><i class='material-icons'>playlist_remove</i><span>Remove Set</span></Button>
 				</div>
@@ -1089,6 +1089,12 @@ main {
 }
 .set-selector button {
 	margin-left: var(--margin);
+}
+.set-selector.flex {
+	align-items: self-end;
+}
+.set-selector.flex .set {
+	width: 100%;
 }
 .set-selector .set {
 	margin-top: var(--margin);
