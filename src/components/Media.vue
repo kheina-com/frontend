@@ -27,15 +27,15 @@ import lightnoise from '$/lightnoise.png?url';
 
 const globals = store();
 const props = withDefaults(defineProps<{
-	mime: string | null,
-	src: string,
-	alt?: string,
-	controls: boolean,
-	style: string | null,
-	width: number,
-	height: number,
-	bg: boolean,
-	thumbhash: string | null,
+	mime?:        string | null,
+	src?:         string,
+	alt?:         string,
+	controls?:    boolean,
+	style?:       string | null,
+	width?:       number,
+	height?:      number,
+	bg?:          boolean,
+	thumbhash?:   string | null,
 	scaleHeight?: boolean,
 }>(), {
 	mime: null,

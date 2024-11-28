@@ -226,17 +226,17 @@ const globals = store();
 const unpublishedPrivacy: Set<string | undefined> = new Set(["unpublished", "draft"]);
 
 let editing: boolean = false;  // this is currently unused, if it becomes used, update it to a ref
-const post: Ref<Post | undefined> = ref(undefined);
-const tags: Ref<Tags | undefined> = ref(undefined);
+const post: Ref<Post | undefined> = ref();
+const tags: Ref<Tags | undefined> = ref();
 const writeComment: Ref<boolean> = ref(false);
 const replies: Ref<Post[] | null> = ref(null);
 const newComment: Ref<string | null> = ref(null);
-const parent: Ref<Post | undefined | null> = ref(undefined);
-const width: Ref<number | undefined> = ref(undefined);
-const height: Ref<number | undefined> = ref(undefined);
+const parent: Ref<Post | undefined | null> = ref();
+const width: Ref<number | undefined> = ref();
+const height: Ref<number | undefined> = ref();
 const sets: Ref<PostSet[] | null> = ref(null);
 const commentSort: Ref<string> = ref("best");
-const scalar: Ref<boolean | undefined> = ref(undefined);
+const scalar: Ref<boolean | undefined> = ref();
 const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
 khatch(`${host}/v1/tags/${props.postId}`, {

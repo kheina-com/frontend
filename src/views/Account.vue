@@ -87,7 +87,7 @@
 							</div>
 						</div>
 					</div>
-					<div class='qr-code' v-if='addOtpStage == 3'>
+					<div class='qr-code' v-if='otpRecoveryKeys'>
 						<CopyText :content='otpRecoveryKeys.join("\n")' code nested/>
 						<p>Save these codes in a secure location, they will not be displayed again.</p>
 					</div>
@@ -209,7 +209,7 @@ const otpLoading: Ref<boolean> = ref(false);
 const localConfig: Ref<any> = ref({ });
 const addOtpStage: Ref<number> = ref(0);
 const otpRecoveryKeys: Ref<Array<string> | null> = ref(null);
-const qrContent: Ref<string | null> = ref(null);
+const qrContent: Ref<string | undefined> = ref();
 
 let email:       string | null = null;
 let password:    string | null = null;
@@ -234,7 +234,7 @@ function retrieve() {
 			blocked_tags: r.blocked_tags ? r.blocked_tags.map((x: string[]) => x.join(" ")).join("\n") : null,
 			blocked_users: r.blocked_users ? r.blocked_users.join(" ") : null,
 		};
-		r.otp?.forEach(x => {
+		r.otp?.forEach((x: { type: string }) => {
 			if (x.type == "totp") {
 				addOtpStage.value = Math.min(addOtpStage.value, -1);
 			}

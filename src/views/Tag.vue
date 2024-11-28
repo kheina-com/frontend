@@ -158,7 +158,7 @@ const editing: Ref<boolean> = ref(false);
 const showMore: Ref<boolean | null> = ref(null);
 const page: Ref<number> = ref(1);
 const count: Ref<number> = ref(64);
-const sort: Ref<string | null> = ref(null);
+const sort: Ref<string | undefined> = ref();
 const total_results: Ref<number> = ref(1);
 
 const updateBody: Ref<any> = ref({ });

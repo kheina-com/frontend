@@ -70,10 +70,10 @@ const props = defineProps({
 });
 
 // undefined for on pageload stuff
-const posts: Ref<any[] | null | void> = ref(undefined);
+const posts: Ref<any[] | null | void> = ref();
 const page: Ref<number> = ref(1);
 const count: Ref<number> = ref(64);
-const sort: Ref<string | null> = ref(null);
+const sort: Ref<string | undefined> = ref();
 const total_results: Ref<number> = ref(1);
 const tiles: Ref<boolean> = ref(globals.tiles);
 
@@ -131,17 +131,19 @@ function fetchPosts() {
 
 function pageLink(p: number) {
 	let url = props.query ? `/q/${props.query}` : "/";
-
 	let query = [];
 
-	if (p !== 1)
-	{ query.push(`page=${p}`); }
+	if (p !== 1) {
+		query.push(`page=${p}`);
+	}
 
-	if (count.value !== 64)
-	{ query.push(`count=${count.value}`); }
+	if (count.value !== 64) {
+		query.push(`count=${count.value}`);
+	}
 
-	if (sort.value !== "hot")
-	{ query.push(`sort=${sort.value}`); }
+	if (sort.value !== "hot") {
+		query.push(`sort=${sort.value}`);
+	}
 
 	return url + "?" + query.join("&");
 }
@@ -158,7 +160,7 @@ function setPage(p: number) {
 
 watch(() => route.query, fetchPosts);
 watch(tiles, globals.searchResultsTiles);
-watch(sort, (_: string | null): void => {
+watch(sort, (_: string | undefined): void => {
 	if (!routes.has(route.name?.toString())) return;
 	router.push(pageLink(page.value));
 });

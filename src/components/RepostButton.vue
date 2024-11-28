@@ -14,7 +14,7 @@ import { ref } from 'vue';
 
 const props = withDefaults(defineProps<{
 	postId?: string | null,
-	count: number,
+	count?: number,
 }>(), {
 	count: 0,
 });

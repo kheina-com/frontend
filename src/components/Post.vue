@@ -97,39 +97,41 @@ import RepostButton from '@/components/RepostButton.vue';
 import DropDown from '@/components/DropDown.vue';
 
 const props = withDefaults(defineProps<{
-	postId: string | null,
-	unlink: boolean,
-	labels: boolean,
-	concise: boolean,
-	nested: boolean,
-	parent: string | null,
-	reply: boolean,
+	postId?:  string | null,
+	unlink?:  boolean,
+	labels?:  boolean,
+	concise?: boolean,
+	nested?:  boolean,
+	parent?:  string | null,
+	reply?:   boolean,
+
 	// loadTrigger: {
 	// 	type: Boolean,
 	// 	default: null,
 	// },
-	media_type: MediaType | null,
-	replies: Post[] | null,
-	rating: "general" | "mature" | "explicit",
+	
+	media_type?: MediaType | null,
+	replies?:    Post[] | null,
+	rating?:     "general" | "mature" | "explicit",
 
 	// post fields
-	user: User,
-	score: Score | null,
-	title: string | null,
-	description: string | null,
-	privacy: "public" | "unlisted" | "private" | "unpublished" | "draft",
-	tags: string[] | null,
-	userIsUploader: boolean,
-	created: Date,
-	updated: Date,
-	filename: string | null,
-	size: Size | null,
-	blocked: boolean,
-	favorites: number,
-	reposts: number,
-	hideButtons: boolean,
-	to: string | null,
-	thumbhash: string | null,
+	user?:           User,
+	score?:          Score | null,
+	title?:          string | null,
+	description?:    string | null,
+	privacy?:        "public" | "unlisted" | "private" | "unpublished" | "draft",
+	tags?:           string[] | null,
+	userIsUploader?: boolean,
+	created?:        Date,
+	updated?:        Date,
+	filename?:       string | null,
+	size?:           Size | null,
+	blocked?:        boolean,
+	favorites?:      number,
+	reposts?:        number,
+	hideButtons?:    boolean,
+	to?:             string | null,
+	thumbhash?:      string | null,
 }>(), {
 	postId: null,
 	unlink: false,
@@ -138,17 +140,20 @@ const props = withDefaults(defineProps<{
 	nested: false,
 	parent: null,
 	reply: false,
+
 	// loadTrigger: {
 	// 	type: Boolean,
 	// 	default: null,
 	// },
+
 	media_type: null,
-	replies: null,
-	rating: "explicit",
+	replies:    null,
+	rating:     "explicit",
 
 	// post fields
 	// user: Object,
 	// score: Object,
+
 	title: null,
 	description: null,
 	privacy: "draft",
@@ -194,12 +199,14 @@ const isUpdated = computed(() => !props.postId ? props.created !== props.updated
 const target = computed(() => props.to || "/p/" + props.postId	);
 
 function nav() {
+	if (!props.postId || !props.user || !props.created || !props.updated) return;
+
 	globals.postCache = {
-		post_id: props.postId as string,
+		post_id: props.postId,
 		title: props.title,
 		description: props.description,
 		user: props.user,
-		score: props.score,
+		score: props.score ?? null,
 		rating: props.rating,
 		parent: props.parent,
 		privacy: props.privacy,
@@ -217,10 +224,13 @@ function nav() {
 }
 
 function followUser() {
+	if (!props.user) return;
+
 	khatch(`${host}/v1/user/${props.user.handle}/follow`, {
 		method: props.user.following ? "DELETE" : "PUT",
 	})
 	.then(response => {
+		if (!props.user) return;
 		if (response.status < 300) {
 			props.user.following = !props.user.following;
 			globals.createToast({

@@ -20,16 +20,16 @@
 					</Button>
 				</div>
 				<div>
-					<Button @click="createToast({
-						title: 'You just created an error toast',
-						description: 'If you submit a bug report, please include the data below.',
+					<Button @click='createToast({
+						title: "You just created an error toast",
+						description: "If you submit a bug report, please include the data below.",
 						dump: {
-							error: 'This Is Not A Real Error',
+							error: "This Is Not A Real Error",
 							refid: uuid(),
 							status: 0xdeadbeef,
 						},
 						time: 10000,
-					})">
+					})'>
 						toast
 					</Button>
 				</div>
@@ -61,7 +61,7 @@
 			</div>
 		</div>
 		<div class='qr-code'>
-			<QR :content='qrContent' :level='qrLevel'/>
+			<QR :content='qrContent' :level='qrLevel' v-show='qrContent'/>
 			<div>
 				<input type='text' class='interactable text' placeholder='qr content' v-model='qrContent'>
 				<select class='interactable' v-model='qrLevel'>
@@ -117,7 +117,6 @@
 		<ThemeMenu />
 	</main>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import store from '@/globals';
@@ -136,7 +135,7 @@ import QR from '@/components/QR.vue';
 
 const globals = store();
 const ellipse = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
-const qrContent: Ref<string | null> = ref(null);
+const qrContent: Ref<string | undefined> = ref();
 const qrLevel: Ref<"L" | "M" | "Q" | "H"> = ref("L");
 
 let epoch: string = new Date(epoch_).toString();
@@ -399,7 +398,6 @@ watch(postId, (value: string | null) => {
 	}
 });
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

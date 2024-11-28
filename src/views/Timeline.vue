@@ -44,7 +44,7 @@ const router = useRouter();
 const globals = store();
 
 // undefined for on pageload stuff
-const posts: Ref<any[] | null | void> = ref(undefined);
+const posts: Ref<any[] | null | void> = ref();
 const page: Ref<number> = ref(1);
 const count: Ref<number> = ref(64);
 const tiles: Ref<boolean> = ref(globals.tiles);

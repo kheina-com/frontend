@@ -2,9 +2,9 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<main>
 		<button class='interactable edit-button' @click='editToggle' v-if='editable'>
-			<i class='material-icons'>{{editing ? 'edit_off' : 'edit'}}</i>
+			<i class='material-icons'>{{updateBody ? 'edit_off' : 'edit'}}</i>
 		</button>
-		<Loading v-if='editing' class='editing' type='block' :isLoading='pendingUpdate'>
+		<Loading v-if='updateBody' class='editing' type='block' :isLoading='pendingUpdate'>
 			<div>
 				<h2>Title</h2>
 				<input class='interactable text' v-model='updateBody.title'>
@@ -135,18 +135,17 @@ const props = defineProps<{
 const tiles: Ref<boolean> = ref(globals.tiles);
 const setData: Ref<PostSet | null> = ref(null);
 const posts: Ref<any[] | null | void> = ref();
-const editing: Ref<boolean> = ref(false);
 const showMore: Ref<boolean> = ref(false);
 const page: Ref<number> = ref(1);
 const count: Ref<number> = ref(64);
-const sort: Ref<string | null> = ref(null);
+const sort: Ref<string | undefined> = ref();
 const total_results: Ref<number> = ref(1);
 
-const updateBody: Ref<any> = ref();
+const updateBody: Ref<{ title: string | null, description: string | null, owner: string, privacy: string } | null> = ref(null);
 const pendingUpdate: Ref<boolean> = ref(false);
 
 fetchPosts();
-khatch(`${host}/v1/sets/${props.setId}`, {
+khatch(`${host}/v1/set/${props.setId}`, {
 	errorMessage: "Could not retrieve set with id: " + props.setId,
 }).then(r => r.json())
 .then(r => {
@@ -201,12 +200,16 @@ function fetchPosts() {
 }
 
 function editToggle() {
-	editing.value = !editing.value;
-	if (editing.value && setData.value) {
-		updateBody.value.title = setData.value.title;
-		updateBody.value.description = setData.value.description;
-		updateBody.value.owner = setData.value.owner.handle;
-		updateBody.value.privacy = setData.value.privacy
+	if (!updateBody.value && setData.value) {
+		updateBody.value = {
+			title:       setData.value.title,
+			description: setData.value.description,
+			owner:       setData.value.owner.handle,
+			privacy:     setData.value.privacy,
+		};
+	}
+	else {
+		updateBody.value = null;
 	}
 }
 
@@ -237,7 +240,7 @@ function updateSet() {
 
 	if (body.mask.length === 0) {
 		pendingUpdate.value = false;
-		editing.value = false;
+		updateBody.value = null;
 		createToast({
 			title: "Could not update set!",
 			description: "nothing to update.",
@@ -245,7 +248,7 @@ function updateSet() {
 		return;
 	}
 
-	khatch(`${host}/v1/sets/${props.setId}`, {
+	khatch(`${host}/v1/set/${props.setId}`, {
 		errorMessage: "Could not update set!",
 		method: "PATCH",
 		body,
@@ -275,20 +278,21 @@ function updateSet() {
 		if (body.title)
 		{ setTitle(`Set: ${body.title} | fuzz.ly`); }
 	}).finally(() => {
-		pendingUpdate.value = editing.value = false;
+		pendingUpdate.value = false;
+		updateBody.value = null;
 	});
 }
 
 function deleteSet() {
 	pendingUpdate.value = true;
-	khatch(`${host}/v1/sets/${props.setId}`, {
+	khatch(`${host}/v1/set/${props.setId}`, {
 		errorMessage: "Could not delete set!",
 		method: "DELETE",
 	}).then(() => {
 		setData.value = { } as PostSet;
 	}).finally(() => {
 		pendingUpdate.value = false;
-		editing.value = false;
+		updateBody.value = null;
 	});
 }
 

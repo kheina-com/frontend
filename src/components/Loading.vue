@@ -19,9 +19,9 @@
 import { onMounted, ref, watch, type Ref } from 'vue';
 
 const props = withDefaults(defineProps<{
-	isLoading: boolean,
-	span: boolean,
-	type: "block" | "stripes" | "wave",
+	isLoading?: boolean,
+	span?: boolean,
+	type?: "block" | "stripes" | "wave",
 }>(), {
 	isLoading: true,
 	span: false,

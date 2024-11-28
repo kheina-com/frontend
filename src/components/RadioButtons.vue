@@ -31,10 +31,10 @@ interface Datum {
 const radio = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
 const props = withDefaults(defineProps<{
-	name: string,
-	value?: string,
-	data: Datum[],
-	disabled: boolean,
+	name:      string,
+	value?:    string,
+	data:      Datum[],
+	disabled?: boolean,
 }>(), {
 	disabled: false,
 });

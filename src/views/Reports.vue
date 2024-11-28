@@ -24,7 +24,7 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
 import ReportComponent from '@/components/Report.vue';
 
-const reports: Ref<Report[] | undefined> = ref(undefined);
+const reports: Ref<Report[] | undefined> = ref();
 
 khatch(`${host}/v1/reports`, {
 	handleError: true

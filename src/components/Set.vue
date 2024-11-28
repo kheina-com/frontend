@@ -25,9 +25,11 @@ const props = withDefaults(defineProps<{
 	privacy: string,
 	created: string,	
 	updated: string,
-	nested: boolean,
+	nested?: boolean,
+	unlink?: boolean,
 }>(), {
 	nested: false,
+	unlink: false,
 });
 
 const set = ref<HTMLAnchorElement | null>(null);

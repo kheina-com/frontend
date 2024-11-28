@@ -26,12 +26,12 @@ import Markdown from '@/components/Markdown.vue';
 
 const mdTextArea = ref<HTMLTextAreaElement | null>(null) as Ref<HTMLTextAreaElement>;
 const props = withDefaults(defineProps<{
-	value: string | null,
-	height: string,
-	resize: string,
-	initRendered: boolean,
-	hideGuide: boolean,
-	hidePreview: boolean,
+	value:         string | null,
+	height?:       string,
+	resize?:       string,
+	initRendered?: boolean,
+	hideGuide?:    boolean,
+	hidePreview?:  boolean,
 }>(), {
 	height: "5rem",
 	resize: "both",

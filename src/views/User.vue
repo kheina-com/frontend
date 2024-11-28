@@ -342,7 +342,7 @@ const uploadablePage: Ref<number> = ref(1);
 const searchValue: Ref<string | null> = ref(null);
 const cropperImage: Ref<string | null> = ref(null);
 const uploadLoading: Ref<boolean | null> = ref(null);
-const tab: Ref<string | undefined> = ref(undefined);
+const tab: Ref<string | undefined> = ref();
 const update: Ref<any | null> = ref(null);
 const count: Ref<number> = ref(64);
 const page: Ref<number> = ref(1);
@@ -667,7 +667,7 @@ function updateProfileImage() {
 			coordinates: cropper.value.getResult().coordinates,
 		},
 	}).then(() => {
-		if (!user.value) return;
+		if (!user.value || !globals.user) return;
 
 		if (isUploadIcon.value) {
 			user.value.icon = uploadPostId.value;

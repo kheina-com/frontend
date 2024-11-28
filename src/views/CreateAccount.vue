@@ -5,12 +5,12 @@
 			<div class='form'>
 				<div class='field'>
 					<span>Email</span>
-					<input ref='email' type='email' id='email' name='email' value='' class='interactable'>
+					<input ref='email' type='email' id='email' name='email' value='' class='interactable text'>
 				</div>
 				<div class='final-field'>
 					<span>Name</span>
 					<div>
-						<input ref='name' type='name' id='name' name='name' value='' autocomplete='off' class='interactable'>
+						<input ref='name' type='name' id='name' name='name' value='' autocomplete='off' class='interactable text'>
 						<button @click='sendCreate' class='interactable'>Submit »</button>
 					</div>
 				</div>

@@ -4,16 +4,15 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
 import qrcode from 'qrcode-generator';
-import { authCookie, createToast, deleteCookie, khatch } from '@/utilities';
 
 const props = withDefaults(defineProps<{
-	content: string,
-	width:   string,
-	height:  string,
-	level:   "L" | "M" | "Q" | "H",
+	content?: string,
+	width?:   number,
+	height?:  number,
+	level?:   "L" | "M" | "Q" | "H",
 }>(), {
-	width:  "300",
-	height: "300",
+	width:  300,
+	height: 300,
 	level:  "L",
 });
 
@@ -23,20 +22,22 @@ const id      = mdRefId();
 const scale   = 5;
 
 function drawQR() {
-	console.debug("qr:", props.level);
 	if (!props.content) return;
 	const qr = qrcode(0, props.level);
 	qr.addData(props.content);
 	qr.make();
 
 	const canvas = document.getElementById(id);
+	if (!canvas || !(canvas instanceof HTMLCanvasElement) || !canvas.getContext) return;
+
 	canvas.style.width = props.width.toString() + "px";
 	canvas.style.height = props.height.toString() + "px";
 	canvas.width = props.width * scale;
 	canvas.height = props.height * scale;
-	if (!canvas.getContext) return;
 
 	const ctx = canvas.getContext("2d");
+	if (!ctx) return;
+
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	const textcolor = getComputedStyle(document.documentElement).getPropertyValue("--textcolor");
 	ctx.fillStyle = textcolor;

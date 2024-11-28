@@ -2,7 +2,6 @@
 	<router-link :class='buttonClass' :to='href' v-if='href'><slot/></router-link>
 	<button :class='buttonClass' v-else><slot/></button>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue';
 
@@ -34,7 +33,6 @@ const props = defineProps({
 });
 
 const buttonClass = computed(() => {
-	console.debug("props.isLoading:", props.isLoading);
 	let buttonClass = 'interactable';
 	if (!props.nested) {
 		buttonClass += ' unnested';
@@ -61,6 +59,9 @@ button {
 }
 button.unnested {
 	background: var(--bg1color);
+}
+.nested button {
+	background: var(--bg3color);
 }
 button.loading {
 	pointer-events: none;

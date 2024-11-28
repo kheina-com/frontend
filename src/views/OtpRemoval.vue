@@ -46,7 +46,7 @@ const route   = useRoute();
 const email:     Ref<string | null>      = ref(null);
 const isLoading: Ref<boolean>            = ref(false);
 const sent:      Ref<boolean>            = ref(false);
-const token:     Ref<string | undefined> = ref(route.query?.token);
+const token:     Ref<string | undefined> = ref(route.query?.token?.toString());
 
 if (token.value) {
 	isLoading.value = true;

@@ -16,9 +16,9 @@ const main  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const popup = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const props = withDefaults(defineProps<{
 	content: any,
-	inline:  boolean,
-	nested:  boolean,
-	code:    boolean
+	inline?: boolean,
+	nested?: boolean,
+	code?:   boolean
 }>(), {
 	inline: false,
 	nested: false,

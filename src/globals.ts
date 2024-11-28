@@ -29,7 +29,7 @@ export enum Rating {
 interface Globals {
 	init: boolean,
 	auth: any | null,
-	user: any | null,
+	user: User | null,
 	theme: string | null,
 	accent: string | null,
 	scroll: null,

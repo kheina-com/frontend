@@ -15,11 +15,11 @@
 				<i class='material-icons'>reply</i>
 			</div>
 			<Loading span v-if='isLoading'>this is an example title</Loading>
-			<h4 class='title' v-else><Markdown :content='title || postId' inline/></h4>
+			<h4 class='title' v-else-if='title'><Markdown :content='title || postId' inline/></h4>
 			<Markdown :content='description' :concise='true' class='description'/>
 		</div>
 		<p class='privacy' v-show='privacy !== "public"'>
-		{{privacy}}
+			{{privacy}}
 		</p>
 		<div class='buttons'>
 			<ReportButton :data='{ post: postId }'/>
@@ -55,12 +55,12 @@ import DropDown from '@/components/DropDown.vue';
 const router = useRouter();
 const globals = store();
 const props = withDefaults(defineProps<{
-	postId: string | null,
-	unlink: boolean,
-	nested: boolean,
-	parent: string | null,
-	media_type: MediaType | null,
-	rating: "general" | "mature" | "explicit",
+	postId?: string | null,
+	unlink?: boolean,
+	nested?: boolean,
+	parent?: string | null,
+	media_type?: MediaType | null,
+	rating?: "general" | "mature" | "explicit",
 
 	// post fields
 	user: User,
@@ -73,8 +73,8 @@ const props = withDefaults(defineProps<{
 	filename: string | null,
 	size: Size | null,
 	blocked: boolean,
-	favorites: number,
-	reposts: number,
+	favorites?: number,
+	reposts?: number,
 	thumbhash: string | null,
 }>(), {
 	postId: null,
@@ -114,7 +114,7 @@ onMounted(() => {
 
 const isLoading = computed(() => !props.postId);
 const divClass = computed(() => "post tile" + (isLoading.value ? " loading" : "") + (props.unlink ? "" : " link") + (props.nested ? " nested" : ""));
-const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
+// const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
 
 function nav() {
 	// this needs to match the fingerprint of the api:
@@ -296,6 +296,9 @@ watch(props, (value) => {
 	display: flex;
 	align-items: center;
 	margin: auto;
+}
+.parent .material-icons {
+	margin: -0.2em 0;
 }
 
 .post img {

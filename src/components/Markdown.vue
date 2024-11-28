@@ -2,14 +2,12 @@
 	<span ref='markdown' class='markdown inline' v-html='rendered' v-if='inline'></span>
 	<div ref='markdown' class='markdown block' v-html='rendered' v-else></div>
 </template>
-
 <script setup lang="ts"> 
 import { onMounted, ref, watch, type Ref } from 'vue';
 import { lazyConfig } from '@/utilities';
 import { mdEscape, mdExtensions, mdRenderer, mdTokenizer } from '@/utilities/markdown';
 import { marked, type RendererObject, type TokenizerObject } from 'marked';
 import DOMPurify from 'dompurify';
-
 
 marked.setOptions({
 	// highlight: function(code, lang) {
@@ -39,20 +37,20 @@ marked.use({
 // 	return a;
 // };
 
-
 const props = withDefaults(defineProps<{
 	content?: string | null,
-	concise: boolean,
-	inline: boolean,
-	lazy: boolean,
+	concise?: boolean,
+	inline?:  boolean,
+	lazy?:    boolean,
 }>(), {
 	concise: false,
-	inline: false,
-	lazy: false,
+	inline:  false,
+	lazy:    false,
 });
+
 const markdown = ref<HTMLDivElement | HTMLSpanElement | null>(null) as Ref<HTMLDivElement | HTMLSpanElement>;
-let cut = false;
 const rendered: Ref<string | null> = ref(null);
+let cut: boolean = false;
 
 onMounted(() => {
 	if (props.lazy) {
@@ -73,7 +71,7 @@ onMounted(() => {
 	else {
 		render();
 	}
-})
+});
 
 function mdString(): string {
 	if (!props.content) return "";
@@ -81,23 +79,21 @@ function mdString(): string {
 	if (props.concise) {
 		const match = props.content.match(/((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?/);
 
-		if (!match) {
-			return props.content.substring(0, 500);
-		}
+		if (!match) return props.content.substring(0, 500);
 
 		let end = '';
 		if (match[1].length > 500) {
 			end = '...';
 			cut = true;
 		}
-		else if (match[2])
-		{ cut = true; }
+		else if (match[2]) {
+			cut = true;
+		}
 
 		return match[1].substring(0, 500) + end;
 	}
-	if (props.inline) {
-		return mdEscape(props.content);
-	}
+
+	if (props.inline) return mdEscape(props.content);
 	return props.content;
 }
 
@@ -115,7 +111,6 @@ function render() {
 
 watch(() => props.content, render);
 </script>
-
 <style>
 a.external-link::after {
 	font-family: 'Material Icons Round' !important;

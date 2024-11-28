@@ -13,13 +13,13 @@ import { thumbHashToDataURL } from 'thumbhash';
 import lightnoise from '$/lightnoise.png?url';
 
 const props = withDefaults(defineProps<{
-	post: string | null,
-	size: number,
-	width: number,
-	height: number,
-	maxWidth: number | null,
-	thumbhash: string | null,
-	load: boolean,
+	post?: string | null,
+	size?: number,
+	width?: number,
+	height?: number,
+	maxWidth?: number | null,
+	thumbhash?: string | null,
+	load?: boolean,
 }>(), {
 	post: null,
 	size: 400,

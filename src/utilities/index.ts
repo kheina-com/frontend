@@ -161,7 +161,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 		}
 	}
 
-	console.debug("[khatch]", attempt, url, options, response, error);
+	console.debug("[khatch]", attempt, url, response?.status, options, response, error);
 
 	if (response?.status === 401) store().setAuth(null);
 
@@ -191,7 +191,6 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 				return response;
 			}
 			else if (response.status < 500) {
-				console.log("penis");
 				const r = await response.json();
 				createToast({
 					title: errorMessage,

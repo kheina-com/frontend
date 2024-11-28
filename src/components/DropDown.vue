@@ -26,18 +26,17 @@ export interface DropDownOption {
 }
 
 const props = withDefaults(defineProps<{
-	value:        string | null,
-	options?:     DropDownOption[],
-	interactable: boolean,
+	value?:        string,
+	options?:      DropDownOption[],
+	interactable?: boolean,
 }>(), {
-	value:        null,
 	interactable: false,
 });
 
 const emits = defineEmits(["update:value", "change"]);
 const dropdownMenu = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const dropdownButton = ref<HTMLButtonElement | null>(null) as Ref<HTMLButtonElement>;
-let open = false;
+let open: boolean = false;
 
 onMounted(() => {
 	if (props.interactable) {
@@ -47,7 +46,7 @@ onMounted(() => {
 
 const closeDropdown = () => toggleDropdown(false);
 
-function toggleDropdown(state: boolean | null = null) {
+function toggleDropdown(state: any = null) {
 	if (open === (state ?? !open)) return;
 
 	open = state ?? !open;

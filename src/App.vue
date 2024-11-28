@@ -1,37 +1,35 @@
 <template>
+	<!-- <DeveloperConsole v-if='globals.auth?.isAdmin'/> -->
 	<input type='checkbox' name='animated-accents' value='animated-accents' id='animated-accents' @click='setAnimated' v-show='false'>
 	<Banner :onResize='onResize'/>
 	<div id='content'>
-		<Error v-bind='globals.error' v-if='globals?.error !== null'/>
-		<router-view :key='route.path' v-else/>
+		<router-view :key='route.path'/>
 		<Footer/>
 	</div>
 	<Toast/>
 	<Cookies/>
 </template>
-
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { authCookie, getCookie, khatch, isDarkMode } from '@/utilities';
 import { host, isMobile } from '@/config/constants';
+// import DeveloperConsole from '@/components/DeveloperConsole.vue';
 import store from '@/globals';
 import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
 import Toast from '@/components/Toast.vue';
-import Error from '@/components/Error.vue';
 
-import light32 from '$/favicon/light/32.png';
-import light64 from '$/favicon/light/64.png';
-import light128 from '$/favicon/light/128.png';
-import light256 from '$/favicon/light/256.png';
+import light32 from '$/favicon/light/32.png?url';
+import light64 from '$/favicon/light/64.png?url';
+import light128 from '$/favicon/light/128.png?url';
+import light256 from '$/favicon/light/256.png?url';
 
-import dark32 from '$/favicon/dark/32.png';
-import dark64 from '$/favicon/dark/64.png';
-import dark128 from '$/favicon/dark/128.png';
-import dark256 from '$/favicon/dark/256.png';
-
+import dark32 from '$/favicon/dark/32.png?url';
+import dark64 from '$/favicon/dark/64.png?url';
+import dark128 from '$/favicon/dark/128.png?url';
+import dark256 from '$/favicon/dark/256.png?url';
 
 const globals = store();
 const route = useRoute();
@@ -54,17 +52,17 @@ if (auth) {
 			// do nothing, we don't care
 			401: () => { },
 		},
-	}).then(response => response.json().then(r => {
-		globals.userConfig(r);
-	}));
+	}).then(response => response.json().then(r =>
+		globals.userConfig(r)
+	));
 }
 document.documentElement.classList.add(isMobile ? "mobile" : "desktop");
 
-
 const fontFamily = document.getElementById("font-family") as HTMLStyleElement;
 const customFont = getCookie("font-family");
-if (customFont)
-{ fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`; }
+if (customFont) {
+	fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`;
+}
 
 // sadly, these must be strings for vite to catch assets
 const favicons: { [k: number]: string } = { };
@@ -111,7 +109,7 @@ onMounted(() => {
 
 	// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
 	globals.init = false;
-})
+});
 
 function setAnimated(e: MouseEvent) {
 	globals.animatedAccents((e.target as HTMLInputElement).checked);
@@ -172,14 +170,12 @@ function ResizeSensor(element: HTMLElement, callback: Function)
 	shrink.addEventListener("scroll", onScroll);
 }
 </script>
-
 <style scoped>
 #content {
 	position: absolute;
 	width: 100%;
 }
 </style>
-
 <style>
 html.mobile {
 	font-size: 30px;

@@ -7,8 +7,8 @@ import { computed, getCurrentInstance, onMounted, onUnmounted, ref, type Ref } f
 
 const yearRepl = `, ${new Date().getFullYear()}`;
 const props = withDefaults(defineProps<{
-	datetime: Date | string,
-	live: boolean,
+	datetime?: Date | string,
+	live?:     boolean,
 }>(), {
 	datetime: Date(),
 	live: false,

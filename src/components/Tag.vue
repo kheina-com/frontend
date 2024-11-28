@@ -15,13 +15,13 @@ import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 
 const props = withDefaults(defineProps<{
-	tag: string,
-	group: string,
-	deprecated: boolean,
+	tag:           string,
+	group:         string,
+	deprecated:    boolean,
 	inheritedTags: string[],
-	description: string | null,
-	owner: User | null,
-	nested: boolean,
+	description:   string | null,
+	owner:         User | null,
+	nested?:       boolean,
 }>(), {
 	nested: false,
 });

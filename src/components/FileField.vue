@@ -13,23 +13,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, toRef, watch, type Ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { isMobile } from '@/config/constants';
 import Media from '@/components/Media.vue';
 
 const props = withDefaults(defineProps<{
-	file?: File,
-	showSlot: boolean,
-	id: string,
-	width: number,
-	height: number,
+	file?:     File,
+	showSlot?: boolean,
+	id?:       string,
+	width:     number,
+	height:    number,
 }>(), {
 	showSlot: true,
 	id: "file-field",
 });
 
 const file: Ref<File | undefined> = ref(props.file);
-const src: Ref<string | undefined> = ref(undefined);
+const src: Ref<string | undefined> = ref();
 const width: Ref<number> = ref(props.width);
 const height: Ref<number> = ref(props.height);
 

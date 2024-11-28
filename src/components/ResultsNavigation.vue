@@ -30,9 +30,9 @@ import { computed } from 'vue';
 
 const props = withDefaults(defineProps<{
 	navigate: { (page: number): void },
-	activePage: number,
-	totalPages: number,
-	pagesToShow: number,
+	activePage:   number,
+	totalPages:   number,
+	pagesToShow?: number,
 }>(), {
 	pagesToShow: 3,
 });

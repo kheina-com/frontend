@@ -1,14 +1,14 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<main>
-		<button @click.stop.prevent='() => toggleDrafts()' class='drafts-button'><i class='material-icons'>{{showDrafts ? 'chevron_left' : 'chevron_right'}}</i>Drafts</button>
+		<button @click.stop.prevent='() => toggleDrafts()' class='drafts-button'><i class='material-icons'>{{showDrafts ? 'chevron_left' : 'chevron_right'}}</i>Drafts <span v-show='drafts'>({{ drafts?.length }})</span></button>
 		<div ref='draftsPanel' @click.stop.prevent class='drafts-panel'>
 			<button @click='fetchDrafts' class='refresh-drafts' title='refresh drafts'><i class='material-icons'>refresh</i></button>
 			<div class='menu-border'/>
 			<ol class='results'>
 				<p v-show='drafts?.length === 0' style='text-align: center'>No drafts found</p>
-				<li v-for='post in drafts || 3' @click='closeDrafts'>
-					<Post :postId='post?.post_id' :to='`/create?post=${post.post_id}`' v-bind='post' hideButtons/>
+				<li v-for='post in drafts || [undefined, undefined, undefined]' @click='closeDrafts'>
+					<Post :postId='post?.post_id' :to='`/create?post=${post?.post_id}`' v-bind='post' hideButtons/>
 				</li>
 			</ol>
 		</div>
@@ -93,23 +93,54 @@
 				</div>
 			</div>
 			<div class='field'>
-				<div>
-					<span>Tags</span>
-					<div ref='tagDiv' class='tag-field interactable text' contenteditable='true' @input='tagTracker'></div>
-					<div class='frequently-used' v-if='tagSuggestions'>
-						<span style='margin-top: var(--margin)'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
-						<div class='frequently-used-border'/>
-						<div v-show='showSuggestions'>
-							<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
-								<p class='group-title'>{{group}}</p>
-								<li v-for='tag in tags'>
-									<button class='interactable' @click='addTag(tag)' :id='tag.tag'>
-										{{tag.tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
-									</button>
-								</li>
-							</ol>
-						</div>
+				<span>Tags</span>
+				<div ref='tagDiv' class='tag-field interactable text' contenteditable='true' @input='tagTracker'></div>
+				<div class='frequently-used' v-if='tagSuggestions'>
+					<span style='margin-top: var(--margin)'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
+					<div class='frequently-used-border'/>
+					<div v-show='showSuggestions'>
+						<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
+							<p class='group-title'>{{group}}</p>
+							<li v-for='tag in tags'>
+								<button class='interactable' @click='addTag(tag)' :id='tag.tag'>
+									{{tag.tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
+								</button>
+							</li>
+						</ol>
 					</div>
+				</div>
+			</div>
+			<div class='field' v-if='newSet'>
+				<span>New Set</span>
+				<div class='nested'>
+					<div class='field'>
+						<span>Title</span>
+						<input class='interactable text' v-model='newSet.title'>
+					</div>
+					<div class='field'>
+						<span>Description</span>
+						<input class='interactable text' v-model='newSet.description'>
+					</div>
+					<div class='actions'>
+						<Button @click='() => newSet = null' :isLoading='saving' red><i class='material-icons'>close</i><span>Cancel</span></Button>
+						<Button @click='createSet' :isLoading='saving'><i class='material-icons'>add</i><span>Create Set</span></Button>
+					</div>
+				</div>
+			</div>
+			<div class='field' v-else>
+				<span>Sets</span>
+				<div class='set-selector' v-for='set in sets'>
+					<SetComponent :setId='set.set_id' v-bind='set'/>
+					<Button @click='() => removeSet(set.set_id)' :isLoading='saving'><i class='material-icons'>playlist_remove</i><span>Remove Set</span></Button>
+				</div>
+				<div class='set-selector'>
+					<DropDownSelector v-model:value='addSet' placeholder='set id'>
+						<SetComponent @click.capture.stop.prevent='addSet = set.set_id' v-for='set in userSets' :setId='set.set_id' v-bind='set' nested/>
+					</DropDownSelector>
+					<Button @click='putSet' :isLoading='saving'><i class='material-icons'>playlist_add</i><span>Add Set</span></Button>
+				</div>
+				<div class='actions'>
+					<Button @click='() => newSet = { }' :isLoading='saving'><i class='material-icons'>add</i><span>New Set</span></Button>
 				</div>
 			</div>
 			<div class='field popup-info'>
@@ -119,11 +150,11 @@
 						class='radio-buttons'
 						name='privacy'
 						v-model:value='update.privacy'
-						:data="[
-							{ value: 'public' },
-							{ value: 'unlisted' },
-							{ value: 'private' },
-						]"
+						:data='[
+							{ value: "public" },
+							{ value: "unlisted" },
+							{ value: "private" },
+						]'
 					/>
 				</div>
 				<div class='selection-info'>
@@ -140,11 +171,11 @@
 						class='radio-buttons'
 						name='rating'
 						v-model:value='update.rating'
-						:data="[
-							{ value: 'general' },
-							{ value: 'mature' },
-							{ value: 'explicit' },
-						]"
+						:data='[
+							{ value: "general" },
+							{ value: "mature" },
+							{ value: "explicit" },
+						]'
 					/>
 				</div>
 				<div class='selection-info'>
@@ -230,8 +261,7 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
@@ -250,6 +280,8 @@ import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import Post from '@/components/Post.vue';
+import SetComponent from '@/components/Set.vue';
+import DropDownSelector from '@/components/DropDownSelector.vue';
 
 const globals = store();
 const route = useRoute();
@@ -290,12 +322,18 @@ const postId: Ref<string | undefined> = ref("");  // this must start as not-unde
 const description: Ref<string | null> = ref(null);
 const title: Ref<string | null> = ref(null);
 const privacy: Ref<string | null> = ref(null);
-const rating: Ref<string | null> = ref(null);
+const rating: Ref<"general" | "mature" | "explicit"> = ref("explicit");
 const parent: Ref<string | null> = ref(null);
 
 // drafts
-const drafts: Ref<any[] | null> = ref(null);
+const drafts: Ref<Post[] | null> = ref(null);
 const showDrafts: Ref<boolean> = ref(false);
+
+// sets
+const sets: Ref<PostSet[] | null> = ref(null);
+const newSet: Ref<{ title?: string, description?: string } | null> = ref(null);
+const userSets: Ref<PostSet[] | null> = ref(null);
+const addSet: Ref<string> = ref("");
 
 // parent post
 const parentPost: Ref<Post | null> = ref(null);
@@ -313,6 +351,12 @@ interface RouterEvent {
 onMounted(() => {
 	postWatcher(route.query?.post?.toString());
 	document.addEventListener("router-event", queryListener);
+	khatch(`${host}/v1/sets/user`, {
+		errorMessage: "Could not retrieve user sets!",
+	}).then(r => r.json())
+	.then(r => {
+		userSets.value = r;
+	});
 });
 
 onUnmounted(() =>
@@ -327,9 +371,83 @@ const emojiPlaceholder = computed(() => ":" +
 		.join("-")
 		.replaceAll(/[^a-z-]/gi, "") +
 	"-" +
-	globals.user.handle +
+	globals.user?.handle +
 	":"
 );
+
+function createSet() {
+	if (!newSet.value) return;
+
+	khatch(`${host}/v1/set/`, {
+		method: "PUT",
+		errorMessage: "Failed to create new set!",
+		body: {
+			title:       newSet.value.title,
+			description: newSet.value.description,
+			privacy:     "public",
+		},
+	}).then(r => r.json())
+	.then(r => 
+		userSets.value?.push(r)
+	).then(() =>
+		newSet.value = null
+	);
+}
+
+function putSet() {
+	if (!addSet.value.match(/^[A-Za-z0-9_-]{7}$/)) {
+		createToast({
+			title: "set id values must be in the format of /^[a-zA-Z0-9_-]{7}$/",
+		});
+		return;
+	}
+
+	if (sets.value && sets.value.find((x: PostSet) => x.set_id === addSet.value)) {
+		createToast({
+			title: "Post already exists within set!",
+		});
+		return;
+	}
+
+	khatch(`${host}/v1/set/post/${addSet.value}`, {
+		method: "PUT",
+		errorMessage: "Failed to add post to set!",
+		body: {
+			post_id: postId.value,
+			index:   -1,
+		},
+	}).then(() =>
+		khatch(`${host}/v1/set/${addSet.value}`, {
+			errorMessage: "Failed to fetch set!",
+		})
+	).then(r => r.json())
+	.then(r => {
+		if (!sets.value) {
+			sets.value = [];
+		}
+		sets.value.push(r);
+	});
+}
+
+function removeSet(value: string) {
+	if (!value.match(/^[A-Za-z0-9_-]{7}$/)) {
+		createToast({
+			title: "set id values must be in the format of /^[a-zA-Z0-9_-]{7}$/",
+		});
+		return;
+	}
+
+	khatch(`${host}/v1/set/post/${value}?post_id=${postId.value}`, {
+		method: "DELETE",
+		errorMessage: "Failed to add post to set!",
+	}).then(() => {
+		if (!sets.value) return;
+		const i = sets.value.findIndex((x: PostSet) => x.set_id === value);
+		if (i >= 0) {
+			sets.value.splice(i, 1);
+		}
+	});
+}
 
 function fetchParent(parentId: string) {
 	if (postIdRegex.exec(parentId)) {
@@ -743,7 +861,7 @@ function postWatcher(value?: string) {
 			errorMessage: "Unable To Retrieve Post Tags!",
 		}).then(r => r.json())
 		.then(r => {
-			savedTags.value = new Set(Object.values(r).flat().map(x => x.tag)) as Set<string>;
+			savedTags.value = new Set(Object.values(r).flat().map(x => (x as { tag: string }).tag)) as Set<string>;
 			colorizeTags(savedTags.value);
 			tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
 		});
@@ -760,6 +878,13 @@ function postWatcher(value?: string) {
 				}
 			}
 			setTimeout(colorizeTags);
+		});
+
+		khatch(`${host}/v1/sets/post/${postId.value}`, {
+			errorMessage: "Could not retrieve post sets!",
+		}).then(r => r.json())
+		.then(r => {
+			sets.value = r;
 		});
 	}
 	else {
@@ -815,7 +940,6 @@ watch(() => update.value.parent, fetchParent);
 watch(width, calcResize);
 watch(height, calcResize);
 </script>
-
 <style scoped>
 main {
 	background: var(--main);
@@ -952,10 +1076,39 @@ main {
 .drafts-button i {
 	width: var(--margin);
 }
+.drafts-button span {
+	margin-left: 0.25em;
+}
 .mobile .drafts-button i {
 	width: auto;
 }
 
+.set-selector {
+	display: flex;
+	margin-bottom: var(--margin);
+}
+.set-selector button {
+	margin-left: var(--margin);
+}
+.set-selector .set {
+	margin-top: var(--margin);
+}
+.set-selector .set:first-child {
+	margin-top: 0;
+}
+
+.nested {
+	border: var(--border-size) solid var(--bordercolor);
+	padding: var(--margin);
+	background: var(--bg2color);
+	border-radius: var(--border-radius);
+}
+.nested .interactable {
+	background: var(--bg3color);
+}
+.nested :first-child {
+	margin-top: 0;
+}
 .menu-border {
 	border-bottom: var(--border-size) solid var(--bordercolor);
 	padding: 3.0625em var(--margin) 0;

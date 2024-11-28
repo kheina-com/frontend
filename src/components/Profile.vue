@@ -44,12 +44,12 @@ import Markdown from '@/components/Markdown.vue';
 
 const router = useRouter();
 const props = withDefaults(defineProps<{
-	name: string,
-	handle?: string,
-	icon: string | null,
-	isLoading: boolean,
-	link: boolean,
-	verified: string | null,
+	name?:      string,
+	handle?:    string,
+	icon?:      string | null,
+	isLoading?: boolean,
+	link?:      boolean,
+	verified?:  string | null,
 }>(), {
 	name: "user name",
 	icon: null,
