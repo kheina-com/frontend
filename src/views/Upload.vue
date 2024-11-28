@@ -122,8 +122,8 @@
 						<input class='interactable text' v-model='newSet.description'>
 					</div>
 					<div class='actions'>
-						<Button @click='() => newSet = null' :isLoading='saving' red><i class='material-icons'>close</i><span>Cancel</span></Button>
-						<Button @click='createSet' :isLoading='saving'><i class='material-icons'>add</i><span>Create Set</span></Button>
+						<Button @click='() => newSet = null' :isLoading='creatingSet' red><i class='material-icons'>close</i><span>Cancel</span></Button>
+						<Button @click='createSet' :isLoading='creatingSet'><i class='material-icons'>add</i><span>Create Set</span></Button>
 					</div>
 				</div>
 			</div>
@@ -131,16 +131,16 @@
 				<span>Sets</span>
 				<div class='set-selector flex' v-for='set in sets'>
 					<SetComponent :setId='set.set_id' v-bind='set'/>
-					<Button @click='() => removeSet(set.set_id)' :isLoading='saving'><i class='material-icons'>playlist_remove</i><span>Remove Set</span></Button>
+					<Button @click='() => removeSet(set.set_id)' :isLoading='removingSet'><i class='material-icons'>playlist_remove</i><span>Remove Set</span></Button>
 				</div>
 				<div class='set-selector'>
 					<DropDownSelector v-model:value='addSet' placeholder='set id'>
 						<SetComponent @click.capture.stop.prevent='addSet = set.set_id' v-for='set in userSets' :setId='set.set_id' v-bind='set' nested/>
 					</DropDownSelector>
-					<Button @click='putSet' :isLoading='saving'><i class='material-icons'>playlist_add</i><span>Add Set</span></Button>
+					<Button @click='putSet' :isLoading='puttingSet'><i class='material-icons'>playlist_add</i><span>Add Set</span></Button>
 				</div>
 				<div class='actions'>
-					<Button @click='() => newSet = { }' :isLoading='saving'><i class='material-icons'>add</i><span>New Set</span></Button>
+					<Button @click='() => newSet = { }'><i class='material-icons'>add</i><span>New Set</span></Button>
 				</div>
 			</div>
 			<div class='field popup-info'>
@@ -334,6 +334,9 @@ const sets: Ref<PostSet[] | null> = ref(null);
 const newSet: Ref<{ title?: string, description?: string } | null> = ref(null);
 const userSets: Ref<PostSet[] | null> = ref(null);
 const addSet: Ref<string> = ref("");
+const puttingSet: Ref<boolean> = ref(false);
+const creatingSet: Ref<boolean> = ref(false);
+const removingSet: Ref<boolean> = ref(false);
 
 // parent post
 const parentPost: Ref<Post | null> = ref(null);
@@ -377,8 +380,9 @@ const emojiPlaceholder = computed(() => ":" +
 
 function createSet() {
 	if (!newSet.value) return;
+	creatingSet.value = true;
 
-	khatch(`${host}/v1/set/`, {
+	khatch(`${host}/v1/set`, {
 		method: "PUT",
 		errorMessage: "Failed to create new set!",
 		body: {
@@ -391,6 +395,8 @@ function createSet() {
 		userSets.value?.push(r)
 	).then(() =>
 		newSet.value = null
+	).finally(() =>
+		creatingSet.value = false
 	);
 }
 
@@ -408,6 +414,7 @@ function putSet() {
 		});
 		return;
 	}
+	puttingSet.value = true;
 
 	khatch(`${host}/v1/set/post/${addSet.value}`, {
 		method: "PUT",
@@ -426,7 +433,9 @@ function putSet() {
 			sets.value = [];
 		}
 		sets.value.push(r);
-	});
+	}).finally(() =>
+		puttingSet.value = false
+	);
 }
 
 function removeSet(value: string) {
@@ -436,6 +445,7 @@ function removeSet(value: string) {
 		});
 		return;
 	}
+	removingSet.value = true;
 
 	khatch(`${host}/v1/set/post/${value}?post_id=${postId.value}`, {
 		method: "DELETE",
@@ -446,7 +456,9 @@ function removeSet(value: string) {
 		if (i >= 0) {
 			sets.value.splice(i, 1);
 		}
-	});
+	}).finally(() =>
+		removingSet.value = false
+	);
 }
 
 function fetchParent(parentId: string) {
