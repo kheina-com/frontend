@@ -28,12 +28,30 @@ class UserPortable(BaseModel) :
 	following: Optional[bool]
 
 
-class TagGroups(BaseModel):
-	artist:  Optional[list[str]]
-	subject: Optional[list[str]]
-	species: Optional[list[str]]
-	gender:  Optional[list[str]]
-	misc:    Optional[list[str]]
+@unique
+class TagGroup(Enum) :
+	artist  = 'artist'
+	subject = 'subject'
+	sponsor = 'sponsor'
+	species = 'species'
+	gender  = 'gender'
+	misc    = 'misc'
+
+
+class TagPortable(BaseModel) :
+	tag:   str
+	owner: Optional[UserPortable]
+	group: TagGroup
+	count: int
+
+
+class TagGroups(BaseModel) :
+	artist:  Optional[list[TagPortable]]
+	subject: Optional[list[TagPortable]]
+	sponsor: Optional[list[TagPortable]]
+	species: Optional[list[TagPortable]]
+	gender:  Optional[list[TagPortable]]
+	misc:    Optional[list[TagPortable]]
 
 
 @unique

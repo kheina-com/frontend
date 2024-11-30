@@ -77,7 +77,7 @@ async def tag_route(tag: str, norich: Optional[str] = None) :
 		return HTMLResponse(vueIndex())
 
 	return HTMLResponse(vueIndex().replace('<head>', '<head>' + (await tagMetaTags(tag) or homeMetaTags())))
-	
+
 
 @app.get('/s/{set_id}')
 async def set_route(set_id: str, norich: Optional[str] = None) :

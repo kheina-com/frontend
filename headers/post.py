@@ -9,43 +9,24 @@ from utilities.constants import host
 
 from utilities import api_timeout, concise, default_image, demarkdown, header_card_large, header_card_summary, header_description, header_image, header_title
 
-from .models import Post, Tag, TagGroups
+from .models import Post, Tag, TagGroups, TagPortable
 
 
 post_regex = re_compile(r"^\/p\/([a-zA-Z0-9_-]{8})\/?$")
 
 
-
-async def fetch_tag(tag: str) -> Tag :
-	async with request(
-		'GET',
-		f'{host}/v1/tag/{tag}',
-		timeout=ClientTimeout(api_timeout),
-		raise_for_status=True,
-	) as response :
-		return Tag.parse_obj(await response.json())
-
-
-async def buildTagString(tags: list[str], tag_group: str) -> str :
+async def buildTagString(tags: list[TagPortable], tag_group: str) -> str :
 	rendered: list[str] = []
 
-	try:
-		rich_tags: list[Task[Tag]] = [ensure_future(fetch_tag(t)) for t in tags]
+	for t in tags:
+		if t.owner:
+			rendered.append(
+				t.tag.split(f"_({tag_group})")[0].replace("_", " ")
+				+ f" (@{t.owner.handle})"
+			)
 
-		for t in rich_tags:
-			tag: Tag = await t
-
-			if tag.owner:
-				rendered.append(
-					tag.tag.split(f"_({tag_group})")[0].replace("_", " ")
-					+ f" (@{tag.owner.handle})"
-				)
-
-			else:
-				rendered.append(tag.tag.split(f"_({tag_group})")[0].replace("_", " "))
-
-	except ClientResponseError :
-		rendered = tags
+		else:
+			rendered.append(t.tag.split(f"_({tag_group})")[0].replace("_", " "))
 
 	tag_string: str = ""
 
