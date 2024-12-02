@@ -2,22 +2,24 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div class='theme-menu'>
 		<table>
-			<tr>
-				<td>theme</td>
-				<td>
-					<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='globals.theme'>
-						<option v-for='[value, name] in themes' :value='value'>{{name}}</option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td>accent</td>
-				<td>
-					<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='globals.accent'>
-						<option v-for='[value, name] in accents' :value='value'>{{name}}</option>
-					</select>
-				</td>
-			</tr>
+			<tbody>
+				<tr>
+					<td>theme</td>
+					<td>
+						<select ref='theme' name='theme' class='interactable' @change='setTheme' :value='globals.theme'>
+							<option v-for='[value, name] in themes' :value='value'>{{name}}</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>accent</td>
+					<td>
+						<select ref='accent' name='accent' class='interactable' @change='setAccent' :value='globals.accent'>
+							<option v-for='[value, name] in accents' :value='value'>{{name}}</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 		<div class='accent-checkbox'>
 			<CheckBox

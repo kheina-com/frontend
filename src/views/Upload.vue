@@ -834,7 +834,7 @@ function postWatcher(value?: string) {
 			if (r.filename) {
 				uploadDone.value = true;
 				filename = r.filename;
-				mediaUrl.value = getMediaUrl(postId.value, filename);
+				mediaUrl.value = getMediaUrl(postId.value, r.revision, filename);
 				width.value = r?.size?.width ?? 0;
 				height.value = r?.size?.height ?? 0;
 			}
@@ -857,7 +857,7 @@ function postWatcher(value?: string) {
 				if (r.filename) {
 					uploadDone.value = true;	
 					filename = r.filename;
-					mediaUrl.value = getMediaUrl(r.post_id, r.filename);
+					mediaUrl.value = getMediaUrl(r.post_id, r.revision, r.filename);
 					width.value = r?.size?.width;
 					height.value = r?.size?.height;
 				}

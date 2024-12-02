@@ -195,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, type Ref } from 'vue';
+import { onMounted, computed, ref, watch, type Ref } from 'vue';
 import store from '@/globals';
 import { khatch, getMediaUrl, setTitle, createToast } from '@/utilities';
 import { demarkdown } from '@/utilities/markdown';
@@ -257,6 +257,7 @@ khatch(`${host}/v1/sets/post/${props.postId}`, {
 fetchComments();
 
 if (globals.postCache?.post_id === props.postId) {
+	onMounted(setLeft);
 	post.value = globals.postCache;
 
 	post.value.favorites = 0;
@@ -267,7 +268,6 @@ if (globals.postCache?.post_id === props.postId) {
 		parent.value = null;
 		fetchParent(post.value.parent);
 	}
-	setLeft();
 }
 else {
 	// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
@@ -292,7 +292,7 @@ else {
 
 const isLoading = computed(() => !post.value);
 const isUpdated = computed(() => post.value ? post.value.created !== post.value.updated : false);
-const mediaUrl = computed(() => post.value && post.value.filename ? getMediaUrl(post.value.post_id, post.value.filename) : "");
+const mediaUrl = computed(() => post.value && post.value.filename ? getMediaUrl(post.value.post_id, post.value.revision, post.value.filename) : "");
 const showPrivacy = computed(() => post.value?.privacy && post.value.privacy.toLowerCase() !== "public");
 const userIsUploader = computed(() => globals.user && post.value?.user?.handle === globals.user?.handle);
 const countComments = computed(() => {

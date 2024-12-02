@@ -409,7 +409,7 @@ interface PostToken extends Tokens.Generic {
 	type: "post",
 	raw: string,
 	text: string,
-	href: string,
+	req: Promise<void | object>,
 }
 
 interface TagToken extends Tokens.Generic {
@@ -592,25 +592,23 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				type: "post",
 				raw: match[0],
 				text: match[1],
-				href: getMediaThumbnailUrl(match[1]),
+				req: mdMakeRequest(`${host}/v1/post/${match[1]}`),
 			};
 		},
 		renderer(token: Tokens.Generic) {
 			const id = mdRefId();
 
-			mdMakeRequest(`${host}/v1/post/${token.text}`).then(r => {
+			token.req.then((r: Post) => {
 				const element = document.getElementById(id);
 				if (!element || !r) return;
 
-				const response = r as { title?: string; };
-				const title = response?.title ? htmlEscape(response.title) : "";
-
+				const title = r?.title ? htmlEscape(r.title) : "";
 				const a = document.createElement("a") as HTMLAnchorElement;
 				a.id = id;
 				a.className = "post";
 				a.href = "/p/" + token.text;
 				const img = document.createElement("img") as HTMLImageElement;
-				img.src = token.href;
+				img.src = getMediaThumbnailUrl(r.post_id, r.revision);
 				img.alt = title;
 				img.title = title;
 				a.appendChild(img);

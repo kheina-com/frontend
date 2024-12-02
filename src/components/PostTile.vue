@@ -3,7 +3,7 @@
 	<div :class='divClass' :title='title || postId || undefined'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='!unlink'/>
 		<div :to='`/p/${postId}`'  v-if='media_type || isLoading'>
-			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='acceptedMature' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
+			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='acceptedMature' :revision='revision' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${size?.width}/${size?.height}`' v-else>
 				this post is <b>{{rating}}</b>, click to show.
 			</button>
@@ -55,27 +55,28 @@ import DropDown from '@/components/DropDown.vue';
 const router = useRouter();
 const globals = store();
 const props = withDefaults(defineProps<{
-	postId?: string | null,
-	unlink?: boolean,
-	nested?: boolean,
-	parent?: string | null,
+	postId?:     string | null,
+	unlink?:     boolean,
+	nested?:     boolean,
+	parent?:     string | null,
 	media_type?: MediaType | null,
-	rating?: "general" | "mature" | "explicit",
+	rating?:     "general" | "mature" | "explicit",
 
 	// post fields
-	user: User,
-	score: Score | null,
-	title: string | null,
+	user:        User,
+	score:       Score | null,
+	title:       string | null,
 	description: string | null,
-	privacy: "public" | "unlisted" | "private" | "unpublished" | "draft",
-	created: Date,
-	updated: Date,
-	filename: string | null,
-	size: Size | null,
-	blocked: boolean,
-	favorites?: number,
-	reposts?: number,
-	thumbhash: string | null,
+	privacy:     "public" | "unlisted" | "private" | "unpublished" | "draft",
+	created:     Date,
+	updated:     Date,
+	revision:    number,
+	filename:    string | null,
+	size:        Size | null,
+	blocked:     boolean,
+	favorites?:  number,
+	reposts?:    number,
+	thumbhash:   string | null,
 }>(), {
 	postId: null,
 	unlink: false,
@@ -164,6 +165,7 @@ function nav() {
 		privacy: props.privacy,
 		created: props.created,
 		updated: props.updated,
+		revision: props.revision,
 		filename: props.filename,
 		media_type: props.media_type,
 		size: props.size,

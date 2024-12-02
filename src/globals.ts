@@ -96,7 +96,7 @@ export default defineStore("globals", {
 				khatch(`${host}/v1/post/${config.wallpaper}`, {
 					errorMessage: 'Failed to Retrieve User Wallpaper!',
 				}).then(r => r.json()).then(r => {
-					document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.filename)})`;
+					document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.revision, r.filename)})`;
 					document.documentElement.style.backgroundAttachment = 'fixed';
 					document.documentElement.style.backgroundPosition = 'top center';
 					document.documentElement.style.backgroundRepeat = 'no-repeat';

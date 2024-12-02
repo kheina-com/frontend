@@ -41,7 +41,7 @@
 			</div> -->
 			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 			<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
+				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :revision='revision' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
 				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-show='!acceptedMature'>
 					this post contains <b>{{rating}}</b> content, click here to show it anyway.
 				</button>
@@ -124,6 +124,7 @@ const props = withDefaults(defineProps<{
 	userIsUploader?: boolean,
 	created?:        Date,
 	updated?:        Date,
+	revision?:       number,
 	filename?:       string | null,
 	size?:           Size | null,
 	blocked?:        boolean,
@@ -161,6 +162,7 @@ const props = withDefaults(defineProps<{
 	userIsUploader: false,
 	// created: null,
 	// updated: null,
+	revision: 0,
 	filename: null,
 	size: null,
 	blocked: false,
@@ -212,6 +214,7 @@ function nav() {
 		privacy: props.privacy,
 		created: props.created,
 		updated: props.updated,
+		revision: props.revision,
 		filename: props.filename,
 		media_type: props.media_type,
 		size: props.size,

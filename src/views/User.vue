@@ -749,7 +749,7 @@ watch(uploadPostId, (value: string | null) => {
 		errorMessage: 'Failed to fetch post for profile.',
 	}).then(r => r.json())
 	.then(r => {
-		cropperImage.value = getMediaUrl(r.post_id, r.filename);
+		cropperImage.value = getMediaUrl(r.post_id, r.revision, r.filename);
 	});
 });
 </script>

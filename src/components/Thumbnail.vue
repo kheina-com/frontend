@@ -13,15 +13,17 @@ import { thumbHashToDataURL } from 'thumbhash';
 import lightnoise from '$/lightnoise.png?url';
 
 const props = withDefaults(defineProps<{
-	post?: string | null,
-	size?: number,
-	width?: number,
-	height?: number,
-	maxWidth?: number | null,
+	post?:      string | null,
+	revision?:  number,
+	size?:      number,
+	width?:     number,
+	height?:    number,
+	maxWidth?:  number | null,
 	thumbhash?: string | null,
-	load?: boolean,
+	load?:      boolean,
 }>(), {
 	post: null,
+	revision: 0,
 	size: 400,
 	width: 0,
 	height: 0,
@@ -36,7 +38,7 @@ const isLoading: Ref<boolean> = ref(true);
 let webp: boolean = true;
 // let isError: boolean = false;
 
-const src = computed(() => props.post ? getMediaThumbnailUrl(props.post, props.size) : null);
+const src = computed(() => props.post ? getMediaThumbnailUrl(props.post, props.revision, props.size) : null);
 
 onMounted(() => {
 	if (props.load) lazyObserver.observe(media.value);
@@ -86,7 +88,7 @@ function onError() {
 
 	if (props.post && webp) {
 		webp = false;
-		media.value.src = getMediaThumbnailUrl(props.post, 1200, "jpg");
+		media.value.src = getMediaThumbnailUrl(props.post, props.revision, 1200, "jpg");
 	}
 	else {
 		isLoading.value = false;

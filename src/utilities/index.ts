@@ -59,11 +59,13 @@ export function commafy(x: number): string { // from https://stackoverflow.com/a
 	return parts.join(".");
 }
 
-export function getMediaUrl(postId: string, filename: string) {
+export function getMediaUrl(postId: string, revision: number, filename: string) {
+	if (revision) return `${cdnHost}/${postId}/${revision}/${encodeURIComponent(filename)}`;
 	return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`;
 };
 
-export function getMediaThumbnailUrl(postId: string, resolution: number = 800, extension: string = "webp") {
+export function getMediaThumbnailUrl(postId: string, revision: number, resolution: number = 800, extension: string = "webp") {
+	if (revision) return `${cdnHost}/${postId}/${revision}/thumbnails/${resolution}.${extension}`;
 	return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`;
 };
 

@@ -57,6 +57,7 @@ interface Post {
 	privacy: "public" | "unlisted" | "private" | "unpublished" | "draft",
 	created: Date,
 	updated: Date,
+	revision: number,
 	filename: string | null,
 	media_type: MediaType | null,
 	size: Size | null,
