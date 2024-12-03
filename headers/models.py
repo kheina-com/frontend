@@ -65,6 +65,7 @@ class Score(BaseModel):
 	up:        int
 	down:      int
 	total:     int
+	vote:      Optional[int]
 	user_vote: Optional[int]
 
 

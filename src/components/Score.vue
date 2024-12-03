@@ -24,7 +24,7 @@ onMounted(() => {
 	else
 	{ score.value.classList.remove('disabled'); }
 
-	if (props.score) setElementVote(props.score.user_vote);
+	if (props.score) setElementVote(props.score.vote ?? props.score.user_vote);
 });
 
 const isLoading = computed(() => props.score === undefined);
@@ -44,8 +44,9 @@ function setElementVote(vote?: number | null) {
 function vote(vote: number) {
 	if (!props.score) return;
 
-	if (props.score?.user_vote === vote)
-	{ vote = 0; }
+	if ((props.score?.vote ?? props.score?.user_vote) === vote) {
+		vote = 0;
+	}
 
 	khatch(`${host}/v1/post/vote`, {
 		handleError: true,
@@ -58,7 +59,7 @@ function vote(vote: number) {
 	.then(r => {
 		setElementVote(vote);
 		if (!props.score) return;
-		props.score.user_vote = vote;
+		props.score.vote = vote;
 		props.score.up = r.up;
 		props.score.down = r.down;
 	});
@@ -69,7 +70,7 @@ watch(() => props.score, (value?: Score | null) => {
 	{ score.value.classList.add('disabled'); }
 	else {
 		score.value.classList.remove('disabled');
-		setElementVote(value?.user_vote);
+		setElementVote(value?.vote ?? value?.user_vote);
 	}
 });
 </script>	

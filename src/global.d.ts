@@ -32,7 +32,8 @@ interface Score {
 	up: number,
 	down: number,
 	total: number,
-	user_vote: number,
+	vote: number | null,
+	user_vote: number | null,
 }
 
 interface MediaType {

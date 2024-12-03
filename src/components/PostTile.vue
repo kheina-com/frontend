@@ -135,7 +135,7 @@ function nav() {
 			"up": 0,
 			"down": 0,
 			"total": 0,
-			"user_vote": 0,
+			"user_vote" / "vote": 0,
 		},
 		"rating": "general",
 		"parent": "string",
