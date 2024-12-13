@@ -30,7 +30,7 @@
 	</main>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onUnmounted, ref, type Ref } from 'vue';
 import store from '@/globals';
 import { useRoute, useRouter } from 'vue-router';
@@ -41,8 +41,8 @@ import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 
 const globals = store();
-const router = useRouter();
-const route = useRoute();
+const router  = useRouter();
+const route   = useRoute();
 
 const email:       Ref<string | null> = ref(null);
 const password:    Ref<string | null> = ref(null);
@@ -87,7 +87,7 @@ function sendLogin() {
 	.then(r => {
 		if (r.token.token.length <= 10) return;
 		globals.setAuth(r.token);
-		router.push(route.query?.path ? route.query.path.toString() : '/');
+		router.push(route.query?.path ? route.query.path.toString() : "/");
 	}).finally(() => isLoading.value = false);
 }
 </script>

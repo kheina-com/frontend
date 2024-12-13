@@ -24,18 +24,18 @@
 		<div class='post-data' v-if='post'>
 			post id: <CopyText :content='post.post_id ?? (post as any).postId' inline/>
 			<br>
-			size: {{post.size ? `${post.size.width}x${post.size.height}px` : 'none'}}
+			size: {{post.media?.size ? `${post.media.size.width}x${post.media.size.height}px` : 'none'}}
 			<br>
-			file type: {{post.media_type ? post.media_type.file_type : 'none'}}
+			file type: {{post.media ? post.media.type.file_type : 'none'}}
 			<br>
 			description: {{post.description ? `${post.description.length} chars` : 'none'}}
 		</div>
-		<div class='scalar' v-show='scalar !== undefined'>
-			<button class='interactable' @click='toggleScalar'>toggle scalar</button>
+		<div class='buttons'>
+			<a v-if='post?.media' class='interactable' :href='post.media.url' :download='post.media.filename' target='_blank'>download</a>
+			<button v-if='scalar !== undefined' class='interactable' @click='toggleScalar'>scalar</button>
 		</div>
 	</div>
 </template>
-
 <script setup lang="ts">
 import { sortTagGroups } from '@/utilities';
 import { tagGroups } from '@/config/constants';
@@ -57,9 +57,7 @@ function toggleScalar() {
 	// scalar.value = !scalar.value;
 	emits("update:scalar", !scalar.value);
 }
-
 </script>
-
 <style scoped>
 h3 {
 	margin: 0 var(--half-margin) 12px;
@@ -90,11 +88,13 @@ h4 {
 	color: var(--explicit);
 }
 
-.scalar {
-	margin: var(--margin) auto 0;
+.buttons {
+	margin: var(--margin) var(--margin) 0;
+	display: flex;
+	justify-content: space-around;
 }
-.scalar button {
-	margin: auto;
+.buttons button, .buttons a {
+	/* margin: auto; */
 	background: var(--bg1color);
 	display: block;
 }

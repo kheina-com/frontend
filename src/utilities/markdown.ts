@@ -115,6 +115,7 @@ const userLinks: { [k: string]: [string, string | null]; } = {
 	ig: ["https://www.instagram.com/",        "instagram"],
 	tm: ["https://www.tumblr.com/",           "tumblr"],
 	vk: ["https://vk.com/",                   "vk"],
+	hl: ["https://hipolink.me/",              "hipolink"],
 };
 // @ts-format-ignore-endregion
 

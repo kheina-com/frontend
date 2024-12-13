@@ -46,6 +46,17 @@ interface Size {
 	height: number,
 }
 
+interface Media {
+	post_id: string,
+	crc: number | null,
+	filename: string,
+	url: string,
+	type: MediaType,
+	size: Size,
+	thumbhash: string,
+	updated: Date,
+}
+
 // this needs to match the fingerprint of the api:
 interface Post {
 	post_id: string,
@@ -58,11 +69,7 @@ interface Post {
 	privacy: "public" | "unlisted" | "private" | "unpublished" | "draft",
 	created: Date,
 	updated: Date,
-	revision: number,
-	filename: string | null,
-	media_type: MediaType | null,
-	size: Size | null,
-	thumbhash: string | null,
+	media: Media | null,
 	blocked: boolean,
 	favorites?: number,
 	reposts?: number,

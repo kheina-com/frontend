@@ -8,7 +8,7 @@
 		<Sidebar :tags='tags' :post='post' v-model:scalar='scalar' class='sidebar'/>
 		<div class='content'>
 			<div ref='media' class='media-container' v-show='post'>
-				<Media class='media' v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' :thumbhash='post?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
+				<Media class='media' v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
 				<div class='set-controls' v-for='set in sets'>
 					<p>
 						<a class='disabled'><i class='material-icons'>first_page</i></a>
@@ -101,7 +101,7 @@
 	</div>
 	<div class='content' v-else>
 		<div class='media-container' v-show='post'>
-			<Media v-if='post?.media_type' :mime='post?.media_type?.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
+			<Media v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
 			<div class='set-controls' v-for='set in sets'>
 				<a class='disabled'><i class='material-icons'>first_page</i></a>
 				<router-link v-for='(p, index) in set.neighbors.before' :to='`/p/${p.post_id}`'><span v-if='index'>{{ set.neighbors.index - index - 1 }}</span><i class='material-icons' v-else>navigate_before</i></router-link>
@@ -262,8 +262,8 @@ if (globals.postCache?.post_id === props.postId) {
 
 	post.value.favorites = 0;
 	post.value.reposts = 0;
-	width.value = post.value.size?.width;
-	height.value = post.value.size?.height;
+	width.value = post.value?.media?.size?.width;
+	height.value = post.value?.media?.size?.height;
 	if (post.value.parent) {
 		parent.value = null;
 		fetchParent(post.value.parent);
@@ -274,12 +274,12 @@ else {
 	khatch(`${host}/v1/post/${props.postId}`, {
 		errorMessage: "Could not retrieve post!",
 	}).then(r => r.json())
-	.then(r => {
+	.then((r: Post) => {
 		r.favorites = 0;
 		r.reposts = 0;
 		post.value = r;
-		width.value = r.size?.width;
-		height.value = r.size?.height;
+		width.value = r.media?.size?.width;
+		height.value = r.media?.size?.height;
 		if (r.parent) {
 			parent.value = null;
 			fetchParent(r.parent);
@@ -292,7 +292,7 @@ else {
 
 const isLoading = computed(() => !post.value);
 const isUpdated = computed(() => post.value ? post.value.created !== post.value.updated : false);
-const mediaUrl = computed(() => post.value && post.value.filename ? getMediaUrl(post.value.post_id, post.value.revision, post.value.filename) : "");
+const mediaUrl = computed(() => post.value?.media ? getMediaUrl(post.value.post_id, post.value.media.crc, post.value.media.filename) : "");
 const showPrivacy = computed(() => post.value?.privacy && post.value.privacy.toLowerCase() !== "public");
 const userIsUploader = computed(() => globals.user && post.value?.user?.handle === globals.user?.handle);
 const countComments = computed(() => {

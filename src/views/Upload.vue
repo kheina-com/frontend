@@ -57,7 +57,7 @@
 				<div class='field resize-field' v-if='showResize'>
 					<div>
 						<span>Longest Side in Pixels to Resize</span>
-						<input class='interactable text' v-model='update.webResize'>
+						<input class='interactable text' type='number' v-model='update.webResize'>
 					</div>
 					<div>
 						<span>Resized Dimensions</span>
@@ -357,9 +357,7 @@ onMounted(() => {
 	khatch(`${host}/v1/sets/user`, {
 		errorMessage: "Could not retrieve user sets!",
 	}).then(r => r.json())
-	.then(r => {
-		userSets.value = r;
-	});
+	.then(r => userSets.value = r);
 });
 
 onUnmounted(() =>
@@ -617,17 +615,20 @@ function showData() {
 function uploadFile(finish=false) {
 	saving.value = true;
 	return new Promise<void>((resolve, reject) => {
-		if (isUploading.value || !file.value /* || this.uploadUnavailable */) return resolve();
-
+		if (isUploading.value || !file.value) return resolve();
 		if (!postId.value) return reject("postId has no value");
+		if (!file.value) return reject("file has no value");
 
 		isUploading.value = true;
 
-		let formdata = new FormData();
-		formdata.append("file", file.value);
+		const formdata = new FormData();
 		formdata.append("post_id", postId.value);
 
-		if (update.value.webResize) formdata.append("web_resize", parseInt(update.value.webResize.trim()).toString());
+		if (update.value.webResize) {
+			formdata.append("web_resize", parseInt(update.value.webResize.trim()).toString());
+		}
+
+		formdata.append("file", file.value);
 
 		const complete = () => {
 			showResize.value = false;
@@ -635,46 +636,49 @@ function uploadFile(finish=false) {
 			isUploading.value = false;
 			uploadLoaded.value = 0;
 			uploadTotal = 0;
-			if (finish)
-			{ saving.value = false; }
+
+			if (finish) {
+				saving.value = false;
+			}
 		};
+
+		const xhr = new XMLHttpRequest();
 
 		const errorHandler = (event: XMLHttpRequestEventMap["load"]) => {
 			createToast({
 				title: "Something broke during upload",
 				description: "If you submit a bug report, please include the data below.",
-				dump: ajax?.responseType === "text" ? ajax.responseText : event,
+				dump: xhr.response || event,
 			});
 			console.error("error:", event);
 			complete();
 		};
 
-		const ajax = new XMLHttpRequest();
-
-		ajax.upload.addEventListener("progress", event => {
+		xhr.upload.addEventListener("progress", event => {
 			uploadLoaded.value = event.loaded;
 			uploadTotal = event.total;
 		}, false);
-		ajax.addEventListener("load", (event) => {
-			if (ajax.response.status >= 400) return complete(), reject(errorHandler(event));
 
-			const response = JSON.parse(ajax.responseText);
-			mediaUrl.value = `${cdnHost}/${encodeURIComponent(response.url)}`;
+		xhr.addEventListener("load", (event) => {
+			console.debug("xhr:", xhr);
+			if (xhr.status >= 400) return reject(errorHandler(event));
 
-			if (!file.value) return complete(), reject("file was unset during upload, please refresh the page");
+			const response: Media = JSON.parse(xhr.responseText);
+			mediaUrl.value = response.url;
+			mime.value = response.type.mime_type;
 
-			mime.value = file.value.type;
 			file.value = undefined;
 			complete();
 			resolve();
 		}, false);
-		ajax.addEventListener("error", e => reject(errorHandler(e)), false);
+
+		xhr.addEventListener("error", e => reject(errorHandler(e)), false);
 
 		const auth = globals.auth?.token;
-		ajax.open("POST", `${host}/v1/upload/image`);
-		ajax.setRequestHeader("authorization", "bearer " + auth);
+		xhr.open("POST", `${host}/v1/upload/image`);
+		xhr.setRequestHeader("authorization", "bearer " + auth);
 
-		ajax.send(formdata);
+		xhr.send(formdata);
 	});
 }
 
@@ -822,51 +826,36 @@ function postWatcher(value?: string) {
 	};
 
 	if (postId.value?.length === 8) {
-		if (globals.postCache?.post_id === postId.value) {
-			const r = globals.postCache;
+		const setPostFields = (r: Post) => {
 			description.value = update.value.description = r.description;
-			title.value = update.value.title = r.title;
-			privacy.value = update.value.privacy = r.privacy;
-			rating.value = update.value.rating = r.rating;
-			parent.value = update.value.parent = r.parent;
-			mime.value = r.media_type?.mime_type;
+			title.value       = update.value.title = r.title;
+			privacy.value     = update.value.privacy = r.privacy;
+			rating.value      = update.value.rating = r.rating;
+			parent.value      = update.value.parent = r.parent;
 
-			if (r.filename) {
+			if (r.media) {
 				uploadDone.value = true;
-				filename = r.filename;
-				mediaUrl.value = getMediaUrl(postId.value, r.revision, filename);
-				width.value = r?.size?.width ?? 0;
-				height.value = r?.size?.height ?? 0;
+				filename         = r.media.filename;
+				mime.value       = r.media.type.mime_type;
+				mediaUrl.value   = r.media.url;
+				width.value      = r.media.size.width;
+				height.value     = r.media.size.height;
 			}
 			else {
 				unset();
 			}
+
 			globals.postCache = null;
+		}
+
+		if (globals.postCache?.post_id === postId.value) {
+			setPostFields(globals.postCache);
 		}
 		else {
 			khatch(`${host}/v1/post/${postId.value}`, {
 				errorMessage: "Unable To Retrieve Post Data!",
 			}).then(r => r.json())
-			.then(r => {
-				description.value = update.value.description = r.description ?? "";
-				title.value = update.value.title = r.title ?? "";
-				privacy.value = update.value.privacy = r.privacy;
-				rating.value = update.value.rating = r.rating;
-				parent.value = update.value.parent = r.parent ?? "";
-				mime.value = r.media_type?.mime_type;
-				if (r.filename) {
-					uploadDone.value = true;	
-					filename = r.filename;
-					mediaUrl.value = getMediaUrl(r.post_id, r.revision, r.filename);
-					width.value = r?.size?.width;
-					height.value = r?.size?.height;
-				}
-				else {
-					unset();
-				}
-				// if (privacy.value !== "unpublished" && (Date.now() - new Date(r.created).getTime()) / 3600000 > 1)
-				// { this.uploadUnavailable = true; }
-			});
+			.then(setPostFields);
 		}
 
 		khatch(`${host}/v1/tags/${postId.value}`, {

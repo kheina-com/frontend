@@ -2,9 +2,9 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div :class='divClass' :title='title || postId || undefined'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='!unlink'/>
-		<div :to='`/p/${postId}`'  v-if='media_type || isLoading'>
-			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='acceptedMature' :revision='revision' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
-			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${size?.width}/${size?.height}`' v-else>
+		<div :to='`/p/${postId}`'  v-if='media || isLoading'>
+			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='acceptedMature' :revision='media?.crc' :thumbhash='media?.thumbhash' :width='media?.size?.width' :height='media?.size?.height'/>
+			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${media?.size?.width}/${media?.size?.height}`' v-else>
 				this post is <b>{{rating}}</b>, click to show.
 			</button>
 		</div>
@@ -37,7 +37,6 @@
 		</div>
 	</div>
 </template>
-
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -59,7 +58,6 @@ const props = withDefaults(defineProps<{
 	unlink?:     boolean,
 	nested?:     boolean,
 	parent?:     string | null,
-	media_type?: MediaType | null,
 	rating?:     "general" | "mature" | "explicit",
 
 	// post fields
@@ -70,13 +68,10 @@ const props = withDefaults(defineProps<{
 	privacy:     "public" | "unlisted" | "private" | "unpublished" | "draft",
 	created:     Date,
 	updated:     Date,
-	revision:    number,
-	filename:    string | null,
-	size:        Size | null,
+	media:       Media | null,
 	blocked:     boolean,
 	favorites?:  number,
 	reposts?:    number,
-	thumbhash:   string | null,
 }>(), {
 	postId: null,
 	unlink: false,
@@ -165,14 +160,10 @@ function nav() {
 		privacy: props.privacy,
 		created: props.created,
 		updated: props.updated,
-		revision: props.revision,
-		filename: props.filename,
-		media_type: props.media_type,
-		size: props.size,
+		media: props.media,
 		blocked: props.blocked,
 		// favorites: props.favorites,
 		// reposts: props.reposts,
-		thumbhash: props.thumbhash,
 	};
 	router.push("/p/" + props.postId);
 }
@@ -220,7 +211,6 @@ watch(props, (value) => {
 	}
 });
 </script>
-
 <style scoped>
 .post {
 	border-radius: var(--border-radius);

@@ -40,8 +40,8 @@
 				</div>
 			</div> -->
 			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
-			<div class='bottom-margin thumbnail' v-if='media_type && !isLoading'>
-				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :revision='revision' :thumbhash='thumbhash' :width='size?.width' :height='size?.height'/>
+			<div class='bottom-margin thumbnail' v-if='media && !isLoading'>
+				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :revision='media.crc' :thumbhash='media.thumbhash' :width='media.size?.width' :height='media.size?.height'/>
 				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-show='!acceptedMature'>
 					this post contains <b>{{rating}}</b> content, click here to show it anyway.
 				</button>
@@ -110,7 +110,6 @@ const props = withDefaults(defineProps<{
 	// 	default: null,
 	// },
 	
-	media_type?: MediaType | null,
 	replies?:    Post[] | null,
 	rating?:     "general" | "mature" | "explicit",
 
@@ -124,15 +123,12 @@ const props = withDefaults(defineProps<{
 	userIsUploader?: boolean,
 	created?:        Date,
 	updated?:        Date,
-	revision?:       number,
-	filename?:       string | null,
-	size?:           Size | null,
+	media?:          Media | null,
 	blocked?:        boolean,
 	favorites?:      number,
 	reposts?:        number,
 	hideButtons?:    boolean,
 	to?:             string | null,
-	thumbhash?:      string | null,
 }>(), {
 	postId: null,
 	unlink: false,
@@ -147,7 +143,6 @@ const props = withDefaults(defineProps<{
 	// 	default: null,
 	// },
 
-	media_type: null,
 	replies:    null,
 	rating:     "explicit",
 
@@ -162,15 +157,12 @@ const props = withDefaults(defineProps<{
 	userIsUploader: false,
 	// created: null,
 	// updated: null,
-	revision: 0,
-	filename: null,
-	size: null,
+	media: null,
 	blocked: false,
 	favorites: 0, // this value needs to be updated to null when api is updated
 	reposts: 0, // this value needs to be updated to null when api is updated
 	hideButtons: false,
 	to: null,
-	thumbhash: null,
 });
 const globals = store();
 const emits = defineEmits(["loaded"]);
@@ -207,21 +199,17 @@ function nav() {
 		post_id: props.postId,
 		title: props.title,
 		description: props.description,
-		user: props.user,
-		score: props.score ?? null,
-		rating: props.rating,
-		parent: props.parent,
+		user:    props.user,
+		score:   props.score ?? null,
+		rating:  props.rating,
+		parent:  props.parent,
 		privacy: props.privacy,
 		created: props.created,
 		updated: props.updated,
-		revision: props.revision,
-		filename: props.filename,
-		media_type: props.media_type,
-		size: props.size,
+		media:   props.media ?? null,
 		blocked: props.blocked,
 		// favorites: props.favorites,
 		// reposts: props.reposts,
-		thumbhash: props.thumbhash,
 	};
 	router.push(target.value);
 }
