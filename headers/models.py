@@ -74,7 +74,28 @@ class MediaType(BaseModel):
 	mime_type: str
 
 
-class Post(BaseModel):
+class PostSize(BaseModel) :
+	width:  int
+	height: int
+
+
+class Media(BaseModel) :
+	post_id:   str
+	updated:   datetime
+	crc:       Optional[int]
+	filename:  str
+	type:      MediaType
+	size:      PostSize
+	thumbhash: str
+	length:    int
+	flags:     list[str] = []
+
+	# computed
+	url:        str            = ""
+	thumbnails: dict[str, str] = { }
+
+
+class Post(BaseModel) :
 	post_id:     str
 	title:       Optional[str]
 	description: Optional[str]
@@ -83,10 +104,9 @@ class Post(BaseModel):
 	rating:      Rating
 	parent:      Optional[str]
 	privacy:     Privacy
-	created:     Optional[datetime]
-	updated:     Optional[datetime]
-	filename:    Optional[str]
-	media_type:  Optional[MediaType]
+	created:     datetime
+	updated:     datetime
+	media:       Optional[Media]
 	blocked:     bool
 
 

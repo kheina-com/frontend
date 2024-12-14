@@ -63,8 +63,8 @@ async def setMetaTags(set_id: str) -> str :
 		header_card_summary,
 	]
 
-	if s.first and s.first.media_type :
-		headers.append(header_image.format(f"https://cdn.fuzz.ly/{s.first.post_id}/thumbnails/1200.jpg"))
+	if s.first and s.first.media :
+		headers.append(header_image.format(s.first.media.thumbnails['jpeg']))
 
 	else :
 		headers.append(header_image.format(f'https://cdn.fuzz.ly/{s.owner.icon}/icons/{s.owner.handle}.jpg'))

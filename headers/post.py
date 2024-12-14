@@ -99,9 +99,9 @@ async def postMetaTags(post_id: str) -> str :
 			header_description.format(escape(demarkdown(concise(post.description))))
 		)
 
-	if post.media_type:
+	if post.media:
 		headers += [
-			header_image.format(f"https://cdn.fuzz.ly/{post_id}/thumbnails/1200.jpg"),
+			header_image.format(post.media.thumbnails['jpeg']),
 			header_card_large,
 		]
 
