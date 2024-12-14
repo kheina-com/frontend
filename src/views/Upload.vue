@@ -255,7 +255,6 @@
 				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i><span>test</span></Button>
 				<Button @click='markDraft' :isLoading='saving' v-show='privacy === "unpublished"'><i class='material-icons'>note_add</i><span>Mark Draft</span></Button>
 				<Button @click='savePost' :isLoading='saving'><i class='material-icons'>save</i><span>Save</span></Button>
-				<Button @click='publishPost' :isLoading='saving' green><i class='material-icons'>publish</i><span>Publish</span></Button>
 			</div>
 		</div>
 		<ThemeMenu/>
@@ -527,15 +526,14 @@ function markDraft() {
 	saving.value = true;
 	uploadFile()
 	.then(() => saveData())
-	.then(() => khatch(`${host}/v1/upload/privacy`, {
+	.then(() => khatch(`${host}/v1/post/${postId.value}`, {
 		handleError: true,
 		method: "PATCH",
 		body: {
-			post_id: postId.value,
 			privacy: "draft",
 		},
 	})).then(() => {
-		privacy.value = "draft";
+		privacy.value = update.value.privacy = "draft";
 		createToast({
 			icon: "done",
 			title: "Saved as Draft!",
@@ -550,30 +548,6 @@ function savePost() {
 	uploadFile()
 	.then(() => saveData())
 	.finally(() => saving.value = false);
-}
-
-function publishPost() {
-	if (!PublishedPrivacies.has(update.value.privacy)) {
-		createToast({
-			title: "Privacy Not Set!",
-			time: 5,
-		});
-		return;
-	}
-	saving.value = true;
-	uploadFile()
-	.then(() => saveData(true))
-	.then(() => khatch(`${host}/v1/upload/privacy`, {
-		handleError: true,
-		method: "PATCH",
-		body: {
-			post_id: postId.value,
-			privacy: update.value.privacy,
-		},
-	})).then(() => {
-		privacy.value = update.value.privacy;
-		router.push(`/p/${postId.value}`);
-	}).catch(() => saving.value = false);
 }
 
 function addTag(tag: TagPortable) {
@@ -675,18 +649,19 @@ function uploadFile(finish=false) {
 		xhr.addEventListener("error", e => reject(errorHandler(e)), false);
 
 		const auth = globals.auth?.token;
-		xhr.open("POST", `${host}/v1/upload/image`);
+		xhr.open("POST", `${host}/v1/post/image`);
 		xhr.setRequestHeader("authorization", "bearer " + auth);
 
 		xhr.send(formdata);
 	});
 }
 
-function saveData(publish=false) {
+function saveData() {
 	return new Promise<void>((resolve, reject) => {
-		let sendUpdate = false;
+		let sendUpdate        = false;
 		let requiredSuccesses = 0;
-		let successes = 0;
+		let successes         = 0;
+		let publish           = false;
 
 		if (title.value !== update.value.title) {
 			sendUpdate = true;
@@ -708,6 +683,12 @@ function saveData(publish=false) {
 			parent.value = update.value.parent;
 		}
 
+		if (privacy.value !== update.value.privacy) {
+			publish = !PublishedPrivacies.has(privacy.value) && PublishedPrivacies.has(update.value.privacy);
+			sendUpdate = true;
+			privacy.value = update.value.privacy;
+		}
+
 		const success = () => {
 			successes++;
 			if (successes >= requiredSuccesses) {
@@ -717,21 +698,23 @@ function saveData(publish=false) {
 					color: "green",
 					time: 5,
 				});
+
+				if (publish) router.push("/p/" + postId.value);
 				resolve();
 			}
 		};
 
 		if (sendUpdate) {
 			requiredSuccesses++;
-			khatch(`${host}/v1/upload/post`, {
+			khatch(`${host}/v1/post/${postId.value}`, {
 				method: "PATCH",
 				errorMessage: "failed to update post!",
 				body: {
-					post_id: postId.value,
-					title: title.value,
+					title:       title.value,
 					description: description.value,
-					rating: rating.value,
-					parent: parent.value,
+					rating:      rating.value,
+					parent:      parent.value,
+					privacy:     privacy.value,
 				},
 			}).then(success)
 			.catch(reject);
@@ -777,16 +760,7 @@ function saveData(publish=false) {
 			.catch(reject);
 		}
 
-		if (requiredSuccesses === 0) {
-			if (!publish && privacy.value !== update.value.privacy) {
-				createToast({
-					title: "Post Not Updated!",
-					description: "privacy was not updated, click Publish to update privacy.",
-					time: 5,
-				});
-			}
-			resolve();
-		}
+		if (requiredSuccesses === 0) resolve();
 
 		console.debug(JSON.parse(JSON.stringify({
 			aTags,
@@ -828,10 +802,10 @@ function postWatcher(value?: string) {
 	if (postId.value?.length === 8) {
 		const setPostFields = (r: Post) => {
 			description.value = update.value.description = r.description;
-			title.value       = update.value.title = r.title;
-			privacy.value     = update.value.privacy = r.privacy;
-			rating.value      = update.value.rating = r.rating;
-			parent.value      = update.value.parent = r.parent;
+			title.value       = update.value.title       = r.title;
+			privacy.value     = update.value.privacy     = r.privacy;
+			rating.value      = update.value.rating      = r.rating;
+			parent.value      = update.value.parent      = r.parent;
 
 			if (r.media) {
 				uploadDone.value = true;
@@ -890,12 +864,15 @@ function postWatcher(value?: string) {
 	}
 	else {
 		unset();
-		khatch(`${host}/v1/upload/post`, {
+		khatch(`${host}/v1/post`, {
 			method: "PUT",
 			errorMessage: "Unable To Create New Post Draft!",
 			body: { },
 		}).then(r => r.json())
-		.then(r => document.dispatchEvent(new CustomEvent<RouterEvent>("router-event", { detail: { query: { post: r.post_id } } })));
+		.then((r: Post) => {
+			globals.postCache = r;
+			document.dispatchEvent(new CustomEvent<RouterEvent>("router-event", { detail: { query: { post: r.post_id } } }));
+		});
 	}
 }
 

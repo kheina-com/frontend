@@ -14,7 +14,7 @@ import lightnoise from '$/lightnoise.png?url';
 
 const props = withDefaults(defineProps<{
 	post?:      string | null,
-	revision?:  number,
+	crc?:       number | null,
 	size?:      number,
 	width?:     number,
 	height?:    number,
@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
 	load?:      boolean,
 }>(), {
 	post: null,
-	revision: 0,
+	crc: null,
 	size: 400,
 	width: 0,
 	height: 0,
@@ -38,7 +38,7 @@ const isLoading: Ref<boolean> = ref(true);
 let webp: boolean = true;
 // let isError: boolean = false;
 
-const src = computed(() => props.post ? getMediaThumbnailUrl(props.post, props.revision, props.size) : null);
+const src = computed(() => props.post ? getMediaThumbnailUrl(props.post, props.crc ?? 0, props.size) : null);
 
 onMounted(() => {
 	if (props.load) lazyObserver.observe(media.value);
@@ -88,7 +88,7 @@ function onError() {
 
 	if (props.post && webp) {
 		webp = false;
-		media.value.src = getMediaThumbnailUrl(props.post, props.revision, 1200, "jpg");
+		media.value.src = getMediaThumbnailUrl(props.post, props.crc ?? 0, 1200, "jpg");
 	}
 	else {
 		isLoading.value = false;

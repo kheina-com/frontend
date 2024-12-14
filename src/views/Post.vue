@@ -292,7 +292,7 @@ else {
 
 const isLoading = computed(() => !post.value);
 const isUpdated = computed(() => post.value ? post.value.created !== post.value.updated : false);
-const mediaUrl = computed(() => post.value?.media ? getMediaUrl(post.value.post_id, post.value.media.crc, post.value.media.filename) : "");
+const mediaUrl = computed(() => post.value?.media?.url);
 const showPrivacy = computed(() => post.value?.privacy && post.value.privacy.toLowerCase() !== "public");
 const userIsUploader = computed(() => globals.user && post.value?.user?.handle === globals.user?.handle);
 const countComments = computed(() => {
@@ -494,7 +494,7 @@ function fetchParent(postId: string) {
 function postComment() {
 	if (!newComment.value || !newComment.value.trim()) return;
 
-	khatch(`${host}/v1/upload/post`, {
+	khatch(`${host}/v1/post`, {
 		method: "PUT",
 		body: {
 			reply_to: props.postId,
@@ -539,11 +539,10 @@ function editToggle() {
 
 function updatePost() {
 	if (!post.value) return;
-	khatch(`${host}/v1/upload/post`, {
+	khatch(`${host}/v1/post/${props.postId}`, {
 		method: "PATCH",
 		handleError: true,
 		body: {
-			post_id: props.postId,
 			title: post.value.title?.trim(),
 			description: post.value.description?.trim(),
 		},

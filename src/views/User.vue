@@ -358,7 +358,7 @@ if (tabs.has(route.query?.tab?.toString())) {
 	tab.value = route.query.tab?.toString();
 }
 else {
-	router.replace(route.path + '?tab=posts');
+	router.replace(route.path + "?tab=posts");
 }
 
 const setUserTitle = (u?: User | null) => {
@@ -422,14 +422,14 @@ onMounted(() => {
 // });
 
 const selfClass = computed(() => {
-	return (globals.user && globals.user?.handle === user.value?.handle) ? 'self' : 'selfless';
+	return (globals.user && globals.user?.handle === user.value?.handle) ? "self" : "selfless";
 });
 
 const banner = computed(() => {
 	if (!user.value?.banner) return undefined;
 
 	if (bannerWebpFailed)
-	{ return getBannerUrl(user.value.banner, user.value.handle, 'jpg'); }
+	{ return getBannerUrl(user.value.banner, user.value.handle, "jpg"); }
 	return getBannerUrl(user.value.banner, user.value.handle);
 });
 
@@ -441,10 +441,10 @@ const banner = computed(() => {
 // }
 
 function addBadge(badge: Badge) {
-	console.log('adding', badge);
+	console.log("adding", badge);
 	khatch(`${host}/v1/user/badge`, {
-		method: 'PUT',
-		errorMessage: 'Failed to add badge.',
+		method: "PUT",
+		errorMessage: "Failed to add badge.",
 		body: badge,
 	})
 	.then(() => {
@@ -459,8 +459,8 @@ function addBadge(badge: Badge) {
 function removeBadge(badge: number) {
 	if (!user.value) return;
 	khatch(`${host}/v1/user/badge`, {
-		method: 'DELETE',
-		errorMessage: 'Failed to remove badge.',
+		method: "DELETE",
+		errorMessage: "Failed to remove badge.",
 		body: user.value.badges[badge],
 	}).then(() => {
 		if (!user.value) return;
@@ -478,8 +478,8 @@ function selectTab(event: Event) {
 function follow() {
 	followButtonLoading.value = true;
 	khatch(`${host}/v1/user/${user.value?.handle}/follow`, {
-		method: user.value?.following ? 'DELETE' : 'PUT',
-		errorMessage: `Failed to ${user.value?.following ? 'unfollow' : 'follow'} user`,
+		method: user.value?.following ? "DELETE" : "PUT",
+		errorMessage: `Failed to ${user.value?.following ? "unfollow" : "follow"} user`,
 	}).then(() => {
 		if (!user.value) return;
 		user.value.following = !user.value?.following;
@@ -494,13 +494,13 @@ function fetchData(query: LocationQuery | null = null) {
 	tab.value = query?.tab?.toString() || tab.value;
 	if (!tab.value) return;
 
-	if (tabElement) (tabElement.lastChild as HTMLDivElement).style.borderBottomWidth = '0';
+	if (tabElement) (tabElement.lastChild as HTMLDivElement).style.borderBottomWidth = "0";
 
 	tabElement = document.getElementById(tab.value);
-	((tabElement as HTMLElement).lastChild as HTMLDivElement).style.borderBottomWidth = '5px';
+	((tabElement as HTMLElement).lastChild as HTMLDivElement).style.borderBottomWidth = "5px";
 
 	switch (tab.value) {
-	case 'posts' :
+	case "posts" :
 		total_results.value = 0;
 		page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
 		count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
@@ -515,11 +515,11 @@ function fetchData(query: LocationQuery | null = null) {
 
 		khatch(`${host}/v1/posts`, {
 			handleError: true,
-			method: 'POST',
+			method: "POST",
 			body: {
 				page: page.value,
 				count: count.value,
-				sort: 'new',
+				sort: "new",
 				tags: [`@${props.handle}`]
 			},
 		}).then(r => r.json())
@@ -531,33 +531,33 @@ function fetchData(query: LocationQuery | null = null) {
 		.catch(() => { });
 		break;
 
-	case 'sets' :
+	case "sets" :
 		if (sets.value) return;
 
 		khatch(`${host}/v1/sets/user/${props.handle}`, {
-			errorMessage: 'Failed to Retrieve User sets!',
+			errorMessage: "Failed to Retrieve User sets!",
 			errorHandlers: { 404: () => sets.value = [] },
 		}).then(r => r.json())
 		.then(r => sets.value = r)
 		.catch(() => { });
 		break;
 
-	case 'tags' :
+	case "tags" :
 		if (userTags.value) return;
 
 		khatch(`${host}/v1/tags/user/${props.handle}`, {
-			errorMessage: 'Failed to Retrieve User tags!',
+			errorMessage: "Failed to Retrieve User tags!",
 			errorHandlers: { 404: () => userTags.value = [] },
 		}).then(r => r.json())
 		.then(r => userTags.value = r)
 		.catch(() => { });
 		break;
 
-	case 'favs' :
+	case "favs" :
 		// nothing, yet
 		break;
 
-	case 'uploads' :
+	case "uploads" :
 		page.value = route.query?.page ? parseInt(route.query.page.toString()) : page.value || 1;
 		count.value = route.query?.count ? parseInt(route.query.count.toString()) : count.value || 64;
 
@@ -570,9 +570,9 @@ function fetchData(query: LocationQuery | null = null) {
 
 		khatch(`${host}/v1/posts/mine`, {
 			handleError: true,
-			method: 'POST',
+			method: "POST",
 			body: {
-				sort: 'hot',
+				sort: "hot",
 				page: page.value,
 				count: count.value,
 			},
@@ -596,8 +596,8 @@ function toggleEdit(editing: boolean) {
 
 		if (!availableBadges.value) {
 			khatch(`${host}/v1/users/badges`, {
-				method: 'GET',
-				errorMessage: 'Failed to fetch available badges',
+				method: "GET",
+				errorMessage: "Failed to fetch available badges",
 			}).then(r => r.json())
 			.then(response => availableBadges.value = response);
 		}
@@ -612,7 +612,7 @@ function updateProfile() {
 	// description: str = None
 
 	khatch(`${host}/v1/user/self`, {
-		method: 'PATCH',
+		method: "PATCH",
 		body: update.value,
 		handleError: true,
 	}).then(() => {
@@ -625,13 +625,13 @@ function updateProfile() {
 function toggleIconUpload() {
 	isUploadIcon.value = true;
 	runSearchQuery();
-	document.body.style.overflow = 'hidden';
+	document.body.style.overflow = "hidden";
 }
 
 function toggleBannerUpload() {
 	isUploadBanner.value = true;
 	runSearchQuery();
-	document.body.style.overflow = 'hidden';
+	document.body.style.overflow = "hidden";
 }
 
 function disableUploads() {
@@ -653,15 +653,16 @@ function updateProfileImage() {
 	uploadLoading.value = true;
 	let endpoint = null;
 
-	if (isUploadIcon.value)
-	{ endpoint = 'set_icon'; }
+	if (isUploadIcon.value) {
+		endpoint = "icon";
+	}
+	else if (isUploadBanner.value) {
+		endpoint = "banner";
+	}
 
-	else if (isUploadBanner.value)
-	{ endpoint = 'set_banner'; }
-
-	khatch(`${host}/v1/upload/${endpoint}`, {
-		errorMessage: 'Failed to update user image!',
-		method: 'POST',
+	khatch(`${host}/v1/post/${endpoint}`, {
+		errorMessage: "Failed to update user image!",
+		method: "POST",
 		body: {
 			post_id: uploadPostId.value,
 			coordinates: cropper.value.getResult().coordinates,
@@ -687,10 +688,10 @@ function runSearchQuery(p: number | null = null) {
 	uploadablePage.value = p || 1;
 	if (searchValue.value) {
 		khatch(`${host}/v1/posts`, {
-			errorMessage: 'Failed to fetch posts for profile.',
-			method: 'POST',
+			errorMessage: "Failed to fetch posts for profile.",
+			method: "POST",
 			body: {
-				sort: 'new',
+				sort: "new",
 				tags: tagSplit(searchValue.value),
 				page: uploadablePage.value,
 				count: 64,
@@ -704,8 +705,8 @@ function runSearchQuery(p: number | null = null) {
 	}
 	else {
 		khatch(`${host}/v1/posts/user`, {
-			errorMessage: 'Failed to fetch posts for profile.',
-			method: 'POST',
+			errorMessage: "Failed to fetch posts for profile.",
+			method: "POST",
 			body: {
 				handle: props.handle,
 				page: uploadablePage.value,
@@ -732,7 +733,7 @@ function pageLink(p: number) {
 	if (count.value !== 64)
 	{ query.push(`count=${count.value}`); }
 
-	return '/' + user.value?.handle + '?' + query.join('&');
+	return "/" + user.value?.handle + "?" + query.join("&");
 }
 
 function setPage(p: number) {
@@ -746,7 +747,7 @@ watch(uploadPostId, (value: string | null) => {
 	if (!value) return;
 
 	khatch(`${host}/v1/post/${value}`, {
-		errorMessage: 'Failed to fetch post for profile.',
+		errorMessage: "Failed to fetch post for profile.",
 	}).then(r => r.json())
 	.then(r => {
 		cropperImage.value = getMediaUrl(r.post_id, r.revision, r.filename);

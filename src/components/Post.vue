@@ -41,7 +41,7 @@
 			</div> -->
 			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 			<div class='bottom-margin thumbnail' v-if='media && !isLoading'>
-				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :revision='media.crc' :thumbhash='media.thumbhash' :width='media.size?.width' :height='media.size?.height'/>
+				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :crc='media.crc' :thumbhash='media.thumbhash' :width='media.size?.width' :height='media.size?.height'/>
 				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-show='!acceptedMature'>
 					this post contains <b>{{rating}}</b> content, click here to show it anyway.
 				</button>
@@ -259,7 +259,7 @@ function missingFeature() {
 }
 
 function postComment() {
-	khatch(`${host}/v1/upload/post`, {
+	khatch(`${host}/v1/post`, {
 		method: "PUT",
 		handleError: true,
 		body: {
