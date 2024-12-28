@@ -118,3 +118,13 @@ interface Tags {
 	gender?: null | TagPortable[],
 	misc?: null | TagPortable[],
 }
+
+interface Emoji {
+	emoji: string,
+	alt: string | null,
+	owner: User | null,
+	post_id: string | null,
+	filename: string,
+	url: string,
+	updated: Date,
+}

@@ -1,5 +1,6 @@
 import { apiErrorDescriptionToast, apiErrorMessageToast, authRegex } from '@/config/constants';
 import store, { type ToastOptions } from '@/globals';
+import { tagGroups } from '@/config/constants';
 
 export default null;
 
@@ -37,6 +38,11 @@ export function deleteCookie(cookieName: string) {
 	document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`;
 }
 
+// 64bit random number generator. I believe it's not truly 64 bit
+// due to floating point bullshit, but it's good enough
+const MaxId: number = Number.MAX_SAFE_INTEGER;
+export const RefId = (): number => Math.round(Math.random() * MaxId);
+
 export function setTitle(title: string): void {
 	document.title = title;
 }
@@ -69,8 +75,8 @@ export function getMediaThumbnailUrl(postId: string, revision: number, resolutio
 	return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`;
 };
 
-export function getEmojiUrl(filename: string): string {
-	return `${cdnHost}/emoji/${filename}`;
+export function getEmojiUrl(emoji: Emoji): string {
+	return `${cdnHost}/${emoji.url}`;
 }
 
 export function getIconUrl(postId: string, handle: string, extension = "webp") {
@@ -88,7 +94,6 @@ export function round(num: number, precision: number): number {
 
 export function tagSplit(tags: string): string[] { return tags.split(/[,\s]/).filter(x => x).map(x => x.trim()); }
 
-import { tagGroups } from '@/config/constants';
 export function sortTagGroups(tags: { [k: string]: TagPortable[]; } | Tags): Tags {
 	let sorted: { [k: string]: TagPortable[]; } = {};
 	tagGroups.forEach(i => {
@@ -224,7 +229,7 @@ export function tab(e: KeyboardEvent) {
 	target.focus();
 
 	const start = target.selectionStart ?? 0;
-	const s = target.value.lastIndexOf("\n", start) + 1;
+	const s = Math.min(target.value.lastIndexOf("\n", start) + 1, start);
 	const end = target.selectionEnd ?? 0;
 	const sub = target.value.substring(s, end);
 

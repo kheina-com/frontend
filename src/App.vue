@@ -14,6 +14,7 @@ import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { authCookie, getCookie, khatch, isDarkMode } from '@/utilities';
 import { host, isMobile } from '@/config/constants';
+import { PopulateEmojiDb } from './utilities/emoji';
 // import DeveloperConsole from '@/components/DeveloperConsole.vue';
 import store from '@/globals';
 import Footer from '@/components/Footer.vue';
@@ -33,6 +34,7 @@ import dark256 from '$/favicon/dark/256.png?url';
 
 const globals = store();
 const route = useRoute();
+PopulateEmojiDb();
 
 globals.cookiesAllowed(getCookie("cookies", false, "boolean"));
 globals.setTheme(getCookie("theme", "kheina"));

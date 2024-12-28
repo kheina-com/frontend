@@ -50,7 +50,7 @@
 			</ol>
 			<div class='buttons'>
 				<Button @click='togglePost'>toggle</Button>
-				<Button @click='toggleThumbhash'>thumbhash</Button>
+				<!-- <Button @click='toggleThumbhash'>thumbhash</Button> -->
 				<input placeholder='post' class='interactable' v-model='postId'/>
 			</div>
 		</div>
@@ -78,6 +78,9 @@
 			</li>
 		</ol>
 		<Spinner :loaded='loaded' :total='1000000' style='margin: auto'/>
+		<div>
+			<input type='text' class='interactable text' placeholder='qr content' @input='lookupEmoji'>
+		</div>
 		<div class='slider'>
 			<input type='range' min='0' max='1000000' step='100' v-model='loaded'>
 			<span>{{ loaded }}</span>
@@ -132,6 +135,7 @@ import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
 import Spinner from '@/components/Spinner.vue';
 import QR from '@/components/QR.vue';
+import { LookupEmoji } from '@/utilities/emoji';
 
 const globals = store();
 const ellipse = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -362,15 +366,20 @@ function deleteAuth() {
 	globals.setAuth(null);
 }
 
-function toggleThumbhash() {
-	const th = thumbhash;
-	thumbhash = post?.thumbhash || null;
-	if (post) post.thumbhash = th;
-
-	if (th === null) {
-		document.getElementsByClassName("th")[0].dispatchEvent(new Event("load"));
-	}
+function lookupEmoji(e: Event) {
+	const prefix = (e.target as HTMLInputElement).value;
+	LookupEmoji(prefix).then(console.log);
 }
+
+// function toggleThumbhash() {
+// 	const th = thumbhash;
+// 	thumbhash = post?.thumbhash || null;
+// 	if (post && post.media) post.media.thumbhash = th;
+
+// 	if (th === null) {
+// 		document.getElementsByClassName("th")[0].dispatchEvent(new Event("load"));
+// 	}
+// }
 
 const cookie = computed(() => {
 	try {

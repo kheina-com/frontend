@@ -1,5 +1,5 @@
 import { getMediaThumbnailUrl, getEmojiUrl, getIconUrl, khatch } from '@/utilities';
-import { type Emoji } from '@/utilities/emoji';
+import { GetEmoji } from '@/utilities/emoji';
 import { host, apiErrorDescriptionToast, apiErrorMessageToast, environment, iconShortcode } from '@/config/constants';
 import { type Tokens, type TokenizerAndRendererExtension } from 'marked';
 import defaultUserIcon from '$/default-icon.png?url';
@@ -126,8 +126,6 @@ const mdRequestCache: { [url: string]: any; } = {};
 
 const mdRequestCacheLimit = 100;
 
-const mdEmojiCache: { [emoji: string]: Emoji | null; } = {};
-
 let tempUrl = null;
 
 switch (environment) {
@@ -165,47 +163,18 @@ export function mdEscape(md: string): string {
 	});
 };
 
-const mdEmojiUrl = (emoji: string) => {
-	// TODO: this is a PRIME candidate for an indexeddb
-	return new Promise<Emoji>((resolve, reject) => {
-		const cached = mdEmojiCache[emoji];
-		if (cached) {
-			// a render must occur, queue the execution
-			setTimeout(() => resolve(cached), 0);
-			return;
-		}
-		else if (cached === null) {
-			// a render must occur, queue the execution
-			setTimeout(reject, 0);
-			return;
-		}
-
-		khatch(`${host}/v1/emoji/${emoji}`, {
-			errorHandlers: {
-				404: () => {
-					mdEmojiCache[emoji] = null;
-					reject();
-				},
-			},
-		}).then(r => r.json()).then(r => {
-			mdEmojiCache[emoji] = r;
-			resolve(r);
-		}).catch(reject);
-	});
-};
-
 // return a rendered html img element as a string containing the formatted emoji
 export const emoji = (emoji: string): string => {
 	const id = mdRefId();
 
-	mdEmojiUrl(emoji).then(r => {
+	GetEmoji(emoji).then(r => {
 		const element = document.getElementById(id) as HTMLImageElement;
 		if (!element) return;
 
 		element.addEventListener("error", e => element.src = defaultEmoji, { once: true });
 		element.addEventListener("load", e => element.className = "emoji");
 
-		element.src = getEmojiUrl(r.filename);
+		element.src = getEmojiUrl(r);
 		element.alt = r.alt ?? element.alt;
 	}).catch(() => {
 		const element = document.getElementById(id) as HTMLImageElement;
@@ -281,7 +250,7 @@ export function demarkdown(string: string): Promise<string> {
 			emojis++;
 			const id = "<" + mdRefId() + ">";
 
-			mdEmojiUrl(m.slice(1, -1))
+			GetEmoji(m.slice(1, -1))
 				.then(r => str = str.replace(id, r.alt ?? "❌"))
 				.catch(() => str = str.replace(id, "❌"))
 				.finally(() => {
@@ -608,12 +577,16 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				a.id = id;
 				a.className = "post";
 				a.href = "/p/" + token.text;
-				const img = document.createElement("img") as HTMLImageElement;
-				img.src = getMediaThumbnailUrl(r.post_id, r.revision);
-				img.alt = title;
-				img.title = title;
-				a.appendChild(img);
-				a.appendChild(document.createTextNode("\n"));
+
+				if (r.media) {
+					const img = document.createElement("img") as HTMLImageElement;
+					img.src = getMediaThumbnailUrl(r.post_id, r.media.crc || 0);
+					img.alt = title;
+					img.title = title;
+					a.appendChild(img);
+					a.appendChild(document.createTextNode("\n"));
+				}
+
 				const p = document.createElement("p") as HTMLParagraphElement;
 				p.innerText = title;
 				a.appendChild(p);

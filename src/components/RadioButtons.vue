@@ -5,12 +5,12 @@
 				type='radio'
 				:name='name'
 				:value='i.value'
-				:id='name+i.value'
+				:id='`${name}-${i.value}`'
 				@click='emitValue(i.value)'
 				:checked='i.value === value'
 				:disabled='disabled'
 			>
-			<label :for='name+i.value'>
+			<label :for='`${name}-${i.value}`'>
 				<div class='radio'>
 					<div></div>
 				</div>

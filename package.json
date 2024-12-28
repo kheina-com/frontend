@@ -15,6 +15,7 @@
 	"dependencies": {
 		"click-outside-vue3": "^4.0.1",
 		"dompurify": "^2.5.7",
+		"fuzzysort": "^3.1.0",
 		"marked": "^13.0.3",
 		"pinia": "^2.2.4",
 		"qrcode-generator": "^1.4.4",
