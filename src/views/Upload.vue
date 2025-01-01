@@ -265,7 +265,7 @@ import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { abbreviateBytes, commafy, createToast, khatch, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
-import { cdnHost, host, environment, isMobile } from '@/config/constants';
+import { host, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import Button from '@/components/Button.vue';
@@ -519,7 +519,16 @@ function fetchDrafts() {
 	khatch(`${host}/v1/posts/drafts`, {
 		handleError: true,
 	}).then(r => r.json())
-	.then(r => drafts.value = r.toSorted((a: Post, b: Post) => new Date(b.updated).valueOf() - new Date(a.updated).valueOf()));
+	.then((r: Post[]) => r.map((p: Post) => {
+		p.created = new Date(p.created);
+		p.updated = new Date(p.updated);
+		if (p.media) p.media.updated = new Date(p.media.updated);
+		return p;
+	})).then((r: Post[]) =>
+		drafts.value = r.sort((a: Post, b: Post) =>
+			Math.max(b.updated.valueOf(), b?.media?.updated?.valueOf() || 0) - Math.max(a.updated.valueOf(), a?.media?.updated?.valueOf() || 0)
+		)
+	);
 }
 
 function markDraft() {
@@ -801,6 +810,7 @@ function postWatcher(value?: string) {
 
 	if (postId.value?.length === 8) {
 		const setPostFields = (r: Post) => {
+			console.debug("postWatcher:", value, ">", r);
 			description.value = update.value.description = r.description;
 			title.value       = update.value.title       = r.title;
 			privacy.value     = update.value.privacy     = r.privacy;
@@ -870,6 +880,7 @@ function postWatcher(value?: string) {
 			body: { },
 		}).then(r => r.json())
 		.then((r: Post) => {
+			console.debug("postWatcher:", value, ">", r);
 			globals.postCache = r;
 			document.dispatchEvent(new CustomEvent<RouterEvent>("router-event", { detail: { query: { post: r.post_id } } }));
 		});

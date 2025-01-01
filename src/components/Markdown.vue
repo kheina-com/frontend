@@ -223,6 +223,7 @@ a.external-link::after {
 }
 .markdown p {
 	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 
 .markdown table {

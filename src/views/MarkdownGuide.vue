@@ -167,6 +167,12 @@ for example, twitter can be linked to like so: t@Twitter. there are many website
 | \`th@username\` |    th@username    |      toyhou.se      | https://toyhou.se/username
 | \`cm@username\` |    cm@username    |     commiss.io      | https://commiss.io/username
 | \`tm@username\` |    tm@username    |     tumblr.com      | https://www.tumblr.com/username
+| \`vk@username\` |    vk@username    |       vk.com        | https://vk.com/username
+| \`hl@username\` |    hl@username    |    hipolink.me      | https://hipolink.me/username
+| \`da@username\` |    da@username    |   deviantart.com    | https://www.deviantart.com/username
+| \`ib@username\` |    ib@username    |    inkbunny.net     | https://inkbunny.net/username
+| \`sf@username\` |    sf@username    |    sofurry.com      | https://sofurry.sofurry.com
+| \`s@username\`  |    s@username     | steamcommunity.com  | https://steamcommunity.com/id/username
 
 ## Color
 you can also change the color of text to your liking by putting \`%\` on either side of your text, with a color

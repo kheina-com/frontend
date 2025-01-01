@@ -87,7 +87,7 @@ const mdEscapeCharacters = new Set(Object.values(mdReplace));
 const mdRegex = new RegExp(`[^\\\\]?(?:${Object.keys(mdReplace).map(x => "\\" + x).join("|")})`, "g");
 
 // @ts-format-ignore-region
-const userLinks: { [k: string]: [string, string | null]; } = {
+const userLinks: { [k: string]: [string | { (m: string): string }, string | null]; } = {
 	// shortcode: [url, emoji]
 	// links get formatted as url + username
 	"": ["/", null], // default
@@ -116,6 +116,10 @@ const userLinks: { [k: string]: [string, string | null]; } = {
 	tm: ["https://www.tumblr.com/",           "tumblr"],
 	vk: ["https://vk.com/",                   "vk"],
 	hl: ["https://hipolink.me/",              "hipolink"],
+	da: ["https://www.deviantart.com/",       "deviantart"],
+	ib: ["https://inkbunny.net/",             "inkbunny"],
+	sf: [m => `https://${m}.sofurry.com/`,    "sofurry"],
+	s:  ["https://steamcommunity.com/id/",    "steam"],
 };
 // @ts-format-ignore-endregion
 
@@ -438,7 +442,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 					raw: match[0],
 					text: emoji ? match[2] : match[0],
 					title: match[0],
-					href: site + match[2],
+					href: (() => typeof site === "string" ? site + match[2] : site(match[2]))(),
 					code: match[1],
 					icon: emoji,
 					username: match[2],

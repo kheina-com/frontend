@@ -51,9 +51,8 @@ async function releaseCriticalPoint(refId: number) {
 	}
 }
 
-async function transaction(mode: IDBTransactionMode): Promise<IDBTransaction> {
-	const _start = new Date().valueOf();
-	return await new Promise<IDBTransaction>(async r => {
+function transaction(mode: IDBTransactionMode): Promise<IDBTransaction> {
+	return new Promise<IDBTransaction>(async r => {
 		try {
 			const cp = _cp;
 			if (cp) {
@@ -66,7 +65,7 @@ async function transaction(mode: IDBTransactionMode): Promise<IDBTransaction> {
 				r(db.transaction([emojiDbStore], mode))
 			);
 		}
-	}).finally(() => console.debug("transaction:", new Date().valueOf() - _start));
+	});
 }
 
 function addEmoji(emoji: Emoji, store: IDBObjectStore): Promise<void> {
@@ -86,7 +85,6 @@ function addEmoji(emoji: Emoji, store: IDBObjectStore): Promise<void> {
 
 export function PopulateEmojiDb(): Promise<IDBDatabase> {
 	const refId = RefId();
-	const _start = new Date().valueOf();
 	return new Promise<IDBDatabase>(async res => {
 		await getCriticalPoint(refId);
 		const DBOpenRequest = indexedDB.open(emojiDbName, emojiDbVersion);
@@ -113,7 +111,6 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 
 		DBOpenRequest.onsuccess = async () => {
 			emojiDb = DBOpenRequest.result;
-
 			if (emojiDbLoaded) return res(emojiDb);
 
 			const latest = await new Promise<Date>(resolve => {
@@ -168,17 +165,13 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 			console.debug("successfully connected to emoji db");
 		};
 		console.debug("opening emoji database:", DBOpenRequest);
-	}).finally(() => {
-		releaseCriticalPoint(refId);
-		console.debug("PopulateEmojiDb:", new Date().valueOf() - _start);
-	});
+	}).finally(() => releaseCriticalPoint(refId));
 }
 
 export function LookupEmoji(emoji: string): Promise<Emoji[]> {
 	const lim = 100;
 	const thr = 0.5;
 	return new Promise<Emoji[]>(async (_resolve, reject) => {
-		const _start = new Date().valueOf();
 		const req = (await transaction(readonly))
 			.objectStore(emojiDbStore)
 			.index(emojiDbIndex)
@@ -187,7 +180,6 @@ export function LookupEmoji(emoji: string): Promise<Emoji[]> {
 		const emojis: { score: number, value: Emoji; }[] = [];
 		const resolve = (value: { score: number, value: Emoji; }[]): void => {
 			_resolve(value.sort((a, b) => b.score - a.score).map(x => x.value));
-			console.debug("LookupEmoji:", new Date().valueOf() - _start);
 		};
 
 		req.onerror = reject;
@@ -210,13 +202,8 @@ export function LookupEmoji(emoji: string): Promise<Emoji[]> {
 
 const emojiCache: { [emoji: string]: null; } = {};
 export function GetEmoji(emoji: string): Promise<Emoji> {
-	return new Promise<Emoji>(async (_resolve, reject) => {
+	return new Promise<Emoji>(async (resolve, reject) => {
 		if (emojiCache.hasOwnProperty(emoji)) return reject();
-		const _start = new Date().valueOf();
-		const resolve = (value: Emoji): void => {
-			_resolve(value);
-			console.debug("GetEmoji:", new Date().valueOf() - _start);
-		};
 
 		const store = (await transaction(readwrite)).objectStore(emojiDbStore);
 		const index = store.index(emojiDbIndex);
