@@ -4,8 +4,19 @@
 			<div ref='mediaContainer'>
 				<div class='media-container'>
 					<p v-if='isError'>Could not load media.</p>
-					<video ref='media' :src='props.src' :title='props.alt' :controls='props.controls' @load='onLoad' @error='onError' :style='linkStyle' v-else-if='isVideo'>Your browser does not support this type of video.</video>
-					<img ref='media' :alt='props.alt' @error='onError' :style='linkStyle' v-else>
+					<video
+						ref='media'
+						:src='src'
+						:title='alt'
+						:controls='controls'
+						:style='linkStyle'
+						:autoplay='autoplay'
+						loop
+						@load='onLoad'
+						@error='onError'
+						v-else-if='isVideo'
+					>Your browser does not support this type of video.</video>
+					<img ref='media' :alt='alt' @error='onError' :style='linkStyle' v-else>
 				</div>
 			</div>
 		</Loading>
@@ -14,8 +25,7 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, onMounted, onUnmounted, ref, toRef, watch, type Ref } from 'vue';
 import { base64ToBytes, createToast } from '@/utilities';
 import { cdnRegex } from '@/config/constants';
@@ -37,6 +47,8 @@ const props = withDefaults(defineProps<{
 	bg?:          boolean,
 	thumbhash?:   string | null,
 	scaleHeight?: boolean,
+	blob?:        string,
+	autoplay?:    boolean,
 }>(), {
 	mime: null,
 	src: "",
@@ -46,6 +58,7 @@ const props = withDefaults(defineProps<{
 	height: 0,
 	bg: false,
 	thumbhash: null,
+	autoplay: false,
 });
 
 const isLoading: Ref<boolean> = ref(!props.thumbhash);
@@ -58,6 +71,13 @@ defineExpose({ container });
 const loaded: Ref<number> = ref(0);
 const scalar: Ref<boolean> = toRef(props, "scaleHeight");
 let total: number = 0; // don't bother with this one since it's mostly loaded that will be updating
+let blobUrl: string | null = null;
+let unmounted: boolean = false;
+const revoke = (src: string) => {
+	if (!unmounted) return;
+	URL.revokeObjectURL(src);
+	console.debug("[Media] revoked", src);
+};
 
 interface Image extends HTMLImageElement {
 	load(url: string, callback: { (this: XMLHttpRequest, ev: ProgressEvent): any }): void;
@@ -86,14 +106,16 @@ Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, 
 		// TODO: until I figure out the caching issue, use blobs
 		const blob = new Blob([xhr.response], { type: xhr.getResponseHeader("content-type") ?? undefined });
 		// console.log(blob)
-		this.src = window.URL.createObjectURL(blob);
+		this.src = blobUrl = window.URL.createObjectURL(blob);
+		console.debug("[Media] blob created", url, "->", this.src);
+		emits("update:blob", this.src);
 
 		// TODO: in the future, the browser should just cache the image locally and be able to load it directly from img.src
 		// this.src = url;
 		const ms = blob.size / 60000;
 		console.debug("render time:", ms / 1000);
 		this.onload = () => {
-			URL.revokeObjectURL(this.src);
+			revoke(this.src);
 			// wait for the image to fully render (based on image size) before fading in
 			setTimeout(() => this.dispatchEvent(new Event("render")), ms);
 		};
@@ -113,6 +135,7 @@ onMounted(() => {
 
 	allowScalar();
 	window.addEventListener("resize", allowScalar);
+	console.log("media.value:", media.value)
 
 	media.value.addEventListener("render", onLoad);
 	// return this.$refs.media.src = this.src;
@@ -139,14 +162,19 @@ onMounted(() => {
 		media.value.addEventListener("render", () => {
 			window.removeEventListener("scroll", onScroll);
 			window.removeEventListener("resize", onScroll);
-			if (loader.value) loader.value.style.display = "none";
 		});
 	}
-	// else if (this.isVideo) {
-
-	// }
+	else if (isVideo.value) {
+		const show = setTimeout(() => {
+			window.addEventListener("scroll", onScroll);
+			window.addEventListener("resize", onScroll);
+			onScroll();
+			loader.value.style.opacity = "1";
+		}, 1000);
+		media.value.addEventListener("canplay", () => media.value.dispatchEvent(new Event("render")));
+		media.value.src = props.src;
+	}
 	else {
-		media.value.addEventListener("load", () => media.value.dispatchEvent(new Event("render")));
 		media.value.src = props.src;
 		// error
 	}
@@ -157,16 +185,16 @@ onUnmounted(() => {
 	window.removeEventListener("scroll", onScroll);
 	window.removeEventListener("resize", onScroll);
 	window.removeEventListener("resize", allowScalar);
+	unmounted = true;
+	if (blobUrl) revoke(blobUrl);
 });
 
 const isImage = computed(() => props.mime && props.mime.startsWith("image"));
 const isVideo = computed(() => props.mime && props.mime.startsWith("video"));
 const parentStyle = computed(() => props.width ? `aspect-ratio: ${props.width}/${props.height}; max-width: ${props.width}px` : null);
 const linkStyle = computed(() => {
-	if (props.width)
-	{ return `width: ${props.width}px;`; }
-	else if (isError.value)
-	{ return "background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); " + `width: ${props.width || "30vw"}px; height: ${props.height || "30vh"};`; }
+	if (props.width) return `width: ${props.width}px;`;
+	else if (isError.value) return "background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); " + `width: ${props.width || "30vw"}px; height: ${props.height || "30vh"};`;
 	return props.style;
 });
 
@@ -174,6 +202,7 @@ const emits = defineEmits([
 	"update:width",
 	"update:height",
 	"update:scaleHeight",
+	"update:blob",
 ]);
 
 function onLoad() {
@@ -192,8 +221,9 @@ function onLoad() {
 		div.classList.add("bg");
 		(media.value.parentNode as HTMLElement).prepend(div);
 	}
-	emits("update:width", media.value.naturalWidth);
-	emits("update:height", media.value.naturalHeight);
+	if (loader.value) loader.value.style.display = "none";
+	if (media.value.naturalWidth) emits("update:width", media.value.naturalWidth);
+	if (media.value.naturalHeight) emits("update:height", media.value.naturalHeight);
 }
 
 function onError() {
@@ -312,6 +342,7 @@ watch(() => props.src, (value: string) => {
 	align-items: center;
 	text-align: center;
 	position: absolute;
+	pointer-events: none;
 }
 .media img, .media video {
 	max-width: 100%;

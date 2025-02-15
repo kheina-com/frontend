@@ -13,7 +13,7 @@
 			</ol>
 		</div>
 		<Title static='center'>New Post</Title>
-		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{environment === 'prod' ? `fuzz.ly/p/${postId}` : `dev.fuzz.ly/p/${postId}`}}</router-link></Loading></Subtitle>
+		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{`${windowHost}/p/${postId}`}}</router-link></Loading></Subtitle>
 		<div class='form'>
 			<Loading type='block' :isLoading='isUploading'>
 				<!-- this hasn't been implemented server-side yet, though the field is already handled here -->
@@ -48,8 +48,9 @@
 									name='resize-for-web'
 									v-model:checked='showResize'
 									@click='update.webResize = "1500"'
+									v-show='file.type?.includes("image")'
 								>Resize For Web</CheckBox>
-								<Button @click='uploadFile(true)' green><i class='material-icons'>upload</i><span>Upload</span></Button>
+								<Button @click='() => uploadFile(true)' green><i class='material-icons'>upload</i><span>Upload</span></Button>
 							</div>
 						</div>
 					</div>
@@ -264,7 +265,7 @@
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
-import { abbreviateBytes, commafy, createToast, khatch, tagSplit, getMediaUrl, sortTagGroups } from '@/utilities';
+import { abbreviateBytes, commafy, createToast, khatch, tagSplit, sortTagGroups } from '@/utilities';
 import { host, environment, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
@@ -288,6 +289,7 @@ const router = useRouter();
 const PublishedPrivacies: Set<string | null> = new Set(["public", "unlisted", "private"]);
 const path = "/create";
 const postIdRegex = /^[a-zA-Z0-9_-]{8}$/;
+const windowHost = window.location.host;
 
 const tagDiv = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const draftsPanel = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -595,12 +597,12 @@ function showData() {
 	});
 }
 
-function uploadFile(finish=false) {
+function uploadFile(finish: boolean = false) {
 	saving.value = true;
 	return new Promise<void>((resolve, reject) => {
-		if (isUploading.value || !file.value) return resolve();
+		if (isUploading.value) return reject("currently uploading");
 		if (!postId.value) return reject("postId has no value");
-		if (!file.value) return reject("file has no value");
+		if (!file.value) return resolve(); // we don't want to stop it from progressing with no file, just finish immediately
 
 		isUploading.value = true;
 
@@ -608,7 +610,9 @@ function uploadFile(finish=false) {
 		formdata.append("post_id", postId.value);
 
 		if (update.value.webResize) {
-			formdata.append("web_resize", parseInt(update.value.webResize.trim()).toString());
+			let webResize: number | string = update.value.webResize;
+			if (typeof webResize === "string") webResize = parseInt(update.value.webResize.trim());
+			formdata.append("web_resize", webResize.toString());
 		}
 
 		formdata.append("file", file.value);
@@ -620,9 +624,7 @@ function uploadFile(finish=false) {
 			uploadLoaded.value = 0;
 			uploadTotal = 0;
 
-			if (finish) {
-				saving.value = false;
-			}
+			if (finish) saving.value = false;
 		};
 
 		const xhr = new XMLHttpRequest();
@@ -635,6 +637,7 @@ function uploadFile(finish=false) {
 			});
 			console.error("error:", event);
 			complete();
+			reject(xhr.response || event);
 		};
 
 		xhr.upload.addEventListener("progress", event => {
@@ -651,16 +654,22 @@ function uploadFile(finish=false) {
 			mime.value = response.type.mime_type;
 
 			file.value = undefined;
-			complete();
-			resolve();
+			resolve(complete());
 		}, false);
 
 		xhr.addEventListener("error", e => reject(errorHandler(e)), false);
 
 		const auth = globals.auth?.token;
-		xhr.open("POST", `${host}/v1/post/image`);
+		if (file.value.type.includes("image")) {
+			xhr.open("POST", `${host}/v1/post/image`);
+		}
+		else if (file.value.type.includes("video")) {
+			xhr.open("POST", `${host}/v1/post/video`);
+		}
+		else {
+			return reject(`file mime type unknown: ${file.value.type}`);
+		}
 		xhr.setRequestHeader("authorization", "bearer " + auth);
-
 		xhr.send(formdata);
 	});
 }
@@ -698,6 +707,7 @@ function saveData() {
 			privacy.value = update.value.privacy;
 		}
 
+		const aTags = new Set(activeTags.value);
 		const success = () => {
 			successes++;
 			if (successes >= requiredSuccesses) {
@@ -708,6 +718,7 @@ function saveData() {
 					time: 5,
 				});
 
+				savedTags.value = aTags;
 				if (publish) router.push("/p/" + postId.value);
 				resolve();
 			}
@@ -728,8 +739,6 @@ function saveData() {
 			}).then(success)
 			.catch(reject);
 		}
-
-		const aTags = new Set(activeTags.value);
 
 		let rTags: string[] = [];
 		savedTags.value.forEach(tag => {
@@ -777,8 +786,6 @@ function saveData() {
 			rTags,
 			savedTags: savedTags.value,
 		})));
-
-		savedTags.value = aTags;
 	});
 }
 
@@ -815,7 +822,7 @@ function postWatcher(value?: string) {
 			title.value       = update.value.title       = r.title;
 			privacy.value     = update.value.privacy     = r.privacy;
 			rating.value      = update.value.rating      = r.rating;
-			parent.value      = update.value.parent      = r.parent;
+			parent.value      = update.value.parent      = r.parent?.post_id ?? null;
 
 			if (r.media) {
 				uploadDone.value = true;
@@ -829,8 +836,14 @@ function postWatcher(value?: string) {
 				unset();
 			}
 
+			if (r.tags) {
+				savedTags.value = new Set(Object.values(r.tags).flat().map(x => x.tag)) as Set<string>;
+				colorizeTags(savedTags.value);
+				tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
+			}
+
 			globals.postCache = null;
-		}
+		};
 
 		if (globals.postCache?.post_id === postId.value) {
 			setPostFields(globals.postCache);
@@ -841,15 +854,6 @@ function postWatcher(value?: string) {
 			}).then(r => r.json())
 			.then(setPostFields);
 		}
-
-		khatch(`${host}/v1/tags/${postId.value}`, {
-			errorMessage: "Unable To Retrieve Post Tags!",
-		}).then(r => r.json())
-		.then(r => {
-			savedTags.value = new Set(Object.values(r).flat().map(x => (x as { tag: string }).tag)) as Set<string>;
-			colorizeTags(savedTags.value);
-			tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
-		});
 
 		khatch(`${host}/v1/tags/frequently_used`, {
 			errorMessage: "Unable To Retrieve Your Recommended Tags!",

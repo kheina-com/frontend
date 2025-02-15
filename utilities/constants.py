@@ -1,5 +1,6 @@
 from enum import Enum, unique
 from os import environ
+from typing import Literal
 
 
 @unique
@@ -23,10 +24,19 @@ class Environment(Enum) :
 
 
 environment: Environment = Environment[environ.get('ENVIRONMENT', 'LOCAL').lower()]
+cdn_host: Literal['https://cdn.fuzz.ly', 'http://localhost:9000/kheina-content']
+host: Literal['http://localhost:8000', 'https://api-dev.fuzz.ly', 'https://api.fuzz.ly']
 
-host: str = {
-	Environment.local: 'http://localhost:8000',
-	Environment.dev:   'https://api-dev.fuzz.ly',
-	Environment.prod:  'https://api.fuzz.ly',
-	Environment.test:  'http://localhost:8000',
-}[environment]
+
+match environment :
+	case Environment.prod :
+		host     = 'https://api.fuzz.ly'
+		cdn_host = 'https://cdn.fuzz.ly'
+
+	case Environment.dev :
+		host     = 'https://api-dev.fuzz.ly'
+		cdn_host = 'https://cdn.fuzz.ly'
+
+	case _ :
+		host     = 'http://localhost:8000'
+		cdn_host = 'http://localhost:9000/kheina-content'

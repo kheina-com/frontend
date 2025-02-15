@@ -46,15 +46,28 @@ interface Size {
 	height: number,
 }
 
+interface Thumbnail {
+	post_id: string,
+	bounds: number,
+	size: Size,
+	type: MediaType,
+	filename: string,
+	length: number,
+	url: string,
+}
+
 interface Media {
 	post_id: string,
+	updated: Date,
 	crc: number | null,
 	filename: string,
-	url: string,
 	type: MediaType,
 	size: Size,
 	thumbhash: string,
-	updated: Date,
+	length: number,
+	thumbnails: Thumbnail[],
+	flags: 'animated' | 'video' | 'audio'[],
+	url: string,
 }
 
 // this needs to match the fingerprint of the api:
@@ -65,15 +78,17 @@ interface Post {
 	user: User,
 	score: Score | null,
 	rating: "general" | "mature" | "explicit",
-	parent: string | null,
+	parent_id: string | null,
+	parent: Post | null | undefined,
 	privacy: "public" | "unlisted" | "private" | "unpublished" | "draft",
 	created: Date,
 	updated: Date,
 	media: Media | null,
 	blocked: boolean,
-	favorites?: number,
-	reposts?: number,
-	replies?: Post[],
+	favorites: number | null,
+	reposts: number | null,
+	tags: Tags | null,
+	replies: Post[] | null,
 }
 
 interface PostSet {

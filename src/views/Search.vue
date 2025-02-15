@@ -79,7 +79,6 @@ const tiles: Ref<boolean> = ref(globals.tiles);
 
 fetchPosts();
 
-
 function defaultSearch() {
 	switch (globals.rating) {
 	case Rating.mature :

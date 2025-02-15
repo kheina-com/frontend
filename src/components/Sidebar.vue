@@ -2,8 +2,8 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<div>
 		<h3>Tags</h3>
-		<ol v-if='tags'>
-			<li v-for='(value, name) in sortTagGroups(tags)'>
+		<ol v-if='post?.tags'>
+			<li v-for='(value, name) in sortTagGroups(post.tags)'>
 				<TagGroup :group='name' :tags='value'/>
 			</li>
 			<li class='rating'>
@@ -42,16 +42,15 @@ import { tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
 import CopyText from '@/components/CopyText.vue';
-import { ref, toRef, watch, type Ref } from 'vue';
+import { toRef, type Ref } from 'vue';
 
 const props = defineProps<{
 	post?:   Post,
-	tags?:   Tags,
 	scalar?: boolean,
 }>();
 
-// const scalar: Ref<boolean> = ref(props.scalar);
 const scalar: Ref<boolean> = toRef(props, "scalar");
+const post: Ref<Post | undefined> = toRef(props, "post");
 const emits = defineEmits(["update:scalar"]);
 function toggleScalar() {
 	// scalar.value = !scalar.value;

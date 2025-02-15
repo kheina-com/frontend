@@ -9,6 +9,7 @@ from utilities.constants import host
 from utilities import api_timeout, concise, demarkdown, header_card_summary, header_description, header_image, header_title
 
 from .models import Post, Privacy, UserPortable
+from .post import thumbnail_url
 
 
 class Set(BaseModel) :
@@ -63,8 +64,8 @@ async def setMetaTags(set_id: str) -> str :
 		header_card_summary,
 	]
 
-	if s.first and s.first.media :
-		headers.append(header_image.format(s.first.media.thumbnails['jpeg']))
+	if s.first and (thumbnail := thumbnail_url(s.first)) :
+		headers.append(header_image.format(thumbnail))
 
 	else :
 		headers.append(header_image.format(f'https://cdn.fuzz.ly/{s.owner.icon}/icons/{s.owner.handle}.jpg'))

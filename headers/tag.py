@@ -2,7 +2,7 @@ from html import escape
 from re import compile as re_compile
 
 from aiohttp import ClientResponseError, ClientTimeout, request
-from utilities.constants import host
+from utilities.constants import cdn_host, host
 
 from utilities import api_timeout, concise, default_image, demarkdown, header_card_summary, header_description, header_image, header_title
 
@@ -30,7 +30,7 @@ async def tagMetaTags(t: str) -> str :
 	if tag.owner :
 		return ''.join([
 			header_title.format(f'{tag.tag}, {tag.group.name} tag from {escape(demarkdown(tag.owner.name))} (@{tag.owner.handle}) | fuzz.ly' if tag.owner.name else f'{tag.tag}, {tag.group.name} tag from @{tag.owner.handle} | fuzz.ly'),
-			header_image.format(f'https://cdn.fuzz.ly/{tag.owner.icon}/icons/{tag.owner.handle}.jpg'),
+			header_image.format(f'{cdn_host}/{tag.owner.icon}/icons/{tag.owner.handle}.jpg'),
 			header_description.format(escape(concise(tag.description))) if tag.description else '',
 			header_card_summary,
 		])

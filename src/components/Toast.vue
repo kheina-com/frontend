@@ -15,8 +15,7 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import CopyText from '@/components/CopyText.vue';
 import store from '@/globals';
 const globals = store();

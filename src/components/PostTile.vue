@@ -3,15 +3,14 @@
 	<div :class='divClass' :title='title || postId || undefined'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='!unlink'/>
 		<div :to='`/p/${postId}`'  v-if='media || isLoading'>
-			<Thumbnail :post='postId' :size='isMobile ? 800 : 400' v-if='acceptedMature' :crc='media?.crc' :thumbhash='media?.thumbhash' :width='media?.size?.width' :height='media?.size?.height'/>
+			<Thumbnail :media='media' :size='isMobile ? 800 : 400' v-if='acceptedMature'/>
 			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${media?.size?.width}/${media?.size?.height}`' v-else>
 				this post is <b>{{rating}}</b>, click to show.
 			</button>
 		</div>
 		<div class='text' v-else>
 			<div class='parent' v-if='parent'>
-				<Loading span v-if='parentData === null'>this is an example title</Loading>
-				<Markdown :content='parentData?.title || parent' inline v-else/>
+				<Markdown :content='parent?.title || parent?.post_id' inline/>
 				<i class='material-icons'>reply</i>
 			</div>
 			<Loading span v-if='isLoading'>this is an example title</Loading>
@@ -38,7 +37,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { khatch } from '@/utilities';
 import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host, ratingMap } from '@/config/constants';
@@ -57,7 +56,8 @@ const props = withDefaults(defineProps<{
 	postId?:     string | null,
 	unlink?:     boolean,
 	nested?:     boolean,
-	parent?:     string | null,
+	parent_id?:  string | null,
+	parent?:     Post | null,
 	rating?:     "general" | "mature" | "explicit",
 
 	// post fields
@@ -69,15 +69,16 @@ const props = withDefaults(defineProps<{
 	created:     Date,
 	updated:     Date,
 	media:       Media | null,
+	tags?:       Tags | null,
 	blocked:     boolean,
-	favorites?:  number,
-	reposts?:    number,
+	favorites?:  number | null,
+	reposts?:    number | null,
 }>(), {
 	postId: null,
 	unlink: false,
 	nested: false,
+	parent_id: null,
 	parent: null,
-	media_type: null,
 	rating: "general",
 
 	// post fields
@@ -92,78 +93,36 @@ const props = withDefaults(defineProps<{
 	favorites: 0, // this value needs to be updated to null when api is updated
 	reposts: 0, // this value needs to be updated to null when api is updated
 	thumbhash: null,
+	tags: null,
 });
 
 const parentData: Ref<Post | null> = ref(null);
 const acceptedMature: Ref<boolean> = ref(ratingMap[globals.rating] >= ratingMap[props.rating]);
-
-onMounted(() => {
-	if (props.parent) {
-		khatch(`${host}/v1/post/${props.parent}`, {
-			method: "GET",
-			errorMessage: "Failed to retrieve post parent.",
-		}).then(r => r.json())
-		.then(r => parentData.value = r)
-		.catch(() => { });
-	}
-});
 
 const isLoading = computed(() => !props.postId);
 const divClass = computed(() => "post tile" + (isLoading.value ? " loading" : "") + (props.unlink ? "" : " link") + (props.nested ? " nested" : ""));
 // const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
 
 function nav() {
-	// this needs to match the fingerprint of the api:
-	/*{
-		"post_id": "string",
-		"title": "string",
-		"description": "string",
-		"user": {
-			"name": "string",
-			"handle": "string",
-			"privacy": "public",
-			"icon": "string",
-			"verified": "artist",
-			"following": true,
-		},
-		"score": {
-			"up": 0,
-			"down": 0,
-			"total": 0,
-			"user_vote" / "vote": 0,
-		},
-		"rating": "general",
-		"parent": "string",
-		"privacy": "public",
-		"created": "2022-12-08T17:45:00.119Z",
-		"updated": "2022-12-08T17:45:00.119Z",
-		"filename": "string",
-		"media_type": {
-			"file_type": "string",
-			"mime_type": "string",
-		},
-		"size": {
-			"width": 0,
-			"height": 0,
-		},
-		"thumbhash": "string",
-		"blocked": true,
-	}*/
+	if (!props.postId || !props.user || !props.created || !props.updated) return;
 	globals.postCache = {
-		post_id: props.postId as string,
-		title: props.title,
+		post_id:     props.postId,
+		title:       props.title,
 		description: props.description,
-		user: props.user,
-		score: props.score,
-		rating: props.rating,
-		parent: props.parent,
-		privacy: props.privacy,
-		created: props.created,
-		updated: props.updated,
-		media: props.media,
-		blocked: props.blocked,
-		// favorites: props.favorites,
-		// reposts: props.reposts,
+		user:        props.user,
+		score:       props.score,
+		rating:      props.rating,
+		parent_id:   props.parent_id,
+		parent:      props.parent,
+		privacy:     props.privacy,
+		created:     props.created,
+		updated:     props.updated,
+		media:       props.media,
+		tags:        props.tags,
+		favorites:   props.favorites,
+		reposts:     props.reposts,
+		replies:     null,
+		blocked:     props.blocked,
 	};
 	router.push("/p/" + props.postId);
 }
@@ -200,16 +159,6 @@ function followUser() {
 		}
 	});
 }
-watch(props, (value) => {
-	if (value.parent) {
-		khatch(`${host}/v1/posts/${value.parent}`, {
-			method: "GET",
-			errorMessage: "Failed to retrieve post parent.",
-		}).then(r => r.json())
-		.then(r => parentData.value = r)
-		.catch(() => { });
-	}
-});
 </script>
 <style scoped>
 .post {

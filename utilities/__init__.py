@@ -1,6 +1,5 @@
 from re import Match
 from re import compile as re_compile
-from typing import Optional
 
 
 header_title = '<meta property="og:title" content="{0}"><meta property="twitter:title" content="{0}"><title>{0}</title>'

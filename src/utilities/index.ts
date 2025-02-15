@@ -1,6 +1,7 @@
 import { apiErrorDescriptionToast, apiErrorMessageToast, authRegex } from '@/config/constants';
 import store, { type ToastOptions } from '@/globals';
 import { tagGroups } from '@/config/constants';
+import { useRoute, useRouter } from 'vue-router';
 
 export default null;
 
@@ -65,14 +66,8 @@ export function commafy(x: number): string { // from https://stackoverflow.com/a
 	return parts.join(".");
 }
 
-export function getMediaUrl(postId: string, revision: number, filename: string) {
-	if (revision) return `${cdnHost}/${postId}/${revision}/${encodeURIComponent(filename)}`;
-	return `${cdnHost}/${postId}/${encodeURIComponent(filename)}`;
-};
-
-export function getMediaThumbnailUrl(postId: string, revision: number, resolution: number = 800, extension: string = "webp") {
-	if (revision) return `${cdnHost}/${postId}/${revision}/thumbnails/${resolution}.${extension}`;
-	return `${cdnHost}/${postId}/thumbnails/${resolution}.${extension}`;
+export function getMediaThumbnailUrl(media: Media, resolution: number = 800, extension: string = "webp") {
+	return media.thumbnails.filter(x => x.bounds === resolution && x.type.file_type === extension)[0].url;
 };
 
 export function getEmojiUrl(emoji: Emoji): string {
@@ -175,7 +170,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 	if (error || response === null || response.status >= 400) {
 		if (handleError) {
 			if (error) {
-				console.log(error);
+				console.error(error);
 				if (error.toString() === "TypeError: NetworkError when attempting to fetch resource.") {
 					error = "An unexpected error occurred during an API call. (Are you connected to the internet?)";
 				}
@@ -204,6 +199,12 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 					description: r?.error ?? apiErrorDescriptionToast,
 					dump: r,
 				});
+				if (r?.code === "Unauthorized") {
+					// these funcs sometimes fail and idk why
+					const router = useRouter();
+					const route = useRoute();
+					router.push(`/a/login?path=${route.fullPath}`);
+				}
 			}
 			else {
 				createToast({

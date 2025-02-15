@@ -2,6 +2,9 @@
 	<div class='thumbnail loading wave'>
 		<div class='thumbhash loader'></div>
 		<img ref='media' :data-src='src' @load='loaded' @error='onError'>
+		<ul class='flags' v-if='props.media?.flags'>
+			<li class='flag' v-for='flag in props.media.flags'>{{flag}}</li>
+		</ul>
 	</div>
 </template>
 
@@ -13,22 +16,13 @@ import { thumbHashToDataURL } from 'thumbhash';
 import lightnoise from '$/lightnoise.png?url';
 
 const props = withDefaults(defineProps<{
-	post?:      string | null,
-	crc?:       number | null,
-	size?:      number,
-	width?:     number,
-	height?:    number,
-	maxWidth?:  number | null,
-	thumbhash?: string | null,
-	load?:      boolean,
+	media:     Media | null,
+	size?:     number,
+	maxWidth?: number | null,
+	load?:     boolean,
 }>(), {
-	post: null,
-	crc: null,
 	size: 400,
-	width: 0,
-	height: 0,
 	maxWidth: null,
-	thumbhash: null,
 	load: true,
 });
 
@@ -38,41 +32,42 @@ const isLoading: Ref<boolean> = ref(true);
 let webp: boolean = true;
 // let isError: boolean = false;
 
-const src = computed(() => props.post ? getMediaThumbnailUrl(props.post, props.crc ?? 0, props.size) : null);
+const src = computed(() => props.media ? getMediaThumbnailUrl(props.media, props.size) : null);
 
 onMounted(() => {
 	if (props.load) lazyObserver.observe(media.value);
+	loadThumbnail();
+});
 
+function loadThumbnail() {
 	const parentStyle = getComputedStyle((media.value.parentElement as HTMLDivElement));
 	const maxWidth = props.maxWidth ?? (parentStyle.maxWidth.endsWith('%') ? (
 		(((media.value.parentElement as HTMLDivElement).parentElement as HTMLElement).parentElement as HTMLElement).getBoundingClientRect().width - 50 * (parseFloat(parentStyle.maxWidth) / 100)
 		) : parseFloat(parentStyle.maxWidth));
 
-	if (!props.width || !props.height) {
+	if (!props.media) {
 		media.value.style.cssText = `width: ${maxWidth / (Number(!isMobile) + 1)}px; height: ${parentStyle.maxHeight}`;
 		return;
 	}
 
 	const maxHeight = parseFloat(parentStyle.maxHeight);
-	// console.log("maxWidth:", maxWidth, "maxHeight:", maxHeight);
-
 	const boundingBox = maxWidth / maxHeight;
-	const aspectRatio = props.width / props.height;
+	const aspectRatio = props.media.size.width / props.media.size.height;
 
 	if (aspectRatio > boundingBox) {
 		// image is wider
 
-		const ratio = maxWidth / props.width;
-		media.value.style.cssText = `width: ${maxWidth}px; height: ${Math.round(props.height * ratio)}px`;
+		const ratio = maxWidth / props.media.size.width;
+		media.value.style.cssText = `width: ${maxWidth}px; height: ${Math.round(props.media.size.height * ratio)}px`;
 	}
 	else {
 		// image is taller
 
-		const ratio = maxHeight / props.height;
-		media.value.style.cssText = `width: ${Math.round(props.width * ratio)}px; height: ${parentStyle.maxHeight}`;
+		const ratio = maxHeight / props.media.size.height;
+		media.value.style.cssText = `width: ${Math.round(props.media.size.width * ratio)}px; height: ${parentStyle.maxHeight}`;
 	}
-	th(props.thumbhash);
-});
+	th(props.media.thumbhash);
+}
 
 function loaded(event: Event) {
 	if (!media.value) return;
@@ -84,11 +79,11 @@ function loaded(event: Event) {
 
 function onError() {
 	// console.log(event);
-	if (!media.value) return;
+	if (!media.value || !props.media) return;
 
-	if (props.post && webp) {
+	if (webp) {
 		webp = false;
-		media.value.src = getMediaThumbnailUrl(props.post, props.crc ?? 0, 1200, "jpg");
+		media.value.src = getMediaThumbnailUrl(props.media, props.size);
 	}
 	else {
 		isLoading.value = false;
@@ -129,7 +124,7 @@ function th(value: string | null) {
 	}
 }
 
-watch(() => props.post, (value: string | null) => {
+watch(() => props.media, (value: Media | null) => {
 	// reset state
 	isLoading.value = true;
 	(media.value.parentElement as HTMLDivElement).classList.add("loading");
@@ -137,12 +132,10 @@ watch(() => props.post, (value: string | null) => {
 	// isError = false;
 
 	if (!value) return;
-	if (media.value.dataset.intersected) {
-		media.value.src = getMediaThumbnailUrl(value, props.size);
-	}
+	loadThumbnail();
+	if (media.value.dataset.intersected) media.value.src = media.value.dataset.src || "";
 });
 
-watch(() => props.thumbhash, th);
 watch(() => props.load, (value: boolean) => {
 	if (value) lazyObserver.observe(media.value);
 });
@@ -172,6 +165,25 @@ img {
 	/* width: 100%;
 	height: 100%; */
 }
+
+.flags {
+	position: absolute;
+	list-style: none;
+	top: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+}
+.flag {
+	background: var(--bg2color);
+	margin: 0.5em;
+	padding: 0.25em 0.5em;
+	border-radius: var(--border-radius);
+	font-size: 0.8em;
+}
+/* 
+really cool, but too heavy.
+TODO: probably still need another anim, but not sure what
 .loading.th > div {
 	animation: wave 5s infinite linear forwards;
 	-webkit-animation: wave 5s infinite linear forwards;
@@ -182,5 +194,5 @@ img {
 	width: 100%;
 	position: absolute;
 	mix-blend-mode: color-dodge;
-}
+} */
 </style>

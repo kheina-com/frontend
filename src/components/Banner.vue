@@ -24,7 +24,7 @@
 				</Loading>
 			</div>
 			<div class='profile' v-else>
-				<router-link :to='`/a/login?path=${routePath}`' class='interactable login'>Login</router-link>
+				<router-link :to='loginPath' class='interactable login'>Login</router-link>
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
 		</div>
@@ -146,7 +146,7 @@
 					</li>
 					<li v-show='!globals.auth'>
 						<span @click='closeMenu'>
-							<router-link :to='`/a/login?path=${routePath}`'><i class='material-icons-round'>login</i>Login</router-link>
+							<router-link :to='loginPath'><i class='material-icons-round'>login</i>Login</router-link>
 						</span>
 					</li>
 					<li>
@@ -231,7 +231,6 @@ import ThemeSelector from '@/components/ThemeSelector.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import store, { Rating } from '@/globals';
 
-
 const banner  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const globals = store();
 const props   = defineProps({
@@ -243,29 +242,20 @@ const props   = defineProps({
 const route     = useRoute();
 const router    = useRouter();
 const routePath = computed(() => encodeURIComponent(route.fullPath));
+const loginPath = computed(() => "/a/login?path=" + routePath.value);
 const commit    = __SHORT_COMMIT_HASH__;
 
-const message:        Ref<string | null> = ref(null);
-const editMessage:    Ref<boolean>       = ref(false);
-const menuOpen:       Ref<boolean>       = ref(false);
-const isIconLoading:  Ref<boolean>       = ref(true);
-const searchValue:    Ref<string | null> = ref(null);
+const message:       Ref<string | null> = ref(null);
+const editMessage:   Ref<boolean>       = ref(false);
+const menuOpen:      Ref<boolean>       = ref(false);
+const isIconLoading: Ref<boolean>       = ref(true);
+const searchValue:   Ref<string | null> = ref(null);
 
-onMounted(() => {
-	updateLoop();
-	watch(
-		() => route.path,
-		setQuery,
-	);
-	watch(
-		() => globals.user,
-		setUser,
-	)
-});
-
+onMounted(updateLoop);
 
 function navCreate() {
-	router.push("/create");
+	if (globals.auth) router.push("/create");
+	else router.push(loginPath.value);
 	document.dispatchEvent(new CustomEvent("router-event"));
 }
 
@@ -291,58 +281,56 @@ function updateLoop() {
 }
 
 function setQuery() {
-	if (route.path.match(/^\/[qt]\//))
-	{ searchValue.value = decodeURIComponent(route.path.substring(3)); }
-	else if (route.path == '/')
-	{ searchValue.value = null; }
+	if (route.path.match(/^\/[qt]\//)) searchValue.value = decodeURIComponent(route.path.substring(3));
+	else if (route.path == "/") searchValue.value = null;
 }
 
 function setUser(user: any) {
 	// console.log("user:", user);
 	switch (user?.verified) {
-		case 'admin':
+		case "admin":
 			return;
 	}
-	// <i class='kheina-icons' title='You are an admin' v-if='globals.auth?.isAdmin'>sword</i>
-	// <i class='material-icons' title='You are a moderator' v-else-if='globals.auth?.isMod'>verified_user</i>
-	// <i class='material-icons' :title='`You are a verified ${globals.user.verified}`' v-else-if='globals.user?.verified'>verified</i>
+	// <i class="kheina-icons" title="You are an admin" v-if="globals.auth?.isAdmin">sword</i>
+	// <i class="material-icons" title="You are a moderator" v-else-if="globals.auth?.isMod">verified_user</i>
+	// <i class="material-icons" :title="`You are a verified ${globals.user.verified}`" v-else-if="globals.user?.verified">verified</i>
 }
 
 function runSearchQuery() {
 	if (!searchValue) {
-		router.push('/');
+		router.push("/");
 		return;
 	}
 
 	const query = searchValue.value?.trim();
 
 	if (!query) {
-		router.push('/');
+		router.push("/");
 		return;
 	}
 
 	if (query.match(/^set:[A-Za-z0-9_-]{7}$/)) {
-		router.push('/s/' + query.substring(4));
+		router.push("/s/" + query.substring(4));
 		return;
 	}
 
-	let route = '/t/';
-	if (query in Rating || query.startsWith('@') || query.startsWith('-') || query.startsWith('sort:') || query.includes(' ')) {
-		route = '/q/';
+	let route = "/t/";
+	if (query in Rating || query.startsWith("@") || query.startsWith("-") || query.startsWith("sort:") || query.includes(" ")) {
+		route = "/q/";
 	}
 
 	router.push(route + encodeURIComponent(query));
 }
 
 function signOut() {
-	khatch(host + '/v1/account/logout', {
-		method: 'DELETE',
-		errorMessage: 'Could not perform logout!',
+	khatch(host + "/v1/account/logout", {
+		method: "DELETE",
+		errorMessage: "Could not perform logout!",
 		errorHandlers: {
 			401: () => { },
 		},
 	}).then(() => {
-		deleteCookie('kh-auth');
+		deleteCookie("kh-auth");
 		document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
 		globals.setAuth(null);
 	});
@@ -350,15 +338,13 @@ function signOut() {
 
 function toggleMenu() {
 	menuOpen.value = !menuOpen.value;
-	if (menuOpen.value)
-	{ document.body.classList.add('menu-open'); }
-	else
-	{ document.body.classList.remove('menu-open'); }
+	if (menuOpen.value) document.body.classList.add("menu-open");
+	else document.body.classList.remove("menu-open");
 }
 
 function closeMenu() {
 	menuOpen.value = false;
-	document.body.classList.remove('menu-open');
+	document.body.classList.remove("menu-open");
 }
 
 function toggleEditMessage() {
@@ -368,22 +354,22 @@ function toggleEditMessage() {
 
 function updateMessage() {
 	khatch(`${host}/v1/config`, {
-		method: 'PATCH',
+		method: "PATCH",
 		handleError: true,
 		body: {
-			config: 'banner',
+			config: "banner",
 			value: {
 				banner: toRaw(message.value),
 			},
 		},
-	})
-	.then(response => {
+	}).then(response => {
 		if (response.status < 300) {
 			editMessage.value = false;
 			setTimeout(props.onResize, 0);
 		}
-		else
-		{ console.error(response); }
+		else {
+			console.error(response);
+		}
 	});
 }
 
@@ -391,8 +377,10 @@ function removeMessage() {
 	message.value = null;
 	updateMessage();
 }
-</script>
 
+watch(() => route.path, setQuery);
+watch(() => globals.user, setUser);
+</script>
 <style scoped>
 .menu {
 	font-size: 1em;

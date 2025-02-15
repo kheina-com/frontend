@@ -7,9 +7,11 @@ from pydantic import BaseModel
 
 @unique
 class Privacy(Enum) :
-	public   = 'public'
-	unlisted = 'unlisted'
-	private  = 'private'
+	public      = 'public'
+	unlisted    = 'unlisted'
+	private     = 'private'
+	unpublished = 'unpublished'
+	draft       = 'draft'
 
 
 @unique
@@ -79,20 +81,36 @@ class PostSize(BaseModel) :
 	height: int
 
 
+@unique
+class MediaFlag(Enum) :
+	animated = 'animated'
+	video    = 'video'
+
+
+class Thumbnail(BaseModel) :
+	post_id:  str
+	bounds:   int
+	size:     PostSize
+	type:     MediaType
+	filename: str
+	length:   int
+
+
 class Media(BaseModel) :
-	post_id:   str
-	updated:   datetime
-	crc:       Optional[int]
-	filename:  str
-	type:      MediaType
-	size:      PostSize
-	thumbhash: str
-	length:    int
-	flags:     list[str] = []
+
+	post_id:    str
+	updated:    datetime
+	crc:        Optional[int]
+	filename:   str
+	type:       MediaType
+	size:       PostSize
+	thumbhash:  str
+	length:     int
+	thumbnails: list[Thumbnail]
+	flags:      list[MediaFlag] = []
 
 	# computed
-	url:        str            = ""
-	thumbnails: dict[str, str] = { }
+	url: str = ''
 
 
 class Post(BaseModel) :
@@ -107,7 +125,9 @@ class Post(BaseModel) :
 	created:     datetime
 	updated:     datetime
 	media:       Optional[Media]
+	tags:        Optional[TagGroups]
 	blocked:     bool
+	replies:     Optional[list['Post']]
 
 
 @unique

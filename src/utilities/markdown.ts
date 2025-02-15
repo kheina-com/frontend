@@ -1,10 +1,9 @@
 import { getMediaThumbnailUrl, getEmojiUrl, getIconUrl, khatch } from '@/utilities';
 import { GetEmoji } from '@/utilities/emoji';
-import { host, apiErrorDescriptionToast, apiErrorMessageToast, environment, iconShortcode } from '@/config/constants';
+import { host, environment, iconShortcode } from '@/config/constants';
 import { type Tokens, type TokenizerAndRendererExtension } from 'marked';
 import defaultUserIcon from '$/default-icon.png?url';
 import defaultEmoji from '$/default-emoji.png?url';
-import store from '@/globals';
 import router from '@/router';
 
 // @ts-format-ignore-region
@@ -118,7 +117,7 @@ const userLinks: { [k: string]: [string | { (m: string): string }, string | null
 	hl: ["https://hipolink.me/",              "hipolink"],
 	da: ["https://www.deviantart.com/",       "deviantart"],
 	ib: ["https://inkbunny.net/",             "inkbunny"],
-	sf: [m => `https://${m}.sofurry.com/`,    "sofurry"],
+	sf: [m => `https://${m}.sofurry.com`,     "sofurry"],
 	s:  ["https://steamcommunity.com/id/",    "steam"],
 };
 // @ts-format-ignore-endregion
@@ -201,42 +200,22 @@ const mdMakeRequest = (url: string, silent = false) => {
 			return resolve(mdRequestCache[url]);
 		}
 
-		khatch(url).then(response => {
+		khatch(url, {
+			handleError: true,
+		}).then(response => {
 			if (response.status === 204) {
 				return resolve();
 			}
 
 			response.json().then((r: any) => {
-				if (response.status < 300) {
-					// description exists in a lot of responses, and is almost always the biggest one
-					// delete it just in case it exists to avoid taking up too much storage
-					if (r.hasOwnProperty("description")) delete r.description;
-					mdRequestCache[url] = r;
-					return resolve(r);
-				}
-				else if (silent) { }
-				else if (response.status < 500) {
-					store().createToast({
-						title: apiErrorMessageToast,
-						description: r?.error,
-					});
-				}
-				else {
-					store().createToast({
-						title: apiErrorMessageToast,
-						description: apiErrorDescriptionToast,
-						dump: r,
-					});
-				}
-				mdRequestCache[url] = null;
-				resolve();
+				// description exists in a lot of responses, and is almost always the biggest one
+				// delete it just in case it exists to avoid taking up too much storage
+				if (r.hasOwnProperty("description")) delete r.description;
+				mdRequestCache[url] = r;
+				return resolve(r);
 			});
-		}).catch(error => {
-			console.error(error);
-			store().createToast({
-				title: apiErrorMessageToast,
-				description: error,
-			});
+		}).catch(() => {
+			mdRequestCache[url] = undefined;
 			resolve();
 		});
 	});
@@ -504,7 +483,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="@${token.username}"><span class="profile-user-icon loading wave"/></a>`;
 			}
 			else {
-				return `<a href="${htmlEscape(token.href)}" id="${id}" title="${token.title}" class="handle" target="_blank">${emoji(token.icon)}${token.text}</a>`;
+				return `<a href="${htmlEscape(token.href)}" title="${token.title}" class="handle" target="_blank">${emoji(token.icon)}${token.text}</a>`;
 			}
 		},
 	},
@@ -584,7 +563,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 
 				if (r.media) {
 					const img = document.createElement("img") as HTMLImageElement;
-					img.src = getMediaThumbnailUrl(r.post_id, r.media.crc || 0);
+					img.src = getMediaThumbnailUrl(r.media);
 					img.alt = title;
 					img.title = title;
 					a.appendChild(img);

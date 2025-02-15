@@ -1,9 +1,9 @@
 <template>
 	<form>
-		<input @input='fileAdded' :id='props.id' type='file' size='50' autocomplete='off'>
+		<input @input='fileAdded' :id='id' type='file' size='50' autocomplete='off'>
 		<label @drop.prevent='onDrop' @dragenter.prevent @dragover.prevent @click.right.stop='rightClick' :for='id' class='interactable upload'>
-			<slot v-if='$slots.default && props.showSlot'/>
-			<Media v-else-if='file' :mime='file.type' :src='src' v-model:width='width' v-model:height='height' type='block'/>
+			<slot v-if='$slots.default && showSlot'/>
+			<Media v-else-if='file' :mime='file.type' :src='src' v-model:width='width' v-model:height='height' :controls='false' type='block' autoplay/>
 			<div v-else>
 				<i class='material-icons'>upload_file</i>
 				{{isMobile ? 'Tap' : 'Click or Drag'}} to Upload File
@@ -11,8 +11,7 @@
 		</label>
 	</form>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { isMobile } from '@/config/constants';
 import Media from '@/components/Media.vue';
@@ -39,13 +38,8 @@ const emits = defineEmits([
 	"update:height",
 ]);
 
-onMounted(() => {
-	document.addEventListener("paste", listener);
-});
-
-onUnmounted(() => {
-	document.removeEventListener("paste", listener);
-});
+onMounted(() => document.addEventListener("paste", listener));
+onUnmounted(() => document.removeEventListener("paste", listener));
 
 function listener(e: ClipboardEvent) {
 	if (!e.clipboardData) return;

@@ -29,7 +29,6 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
 <script setup lang='ts'>
 import { onUnmounted, ref, type Ref } from 'vue';
 import store from '@/globals';
@@ -81,7 +80,20 @@ function sendLogin() {
 					dump: r,
 				}));
 			},
-			422: () => otpRequired.value = true,
+			422: r => {
+				r.json().then(r => {
+					if (!r.detail) return otpRequired.value = true;
+					let desc: string[] = [];
+					r.detail.forEach((d: { loc: string[], type: string, msg: string }) => {
+						const loc = d.loc.slice(1).join(".");
+						if (d.type === "type_error.none.not_allowed") return desc.push(loc + " empty");
+					});
+					createToast({
+						title: "Invalid Fields!",
+						description: desc.join(", "),
+					});
+				});
+			},
 		},
 	}).then(r => r.json())
 	.then(r => {

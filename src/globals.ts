@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { authCookie, deleteCookie, getMediaUrl, khatch, setCookie } from '@/utilities';
+import { authCookie, deleteCookie, khatch, setCookie } from '@/utilities';
 import { host, environment } from '@/config/constants';
 
 export interface ToastOptions {
@@ -12,6 +12,7 @@ export interface ToastOptions {
 }
 
 interface Toast {
+	id: number,
 	title?: string,
 	description?: string,
 	dump?: any,
@@ -76,6 +77,7 @@ export default defineStore("globals", {
 				clearTimeout(timeout);
 			};
 			this.toasts[id] = {
+				id,
 				title: options?.title,
 				description: options?.description,
 				dump: options?.dump,
@@ -93,8 +95,10 @@ export default defineStore("globals", {
 			if (config.wallpaper) {
 				khatch(`${host}/v1/post/${config.wallpaper}`, {
 					errorMessage: 'Failed to Retrieve User Wallpaper!',
-				}).then(r => r.json()).then(r => {
-					document.documentElement.style.backgroundImage = `url(${getMediaUrl(r.post_id, r.revision, r.filename)})`;
+				}).then(r => r.json())
+				.then((r: Post) => {
+					if (!r.media) return;
+					document.documentElement.style.backgroundImage = `url(${r.media.url})`;
 					document.documentElement.style.backgroundAttachment = 'fixed';
 					document.documentElement.style.backgroundPosition = 'top center';
 					document.documentElement.style.backgroundRepeat = 'no-repeat';

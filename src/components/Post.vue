@@ -41,7 +41,7 @@
 			</div> -->
 			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 			<div class='bottom-margin thumbnail' v-if='media && !isLoading'>
-				<Thumbnail :post='postId' :size='isMobile ? 1200 : 800' :load='acceptedMature' :crc='media.crc' :thumbhash='media.thumbhash' :width='media.size?.width' :height='media.size?.height'/>
+				<Thumbnail :media='media' :size='isMobile ? 1200 : 800' v-if='acceptedMature'/>
 				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-show='!acceptedMature'>
 					this post contains <b>{{rating}}</b> content, click here to show it anyway.
 				</button>
@@ -102,7 +102,8 @@ const props = withDefaults(defineProps<{
 	labels?:  boolean,
 	concise?: boolean,
 	nested?:  boolean,
-	parent?:  string | null,
+	parent_id?:  string | null,
+	parent?:  Post | null,
 	reply?:   boolean,
 
 	// loadTrigger: {
@@ -119,14 +120,14 @@ const props = withDefaults(defineProps<{
 	title?:          string | null,
 	description?:    string | null,
 	privacy?:        "public" | "unlisted" | "private" | "unpublished" | "draft",
-	tags?:           string[] | null,
+	tags?:           Tags | null,
 	userIsUploader?: boolean,
 	created?:        Date,
 	updated?:        Date,
 	media?:          Media | null,
 	blocked?:        boolean,
-	favorites?:      number,
-	reposts?:        number,
+	favorites?:      number | null,
+	reposts?:        number | null,
 	hideButtons?:    boolean,
 	to?:             string | null,
 }>(), {
@@ -135,6 +136,7 @@ const props = withDefaults(defineProps<{
 	labels: false,
 	concise: true,
 	nested: false,
+	parent_id: null,
 	parent: null,
 	reply: false,
 
@@ -196,20 +198,23 @@ function nav() {
 	if (!props.postId || !props.user || !props.created || !props.updated) return;
 
 	globals.postCache = {
-		post_id: props.postId,
-		title: props.title,
+		post_id:     props.postId,
+		title:       props.title,
 		description: props.description,
-		user:    props.user,
-		score:   props.score ?? null,
-		rating:  props.rating,
-		parent:  props.parent,
-		privacy: props.privacy,
-		created: props.created,
-		updated: props.updated,
-		media:   props.media ?? null,
-		blocked: props.blocked,
-		// favorites: props.favorites,
-		// reposts: props.reposts,
+		user:        props.user,
+		score:       props.score ?? null,
+		rating:      props.rating,
+		parent_id:      props.parent_id,
+		parent:      props.parent,
+		privacy:     props.privacy,
+		created:     props.created,
+		updated:     props.updated,
+		media:       props.media,
+		tags:        props.tags,
+		replies:     null,
+		reposts:     props.reposts,
+		favorites:   props.favorites,
+		blocked:     props.blocked,
 	};
 	router.push(target.value);
 }
@@ -219,8 +224,7 @@ function followUser() {
 
 	khatch(`${host}/v1/user/${props.user.handle}/follow`, {
 		method: props.user.following ? "DELETE" : "PUT",
-	})
-	.then(response => {
+	}).then(response => {
 		if (!props.user) return;
 		if (response.status < 300) {
 			props.user.following = !props.user.following;

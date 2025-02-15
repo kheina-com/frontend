@@ -80,8 +80,7 @@ However, this does not include the [additional features](#additional-features) b
 |  \`**_bold+italic_**\` |  **_bold+italic_** |
 |  \`**~bold+strike~**\` |  **~bold+strike~** |
 |  \`*~italic+strike~*\` |  *~italic+strike~* |
-| \`*~__everything__~*\` | *~__everything__~* |
-
+| \`~_**everything**_~\` | ~_**everything**_~ |
 
 ## Link Examples
 |          Markdown           |         Rendered          |

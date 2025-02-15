@@ -291,11 +291,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
+import { computed, onMounted, ref, toRaw, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { getBannerUrl, getMediaUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
+import { getBannerUrl, khatch, saveToHistory, setTitle, tagSplit } from '@/utilities';
 import { demarkdown, emoji } from '@/utilities/markdown';
 import { isMobile, host, tabs } from '@/config/constants';
 import store from '@/globals';
@@ -749,8 +749,9 @@ watch(uploadPostId, (value: string | null) => {
 	khatch(`${host}/v1/post/${value}`, {
 		errorMessage: "Failed to fetch post for profile.",
 	}).then(r => r.json())
-	.then(r => {
-		cropperImage.value = getMediaUrl(r.post_id, r.revision, r.filename);
+	.then((r: Post) => {
+		if (!r.media) return;
+		cropperImage.value = r.media.url;
 	});
 });
 </script>

@@ -1,15 +1,38 @@
-from typing import Dict
+from urllib.parse import urlparse
+
+from utilities.constants import Environment, cdn_host, environment, host
 
 
-Headers: Dict[str, str] = {
-	'content-security-policy': "default-src 'none';"
-		"script-src 'self';"
-		"font-src 'self';"
-		"connect-src 'self' *.fuzz.ly api.pwnedpasswords.com;"
-		"img-src 'self' cdn.fuzz.ly blob: data:;"  # blob: is required for uploader and posts, data: is used for thumbhashes
-		"style-src 'self' *.fuzz.ly 'unsafe-inline';"
-		"media-src 'self' cdn.fuzz.ly blob:;"
-		"manifest-src 'self';"
-		"base-uri 'self';"
-		"frame-ancestors 'none'",
-}
+Headers: dict[str, str]
+cdn:    str = urlparse(cdn_host).netloc
+origin: str = urlparse(host).netloc
+
+
+match environment :
+	case Environment.prod :
+		Headers = {
+			'content-security-policy': "default-src 'none';"
+				"script-src 'self';"
+				"font-src 'self';"
+				f"connect-src 'self' {cdn} {origin} api.pwnedpasswords.com;"
+				f"img-src 'self' {cdn} blob: data:;"  # blob: is required for uploader and posts, data: is used for thumbhashes
+				f"style-src 'self' {origin} 'unsafe-inline';"
+				f"media-src 'self' {cdn} blob:;"
+				"manifest-src 'self';"
+				"base-uri 'self';"
+				"frame-ancestors 'none'",
+		}
+
+	case _ :
+		Headers = {
+			'content-security-policy': "default-src 'none';"
+				"script-src 'self';"
+				"font-src 'self';"
+				f"connect-src 'self' {cdn} {origin} api.pwnedpasswords.com;"
+				f"img-src 'self' {cdn} blob: data:;"
+				f"style-src 'self' {origin} 'unsafe-inline';"
+				f"media-src 'self' {cdn} blob:;"
+				"manifest-src 'self';"
+				"base-uri 'self';"
+				"frame-ancestors 'none'",
+		}

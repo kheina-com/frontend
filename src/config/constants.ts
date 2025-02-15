@@ -3,20 +3,20 @@ export default 1576242000 * 1000;
 let env = null;
 
 switch (window.location.hostname.toLowerCase()) {
-	case "kheina.com" :
-	case "fuzz.ly" :
-		env = "prod";
-		break;
+case "kheina.com":
+case "fuzz.ly":
+	env = "prod";
+	break;
 
-	case "dev.kheina.com" :
-	case "dev.fuzz.ly" :
-		env = "dev";
-		break;
+case "dev.kheina.com":
+case "dev.fuzz.ly":
+	env = "dev";
+	break;
 
-	case "localhost" :
-	case "127.0.0.1" :
-		env = "local";
-		break;
+case "localhost":
+case "127.0.0.1":
+	env = "local";
+	break;
 }
 
 export const environment = env;
@@ -25,20 +25,20 @@ export const environment = env;
 let apiHost;
 let cdn;
 switch (environment) {
-	case "prod":
-		apiHost = "https://api.fuzz.ly";
-		cdn = "https://cdn.fuzz.ly";
-		break;
+case "prod":
+	apiHost = "https://api.fuzz.ly";
+	cdn = "https://cdn.fuzz.ly";
+	break;
 
-	case "dev":
-		apiHost = "https://api-dev.fuzz.ly";
-		cdn = "https://cdn.fuzz.ly";
-		break;
+case "dev":
+	apiHost = "https://api-dev.fuzz.ly";
+	cdn = "https://cdn.fuzz.ly";
+	break;
 
-	default:
-		apiHost = "http://localhost:8000";
-		cdn = "http://localhost:9000/kheina-content";
-		break;
+default:
+	apiHost = "http://localhost:8000";
+	cdn = "http://localhost:9000/kheina-content";
+	break;
 }
 export const host = apiHost;
 export const cdnHost = cdn;
@@ -55,7 +55,7 @@ export const apiErrorMessageToast = "An error occurred during an API call";
 
 export const apiErrorDescriptionToast = "If you submit a bug report, please include the data below.";
 
-export const tagGroups: ("artist" | "subject" | "species" | "gender" | "misc" | "rating")[] = ["artist", "subject", "species", "gender", "misc", "rating"];
+export const tagGroups: ("artist" | "subject" | "species" | "gender" | "misc" | "system" | "rating")[] = ["artist", "subject", "species", "gender", "misc", "system", "rating"];
 
 export const routerMetaTag = "data-v-router";
 
@@ -63,8 +63,8 @@ export const tabs: Set<string | void> = new Set(["posts", "sets", "tags", "favs"
 
 export const iconShortcode = "icon";
 
-export const ratingMap: { [k: string]: number } = {
-	"general":  0,
-	"mature":   1,
+export const ratingMap: { [k: string]: number; } = {
+	"general": 0,
+	"mature": 1,
 	"explicit": 2,
 };

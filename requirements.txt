@@ -1,7 +1,7 @@
 aiohttp>=3.7.4
 async-cache>=1.1.1
-fastapi~=0.111.0
-pydantic~=1.10.17
-pydantic_core~=2.18.4
+fastapi[standard]~=0.115.6
+pydantic~=1.10.19
+pydantic_core~=2.27.2
 uvicorn>=0.11.6
 gunicorn>=20.1.0

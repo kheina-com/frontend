@@ -14,7 +14,7 @@ import { ref } from 'vue';
 
 const props = withDefaults(defineProps<{
 	postId?: string | null,
-	count?: number,
+	count?: number | null,
 }>(), {
 	count: 0,
 });
@@ -23,6 +23,7 @@ const emits = defineEmits(["update:count"]);
 const globals = store();
 
 function fav() {
+	if (count.value === null) return;
 	emits("update:count", ++count.value);
 	globals.createToast({
 		title: "This function does not exist yet",

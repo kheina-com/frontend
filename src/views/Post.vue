@@ -1,11 +1,11 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<div v-if='parent' class='parent'>
-		<Post :postId='parent?.post_id' v-bind='parent' nested labels/>
+	<div v-if='post?.parent' class='parent'>
+		<Post :postId='post?.parent?.post_id' v-bind='post?.parent' nested labels/>
 	</div>
 	<div class='container' v-if='!isMobile'>
-		<Sidebar :tags='tags' :post='post' v-model:scalar='scalar' class='sidebar'/>
+		<Sidebar :post='post' v-model:scalar='scalar' class='sidebar'/>
 		<div class='content'>
 			<div ref='media' class='media-container' v-show='post'>
 				<Media class='media' v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
@@ -14,7 +14,7 @@
 						<a class='disabled'><i class='material-icons'>first_page</i></a>
 						<router-link v-for='(p, index) in set.neighbors.before' :to='`/p/${p.post_id}`' :title='p.title || `page ${set.neighbors.index - index - 1}`'><span v-if='index'>{{ set.neighbors.index - index - 1 }}</span><i class='material-icons' v-else>navigate_before</i></router-link>
 					</p>
-					<router-link :to='`/s/${set.set_id}`' :title='`${set.title} post ${set.neighbors.index} of ${set.count}`'>{{set.title}}</router-link>
+					<router-link :to='`/s/${set.set_id}`' :title='`${set.title} post ${set.neighbors.index + 1} of ${set.count}`'>{{set.title}}</router-link>
 					<p>
 						<router-link v-for='(p, index) in set.neighbors.after' :to='`/p/${p.post_id}`' :title='p.title || `page ${set.neighbors.index + index + 1}`'><span v-if='index'>{{ set.neighbors.index + index + 1 }}</span><i class='material-icons' v-else>navigate_next</i></router-link>
 						<a class='disabled'><i class='material-icons'>last_page</i></a>
@@ -111,7 +111,7 @@
 			</div>
 		</div>
 		<div class='container'>
-			<Sidebar :tags='tags' :post='post' :scalar='scalar' class='sidebar'/>
+			<Sidebar :post='post' v-model:scalar='scalar' class='sidebar'/>
 			<div class='main'>
 				<main>
 					<div class='post-header'>
@@ -197,7 +197,7 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch, type Ref } from 'vue';
 import store from '@/globals';
-import { khatch, getMediaUrl, setTitle, createToast } from '@/utilities';
+import { khatch, setTitle, createToast } from '@/utilities';
 import { demarkdown } from '@/utilities/markdown';
 import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host } from '@/config/constants';
 import ReportButton from '@/components/ReportButton.vue';
@@ -227,11 +227,9 @@ const unpublishedPrivacy: Set<string | undefined> = new Set(["unpublished", "dra
 
 let editing: boolean = false;  // this is currently unused, if it becomes used, update it to a ref
 const post: Ref<Post | undefined> = ref();
-const tags: Ref<Tags | undefined> = ref();
 const writeComment: Ref<boolean> = ref(false);
 const replies: Ref<Post[] | null> = ref(null);
 const newComment: Ref<string | null> = ref(null);
-const parent: Ref<Post | undefined | null> = ref();
 const width: Ref<number | undefined> = ref();
 const height: Ref<number | undefined> = ref();
 const sets: Ref<PostSet[] | null> = ref(null);
@@ -239,22 +237,12 @@ const commentSort: Ref<string> = ref("best");
 const scalar: Ref<boolean | undefined> = ref();
 const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
-khatch(`${host}/v1/tags/${props.postId}`, {
-	errorMessage: "Could not retrieve post tags!",
-}).then(r => r.json())
-.then(r => {
-	tags.value = r;
-	if (post.value) setPageTitle();
-});
-
 khatch(`${host}/v1/sets/post/${props.postId}`, {
 	errorMessage: "Could not retrieve post sets!",
 }).then(r => r.json())
 .then(r => {
 	sets.value = r;
 });
-
-fetchComments();
 
 if (globals.postCache?.post_id === props.postId) {
 	onMounted(setLeft);
@@ -264,31 +252,21 @@ if (globals.postCache?.post_id === props.postId) {
 	post.value.reposts = 0;
 	width.value = post.value?.media?.size?.width;
 	height.value = post.value?.media?.size?.height;
-	if (post.value.parent) {
-		parent.value = null;
-		fetchParent(post.value.parent);
-	}
 }
-else {
-	// NOTE: we may actually want to do this anyway, just to make sure the post is up to date
-	khatch(`${host}/v1/post/${props.postId}`, {
-		errorMessage: "Could not retrieve post!",
-	}).then(r => r.json())
-	.then((r: Post) => {
-		r.favorites = 0;
-		r.reposts = 0;
-		post.value = r;
-		width.value = r.media?.size?.width;
-		height.value = r.media?.size?.height;
-		if (r.parent) {
-			parent.value = null;
-			fetchParent(r.parent);
-		}
+khatch(`${host}/v1/post/${props.postId}`, {
+	errorMessage: "Could not retrieve post!",
+}).then(r => r.json())
+.then((r: Post) => {
+	r.favorites = 0;
+	r.reposts = 0;
+	post.value = r;
+	width.value = r.media?.size?.width;
+	height.value = r.media?.size?.height;
+	replies.value = r.replies;
 
-		if (tags.value) setPageTitle();
-		setLeft();
-	});
-}
+	setPageTitle();
+	setLeft();
+});
 
 const isLoading = computed(() => !post.value);
 const isUpdated = computed(() => post.value ? post.value.created !== post.value.updated : false);
@@ -309,8 +287,8 @@ const countComments = computed(() => {
 function setPageTitle() {
 	demarkdown(post.value?.title || props.postId)
 	.then(title => {
-		if (tags.value?.artist) {
-			const artists = tags.value.artist.map(x => x.tag.endsWith("_(artist)") ? x.tag.slice(0, -9).replaceAll("_", " ") : x.tag.replaceAll("_", " "));
+		if (post.value?.tags?.artist) {
+			const artists = post.value.tags.artist.map(x => x.tag.endsWith("_(artist)") ? x.tag.slice(0, -9).replaceAll("_", " ") : x.tag.replaceAll("_", " "));
 
 			if (artists.length > 2) {
 				title += " by " + artists.slice(0, -1).join(", ") + ", and " + artists.slice(-1)[0];
@@ -323,8 +301,8 @@ function setPageTitle() {
 			}
 		}
 
-		if (tags.value?.subject) {
-			const subjects = tags.value.subject.map(x => x.tag.endsWith("_(subject)") ? x.tag.slice(0, -10).replaceAll("_", " ") : x.tag.replaceAll("_", " "));
+		if (post.value?.tags?.subject) {
+			const subjects = post.value.tags.subject.map(x => x.tag.endsWith("_(subject)") ? x.tag.slice(0, -10).replaceAll("_", " ") : x.tag.replaceAll("_", " "));
 
 			if (subjects.length > 2) {
 				title += " featuring " + subjects.slice(0, -1).join(", ") + ", and " + subjects.slice(-1)[0];
@@ -379,116 +357,14 @@ function followUser() {
 function fetchComments() {
 	replies.value = null;
 	khatch(`${host}/v1/post/comments`, {
+		handleError: true,
 			method: "POST",
 			body: {
 				post_id: props.postId,
 				sort: commentSort.value,
 			},
-		})
-		.then(response => {
-			response.json().then(r => {
-				if (response.status < 300) {
-					fetchNestedComments(r)
-					.then(() => replies.value = r);
-				}
-				else if (response.status < 500) {
-					createToast({
-						title: apiErrorMessageToast,
-						description: r.error,
-					});
-				}
-				else {
-					createToast({
-						title: apiErrorMessageToast,
-						description: apiErrorDescriptionToast,
-						dump: r,
-					});
-				}
-			});
-		})
-		.catch(error => {
-			console.error(error);
-			createToast({
-				title: apiErrorMessageToast,
-				description: error,
-			});
-		});
-}
-
-function fetchNestedComments(replies: Post[]) {
-	let i = 0;
-	return new Promise<void>(resolve => {
-		if (replies.length === 0)
-		{ resolve(); }
-
-		replies.forEach(reply => {
-			khatch(`${host}/v1/post/comments`, {
-				method: "POST",
-				body: {
-					post_id: reply.post_id,
-					sort: commentSort.value,
-				},
-			})
-			.then(response => {
-				response.json().then(r => {
-					if (response.status < 300) {
-						fetchNestedComments(r)
-							.then(() => {
-								i++;
-								reply.replies = r;
-								if (i >= replies.length)
-								{ resolve(); }
-							});
-					}
-					else if (response.status < 500) {
-						createToast({
-							title: apiErrorMessageToast,
-							description: r.error,
-						});
-					}
-					else {
-						createToast({
-							title: apiErrorMessageToast,
-							description: apiErrorDescriptionToast,
-							dump: r,
-						});
-					}
-				});
-			})
-		});
-	});
-}
-
-function fetchParent(postId: string) {
-	khatch(`${host}/v1/post/${postId}`)
-	.then(response => {
-		response.json().then(r => {
-			if (response.status < 300) {
-				r.postId = postId;
-				parent.value = r;
-			}
-			else if (response.status < 500) {
-				createToast({
-					title: apiErrorMessageToast,
-					description: r.error,
-				});
-			}
-			else {
-				createToast({
-					title: apiErrorMessageToast,
-					description: apiErrorDescriptionToast,
-					dump: r,
-				});
-			}
-		});
-	})
-	.catch(error => {
-		console.error(error);
-		createToast({
-			title: apiErrorMessageToast,
-			description: error,
-		});
-	});
+	}).then(r => r.json())
+	.then(r => replies.value = r);
 }
 
 function postComment() {
