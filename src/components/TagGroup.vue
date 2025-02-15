@@ -18,7 +18,7 @@
 import Loading from '@/components/Loading.vue';
 
 const props = defineProps<{
-	group: "artist" | "sponsor" | "subject" | "species" | "gender" | "misc" | "rating",
+	group: "artist" | "sponsor" | "subject" | "species" | "gender" | "misc" | "system" | "rating",
 	tags?: null | TagPortable[],
 }>();
 
@@ -29,6 +29,7 @@ const loadingMap = {
 	species: 3,
 	gender:  1,
 	misc:    5,
+	system:  0,
 	rating:  1,
 };
 </script>
