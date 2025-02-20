@@ -1,6 +1,6 @@
-export default 1576242000 * 1000;
+export default 1576242000000;
 
-let env = null;
+let env: "prod" | "dev" | "local" | null = null;
 
 switch (window.location.hostname.toLowerCase()) {
 case "kheina.com":
@@ -13,13 +13,11 @@ case "dev.fuzz.ly":
 	env = "dev";
 	break;
 
-case "localhost":
-case "127.0.0.1":
+default:
 	env = "local";
-	break;
 }
 
-export const environment = env;
+export const environment: "prod" | "dev" | "local" = env;
 
 
 let apiHost;

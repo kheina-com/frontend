@@ -20,19 +20,15 @@
 			<div class='header-bar'>
 				<div class='inner'>
 					<Loading :isLoading='isIconLoading || !user' class='profile-image'>
-						<!-- TODO: fix the flickering on edit toggle -->
-						<button class='thumbnail' v-if='isEditing' @click='toggleIconUpload'>
-							<div class='add-image-button'>
-								<i class='material-icons-round'>add_a_photo</i>
-							</div>
-							<UserIcon :handle='user?.handle' :post='user?.icon' v-model:isLoading='isIconLoading'/>
-						</button>
-						<router-link :to='`/p/${user.icon}`' class='thumbnail' v-else-if='user?.icon'>
+						<router-link :to='`/p/${user.icon}`' class='thumbnail' v-if='user?.icon'>
 							<UserIcon :handle='user?.handle' :post='user.icon' v-model:isLoading='isIconLoading'/>
 						</router-link>
 						<div class='thumbnail' v-else>
 							<UserIcon :handle='user?.handle' v-model:isLoading='isIconLoading'/>
 						</div>
+						<button class='add-image-button' v-if='isEditing' @click='toggleIconUpload'>
+							<i class='material-icons-round'>add_a_photo</i>
+						</button>
 					</Loading>
 					<div class='profile-buttons'>
 						<div class='tabs' v-if='!isMobile'>
@@ -255,7 +251,7 @@
 	</div>
 	<div class='image-uploader' v-if='isUploadBanner || isUploadIcon' @mousedown='disableUploads'>
 		<div class='cropper' @mousedown.stop v-if='uploadPostId'>
-			<div class='image-uploader' v-if='uploadLoading'>
+			<div class='cover' v-if='uploadLoading'>
 				<Loading type='block'/>
 			</div>
 			<Cropper
@@ -272,26 +268,30 @@
 			</div>
 		</div>
 		<div class='upload-window' @mousedown.stop v-else>
-			<div class='image-uploader' v-if='uploadLoading'>
+			<SearchBar v-model:value='searchValue' :func='() => runSearchQuery()'/>
+			<div class='cover' v-if='uploadLoading'>
 				<Loading type='block'/>
 			</div>
-			<div v-if='!uploadablePosts' style='margin-top: var(--margin); text-align: center'>
-				Select an existing post to set as your {{isUploadIcon ? 'profile picture' : 'banner image'}}.
-			</div>
-			<ol class='results' v-else>
+			<ol class='results' v-else-if='uploadablePosts?.length !== 0'>
 				<li v-for='post in uploadablePosts'>
-					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels @click='uploadPostId = post.post_id' unlink/>
+					<PostTile :postId='post.post_id' :nested='!isMobile' v-bind='post' labels @click.capture.stop.prevent='uploadPostId = post.post_id'/>
 				</li>
 			</ol>
-			<ResultsNavigation :navigate='runSearchQuery' :activePage='uploadablePage' :totalPages='uploadablePosts?.length ? Math.ceil(total_results / count) : 0' v-if='uploadablePosts'/>
-			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
+			<div v-else class='no-results'>
+				You have no posts! Upload one now to use it here!
+				<br>
+				note: in order to use a post as an icon or banner, it must be public or unlisted
+				<div>
+					<Button href='/create'><i class='material-icons'>upload</i><span>Upload</span></Button>
+				</div>
+			</div>
+			<ResultsNavigation :navigate='runSearchQuery' :activePage='uploadablePage' :totalPages='uploadablePosts?.length ? Math.ceil(total_results / count) : 0' v-if='uploadablePosts?.length !== 0'/>
 			<a @click.prevent.stop='disableUploads' class='search-close'><i class='material-icons'>close</i></a>
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
-import { computed, onMounted, ref, toRaw, watch, type Ref } from 'vue';
+<script setup lang='ts'>
+import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
@@ -401,11 +401,9 @@ else {
 // const twoFiveRem = parseInt(getComputedStyle(document.body).fontSize) * 2.5;
 // const setTop = (event: Event) => (document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, (event as CustomEvent<ResizeDetails>).detail.offset / 2).toString() + "px";
 onMounted(() => {
-	if (route.query?.edit)
-	{ toggleEdit(true); }
+	if (route.query?.edit) toggleEdit(true);
 
 	fetchData();
-
 
 	// TODO: parallax
 	// window.addEventListener("scroll", scrollBanner);
@@ -414,6 +412,9 @@ onMounted(() => {
 	// (document.getElementById("content") as HTMLElement).style.top = Math.max(twoFiveRem, b.clientHeight / 2).toString() + "px";
 	// document.addEventListener("resize", setTop);
 });
+
+// just in case we leave the page while in the uploader
+onUnmounted(() => document.body.style.overflow = "");
 
 // TODO: parallax
 // onUnmounted(() => {
@@ -662,7 +663,7 @@ function updateProfileImage() {
 
 	khatch(`${host}/v1/post/${endpoint}`, {
 		errorMessage: "Failed to update user image!",
-		method: "POST",
+		method: "PATCH",
 		body: {
 			post_id: uploadPostId.value,
 			coordinates: cropper.value.getResult().coordinates,
@@ -682,12 +683,11 @@ function updateProfileImage() {
 }
 
 function runSearchQuery(p: number | null = null) {
-	// TODO: old line: uploadablePosts = 0;
 	uploadablePosts.value = null;
 	uploadLoading.value = true;
 	uploadablePage.value = p || 1;
-	if (searchValue.value) {
-		khatch(`${host}/v1/posts`, {
+	(
+		searchValue.value ? khatch(`${host}/v1/posts`, {
 			errorMessage: "Failed to fetch posts for profile.",
 			method: "POST",
 			body: {
@@ -696,15 +696,7 @@ function runSearchQuery(p: number | null = null) {
 				page: uploadablePage.value,
 				count: 64,
 			},
-		}).then(r => r.json())
-		.then(r => {
-			total_results.value = r.total;
-			uploadablePosts.value = r.posts;
-			uploadLoading.value = null;
-		}).catch(disableUploads);
-	}
-	else {
-		khatch(`${host}/v1/posts/user`, {
+		}) : khatch(`${host}/v1/posts/user`, {
 			errorMessage: "Failed to fetch posts for profile.",
 			method: "POST",
 			body: {
@@ -712,13 +704,13 @@ function runSearchQuery(p: number | null = null) {
 				page: uploadablePage.value,
 				count: 64,
 			},
-		}).then(r => r.json())
-		.then(r => {
-			total_results.value = r.total;
-			uploadablePosts.value = r.posts;
-			uploadLoading.value = null;
-		}).catch(disableUploads);
-	}
+		})
+	).then(r => r.json())
+	.then(r => {
+		total_results.value = r.total;
+		uploadablePosts.value = r.posts;
+		uploadLoading.value = null;
+	}).catch(disableUploads);
 }
 
 function pageLink(p: number) {
@@ -944,6 +936,16 @@ main {
 	margin-bottom: 0;
 }
 
+.no-results {
+	margin-top: var(--margin);
+	text-align: center;
+}
+.no-results > div {
+	margin-top: var(--margin);
+	display: flex;
+	justify-content: center;
+}
+
 ul, ol {
 	list-style: none;
 	margin: 0;
@@ -1151,6 +1153,8 @@ ol > :last-child {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	top: 0;
+	left: 0;
 }
 .add-image-button i {
 	color: var(--bright);
@@ -1172,7 +1176,6 @@ ol > :last-child {
 	left: 0;
 	z-index: 1000;
 	display: flex;
-	justify-content: center;
 	align-items: center;
 }
 .upload-window, .cropper {
@@ -1192,16 +1195,23 @@ ol > :last-child {
 .image-uploader .button-list > :last-child {
 	margin-right: 0;
 }
+
+.cover {
+	width: 100%;
+	height: 10em;
+	display: flex;
+	justify-content: center;
+}
+
 .vue-advanced-cropper {
 	height: 80vmin;
 	width: 80vmin;
 	height: calc(80vmin - 1.7em);
 }
 .upload-window {
-	height: 80vmin;
-	width: 80vmin;
-	height: calc(100vh - 102px);
-	width: calc(100vw - 102px);
+	width: 100%;
+	margin: var(--margin);
+	min-height: 10em;
 	overflow: auto;
 	position: relative;
 }
@@ -1220,10 +1230,9 @@ ol > :last-child {
 	margin-top: 0;
 }
 .search-close {
-	position: fixed;
+	position: absolute;
 	top: var(--margin);
 	right: var(--margin);
-	margin: var(--margin);
 }
 .search-close:hover {
 	color: var(--error) !important;
@@ -1239,13 +1248,6 @@ ol > :last-child {
 }
 .mobile .upload-window .results {
 	padding-top: 4em;
-}
-
-.search-bar {
-	position: fixed;
-	width: calc(100% - 100px - var(--border-size) * 2);
-	top: 50px;
-	top: calc(40px + var(--border-size));
 }
 
 /* THEME OVERRIDES */

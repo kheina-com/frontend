@@ -17,38 +17,33 @@
 		<p>Found a bug? <router-link :to='`/bug?url=${encodeURIComponent($route.fullPath)}`'>Report it here</router-link>.</p>
 	</footer>
 </template>
-
-<script setup lang="ts">
-import { ref, type Ref } from 'vue';
+<script setup lang='ts'>
+import { ref, type Ref, watch } from 'vue';
 import ThemeButton from '@/components/ThemeButton.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
-import { host } from '@/config/constants';
-import { khatch } from '@/utilities';
+
+const props = defineProps<{
+	funds: number | null,
+	costs: number | null,
+}>();
 
 const funding: Ref<number> = ref(0);
 const target: Ref<string> = ref("Loading...");
 
-function updateLoop() {
-	khatch(`${host}/v1/config/funding`, {
-		errorMessage: "Error Occurred While Fetching Funding",
-		errorHandlers: {
-			404: () => target.value = "Unavailable",
-		},
-	}).then(r => r.json())
-	.then(r => {
-		funding.value = Math.min(r.funds / r.costs, 1);
+watch(props, () => {
+	if (!props.funds || !props.costs) {
+		target.value = "Unavailable";
+		return;
+	}
+	funding.value = Math.min(props.funds / props.costs, 1);
 
-		// if for some fucking reason, our costs/funds exceed 52 bits of float precision, we can uncomment this.
-		// const funds = r.funds.toString();
-		// const costs = r.costs.toString();
-		// this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
+	// if for some fucking reason, our costs/funds exceed 52 bits of float precision, we can uncomment this.
+	// const funds = r.funds.toString();
+	// const costs = r.costs.toString();
+	// this.target = `$${funds.substr(0, funds.length-2)}.${funds.substr(-2)} / $${costs.substr(0, costs.length-2)}.${costs.substr(-2)}`;
 
-		target.value = `$${(r.funds / 100).toFixed(2)} / $${(r.costs / 100).toFixed(2)}`;
-	});
-	setTimeout(updateLoop, 300000);
-}
-
-updateLoop();
+	target.value = `$${(props.funds / 100).toFixed(2)} / $${(props.costs / 100).toFixed(2)}`;
+});
 </script>
 
 <style scoped>

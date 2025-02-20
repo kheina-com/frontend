@@ -1,16 +1,16 @@
 <template>
 	<!-- <DeveloperConsole v-if='globals.auth?.isAdmin'/> -->
 	<input type='checkbox' name='animated-accents' value='animated-accents' id='animated-accents' @click='setAnimated' v-show='false'>
-	<Banner :onResize='onResize'/>
+	<Banner :message='bannerContent' :onResize='onResize'/>
 	<div id='content'>
 		<router-view :key='route.path'/>
-		<Footer/>
+		<Footer :costs='costs' :funds='funds'/>
 	</div>
 	<Toast/>
 	<Cookies/>
 </template>
-<script setup lang="ts">
-import { onMounted } from 'vue';
+<script setup lang='ts'>
+import { onMounted, ref, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { authCookie, getCookie, khatch, isDarkMode } from '@/utilities';
 import { host, isMobile } from '@/config/constants';
@@ -106,6 +106,7 @@ onMounted(() => {
 
 	ResizeSensor(content, onResize);
 	onResize();
+	configsLoop();
 
 	(document.getElementById("animated-accents") as HTMLInputElement).checked = globals.animations;
 
@@ -129,8 +130,27 @@ function onResize() {
 	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
 }
 
-function ResizeSensor(element: HTMLElement, callback: Function)
-{ // https://stackoverflow.com/a/47965966
+let bannerContent: Ref<string | null> = ref(null);
+let costs:         Ref<number | null> = ref(null);
+let funds:         Ref<number | null> = ref(null);
+
+function configsLoop() {    
+	khatch(`${host}/v1/configs`, {
+		errorMessage: "Error Occurred While Fetching Configs",
+	}).then(r => r.json())
+	.then((r: { banner: string | null, funding: { funds: number, costs: number } }) => {
+		bannerContent.value = r.banner;
+		costs.value         = r.funding.costs;
+		funds.value         = r.funding.funds;
+	}).catch(() => {
+		costs.value = null;
+		funds.value = null;
+	});
+	setTimeout(configsLoop, 300e3); // 5 minutes
+}
+
+function ResizeSensor(element: HTMLElement, callback: Function) {
+	// https://stackoverflow.com/a/47965966
 	const expand = document.createElement("div");
 	expand.className = "expand";
 	expand.appendChild(document.createElement("div"));

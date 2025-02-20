@@ -136,7 +136,8 @@
 				</div>
 				<div class='set-selector'>
 					<DropDownSelector v-model:value='addSet' placeholder='set id'>
-						<SetComponent @click.capture.stop.prevent='addSet = set.set_id' v-for='set in userSets' :setId='set.set_id' v-bind='set' nested/>
+						<SetComponent @click.capture.stop.prevent='addSet = set.set_id' v-for='set in userSets' :setId='set.set_id' v-bind='set' nested v-if='userSets?.length'/>
+						<p v-else>you have no sets! create one with the button to the right</p>
 					</DropDownSelector>
 					<Button @click='putSet' :isLoading='puttingSet'><i class='material-icons'>playlist_add</i><span>Add Set</span></Button>
 				</div>
@@ -585,6 +586,7 @@ function showData() {
 		activeTags: activeTags.value,
 		savedTags: savedTags.value,
 		tagSuggestions: tagSuggestions.value,
+		userSets: userSets.value,
 		meta: {
 			filename: filename,
 			showUpload: showUpload.value,

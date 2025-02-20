@@ -216,9 +216,8 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, type Ref, onMounted, watch, toRaw } from 'vue';
+<script setup lang='ts'>
+import { computed, ref, type Ref, watch, toRaw } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { deleteCookie, khatch } from '@/utilities';
 import { host, environment, isMobile } from '@/config/constants';
@@ -233,12 +232,11 @@ import store, { Rating } from '@/globals';
 
 const banner  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const globals = store();
-const props   = defineProps({
-	onResize: {
-		type: Function,
-		default() { },
-	},
-});
+const props   = defineProps<{
+	message: string | null,
+	onResize: { (): void },
+}>();
+
 const route     = useRoute();
 const router    = useRouter();
 const routePath = computed(() => encodeURIComponent(route.fullPath));
@@ -251,33 +249,10 @@ const menuOpen:      Ref<boolean>       = ref(false);
 const isIconLoading: Ref<boolean>       = ref(true);
 const searchValue:   Ref<string | null> = ref(null);
 
-onMounted(updateLoop);
-
 function navCreate() {
 	if (globals.auth) router.push("/create");
 	else router.push(loginPath.value);
 	document.dispatchEvent(new CustomEvent("router-event"));
-}
-
-function updateLoop() {
-	khatch(`${host}/v1/config/banner`, {
-		errorMessage: 'Error Occurred While Fetching Banner',
-		errorHandlers: {
-			404: () => {
-				banner.value.style.background = "none";
-			},
-		},
-	}).then(r => r.json())
-	.then(r => {
-		if (!r.banner) {
-			banner.value.style.background = "none";
-		} else {
-			banner.value.style.background = "";
-		}
-		message.value = r.banner;
-		setTimeout(props.onResize, 0);
-	});
-	setTimeout(updateLoop, 300e3);
 }
 
 function setQuery() {
@@ -380,6 +355,10 @@ function removeMessage() {
 
 watch(() => route.path, setQuery);
 watch(() => globals.user, setUser);
+watch(props, () => {
+	message.value = props.message;
+	setTimeout(props.onResize, 0);
+});
 </script>
 <style scoped>
 .menu {

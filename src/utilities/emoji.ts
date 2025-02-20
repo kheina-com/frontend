@@ -54,6 +54,7 @@ async function releaseCriticalPoint(refId: number) {
 function transaction(mode: IDBTransactionMode): Promise<IDBTransaction> {
 	return new Promise<IDBTransaction>(async r => {
 		try {
+			// the critical point is so that we don't do anything while PopulateEmojiDb is running
 			const cp = _cp;
 			if (cp) {
 				await cp.onRelease;

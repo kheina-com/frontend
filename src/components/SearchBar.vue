@@ -12,8 +12,7 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 const props = defineProps<{
 	func: { (): void },
 	value: string | null,
@@ -24,9 +23,7 @@ const emits = defineEmits(["update:value"]);
 function emit(e: Event) {
 	return emits("update:value", (e.target as HTMLInputElement).value);
 }
-
 </script>
-
 <style scoped>
 .search-bar {
 	display: flex;
@@ -70,8 +67,9 @@ i {
 	transition: var(--transition) var(--fadetime);
 	cursor: pointer;
 }
-button:hover /*, button:active, button:focus */
-{ color: var(--interact); }
+button:hover /*, button:active, button:focus */ {
+	color: var(--interact);
+}
 .search-input {
 	position: relative;
 }
