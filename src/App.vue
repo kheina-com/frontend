@@ -134,7 +134,7 @@ let bannerContent: Ref<string | null> = ref(null);
 let costs:         Ref<number | null> = ref(null);
 let funds:         Ref<number | null> = ref(null);
 
-function configsLoop() {    
+function configsLoop() {
 	khatch(`${host}/v1/configs`, {
 		errorMessage: "Error Occurred While Fetching Configs",
 	}).then(r => r.json())

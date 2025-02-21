@@ -1177,6 +1177,7 @@ ol > :last-child {
 	z-index: 1000;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 }
 .upload-window, .cropper {
 	background: var(--bg1color);
