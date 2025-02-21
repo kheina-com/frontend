@@ -88,17 +88,16 @@ class MediaFlag(Enum) :
 
 
 class Thumbnail(BaseModel) :
-	post_id:  str
 	bounds:   int
 	size:     PostSize
 	type:     MediaType
 	filename: str
 	length:   int
+	url:      str
 
 
 class Media(BaseModel) :
 
-	post_id:    str
 	updated:    datetime
 	crc:        Optional[int]
 	filename:   str
@@ -107,10 +106,8 @@ class Media(BaseModel) :
 	thumbhash:  str
 	length:     int
 	thumbnails: list[Thumbnail]
-	flags:      list[MediaFlag] = []
-
-	# computed
-	url: str = ''
+	flags:      list[MediaFlag]
+	url:        str
 
 
 class Post(BaseModel) :
@@ -120,7 +117,8 @@ class Post(BaseModel) :
 	user:        UserPortable
 	score:       Optional[Score]
 	rating:      Rating
-	parent:      Optional[str]
+	parent_id:   Optional[str]
+	parent:      Optional['Post']
 	privacy:     Privacy
 	created:     datetime
 	updated:     datetime

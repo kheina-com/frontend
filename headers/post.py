@@ -1,4 +1,5 @@
 from html import escape
+from random import randint
 from re import compile as re_compile
 from typing import Optional
 
@@ -44,14 +45,7 @@ def thumbnail_url(post: Post) -> Optional[str] :
 	if not post.media :
 		return
 
-	root: str
-	if post.media.crc :
-		root = f'{cdn_host}/{post.post_id}/{post.media.crc}/thumbnails/'
-
-	else :
-		root = f'{cdn_host}/{post.post_id}/thumbnails/'
-
-	return root + filter(lambda x : x.type.file_type == 'jpeg', post.media.thumbnails).__next__().filename
+	return filter(lambda x : x.type.file_type == 'jpeg', post.media.thumbnails).__next__().url
 
 
 async def postMetaTags(post_id: str) -> str :
