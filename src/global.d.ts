@@ -47,7 +47,6 @@ interface Size {
 }
 
 interface Thumbnail {
-	post_id: string,
 	bounds: number,
 	size: Size,
 	type: MediaType,
@@ -57,7 +56,6 @@ interface Thumbnail {
 }
 
 interface Media {
-	post_id: string,
 	updated: Date,
 	crc: number | null,
 	filename: string,

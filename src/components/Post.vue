@@ -3,7 +3,7 @@
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
 	<div>
 		<div :class='divClass' ref='self'>
-			<!-- <div class='guide-line' ref='guide' v-if='parentElement' :style='`height: ${guideHeight}px`'></div> -->
+			<div class='guide-line' v-show='props.reply'/>
 			<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && !unlink'/>
 			<div class='labels' v-show='!isLoading'>
 				<DropDown class='more-button' v-show='!hideButtons' :options="[
@@ -74,8 +74,7 @@
 		</ol>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/globals';
@@ -174,20 +173,9 @@ const self = ref(null);
 const router = useRouter();
 
 let editing = false;
-// let guideHeight: number = 0;
-// parentElement: null,
-// childTrigger: null,
 const replying: Ref<boolean> = ref(false);
 const replyMessage: Ref<string> = ref("");
 const acceptedMature: Ref<boolean> = ref(ratingMap[globals.rating] >= ratingMap[props.rating]);
-// mounted() {
-// 	let parentElement = this.$refs.self.parentElement.parentElement.parentElement.children[0];
-// 	if (parentElement.classList.contains("reply"))
-// 	{ this.parentElement = parentElement; }
-// 	this.onLoad();
-// },
-
-// const hasMedia = computed(() => { return props.tags !== null ? !props.tags.includes("text") : true; });
 const isLoading = computed(() => !props.postId);
 const divClass = computed(() => "post" + (props.postId && !props.unlink ? " link" : "") + (props.nested ? " nested" : " unnested") + (props.reply ? " reply" : ""));
 const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
@@ -204,7 +192,7 @@ function nav() {
 		user:        props.user,
 		score:       props.score ?? null,
 		rating:      props.rating,
-		parent_id:      props.parent_id,
+		parent_id:   props.parent_id,
 		parent:      props.parent,
 		privacy:     props.privacy,
 		created:     props.created,
@@ -286,25 +274,7 @@ function postComment() {
 function editToggle() {
 	editing = !editing;
 }
-// onLoad() {
-// 	if (this.parentElement)
-// 	{
-// 		let self = this.$refs.self.getBoundingClientRect();
-// 		this.guideHeight = (self.top + self.bottom) / 2 - this.parentElement.getBoundingClientRect().bottom;
-// 	}
-// 	this.$emit("loaded");
-// 	// this.childTrigger = !this.childTrigger;
-// },
-// function updatePost() {
-// 	// actually update the post
-// }
-// watch: {
-// 	loadTrigger() {
-// 		this.onLoad();
-// 	},
-// }
 </script>
-
 <style>
 .post.link .title {
 	-webkit-transition: var(--transition) var(--fadetime);
@@ -461,13 +431,15 @@ textarea {
 
 ol {
 	list-style: none;
-	padding: 0;
-	margin: var(--margin) 0 0 var(--margin);
+	margin: 0 var(--neg-margin) var(--neg-margin) 0;
+	padding: var(--margin);
 	display: block;
 	position: relative;
+	overflow: hidden;
 }
 ol li {
 	margin-bottom: var(--margin);
+	position: relative;
 }
 ol > :last-child, ol > :last-child .post {
 	margin: 0;
@@ -476,7 +448,7 @@ ol > :last-child, ol > :last-child .post {
 	position: absolute;
 	bottom: 50%;
 	left: -14px;
-	height: calc(50% + var(--margin));
+	height: 10000000px;
 	width: 13px;
 	border-bottom-left-radius: 12px;
 	border-width: 0 0 2px 2px;

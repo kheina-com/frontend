@@ -1,9 +1,12 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- eslint-disable vue/no-v-model-argument -->
-	<div v-if='post?.parent' class='parent'>
-		<Post :postId='post?.parent?.post_id' v-bind='post?.parent' nested labels/>
-	</div>
+	<ol class='parents'>
+		<li v-for='parent in parents()'>
+			<div class='guide-line'/>
+			<Post :postId='parent?.post_id' v-bind='parent'/>
+		</li>
+	</ol>
 	<div class='container' v-if='!isMobile'>
 		<Sidebar :post='post' v-model:scalar='scalar' class='sidebar'/>
 		<div class='content'>
@@ -93,7 +96,7 @@
 				</div>
 				<ol class='replies'>
 					<li v-for='reply in replies'>
-						<Post :postId='reply?.post_id' v-bind='reply' reply/>
+						<Post :postId='reply?.post_id' v-bind='reply'/>
 					</li>
 				</ol>
 			</div>
@@ -188,13 +191,12 @@
 		</div>
 		<ol class='replies'>
 			<li v-for='reply in replies'>
-				<Post :postId='reply?.post_id' v-bind='reply' reply/>
+				<Post :postId='reply?.post_id' v-bind='reply'/>
 			</li>
 		</ol>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onMounted, computed, ref, watch, type Ref } from 'vue';
 import store from '@/globals';
 import { khatch, setTitle, createToast } from '@/utilities';
@@ -240,9 +242,7 @@ const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 khatch(`${host}/v1/sets/post/${props.postId}`, {
 	errorMessage: "Could not retrieve post sets!",
 }).then(r => r.json())
-.then(r => {
-	sets.value = r;
-});
+.then(r => sets.value = r);
 
 if (globals.postCache?.post_id === props.postId) {
 	onMounted(setLeft);
@@ -409,10 +409,6 @@ function countNestedComments(p: Post) {
 	return count;
 }
 
-function editToggle() {
-	editing = !editing;
-}
-
 function updatePost() {
 	if (!post.value) return;
 	khatch(`${host}/v1/post/${props.postId}`, {
@@ -452,11 +448,23 @@ function setLeft() {
 	}
 }
 
+function parents(): Post[] {
+	if (!post.value) return [];
+	const posts: Post[] = [];
+	let p: Post = post.value;
+
+	while (p.parent) {
+		posts.unshift(p.parent);
+		p = p.parent;
+	}
+
+	return posts;
+}
+
 watch(commentSort, fetchComments);
 watch(scalar, setLeft);
 watch(width, setLeft);
 </script>
-
 <style scoped>
 .container {
 	display: grid;
@@ -611,16 +619,35 @@ input {
 
 ol {
 	list-style: none;
-	padding: 0 var(--margin) 0 0;
-	margin: 0 0 calc(var(--margin) - 4px);
 	display: block;
 	position: relative;
 }
 ol li {
 	margin-bottom: var(--margin);
+	position: relative;
 }
 ol > :last-child, ol > :last-child .post {
 	margin: 0;
+}
+
+.parents {
+	margin: var(--margin);
+	padding: 0;
+}
+ol > :first-child .guide-line {
+	display: none;
+}
+.guide-line {
+	position: absolute;
+	height: var(--margin);
+	margin-left: var(--margin);
+	border-left: 2px solid var(--bordercolor);
+	bottom: 100%;
+}
+
+.replies {
+	padding: 0 var(--margin) 0 0;
+	margin: 0 0 calc(var(--margin) - 4px);
 }
 .reply-section:has(> .replies:empty) > .reply-header > .reply-field {
 	align-items: flex-start;

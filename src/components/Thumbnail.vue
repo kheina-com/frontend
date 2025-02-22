@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, ref, watch, type Ref, toRaw } from 'vue';
 import { base64ToBytes, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
 import { isMobile } from '@/config/constants';
 import { thumbHashToDataURL } from 'thumbhash';
@@ -124,7 +124,8 @@ function th(value: string | null) {
 	}
 }
 
-watch(() => props.media, (value: Media | null) => {
+watch(() => props.media, (value: Media | null, prev: Media | null) => {
+	if (value?.crc === prev?.crc) return;
 	// reset state
 	isLoading.value = true;
 	(media.value.parentElement as HTMLDivElement).classList.add("loading");
