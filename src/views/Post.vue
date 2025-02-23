@@ -631,8 +631,11 @@ ol > :last-child, ol > :last-child .post {
 }
 
 .parents {
-	margin: var(--margin);
+	margin: 0 var(--margin) var(--margin);
 	padding: 0;
+}
+ol:empty {
+	display: none;
 }
 ol > :first-child .guide-line {
 	display: none;
