@@ -8,6 +8,7 @@
 		</li>
 	</ol>
 	<div class='container' v-if='!isMobile'>
+		<div class='scroller' ref='scroller'/>
 		<Sidebar :post='post' v-model:scalar='scalar' class='sidebar'/>
 		<div class='content'>
 			<div ref='media' class='media-container' v-show='post'>
@@ -88,8 +89,9 @@
 							</DropDown>
 						</p>
 						<div class='buttons' v-if='writeComment'>
-							<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
-							<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
+							<Button class='button' @click='postComment' green><i class='material-icons-round'>send</i><span>Post</span></Button>
+							<Button class='button' @click='openEditor'><i class='material-icons-round'>edit_note</i><span>Editor</span></Button>
+							<Button class='button' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 						</div>
 						<Button class='buttons' @click='globals.user ? writeComment = true : $router.push(`/a/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 					</div>
@@ -103,6 +105,7 @@
 		</div>
 	</div>
 	<div class='content' v-else>
+		<div class='scroller' ref='scroller'/>
 		<div class='media-container' v-show='post'>
 			<Media v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
 			<div class='set-controls' v-for='set in sets'>
@@ -182,8 +185,9 @@
 						</DropDown>
 					</p>
 					<div class='buttons' v-if='writeComment'>
-						<Button class='interactable' style='margin-right: var(--margin)' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
-						<Button class='interactable' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
+						<Button class='button' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+						<Button class='button' @click='openEditor'><i class='material-icons-round'>edit_note</i><span>Editor</span></Button>
+						<Button class='button' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
 					</div>
 					<Button class='interactable buttons' @click='globals.user ? writeComment = true : $router.push(`/a/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
 				</div>
@@ -198,6 +202,7 @@
 </template>
 <script setup lang='ts'>
 import { onMounted, computed, ref, watch, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
 import store from '@/globals';
 import { khatch, setTitle, createToast } from '@/utilities';
 import { demarkdown } from '@/utilities/markdown';
@@ -225,6 +230,7 @@ const props = defineProps<{
 }>();
 
 const globals = store();
+const router = useRouter();
 const unpublishedPrivacy: Set<string | undefined> = new Set(["unpublished", "draft"]);
 
 let editing: boolean = false;  // this is currently unused, if it becomes used, update it to a ref
@@ -238,6 +244,7 @@ const sets: Ref<PostSet[] | null> = ref(null);
 const commentSort: Ref<string> = ref("best");
 const scalar: Ref<boolean | undefined> = ref();
 const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const scroller = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
 khatch(`${host}/v1/sets/post/${props.postId}`, {
 	errorMessage: "Could not retrieve post sets!",
@@ -245,7 +252,10 @@ khatch(`${host}/v1/sets/post/${props.postId}`, {
 .then(r => sets.value = r);
 
 if (globals.postCache?.post_id === props.postId) {
-	onMounted(setLeft);
+	onMounted(() => {
+		setLeft();
+		scrollIntoView();
+	});
 	post.value = globals.postCache;
 
 	post.value.favorites = 0;
@@ -253,6 +263,7 @@ if (globals.postCache?.post_id === props.postId) {
 	width.value = post.value?.media?.size?.width;
 	height.value = post.value?.media?.size?.height;
 }
+
 khatch(`${host}/v1/post/${props.postId}`, {
 	errorMessage: "Could not retrieve post!",
 }).then(r => r.json())
@@ -264,12 +275,13 @@ khatch(`${host}/v1/post/${props.postId}`, {
 	height.value = r.media?.size?.height;
 	replies.value = r.replies;
 
+	scrollIntoView();
 	setPageTitle();
 	setLeft();
 });
 
 const isLoading = computed(() => !post.value);
-const isUpdated = computed(() => post.value ? post.value.created !== post.value.updated : false);
+const isUpdated = computed(() => post.value?.created !== post.value?.updated);
 const mediaUrl = computed(() => post.value?.media?.url);
 const showPrivacy = computed(() => post.value?.privacy && post.value.privacy.toLowerCase() !== "public");
 const userIsUploader = computed(() => globals.user && post.value?.user?.handle === globals.user?.handle);
@@ -399,6 +411,18 @@ function postComment() {
 	});
 }
 
+function openEditor() {
+	if (!post.value) return;
+
+	let path = "/create?reply_to=" + post.value.post_id;
+	if (newComment.value) {
+		path += "&description=" + encodeURIComponent(newComment.value);
+	}
+
+	globals.postCache = post.value;
+	router.push(path);
+}
+
 function countNestedComments(p: Post) {
 	if (!p.replies) return 0;
 
@@ -438,8 +462,6 @@ function deletePost() {
 
 function setLeft() {
 	if (isMobile || !media.value) return;
-	console.debug("(Post) scalar:", scalar.value);
-
 	if (scalar.value) {
 		media.value.style.left = `calc(max(10vw, 50% - ${(window.innerHeight - 90) * ((width.value ?? 1) / (height.value ?? 1)) / 2}px) - 10vw)`;
 	}
@@ -461,6 +483,12 @@ function parents(): Post[] {
 	return posts;
 }
 
+function scrollIntoView() {
+	if (post.value?.parent) {
+		setTimeout(() => scroller.value.scrollIntoView(), 0);
+	}
+}
+
 watch(commentSort, fetchComments);
 watch(scalar, setLeft);
 watch(width, setLeft);
@@ -470,6 +498,7 @@ watch(width, setLeft);
 	display: grid;
 	grid-template-columns: [sidebar-start] max(20vw, 300px) [sidebar-end main-start] auto [main-end];
 	grid-template-rows: [sidebar-start main-start] auto [sidebar-end main-end];
+	position: relative;
 }
 main {
 	background: var(--main);
@@ -479,6 +508,11 @@ main {
 	align-items: flex-start;
 	position: relative;
 	padding: var(--margin);
+}
+.scroller {
+	position: absolute;
+	pointer-events: none;
+	top: calc(-2.5rem - var(--margin));
 }
 .media-container {
 	grid-area: media;
@@ -674,6 +708,12 @@ ol > :first-child .guide-line {
 	display: flex;
 	justify-content: flex-end;
 	margin-bottom: var(--margin);
+}
+.reply-field .buttons .button {
+	margin-right: var(--margin);
+}
+.reply-field .buttons > :last-child {
+	margin-right: 0;
 }
 .reply-label {
 	margin: 0 0 0.25em var(--margin);

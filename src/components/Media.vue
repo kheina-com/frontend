@@ -2,8 +2,11 @@
 	<div class='_media' ref='container'>
 		<Loading class='media' :style='parentStyle' :isLoading='isLoading'>
 			<div ref='mediaContainer'>
+				<span v-if='isError'>
+					<p>Could not load media.</p>
+					<i class='material-icons icon'>close</i>
+				</span>
 				<div class='media-container'>
-					<p v-if='isError'>Could not load media.</p>
 					<video
 						ref='media'
 						:src='src'
@@ -14,7 +17,7 @@
 						loop
 						@load='onLoad'
 						@error='onError'
-						v-else-if='isVideo'
+						v-if='isVideo'
 					>Your browser does not support this type of video.</video>
 					<img ref='media' :alt='alt' @error='onError' :style='linkStyle' v-else>
 				</div>
@@ -66,7 +69,7 @@ const isError: Ref<boolean> = ref(false);
 const media = ref<HTMLImageElement | null>(null) as Ref<HTMLImageElement>;
 const mediaContainer = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const loader = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
-const container = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const container = ref<HTMLDivElement | null>(null);
 defineExpose({ container });
 const loaded: Ref<number> = ref(0);
 const scalar: Ref<boolean> = toRef(props, "scaleHeight");
@@ -194,7 +197,7 @@ const isVideo = computed(() => props.mime && props.mime.startsWith("video"));
 const parentStyle = computed(() => props.width ? `aspect-ratio: ${props.width}/${props.height}; max-width: ${props.width}px` : null);
 const linkStyle = computed(() => {
 	if (props.width) return `width: ${props.width}px;`;
-	else if (isError.value) return "background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); " + `width: ${props.width || "30vw"}px; height: ${props.height || "30vh"};`;
+	// else if (isError.value) return "background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); " + `width: ${props.width || "30vw"}px; height: ${props.height || "30vh"};`;
 	return props.style;
 });
 
@@ -228,9 +231,11 @@ function onLoad() {
 
 function onError() {
 	if (!props.mime || !props.src) return;
+	if (loader.value) loader.value.style.display = "none";
 
 	isLoading.value = false;
 	isError.value = true;
+	mediaContainer.value.classList.add("error");
 
 	createToast({
 		title: "Failed To Load Media",
@@ -261,16 +266,16 @@ function th(value: string | null) {
 }
 
 function onScroll() {
+	if (!container.value) return;
 	const rect = container.value.getBoundingClientRect();
 
 	if (rect.height < rect.width) return;
-
 	const margin = (window.innerHeight - loader.value.offsetHeight) / 2;
 	const bottom = window.innerHeight - rect.bottom;
 
 	if (rect.top > margin) {
 		// fix to top
-		loader.value.style.position = 'absolute';
+		loader.value.style.position = "absolute";
 		loader.value.style.top = "0";
 		loader.value.style.bottom = "";
 		loader.value.style.left = "";
@@ -278,7 +283,7 @@ function onScroll() {
 	}
 	else if (bottom > margin) {
 		// fix to bottom
-		loader.value.style.position = 'absolute';
+		loader.value.style.position = "absolute";
 		loader.value.style.top = "unset";
 		loader.value.style.bottom = "0";
 		loader.value.style.left = "";
@@ -286,7 +291,7 @@ function onScroll() {
 	}
 	else {
 		// fix to center
-		loader.value.style.position = 'fixed';
+		loader.value.style.position = "fixed";
 		loader.value.style.top = `${margin}px`;
 		loader.value.style.bottom = "";
 		loader.value.style.left = `${rect.left}px`;	
@@ -295,11 +300,9 @@ function onScroll() {
 }
 
 watch(scalar, (value: boolean) => {
-	console.debug("scalar:", value ? "height" : "width");
 	if (!mediaContainer.value) return;
-
 	if (value) {
-		(mediaContainer.value.parentElement as HTMLDivElement).style.maxHeight = "calc(100vh - 90px)";
+		(mediaContainer.value.parentElement as HTMLDivElement).style.maxHeight = "calc(100vh - 2.5rem - var(--margin) * 2)";
 	}
 	else {
 		(mediaContainer.value.parentElement as HTMLDivElement).style.maxHeight = "";
@@ -319,7 +322,6 @@ watch(() => props.src, (value: string) => {
 	(media.value.parentNode as HTMLDivElement).classList.remove("bg");	
 });
 </script>
-
 <style scoped>
 ._media {
 	position: relative;
@@ -376,5 +378,20 @@ watch(() => props.src, (value: string) => {
 }
 .media-container {
 	position: relative;
+}
+.error {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+}
+.error > span {
+	position: absolute;
+	text-align: center;
+}
+.error > span i {
+	color: var(--error);
+	font-size: 2em;
 }
 </style>

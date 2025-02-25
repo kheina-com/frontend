@@ -14,6 +14,7 @@
 		</div>
 		<Title static='center'>New Post</Title>
 		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{`${windowHost}/p/${postId}`}}</router-link></Loading></Subtitle>
+		<Subtitle static='center' v-if='parent || update.reply_to'>replying to {{ parentPost?.title ?? parent ?? update.reply_to }}</Subtitle>
 		<div class='form'>
 			<Loading type='block' :isLoading='isUploading'>
 				<!-- this hasn't been implemented server-side yet, though the field is already handled here -->
@@ -254,7 +255,6 @@
 				</div>
 			</div>
 			<div class='actions'>
-				<Button @click='showData' v-if='environment !== `prod`'><i class='material-icons'>science</i><span>test</span></Button>
 				<Button @click='markDraft' :isLoading='saving' v-show='privacy === "unpublished"'><i class='material-icons'>note_add</i><span>Mark Draft</span></Button>
 				<Button @click='savePost' :isLoading='saving'><i class='material-icons'>save</i><span>Save</span></Button>
 			</div>
@@ -267,7 +267,7 @@ import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { abbreviateBytes, commafy, createToast, khatch, tagSplit, sortTagGroups } from '@/utilities';
-import { host, environment, isMobile } from '@/config/constants';
+import { host, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import Button from '@/components/Button.vue';
@@ -289,7 +289,6 @@ const route = useRoute();
 const router = useRouter();
 const PublishedPrivacies: Set<string | null> = new Set(["public", "unlisted", "private"]);
 const path = "/create";
-const postIdRegex = /^[a-zA-Z0-9_-]{8}$/;
 const windowHost = window.location.host;
 
 const tagDiv = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -341,7 +340,7 @@ const creatingSet: Ref<boolean> = ref(false);
 const removingSet: Ref<boolean> = ref(false);
 
 // parent post
-const parentPost: Ref<Post | null> = ref(null);
+const parentPost:  Ref<Post | null>    = ref(null);
 const validParent: Ref<boolean | null> = ref(null);
 
 // active tag tracking
@@ -462,7 +461,7 @@ function removeSet(value: string) {
 }
 
 function fetchParent(parentId: string) {
-	if (postIdRegex.exec(parentId)) {
+	if (parentId && parentId.length === 8) {
 		validParent.value = true;
 		if (globals.postCache?.post_id === parentId) {
 			parentPost.value = globals.postCache;
@@ -698,9 +697,9 @@ function saveData() {
 			rating.value = update.value.rating;
 		}
 
-		if (parent.value !== update.value.parent) {
+		if (parent.value !== update.value.reply_to) {
 			sendUpdate = true;
-			parent.value = update.value.parent;
+			parent.value = update.value.reply_to;
 		}
 
 		if (privacy.value !== update.value.privacy) {
@@ -735,7 +734,7 @@ function saveData() {
 					title:       title.value,
 					description: description.value,
 					rating:      rating.value,
-					parent:      parent.value,
+					reply_to:    parent.value,
 					privacy:     privacy.value,
 				},
 			}).then(success)
@@ -793,14 +792,15 @@ function saveData() {
 
 function queryListener(event: Event): void {
 	const query = (event as CustomEvent<RouterEvent | null>).detail?.query;
-	if (postId.value === query?.post) return;
+	if (query?.post?.length !== 8) return;
 
 	let p = route.path;
 	if (query) {
 		p += "?" + Object.entries(query).map(e => e[0] + "=" + encodeURIComponent(e[1])).join("&");
 	}
+
+	postWatcher(query?.post);
 	history.replaceState(null, "", p);
-	return postWatcher(query?.post);
 }
 
 function postWatcher(value?: string) {
@@ -817,36 +817,41 @@ function postWatcher(value?: string) {
 		uploadTotal = 0;
 	};
 
+	const setPostFields = (r: Post) => {
+		console.debug("postWatcher:", value, ">", r);
+		postId.value = r.post_id;
+
+		description.value = update.value.description = r.description;
+		title.value       = update.value.title       = r.title;
+		privacy.value     = update.value.privacy     = r.privacy;
+		rating.value      = update.value.rating      = r.rating;
+		parent.value      = update.value.parent      = r.parent?.post_id ?? null;
+		parentPost.value  = r.parent ?? null;
+
+		if (route.query?.title)       update.value.title       = route.query.title.toString();
+		if (route.query?.description) update.value.description = route.query.description.toString();
+		if (route.query?.reply_to)    update.value.reply_to    = route.query.reply_to.toString();
+
+		if (r.media) {
+			uploadDone.value = true;
+			filename         = r.media.filename;
+			mime.value       = r.media.type.mime_type;
+			mediaUrl.value   = r.media.url;
+			width.value      = r.media.size.width;
+			height.value     = r.media.size.height;
+		}
+		else {
+			unset();
+		}
+
+		if (r.tags) {
+			savedTags.value = new Set(Object.values(r.tags).flat().map(x => x.tag)) as Set<string>;
+			colorizeTags(savedTags.value);
+			tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
+		}
+	};
+
 	if (postId.value?.length === 8) {
-		const setPostFields = (r: Post) => {
-			console.debug("postWatcher:", value, ">", r);
-			description.value = update.value.description = r.description;
-			title.value       = update.value.title       = r.title;
-			privacy.value     = update.value.privacy     = r.privacy;
-			rating.value      = update.value.rating      = r.rating;
-			parent.value      = update.value.parent      = r.parent?.post_id ?? null;
-
-			if (r.media) {
-				uploadDone.value = true;
-				filename         = r.media.filename;
-				mime.value       = r.media.type.mime_type;
-				mediaUrl.value   = r.media.url;
-				width.value      = r.media.size.width;
-				height.value     = r.media.size.height;
-			}
-			else {
-				unset();
-			}
-
-			if (r.tags) {
-				savedTags.value = new Set(Object.values(r.tags).flat().map(x => x.tag)) as Set<string>;
-				colorizeTags(savedTags.value);
-				tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
-			}
-
-			globals.postCache = null;
-		};
-
 		if (globals.postCache?.post_id === postId.value) {
 			setPostFields(globals.postCache);
 		}
@@ -887,7 +892,7 @@ function postWatcher(value?: string) {
 		}).then(r => r.json())
 		.then((r: Post) => {
 			console.debug("postWatcher:", value, ">", r);
-			globals.postCache = r;
+			setPostFields(r);
 			document.dispatchEvent(new CustomEvent<RouterEvent>("router-event", { detail: { query: { post: r.post_id } } }));
 		});
 	}
@@ -931,7 +936,7 @@ function colorizeTags(tags: Set<string> | null = null) {
 
 watch(() => route.query?.post?.toString(), postWatcher);
 watch(() => update.value?.webResize, calcResize);
-watch(() => update.value.parent, fetchParent);
+watch(() => update.value.reply_to, fetchParent);
 watch(width, calcResize);
 watch(height, calcResize);
 </script>

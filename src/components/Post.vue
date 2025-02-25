@@ -182,9 +182,8 @@ const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() 
 const isUpdated = computed(() => !props.postId ? props.created !== props.updated : false);
 const target = computed(() => props.to || "/p/" + props.postId	);
 
-function nav() {
+function popPostCache() {
 	if (!props.postId || !props.user || !props.created || !props.updated) return;
-
 	globals.postCache = {
 		post_id:     props.postId,
 		title:       props.title,
@@ -204,6 +203,11 @@ function nav() {
 		favorites:   props.favorites,
 		blocked:     props.blocked,
 	};
+}
+
+function nav() {
+	if (!props.postId || !props.user || !props.created || !props.updated) return;
+	popPostCache();
 	router.push(target.value);
 }
 
@@ -269,6 +273,18 @@ function postComment() {
 		replyMessage.value = "";
 		replying.value = false;
 	});
+}
+
+function openEditor() {
+	if (!props.postId || !props.user || !props.created || !props.updated) return;
+
+	let path = "/create?reply_to=" + props.postId;
+	if (replyMessage.value) {
+		path += "&description=" + encodeURIComponent(replyMessage.value);
+	}
+
+	popPostCache();
+	router.push(path);
 }
 
 function editToggle() {
