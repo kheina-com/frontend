@@ -14,7 +14,7 @@
 		</div>
 		<Title static='center'>New Post</Title>
 		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{`${windowHost}/p/${postId}`}}</router-link></Loading></Subtitle>
-		<Subtitle static='center' v-if='parent || update.reply_to'>replying to {{ parentPost?.title ?? parent ?? update.reply_to }}</Subtitle>
+		<Subtitle static='center' v-if='parent || update.reply_to'>replying to <EditBox v-model:value='update.reply_to'>{{ update.reply_to ?? parentPost?.title }}</EditBox></Subtitle>
 		<div class='form'>
 			<Loading type='block' :isLoading='isUploading'>
 				<!-- this hasn't been implemented server-side yet, though the field is already handled here -->
@@ -283,6 +283,7 @@ import CheckBox from '@/components/CheckBox.vue';
 import Post from '@/components/Post.vue';
 import SetComponent from '@/components/Set.vue';
 import DropDownSelector from '@/components/DropDownSelector.vue';
+import EditBox from '@/components/EditBox.vue';
 
 const globals = store();
 const route = useRoute();
@@ -352,13 +353,30 @@ interface RouterEvent {
 	},
 }
 
+// fetch tags recommendations
+khatch(`${host}/v1/tags/frequently_used`, {
+	errorMessage: "Unable To Retrieve Your Recommended Tags!",
+	errorHandlers: { 404: () => { } },
+}).then(r => r.json())
+.then((r: { [k: string]: string[] }) => {
+	tagSuggestions.value = { };
+	for (let [group, tags] of Object.entries(r)) {
+		if (Object.values(tags).length !== 0) {
+			tagSuggestions.value[group] = tags;
+		}
+	}
+	setTimeout(colorizeTags);
+});
+
+// fetch user sets
+khatch(`${host}/v1/sets/user`, {
+	errorMessage: "Could not retrieve user sets!",
+}).then(r => r.json())
+.then(r => userSets.value = r);
+
 onMounted(() => {
 	postWatcher(route.query?.post?.toString());
 	document.addEventListener("router-event", queryListener);
-	khatch(`${host}/v1/sets/user`, {
-		errorMessage: "Could not retrieve user sets!",
-	}).then(r => r.json())
-	.then(r => userSets.value = r);
 });
 
 onUnmounted(() =>
@@ -541,7 +559,8 @@ function markDraft() {
 		handleError: true,
 		method: "PATCH",
 		body: {
-			privacy: "draft",
+			field_mask: ["privacy"],
+			privacy:    "draft",
 		},
 	})).then(() => {
 		privacy.value = update.value.privacy = "draft";
@@ -677,34 +696,35 @@ function uploadFile(finish: boolean = false) {
 
 function saveData() {
 	return new Promise<void>((resolve, reject) => {
-		let sendUpdate        = false;
+		const field_mask: string[] = [];
+
 		let requiredSuccesses = 0;
 		let successes         = 0;
 		let publish           = false;
 
 		if (title.value !== update.value.title) {
-			sendUpdate = true;
+			field_mask.push("title");
 			title.value = update.value.title = update.value.title.trim();
 		}
 
 		if (description.value !== update.value.description) {
-			sendUpdate = true;
+			field_mask.push("description");
 			description.value = update.value.description;
 		}
 
 		if (rating.value !== update.value.rating) {
-			sendUpdate = true;
+			field_mask.push("rating");
 			rating.value = update.value.rating;
 		}
 
 		if (parent.value !== update.value.reply_to) {
-			sendUpdate = true;
+			field_mask.push("reply_to");
 			parent.value = update.value.reply_to;
 		}
 
 		if (privacy.value !== update.value.privacy) {
 			publish = !PublishedPrivacies.has(privacy.value) && PublishedPrivacies.has(update.value.privacy);
-			sendUpdate = true;
+			field_mask.push("privacy");
 			privacy.value = update.value.privacy;
 		}
 
@@ -725,12 +745,13 @@ function saveData() {
 			}
 		};
 
-		if (sendUpdate) {
+		if (field_mask.length) {
 			requiredSuccesses++;
 			khatch(`${host}/v1/post/${postId.value}`, {
 				method: "PATCH",
 				errorMessage: "failed to update post!",
 				body: {
+					field_mask,
 					title:       title.value,
 					description: description.value,
 					rating:      rating.value,
@@ -743,8 +764,7 @@ function saveData() {
 
 		let rTags: string[] = [];
 		savedTags.value.forEach(tag => {
-			if (!aTags.has(tag))
-			{ rTags.push(tag); }
+			if (!aTags.has(tag)) rTags.push(tag);
 		});
 
 		if (rTags.length > 0) {
@@ -762,8 +782,7 @@ function saveData() {
 
 		let newTags: string[] = [];
 		aTags.forEach(tag => {
-			if (!savedTags.value.has(tag))
-			{ newTags.push(tag); }
+			if (!savedTags.value.has(tag)) newTags.push(tag);
 		});
 
 		if (newTags.length > 0) {
@@ -792,7 +811,6 @@ function saveData() {
 
 function queryListener(event: Event): void {
 	const query = (event as CustomEvent<RouterEvent | null>).detail?.query;
-	if (query?.post?.length !== 8) return;
 
 	let p = route.path;
 	if (query) {
@@ -811,6 +829,7 @@ function postWatcher(value?: string) {
 	const unset = () => {
 		uploadDone.value = false;
 		filename = null;
+		file.value = undefined;
 		mediaUrl.value = undefined;
 		isUploading.value = false;
 		uploadLoaded.value = 0;
@@ -820,12 +839,13 @@ function postWatcher(value?: string) {
 	const setPostFields = (r: Post) => {
 		console.debug("postWatcher:", value, ">", r);
 		postId.value = r.post_id;
+		unset();
 
 		description.value = update.value.description = r.description;
 		title.value       = update.value.title       = r.title;
 		privacy.value     = update.value.privacy     = r.privacy;
 		rating.value      = update.value.rating      = r.rating;
-		parent.value      = update.value.parent      = r.parent?.post_id ?? null;
+		parent.value      = update.value.reply_to    = r.parent?.post_id ?? null;
 		parentPost.value  = r.parent ?? null;
 
 		if (route.query?.title)       update.value.title       = route.query.title.toString();
@@ -839,9 +859,6 @@ function postWatcher(value?: string) {
 			mediaUrl.value   = r.media.url;
 			width.value      = r.media.size.width;
 			height.value     = r.media.size.height;
-		}
-		else {
-			unset();
 		}
 
 		if (r.tags) {
@@ -862,20 +879,6 @@ function postWatcher(value?: string) {
 			.then(setPostFields);
 		}
 
-		khatch(`${host}/v1/tags/frequently_used`, {
-			errorMessage: "Unable To Retrieve Your Recommended Tags!",
-			errorHandlers: { 404: () => { } },
-		}).then(r => r.json())
-		.then((r: { [k: string]: string[] }) => {
-			tagSuggestions.value = { };
-			for (let [group, tags] of Object.entries(r)) {
-				if (Object.values(tags).length !== 0) {
-					tagSuggestions.value[group] = tags;
-				}
-			}
-			setTimeout(colorizeTags);
-		});
-
 		khatch(`${host}/v1/sets/post/${postId.value}`, {
 			errorMessage: "Could not retrieve post sets!",
 		}).then(r => r.json())
@@ -884,14 +887,12 @@ function postWatcher(value?: string) {
 		});
 	}
 	else {
-		unset();
 		khatch(`${host}/v1/post`, {
 			method: "PUT",
 			errorMessage: "Unable To Create New Post Draft!",
 			body: { },
 		}).then(r => r.json())
 		.then((r: Post) => {
-			console.debug("postWatcher:", value, ">", r);
 			setPostFields(r);
 			document.dispatchEvent(new CustomEvent<RouterEvent>("router-event", { detail: { query: { post: r.post_id } } }));
 		});

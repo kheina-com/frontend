@@ -76,7 +76,7 @@ export default defineStore("globals", {
 				delete this.toasts[id];
 				clearTimeout(timeout);
 			};
-			this.toasts[id] = {
+			const toast = {
 				id,
 				title: options?.title,
 				description: options?.description,
@@ -85,6 +85,8 @@ export default defineStore("globals", {
 				icon: options?.icon || "warning",
 				close,
 			};
+			this.toasts[id] = toast;
+			console.debug("[createToast]", id, toast);
 		},
 		userConfig(config: any) {
 			this.config = {
@@ -96,15 +98,15 @@ export default defineStore("globals", {
 				khatch(`${host}/v1/post/${config.wallpaper}`, {
 					errorMessage: 'Failed to Retrieve User Wallpaper!',
 				}).then(r => r.json())
-				.then((r: Post) => {
-					if (!r.media) return;
-					document.documentElement.style.backgroundImage = `url(${r.media.url})`;
-					document.documentElement.style.backgroundAttachment = 'fixed';
-					document.documentElement.style.backgroundPosition = 'top center';
-					document.documentElement.style.backgroundRepeat = 'no-repeat';
-					document.documentElement.style.backgroundSize = 'cover';
-					document.body.style.backgroundImage = 'none';
-				});
+					.then((r: Post) => {
+						if (!r.media) return;
+						document.documentElement.style.backgroundImage = `url(${r.media.url})`;
+						document.documentElement.style.backgroundAttachment = 'fixed';
+						document.documentElement.style.backgroundPosition = 'top center';
+						document.documentElement.style.backgroundRepeat = 'no-repeat';
+						document.documentElement.style.backgroundSize = 'cover';
+						document.body.style.backgroundImage = 'none';
+					});
 			}
 			else {
 				document.documentElement.style.backgroundImage = "";

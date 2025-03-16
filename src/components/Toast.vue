@@ -20,7 +20,6 @@ import CopyText from '@/components/CopyText.vue';
 import store from '@/globals';
 const globals = store();
 </script>
-
 <style scoped>
 .toasts {
 	position: fixed;

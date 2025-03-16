@@ -259,6 +259,7 @@ function postComment() {
 		method: "PUT",
 		handleError: true,
 		body: {
+			field_mask: ["reply_to", "description", "rating", "privacy"],
 			reply_to: props.postId,
 			description: replyMessage.value.trim(),
 			rating: "general",

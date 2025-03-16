@@ -51,7 +51,7 @@
 			<div class='buttons'>
 				<Button @click='togglePost'>toggle</Button>
 				<!-- <Button @click='toggleThumbhash'>thumbhash</Button> -->
-				<input placeholder='post' class='interactable' v-model='postId'/>
+				<input placeholder='post_id' class='interactable' v-model='postId'/>
 			</div>
 		</div>
 		<div class='post-tiles'>
@@ -120,7 +120,7 @@
 		<ThemeMenu />
 	</main>
 </template>
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import store from '@/globals';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -135,6 +135,7 @@ import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
 import Spinner from '@/components/Spinner.vue';
 import QR from '@/components/QR.vue';
+import Thumbnail from '@/components/Thumbnail.vue';
 import { LookupEmoji } from '@/utilities/emoji';
 
 const globals = store();

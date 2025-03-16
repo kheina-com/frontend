@@ -9,7 +9,6 @@
 				<div class='media-container'>
 					<video
 						ref='media'
-						:src='src'
 						:title='alt'
 						:controls='controls'
 						:style='linkStyle'
@@ -29,7 +28,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import { computed, onMounted, onUnmounted, ref, toRef, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, toRaw, toRef, watch, type Ref } from 'vue';
 import { base64ToBytes, createToast } from '@/utilities';
 import { cdnRegex } from '@/config/constants';
 import store from '@/globals';
@@ -66,7 +65,7 @@ const props = withDefaults(defineProps<{
 
 const isLoading: Ref<boolean> = ref(!props.thumbhash);
 const isError: Ref<boolean> = ref(false);
-const media = ref<HTMLImageElement | null>(null) as Ref<HTMLImageElement>;
+const media = ref<HTMLImageElement | HTMLVideoElement | null>(null) as Ref<HTMLImageElement | HTMLVideoElement>;
 const mediaContainer = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const loader = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const container = ref<HTMLDivElement | null>(null);
@@ -116,7 +115,7 @@ Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, 
 		// TODO: in the future, the browser should just cache the image locally and be able to load it directly from img.src
 		// this.src = url;
 		const ms = blob.size / 60000;
-		console.debug("render time:", ms / 1000);
+		console.debug("[Media] render time:", ms / 1000);
 		this.onload = () => {
 			revoke(this.src);
 			// wait for the image to fully render (based on image size) before fading in
@@ -138,49 +137,7 @@ onMounted(() => {
 
 	allowScalar();
 	window.addEventListener("resize", allowScalar);
-	console.log("media.value:", media.value)
-
-	media.value.addEventListener("render", onLoad);
-	// return this.$refs.media.src = this.src;
-
-	if (isImage.value) {
-		const show = setTimeout(() => {
-			window.addEventListener("scroll", onScroll);
-			window.addEventListener("resize", onScroll);
-			onScroll();
-			loader.value.style.opacity = "1";
-		}, 1000);
-
-		// const i = new Image();
-		// i.onlo
-		(media.value as Image).load(props.src, e => {
-			loaded.value = e.loaded;
-			total = e.total;
-		});
-		// i.dataset = this.$refs.media.dataset;
-		// i.className = this.$refs.media.className;
-		// this.$refs.media.parentNode.replaceChild(i, this.$refs.media);		
-		// this.$refs.media = i;
-		media.value.addEventListener("load", () => clearTimeout(show));
-		media.value.addEventListener("render", () => {
-			window.removeEventListener("scroll", onScroll);
-			window.removeEventListener("resize", onScroll);
-		});
-	}
-	else if (isVideo.value) {
-		const show = setTimeout(() => {
-			window.addEventListener("scroll", onScroll);
-			window.addEventListener("resize", onScroll);
-			onScroll();
-			loader.value.style.opacity = "1";
-		}, 1000);
-		media.value.addEventListener("canplay", () => media.value.dispatchEvent(new Event("render")));
-		media.value.src = props.src;
-	}
-	else {
-		media.value.src = props.src;
-		// error
-	}
+	loadMedia();
 });
 
 onUnmounted(() => {
@@ -208,6 +165,57 @@ const emits = defineEmits([
 	"update:blob",
 ]);
 
+function loadMedia() {
+	if (props.src === media.value?.src) return;
+	isError.value = false;
+	isLoading.value = !props.thumbhash;
+	media.value.addEventListener("render", onLoad, { once: true });
+
+	if (isImage.value) {
+		const m = media.value as Image;
+		const show = setTimeout(() => {
+			window.addEventListener("scroll", onScroll);
+			window.addEventListener("resize", onScroll);
+			onScroll();
+			loader.value.style.opacity = "1";
+		}, 1000);
+
+		m.load(props.src, e => {
+			loaded.value = e.loaded;
+			total = e.total;
+		});
+		m.addEventListener("load", () => {
+			clearTimeout(show);
+			if (m.naturalWidth) emits("update:width", m.naturalWidth);
+			if (m.naturalHeight) emits("update:height", m.naturalHeight);
+		});
+		m.addEventListener("render", () => {
+			window.removeEventListener("scroll", onScroll);
+			window.removeEventListener("resize", onScroll);
+		});
+	}
+	else if (isVideo.value) {
+		const m = media.value as HTMLVideoElement;
+		const show = setTimeout(() => {
+			window.addEventListener("scroll", onScroll);
+			window.addEventListener("resize", onScroll);
+			onScroll();
+			loader.value.style.opacity = "1";
+		}, 1000);
+		m.addEventListener("canplay", () => {
+			clearTimeout(show);
+			if (m.videoWidth) emits("update:width", m.videoWidth);
+			if (m.videoHeight) emits("update:height", m.videoHeight);
+			m.dispatchEvent(new Event("render"));
+		});
+		m.src = props.src;
+	}
+	else {
+		media.value.src = props.src;
+		// error ?
+	}
+}
+
 function onLoad() {
 	if (!media.value) return;
 	allowScalar();
@@ -225,8 +233,7 @@ function onLoad() {
 		(media.value.parentNode as HTMLElement).prepend(div);
 	}
 	if (loader.value) loader.value.style.display = "none";
-	if (media.value.naturalWidth) emits("update:width", media.value.naturalWidth);
-	if (media.value.naturalHeight) emits("update:height", media.value.naturalHeight);
+	if (media.value && media.value.parentNode) (media.value.parentNode as HTMLDivElement).style.opacity = "1";
 }
 
 function onError() {
@@ -236,6 +243,7 @@ function onError() {
 	isLoading.value = false;
 	isError.value = true;
 	mediaContainer.value.classList.add("error");
+	(media.value.parentNode as HTMLDivElement).style.opacity = "0";
 
 	createToast({
 		title: "Failed To Load Media",
@@ -254,11 +262,6 @@ function th(value: string | null) {
 		(media.value.parentNode as HTMLDivElement).style.opacity = "0";
 		mediaContainer.value.classList.add("th");
 		// this.isLoading = false;
-		media.value.addEventListener("render", () => {
-			// this.$refs.media.parentNode.style.background = null;
-			if (media.value && media.value.parentNode) (media.value.parentNode as HTMLDivElement).style.opacity = "1";
-			// setTimeout(() => this.$refs.media.style.opacity = 100, 150);
-		}, { once: true });
 	}
 	catch (e) {
 		console.error("thumbhash:", value, "dataurl:", dataurl, "error:", e);
@@ -300,27 +303,19 @@ function onScroll() {
 }
 
 watch(scalar, (value: boolean) => {
-	if (!mediaContainer.value) return;
+	if (!mediaContainer.value || !mediaContainer.value.parentElement) return;
+	const mcp = mediaContainer.value.parentElement as HTMLDivElement;
 	if (value) {
-		(mediaContainer.value.parentElement as HTMLDivElement).style.maxHeight = "calc(100vh - 2.5rem - var(--margin) * 2)";
+		mcp.classList.add("scale-height");
 	}
 	else {
-		(mediaContainer.value.parentElement as HTMLDivElement).style.maxHeight = "";
+		mcp.classList.remove("scale-height");
 	}
 });
 watch(() => props.thumbhash, th);
-watch(() => props.src, (value: string) => {
-	if (!isImage.value) return;
-
-	loaded.value = total = 0;
-	(media.value as Image).load(value, e => {
-		loaded.value = e.loaded;
-		total = e.total;
-	});
-
-	isLoading.value = !props.thumbhash;
-	(media.value.parentNode as HTMLDivElement).classList.remove("bg");	
-});
+// timeout required or else the media may be loaded into the wrong media type
+// ie img -> <video> or video -> <img>
+watch(props, () => setTimeout(loadMedia, 0));
 </script>
 <style scoped>
 ._media {
@@ -331,6 +326,9 @@ watch(() => props.src, (value: string) => {
 }
 .media {
 	margin: auto;
+}
+.scale-height {
+	max-height: calc(100vh - 2.5rem - var(--margin) * 2);
 }
 .spinner {
 	display: flex;
@@ -385,6 +383,7 @@ watch(() => props.src, (value: string) => {
 	justify-content: center;
 	height: 100%;
 	width: 100%;
+	overflow: hidden;
 }
 .error > span {
 	position: absolute;

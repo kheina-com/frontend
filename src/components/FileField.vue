@@ -12,7 +12,7 @@
 	</form>
 </template>
 <script setup lang='ts'>
-import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { onMounted, onUnmounted, ref, toRef, watch, type Ref } from 'vue';
 import { isMobile } from '@/config/constants';
 import Media from '@/components/Media.vue';
 
@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
 	id: "file-field",
 });
 
-const file: Ref<File | undefined> = ref(props.file);
+const file: Ref<File | undefined> = toRef(props, "file");
 const src: Ref<string | undefined> = ref();
 const width: Ref<number> = ref(props.width);
 const height: Ref<number> = ref(props.height);
@@ -60,8 +60,6 @@ function listener(e: ClipboardEvent) {
 
 function addFile(f: File) {
 	file.value = f;
-	src.value = window.URL.createObjectURL(f);
-	console.log("file:", f, "src:", src.value);
 	emits("update:file", f);
 }
 
@@ -84,6 +82,17 @@ function rightClick(event: MouseEvent) {
 
 watch(width, (value?: number) => emits("update:width", value));
 watch(height, (value?: number) => emits("update:height", value));
+watch(file, (f?: File) => {
+	if (src.value) {
+		window.URL.revokeObjectURL(src.value);
+		console.debug("[FileField] revoked", src.value);
+		src.value = undefined;
+	}
+	if (f) {
+		src.value = window.URL.createObjectURL(f);
+		console.debug("[FileField] file:", f, "src:", src.value);
+	}
+});
 </script>
 
 <style scoped>

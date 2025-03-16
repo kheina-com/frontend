@@ -12,7 +12,7 @@
 					<span>Password</span>
 					<div>
 						<router-link to='/a/reset_password'>forgot?</router-link>
-						<input type='password' id='password' name='password' v-model='password' autocomplete='off' class='interactable text'>
+						<input type='password' id='password' name='password' v-model='password' @keydown.enter='sendLogin' autocomplete='off' class='interactable text'>
 						<button @click='sendLogin' @keydown.enter='sendLogin' class='interactable' v-show='!otpRequired'>Submit »</button>
 					</div>
 				</div>
@@ -20,7 +20,7 @@
 					<span>One-Time Password</span>
 					<div>
 						<router-link to='/a/remove_otp'>lost?</router-link>
-						<input id='otp' name='otp' v-model='otp' autocomplete='off' class='interactable text'>
+						<input id='otp' name='otp' v-model='otp' @keydown.enter='sendLogin' autocomplete='off' class='interactable text'>
 						<button @click='sendLogin' @keydown.enter='sendLogin' class='interactable'>Submit »</button>
 					</div>
 				</div>

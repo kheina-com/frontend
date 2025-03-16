@@ -385,6 +385,7 @@ function postComment() {
 	khatch(`${host}/v1/post`, {
 		method: "PUT",
 		body: {
+			field_mask: ["reply_to", "description", "rating", "privacy"],
 			reply_to: props.postId,
 			description: newComment.value.trim(),
 			rating: "general",
