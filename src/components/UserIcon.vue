@@ -1,8 +1,7 @@
 <template>
 	<img ref='media' :data-src='src' @load='loaded' @error='onError'>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { getIconUrl, lazyObserver } from '@/utilities';
 import defaultUserIcon from '$/default-icon.png?url';
@@ -21,11 +20,8 @@ onMounted(() => {
 
 const src = computed(() => {
 	if (!props.handle) return null;
-
-	if (props.post)
-	{ return getIconUrl(props.post, props.handle.toLowerCase()); }
-	else
-	{ return defaultUserIcon; }
+	if (props.post) return getIconUrl(props.post, props.handle);
+	return defaultUserIcon;
 });
 
 function loaded(_: Event) {
@@ -42,7 +38,6 @@ watch(() => props.post, (value?: string | null) => {
 	if (value) lazyObserver.observe(media.value);
 });
 </script>
-
 <style scoped>
 img {
 	object-fit: cover;

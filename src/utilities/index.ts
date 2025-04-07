@@ -75,11 +75,11 @@ export function getEmojiUrl(emoji: Emoji): string {
 }
 
 export function getIconUrl(postId: string, handle: string, extension = "webp") {
-	return `${cdnHost}/${postId}/icons/${handle}.${extension}`;
+	return `${cdnHost}/${postId}/icons/${handle.toLowerCase()}.${extension}`;
 }
 
 export function getBannerUrl(postId: string, handle: string, extension = "webp") {
-	return `${cdnHost}/${postId}/banners/${handle}.${extension}`;
+	return `${cdnHost}/${postId}/banners/${handle.toLowerCase()}.${extension}`;
 }
 
 export function round(num: number, precision: number): number {

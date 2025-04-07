@@ -428,9 +428,7 @@ const selfClass = computed(() => {
 
 const banner = computed(() => {
 	if (!user.value?.banner) return undefined;
-
-	if (bannerWebpFailed)
-	{ return getBannerUrl(user.value.banner, user.value.handle, "jpg"); }
+	if (bannerWebpFailed) return getBannerUrl(user.value.banner, user.value.handle, "jpg");
 	return getBannerUrl(user.value.banner, user.value.handle);
 });
 
