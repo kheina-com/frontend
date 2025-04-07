@@ -91,11 +91,11 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 		const DBOpenRequest = indexedDB.open(emojiDbName, emojiDbVersion);
 
 		DBOpenRequest.onerror = DBOpenRequest.onblocked = () => {
-			console.error("failed to open emoji database:", DBOpenRequest);
+			console.error("[emoji] failed to open database:", DBOpenRequest);
 		};
 
 		DBOpenRequest.onupgradeneeded = e => {
-			console.debug("emoji db onupgradeneeded:", e);
+			console.debug("[emoji] db onupgradeneeded:", e);
 			emojiDb = DBOpenRequest.result;
 
 			if (!emojiDb.objectStoreNames.contains(emojiDbStore)) {
@@ -107,7 +107,7 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 				emojiDb.createObjectStore(updatedDbStore, { keyPath: "updated" });
 			}
 
-			console.log("created emoji database.");
+			console.log("[emoji] created database.");
 		};
 
 		DBOpenRequest.onsuccess = async () => {
@@ -145,7 +145,7 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 				}
 
 				if (count) transaction.commit();
-				console.debug("loaded", count, "emojis into db");
+				console.debug("[emojis] loaded", count, "emojis into db");
 			}).then(async () => {
 				const transaction = emojiDb.transaction([updatedDbStore], readwrite);
 				const store = transaction.objectStore(updatedDbStore);
@@ -163,9 +163,9 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 			});
 
 			res(emojiDb);
-			console.debug("successfully connected to emoji db");
+			console.debug("[emoji] successfully connected to db");
 		};
-		console.debug("opening emoji database:", DBOpenRequest);
+		console.debug("[emoji] opening database:", DBOpenRequest);
 	}).finally(() => releaseCriticalPoint(refId));
 }
 

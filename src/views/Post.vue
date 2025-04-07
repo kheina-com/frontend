@@ -13,43 +13,24 @@
 		<div class='content'>
 			<div ref='media' class='media-container' v-show='post'>
 				<Media class='media' v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
-				<div class='set-controls' v-for='set in sets'>
-					<p>
-						<a class='disabled'><i class='material-icons'>first_page</i></a>
-						<router-link v-for='(p, index) in set.neighbors.before' :to='`/p/${p.post_id}`' :title='p.title || `page ${set.neighbors.index - index - 1}`'><span v-if='index'>{{ set.neighbors.index - index - 1 }}</span><i class='material-icons' v-else>navigate_before</i></router-link>
-					</p>
-					<router-link :to='`/s/${set.set_id}`' :title='`${set.title} post ${set.neighbors.index + 1} of ${set.count}`'>{{set.title}}</router-link>
-					<p>
-						<router-link v-for='(p, index) in set.neighbors.after' :to='`/p/${p.post_id}`' :title='p.title || `page ${set.neighbors.index + index + 1}`'><span v-if='index'>{{ set.neighbors.index + index + 1 }}</span><i class='material-icons' v-else>navigate_next</i></router-link>
-						<a class='disabled'><i class='material-icons'>last_page</i></a>
-					</p>
-				</div>
+				<SetControls :set='set' v-for='set in sets'/>
 			</div>
 			<main>
 				<div class='post-header'>
 					<Score :score='post?.score' :postId='props.postId'/>
 					<div class='post-title'>
-						<input v-if='editing && post' class='interactable text title-field' v-model='post.title'>
-						<h2 v-else>
+						<h2>
 							<Loading span v-if='isLoading'>this is an example title</Loading>
 							<Markdown v-else :content='post?.title' inline/>
 						</h2>
 						<div class='privacy'>
 							<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-							<router-link v-if='userIsUploader' :to='"/create?post=" + props.postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button></router-link>
+							<router-link v-if='userIsUploader' :to='"/create?post=" + props.postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>edit</i></Button></router-link>
 						</div>
 						<Profile :isLoading='isLoading' v-bind='post?.user'/>
 					</div>
 				</div>
 				<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-				<div v-else-if='editing && post' style='width: 100%'>
-					<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: var(--margin)'/>
-					<div class='update-button'>
-						<Button :href='`/create?post=${props.postId}`'><i class='material-icons-round'>launch</i><span>Full Editor</span></Button>
-						<Button @click='updatePost' green><i class='material-icons-round'>check</i><span>Update</span></Button>
-						<Button @click='deletePost' red><i class='material-icons-round'>close</i><span>Delete</span></Button>
-					</div>
-				</div>
 				<Markdown v-else-if='post?.description' :content='post.description' style='margin: 0 0 var(--margin)'/>
 				<Loading :isLoading='isLoading'>
 					<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
@@ -108,101 +89,95 @@
 		<div class='scroller' ref='scroller'/>
 		<div class='media-container' v-show='post'>
 			<Media v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
-			<div class='set-controls' v-for='set in sets'>
-				<a class='disabled'><i class='material-icons'>first_page</i></a>
-				<router-link v-for='(p, index) in set.neighbors.before' :to='`/p/${p.post_id}`'><span v-if='index'>{{ set.neighbors.index - index - 1 }}</span><i class='material-icons' v-else>navigate_before</i></router-link>
-				<router-link :to='`/s/${set.set_id}`'>{{set.title}}</router-link>
-				<router-link v-for='(p, index) in set.neighbors.after' :to='`/p/${p.post_id}`'><span v-if='index'>{{ set.neighbors.index + index + 1 }}</span><i class='material-icons' v-else>navigate_next</i></router-link>
-				<a class='disabled'><i class='material-icons'>last_page</i></a>
-			</div>
+			<SetControls :set='set' v-for='set in sets'/>
 		</div>
-		<div class='container'>
-			<Sidebar :post='post' v-model:scalar='scalar' class='sidebar'/>
-			<div class='main'>
-				<main>
-					<div class='post-header'>
-						<Score :score='post?.score' :postId='props.postId'/>
-						<div class='post-title'>
-							<input v-if='editing && post' class='interactable text title-field' v-model='post.title'>
-							<h2 v-else>
-								<Loading span v-if='isLoading'>this is an example title</Loading>
-								<Markdown v-else :content='post?.title' inline/>
-							</h2>
-							<div class='privacy'>
-								<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
-								<router-link v-if='userIsUploader' :to='"/create?post=" + props.postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i></Button></router-link>
-							</div>
-							<Profile :isLoading='isLoading' v-bind='post?.user'/>
-						</div>
+		<main>
+			<div class='post-header'>
+				<Score :score='post?.score' :postId='props.postId'/>
+				<div class='post-title'>
+					<h2>
+						<Loading span v-if='isLoading'>this is an example title</Loading>
+						<Markdown v-else :content='post?.title' inline/>
+					</h2>
+					<div class='privacy'>
+						<Subtitle static='right' v-if='showPrivacy'>{{post?.privacy}}</Subtitle>
+						<router-link v-if='userIsUploader' :to='"/create?post=" + props.postId'><Button class='edit-button'><i class='material-icons-round' style='margin: 0'>edit</i></Button></router-link>
 					</div>
-					<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-					<div v-else-if='editing && post' style='width: 100%'>
-						<MarkdownEditor v-model:value='post.description' height='30em' resize='vertical' style='margin-bottom: var(--margin)'/>
-						<div class='update-button'>
-							<Button :href='`/create?post=${props.postId}`'><i class='material-icons-round'>launch</i><span>Full Editor</span></Button>
-							<Button @click='updatePost' green><i class='material-icons-round'>check</i><span>Update</span></Button>
-							<Button @click='deletePost' red><i class='material-icons-round'>close</i><span>Delete</span></Button>
-						</div>
-					</div>
-					<Markdown v-else-if='post?.description' :content='post.description' style='margin: 0 0 var(--margin)'/>
-					<Loading :isLoading='isLoading'>
-						<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
-						<Subtitle static='left' v-else>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
-					</Loading>
-					<div class='post-buttons' v-if='post'>
-						<ReportButton :data='{ post: props.postId }'/>
-						<RepostButton :postId='props.postId' v-model:count='post.reposts'/>
-						<FavoriteButton :postId='props.postId' v-model:count='post.favorites'/>
-						<ShareLink :content='`/p/${props.postId}`' v-if='!unpublishedPrivacy.has(post?.privacy)'/>
-						<DropDown :options="[
-							{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
-							{ html: `Block @${post?.user?.handle}`, action: () => { } },
-							{ html: `Report @${post?.user?.handle}`, action: () => { } },
-						]">
-							<i class='more-button material-icons-round'>more_horiz</i>
-						</DropDown>
-					</div>
-					<ThemeMenu/>
-				</main>
-			</div>
-		</div>
-		<div class='reply-section'>
-			<div class='reply-header'>
-				<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
-				<div class='reply-field'>
-					<p class='reply-label'>
-						{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
-						<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
-							{ html: 'Top', value: 'top' },
-							{ html: 'Hot', value: 'hot' },
-							{ html: 'Best', value: 'best' },
-							{ html: 'Controversial', value: 'controversial' },
-						]">
-							<span class='sort-by'>
-								<i class='material-icons-round'>sort</i>
-								sort by
-							</span>
-						</DropDown>
-					</p>
-					<div class='buttons' v-if='writeComment'>
-						<Button class='button' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
-						<Button class='button' @click='openEditor'><i class='material-icons-round'>edit_note</i><span>Editor</span></Button>
-						<Button class='button' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
-					</div>
-					<Button class='interactable buttons' @click='globals.user ? writeComment = true : $router.push(`/a/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
+					<Profile :isLoading='isLoading' v-bind='post?.user'/>
 				</div>
 			</div>
+			<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
+			<Markdown v-else-if='post?.description' :content='post.description' style='margin: 0 0 var(--margin)'/>
+			<Loading :isLoading='isLoading'>
+				<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/> (edited <Timestamp :datetime='post?.updated' live/>)</Subtitle>
+				<Subtitle static='left' v-else>{{unpublishedPrivacy.has(post?.privacy) ? 'created' : 'posted'}} <Timestamp :datetime='post?.created' live/></Subtitle>
+			</Loading>
+			<div class='post-buttons' v-if='post'>
+				<ReportButton :data='{ post: props.postId }'/>
+				<RepostButton :postId='props.postId' v-model:count='post.reposts'/>
+				<FavoriteButton :postId='props.postId' v-model:count='post.favorites'/>
+				<ShareLink :content='`/p/${props.postId}`' v-if='!unpublishedPrivacy.has(post?.privacy)'/>
+				<DropDown :options="[
+					{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
+					{ html: `Block @${post?.user?.handle}`, action: () => { } },
+					{ html: `Report @${post?.user?.handle}`, action: () => { } },
+				]">
+					<i class='more-button material-icons-round'>more_horiz</i>
+				</DropDown>
+			</div>
+			<ThemeMenu/>
+		</main>
+		<div class='tabs'>
+			<button @click='selectTab' id='info'>
+				Info
+				<div class='border'/>
+			</button>
+			<div class='separator'/>
+			<button @click='selectTab' id='replies'>
+				Replies
+				<div class='border'/>
+			</button>
 		</div>
-		<ol class='replies'>
-			<li v-for='reply in replies'>
-				<Post :postId='reply?.post_id' v-bind='reply'/>
-			</li>
-		</ol>
+		<div class='active-tab'>
+			<Sidebar :post='post' v-model:scalar='scalar' class='sidebar' v-show='tab === "info"'/>
+			<div class='reply-section' v-show='tab === "replies"'>
+				<div class='reply-header'>
+					<MarkdownEditor v-model:value='newComment' resize='vertical' style='margin-bottom: var(--margin)' v-if='writeComment'/>
+					<div class='reply-field'>
+						<p class='reply-label'>
+							{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
+							<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
+								{ html: 'Top', value: 'top' },
+								{ html: 'Hot', value: 'hot' },
+								{ html: 'Best', value: 'best' },
+								{ html: 'Controversial', value: 'controversial' },
+							]">
+								<span class='sort-by'>
+									<i class='material-icons-round'>sort</i>
+									sort by
+								</span>
+							</DropDown>
+						</p>
+						<div class='buttons' v-if='writeComment'>
+							<Button class='button' @click='postComment' green><i class='material-icons-round'>create</i><span>Post</span></Button>
+							<Button class='button' @click='openEditor'><i class='material-icons-round'>edit_note</i><span>Editor</span></Button>
+							<Button class='button' @click='writeComment = false' red><i class='material-icons-round'>close</i><span>Cancel</span></Button>
+						</div>
+						<Button class='interactable buttons' @click='globals.user ? writeComment = true : $router.push(`/a/login?path=${$route.fullPath}`)' v-else><i class='material-icons-round'>reply</i><span>Reply</span></Button>
+					</div>
+				</div>
+				<ol class='replies'>
+					<li v-for='reply in replies'>
+						<Post :postId='reply?.post_id' v-bind='reply'/>
+					</li>
+				</ol>
+			</div>
+		</div>
 	</div>
 </template>
 <script setup lang='ts'>
 import { onMounted, computed, ref, watch, type Ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { khatch, setTitle, createToast } from '@/utilities';
 import { demarkdown } from '@/utilities/markdown';
@@ -224,16 +199,17 @@ import DropDown from '@/components/DropDown.vue';
 import ShareLink from '@/components/ShareLink.vue';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import RepostButton from '@/components/RepostButton.vue';
+import SetControls from '@/components/SetControls.vue';
 
 const props = defineProps<{
 	postId: string,
 }>();
 
 const globals = store();
+const route = useRoute();
 const router = useRouter();
 const unpublishedPrivacy: Set<string | undefined> = new Set(["unpublished", "draft"]);
 
-let editing: boolean = false;  // this is currently unused, if it becomes used, update it to a ref
 const post: Ref<Post | undefined> = ref();
 const writeComment: Ref<boolean> = ref(false);
 const replies: Ref<Post[] | null> = ref(null);
@@ -245,6 +221,21 @@ const commentSort: Ref<string> = ref("best");
 const scalar: Ref<boolean | undefined> = ref();
 const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const scroller = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const tab: Ref<string> = ref("replies");
+
+const tabs: Set<string> = new Set(["info", "replies"]);
+let tabElement: HTMLElement | null = null;
+if (isMobile) {
+	if (route.query?.tab && tabs.has(route.query.tab.toString())) {
+		tab.value = route.query.tab.toString();
+	}
+	else {
+		router.replace(route.path + "?tab=" + tab.value);
+	}
+}
+else if (route.query?.tab) {
+	router.replace(route.path);
+}
 
 khatch(`${host}/v1/sets/post/${props.postId}`, {
 	errorMessage: "Could not retrieve post sets!",
@@ -262,6 +253,12 @@ if (globals.postCache?.post_id === props.postId) {
 	post.value.reposts = 0;
 	width.value = post.value?.media?.size?.width;
 	height.value = post.value?.media?.size?.height;
+}
+if (isMobile) {
+	onMounted(() => {
+		tabElement = document.getElementById(tab.value);
+		((tabElement as HTMLElement).lastChild as HTMLDivElement).style.borderBottomWidth = "5px";
+	});
 }
 
 khatch(`${host}/v1/post/${props.postId}`, {
@@ -434,33 +431,6 @@ function countNestedComments(p: Post) {
 	return count;
 }
 
-function updatePost() {
-	if (!post.value) return;
-	khatch(`${host}/v1/post/${props.postId}`, {
-		method: "PATCH",
-		handleError: true,
-		body: {
-			title: post.value.title?.trim(),
-			description: post.value.description?.trim(),
-		},
-	}).then(r => r.json())
-	.then(r => console.log(r));
-
-	post.value.title = post.value.title?.trim() ?? null;
-	post.value.description = post.value.description?.trim() ?? null;
-	post.value.updated = new Date();
-	editing = false;
-}
-
-function deletePost() {
-	createToast({
-		title: "This function does not exist yet",
-		description: "Sorry!",
-		icon: "close",
-	});
-	editing = false;
-}
-
 function setLeft() {
 	if (isMobile || !media.value) return;
 	if (scalar.value) {
@@ -490,6 +460,16 @@ function scrollIntoView() {
 	}
 }
 
+function selectTab(event: Event) {
+	tab.value = (event.target as HTMLDivElement).id;
+
+	if (tabElement) (tabElement.lastChild as HTMLDivElement).style.borderBottomWidth = "0";
+	tabElement = (event.target as HTMLDivElement);
+	((tabElement as HTMLElement).lastChild as HTMLDivElement).style.borderBottomWidth = "5px";
+
+	router.push(route.path + `?tab=${tab.value}`);
+}
+
 watch(commentSort, fetchComments);
 watch(scalar, setLeft);
 watch(width, setLeft);
@@ -509,6 +489,10 @@ main {
 	align-items: flex-start;
 	position: relative;
 	padding: var(--margin);
+}
+.mobile main {
+	border: unset;
+	border-radius: 0;
 }
 .scroller {
 	position: absolute;
@@ -540,34 +524,6 @@ main {
 .media .loading p {
 	display: table-cell;
 }
-.set-controls {
-	margin: var(--margin) var(--margin) 0	;
-	display: flex;
-	justify-content: space-between;
-}
-.mobile .set-controls {
-	margin: 0 var(--margin) var(--margin);
-}
-.set-controls p {
-	display: flex;
-	align-items: center;
-}
-.set-controls p a {
-	margin: 0 var(--half-margin);
-}
-.set-controls p a i {
-	display: block;
-}
-.set-controls p > :last-child {
-	margin-right: 0;
-}
-.set-controls p > :first-child {
-	margin-left: 0;
-}
-.disabled {
-	opacity: 50%;
-	pointer-events: none;
-}
 
 html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	--bg2color: var(--bg1color);
@@ -577,6 +533,49 @@ html.solarized-dark .media, html.solarized-light .media, html.midnight .media {
 	position: relative;
 	margin: 0;
 }
+
+.mobile {
+	/* position: relative;
+	margin: 0 var(--neg-margin) var(--margin);
+	display: flex;
+	flex-direction: column;
+	align-items: center; */
+
+	.sidebar {
+		margin: var(--margin) 0;
+	}
+	.active-tab {
+		background: var(--bg2color);
+	}
+	.tabs {
+		display: flex;
+		border-bottom: var(--border-size) solid var(--bordercolor);
+		width: 100%;
+		background: var(--bg2color);
+		justify-content: center;
+	}
+	.tabs button {
+		position: relative;
+		flex: 1;
+		padding: 1em 0;
+	}
+	.tabs .separator {
+		background: var(--bordercolor);
+		width: var(--border-size);
+	}
+	.tabs .border {
+		position: absolute;
+		width: 100%;
+		left: 0;
+		bottom: 0;
+		-webkit-transition: var(--transition) var(--fadetime);
+		-moz-transition: var(--transition) var(--fadetime);
+		-o-transition: var(--transition) var(--fadetime);
+		transition: var(--transition) var(--fadetime);
+		border-bottom: solid 0 var(--interact);
+	}
+}
+
 .privacy {
 	display: flex;
 	position: absolute;
@@ -657,7 +656,7 @@ ol {
 	display: block;
 	position: relative;
 }
-ol li {
+ol.replies li, ol.parents li {
 	margin-bottom: var(--margin);
 	position: relative;
 }

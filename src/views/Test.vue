@@ -77,10 +77,10 @@
 				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
 		</ol>
+		<!-- <div class='thumbhash'>
+			<Thumbnail :media='{ updated: new Date(), crc: 0, filename: "", type: { file_type: "", mime_type: "" } }' :size='800' :render='false'/>
+		</div> -->
 		<Spinner :loaded='loaded' :total='1000000' style='margin: auto'/>
-		<div>
-			<input type='text' class='interactable text' placeholder='qr content' @input='lookupEmoji'>
-		</div>
 		<div class='slider'>
 			<input type='range' min='0' max='1000000' step='100' v-model='loaded'>
 			<span>{{ loaded }}</span>
@@ -90,6 +90,12 @@
 		<div class='slider'>
 			<input type='range' min='0' max='10' step='0.001' v-model='speed'>
 			<span>{{ speed }}</span>
+		</div>
+		<div class='translator'>
+			<p v-translate:accept_mature.html='{ rating: "mature" }'>this post is <b>{{ "gay" }}</b>, click to show.</p>
+			<p v-translate:view_source></p>
+			<p v-translate='"support_project"'></p>
+			<p v-translate='"cum"'></p>
 		</div>
 		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
@@ -121,7 +127,7 @@
 	</main>
 </template>
 <script setup lang='ts'>
-import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
 import store from '@/globals';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Countdown from '@/components/Countdown.vue';
@@ -135,8 +141,6 @@ import Markdown from '@/components/Markdown.vue';
 import PostTile from '@/components/PostTile.vue';
 import Spinner from '@/components/Spinner.vue';
 import QR from '@/components/QR.vue';
-import Thumbnail from '@/components/Thumbnail.vue';
-import { LookupEmoji } from '@/utilities/emoji';
 
 const globals = store();
 const ellipse = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -156,7 +160,6 @@ let post: Post | null = null;
 let speed: Ref<number> = ref(1);
 let loaded: Ref<number> = ref(0);
 let animate: boolean = true;
-let thumbhash: string | null = null;
 
 onMounted(() => {
 	ellipse.value.style.cssText = "position: relative; margin: auto";
@@ -358,18 +361,13 @@ function togglePost() {
 }
 
 function dumpStore() {
-	console.log("globals:", globals.$state);
+	console.log("globals:", toRaw(globals.$state));
 }
 
 function deleteAuth() {
 	deleteCookie("kh-auth");
 	document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
 	globals.setAuth(null);
-}
-
-function lookupEmoji(e: Event) {
-	const prefix = (e.target as HTMLInputElement).value;
-	LookupEmoji(prefix).then(console.log);
 }
 
 // function toggleThumbhash() {

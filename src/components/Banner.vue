@@ -57,8 +57,8 @@
 							<router-link to='/n'>
 								<div class='notifications'>
 									<i class='material-icons-round'>notifications</i>
-									<div class='counter' v-show='globals.notifications'>
-										<span>{{globals.notifications}}</span>
+									<div class='counter' v-show='globals.notifications.length'>
+										<span>{{ globals.notifications.length }}</span>
 									</div>
 								</div>
 								Notifications
@@ -195,8 +195,8 @@
 		<div class='menu-button' v-if='isMobile'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-				<div class='counter' v-show='!menuOpen && globals.notifications'>
-					<span>{{globals.notifications}}</span>
+				<div class='counter' v-show='!menuOpen && globals.notifications.length'>
+					<span>{{ globals.notifications.length }}</span>
 				</div>
 			</button>
 		</div>
@@ -206,8 +206,8 @@
 			</button>
 			<router-link to='/n' class='icon notifications' title='Notifications' v-if='globals.auth'>
 				<i class='material-icons-round'>notifications</i>
-				<div class='counter' v-show='globals.notifications'>
-					<span>{{globals.notifications}}</span>
+				<div class='counter' v-show='globals.notifications.length'>
+					<span>{{ globals.notifications.length }}</span>
 				</div>
 			</router-link>
 			<router-link to='/tl' class='icon timeline' title='Timeline' v-if='globals.auth'>

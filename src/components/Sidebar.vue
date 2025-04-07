@@ -1,6 +1,6 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div>
+	<div :class='isMobile ? "nested" : ""'>
 		<h3>Tags</h3>
 		<ol v-if='post?.tags'>
 			<li v-for='(value, name) in sortTagGroups(post.tags)'>
@@ -22,23 +22,32 @@
 		</ol>
 		<h3 style='padding-top: 2em'>Info</h3>
 		<div class='post-data' v-if='post'>
-			post id: <CopyText :content='post.post_id ?? (post as any).postId' inline/>
-			<br>
-			size: {{post.media?.size ? `${post.media.size.width}x${post.media.size.height}px` : 'none'}}
-			<br>
-			file type: {{post.media ? post.media.type.file_type : 'none'}}
-			<br>
-			description: {{post.description ? `${post.description.length} chars` : 'none'}}
+			<p>post id: <CopyText :content='post.post_id ?? (post as any).postId' inline/></p>
+			<div v-if='post.media'>
+				<p>size: {{`${post.media.size.width}x${post.media.size.height}px`}} ({{abbreviateBytes(post.media.length)}})</p>
+				<p>file type: {{post.media ? post.media.type.file_type : 'none'}}</p>
+			</div>
+			<p>description: {{post.description ? `${post.description.length} chars` : 'none'}}</p>
+			<p v-show='post.locked'>status: locked</p>
 		</div>
 		<div class='buttons'>
 			<a v-if='post?.media' class='interactable' :href='post.media.url' :download='post.media.filename' target='_blank'>download</a>
 			<button v-if='scalar !== undefined' class='interactable' @click='toggleScalar'>scalar</button>
 		</div>
+		<div class='mod' v-if='globals.auth?.isMod'>
+			<h3 style='padding-top: 2em'>Mod Actions</h3>
+			<div class='buttons'>
+				<router-link :to='"/mod/p/" + post?.post_id' class='interactable'>post actions</router-link>
+				<router-link :to='"/mod/a/" + post?.user?.handle' class='interactable'>user actions</router-link>
+				<router-link :to='"/mod/b/" + post?.user?.handle' class='interactable'>user bans</router-link>
+			</div>
+		</div>
 	</div>
 </template>
-<script setup lang="ts">
-import { sortTagGroups } from '@/utilities';
-import { tagGroups } from '@/config/constants';
+<script setup lang='ts'>
+import store from '@/globals';
+import { abbreviateBytes, sortTagGroups } from '@/utilities';
+import { isMobile, tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
 import CopyText from '@/components/CopyText.vue';
@@ -49,6 +58,7 @@ const props = defineProps<{
 	scalar?: boolean,
 }>();
 
+const globals = store();
 const scalar: Ref<boolean> = toRef(props, "scalar");
 const post: Ref<Post | undefined> = toRef(props, "post");
 const emits = defineEmits(["update:scalar"]);
@@ -88,14 +98,18 @@ h4 {
 }
 
 .buttons {
-	margin: var(--margin) var(--margin) 0;
+	margin: 0 var(--half-margin);
 	display: flex;
 	justify-content: space-around;
+	flex-wrap: wrap;
 }
 .buttons button, .buttons a {
-	/* margin: auto; */
+	margin: var(--margin) var(--half-margin) 0;
 	background: var(--bg1color);
 	display: block;
+}
+.mod .buttons {
+	margin-top: var(--neg-margin);
 }
 
 /* theme overrides */

@@ -31,13 +31,21 @@
 </template>
 <script setup lang='ts'>
 import { onUnmounted, ref, type Ref } from 'vue';
-import store from '@/globals';
+import store, { type AuthToken } from '@/globals';
 import { useRoute, useRouter } from 'vue-router';
 import { createToast, khatch } from '@/utilities';
 import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
+
+interface LoginResponse {
+	user_id: number,
+	handle: string,
+	name: string,
+	mod: boolean,
+	token: AuthToken,
+}
 
 const globals = store();
 const router  = useRouter();
@@ -56,9 +64,9 @@ const isLoading:   Ref<boolean>       = ref(false);
 // 	document.body.style.animation = 'login 10s linear infinite';
 // };
 
-onUnmounted(() => {
-	document.body.style.cssText = "";
-});
+onUnmounted(() =>
+	document.body.style.cssText = ""
+);
 
 function sendLogin() {
 	isLoading.value = true;
@@ -96,14 +104,22 @@ function sendLogin() {
 			},
 		},
 	}).then(r => r.json())
-	.then(r => {
-		if (r.token.token.length <= 10) return;
+	.then((r: LoginResponse) => {
+		if (r.token.token.length <= 10) throw "invalid token returned";
 		globals.setAuth(r.token);
-		router.push(route.query?.path ? route.query.path.toString() : "/");
-	}).finally(() => isLoading.value = false);
+	}).then(() => {
+		if (window.PublicKeyCredential) return window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+	}).then((available: boolean | undefined) =>
+		console.debug("[Login] platform auth availability:", available)
+	).then(() =>
+		router.push(route.query?.path ? route.query.path.toString() : "/")
+	).catch(err =>
+		console.error("[Login] failed to complete login:", err)
+	).finally(() =>
+		isLoading.value = false
+	);
 }
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

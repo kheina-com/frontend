@@ -280,6 +280,33 @@ const routes: RouteRecordRaw[] = [
 		},
 	},
 	{
+		path: "/mod/a/:handle",
+		name: "useractions",
+		props: true,
+		component: () => import("./views/UserActions.vue"),
+		meta: {
+			title: "User Actions | fuzz.ly",
+		},
+	},
+	// {
+	// 	path: "/mod/b/:handle",
+	// 	name: "modqueue",
+	// 	props: true,
+	// 	component: () => import("./views/UserBans.vue"),
+	// 	meta: {
+	// 		title: "User Bans | fuzz.ly",
+	// 	},
+	// },
+	{
+		path: "/mod/p/:postId",
+		name: "postactions",
+		props: true,
+		component: () => import("./views/PostActions.vue"),
+		meta: {
+			title: "Post Actions | fuzz.ly",
+		},
+	},
+	{
 		path: "/admin",
 		name: "admin",
 		component: () => import("./views/Admin.vue"),
@@ -319,8 +346,6 @@ export default createRouter({
 		if (savedPosition) {
 			// we set a timeout here so the scroll takes effect after vue renders the page
 			setTimeout(() => window.scrollTo(0, savedPosition.top), 0);
-			return;
 		}
-		return { top: 0 };
 	},
 });

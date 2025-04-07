@@ -1,24 +1,17 @@
 <template>
 	<main>
-		<p>
-			You found the placeholder page for notifications! Notifications are not currently implemented, but feel free to play the notification noise using the button below.
-		</p>
-		<div>
-			<Button @click='audio.play()'>
-				<i class='material-icons'>volume_up</i>
-				<span>play me!</span>
-			</Button>
-		</div>
+		<Title>Notifications</Title>
+		<Notification class='notification' v-bind='n' v-for='n in globals.notifications'/>
+		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
-import Button from '@/components/Button.vue';
-import notify from '$/sounds/notify.ogg';
-
-const audio = new Audio(notify);
+<script setup lang='ts'>
+import store from '@/globals';
+import Title from '@/components/Title.vue';
+import ThemeMenu from '@/components/ThemeMenu.vue';
+import Notification from '@/components/Notification.vue';
+const globals = store();
 </script>
-
 <style scoped>
 main {
 	background: var(--main);
@@ -27,10 +20,9 @@ main {
 	display: block;
 }
 
-p {
-	text-align: center;
+.notification {
 	margin: 0 auto var(--margin);
-	width: 70vw;
+	max-width: 45em;
 }
 
 button {

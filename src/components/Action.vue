@@ -1,34 +1,34 @@
 <template>
 	<router-link :to='`/r/${encodeURIComponent(report_id)}`' class='_report'>
-		<div class='_header'>
-			<Profile v-bind='reporter' v-if='reporter'/>
-			<div class='report-info'>
-				<h3>type: {{report_type}}</h3>
-				<p v-if='data.post'>Post: {{ data.post }}</p>
-				<p>URL: {{ data.url }}</p>
+		<div class='report-info'>
+			<h3>type: {{action_type}}</h3>
+			<p v-if='(action as ForceUpdateAction).post'>Post: {{ (action as any).post }}</p>
+			<div v-in='(action as ForceUpdateAction).field_updates'>
+				<ol>
+					<li v-for='(field, update) in (action as ForceUpdateAction).field_updates'>
+						{{ field }}: {{ update }}
+					</li>
+				</ol>
 			</div>
 		</div>
-		<Markdown :content='data.message'/>
+		<Markdown :content='reason'/>
 		<div style='margin-top: var(--margin)'>
 			<h3>Assignee:</h3>
 			<Profile v-bind='assignee' v-if='assignee'/>
 			<p v-else>unassigned</p>
 		</div>
-		<div>
-			<h3>Response:</h3>
-			<Markdown :content='response ?? "none"'/>
-		</div>
 		<Subtitle class='_ts' static='left'>created <Timestamp :datetime='created'/></Subtitle>
+		<Subtitle class='_ts' static='left' v-if='completed'>completed <Timestamp :datetime='completed'/></Subtitle>
 	</router-link>
 </template>
 <script setup lang='ts'>
-import { type Report } from '@/utilities/report';
+import { type ForceUpdateAction, type ModAction } from '@/utilities/report';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Subtitle from '@/components/Subtitle.vue';
 
-defineProps<Report>();
+defineProps<ModAction>();
 </script>
 <style scoped>
 ._header {

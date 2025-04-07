@@ -1,31 +1,7 @@
 /// <reference types="vite/client"/>
-// import 'pinia';
-declare module 'click-outside-vue3';
 
 interface ResizeDetails {
 	offset: number,
-}
-
-interface User {
-	name: string,
-	handle: string,
-	privacy: "public" | "private",
-	icon: string | null,
-	verified: string,
-	following: boolean,
-}
-
-interface Badge {
-	emoji: string;
-	label: string;
-}
-
-interface FullUser extends User {
-	description: string | null,
-	website: string | null,
-	created: string,
-	banner: string | null,
-	badges: Badge[],
 }
 
 interface Score {
@@ -73,7 +49,7 @@ interface Post {
 	post_id: string,
 	title: string | null,
 	description: string | null,
-	user: User,
+	user: import("./types/user").User,
 	score: Score | null,
 	rating: "general" | "mature" | "explicit",
 	parent_id: string | null,
@@ -83,6 +59,7 @@ interface Post {
 	updated: Date,
 	media: Media | null,
 	blocked: boolean,
+	locked?: boolean,
 	favorites: number | null,
 	reposts: number | null,
 	tags: Tags | null,
@@ -91,7 +68,7 @@ interface Post {
 
 interface PostSet {
 	set_id: string,
-	owner: User,
+	owner: import("./types/user").User,
 	count: number,
 	title: string | null,
 	description: string | null,
@@ -109,7 +86,7 @@ interface PostSet {
 
 interface Tag {
 	tag: string,
-	owner: User | null,
+	owner: import("./types/user").User | null,
 	group: string,
 	deprecated: boolean,
 	inherited_tags: string[],
@@ -119,7 +96,7 @@ interface Tag {
 
 interface TagPortable {
 	tag: string,
-	owner: User | null,
+	owner: import("./types/user").User | null,
 	group: string,
 	count: number,
 }
@@ -135,7 +112,7 @@ interface Tags {
 interface Emoji {
 	emoji: string,
 	alt: string | null,
-	owner: User | null,
+	owner: import("./types/user").User | null,
 	post_id: string | null,
 	filename: string,
 	url: string,

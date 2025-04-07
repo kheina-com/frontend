@@ -13,7 +13,7 @@
 			</ol>
 		</div>
 		<Title static='center'>New Post</Title>
-		<Subtitle static='center'>Your post {{PublishedPrivacies.has(privacy)? 'is' : 'will be'}} live at <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{`${windowHost}/p/${postId}`}}</router-link></Loading></Subtitle>
+		<Subtitle static='center'><span v-translate:[PublishedPrivacies.has(privacy)?'post_is_live':'post_will_live']>Your post will be live at</span> <Loading :isLoading='!postId' span><router-link :to='`/p/${postId}`'>{{`${windowHost}/p/${postId}`}}</router-link></Loading></Subtitle>
 		<Subtitle static='center' v-if='parent || update.reply_to'>replying to <EditBox v-model:value='update.reply_to'>{{ update.reply_to ?? parentPost?.title }}</EditBox></Subtitle>
 		<div class='form'>
 			<Loading type='block' :isLoading='isUploading'>
@@ -592,31 +592,6 @@ function addTag(tag: TagPortable) {
 	}
 }
 
-function showData() {
-	console.log({
-		// errorDump: this.errorDump,
-		file: file.value,
-		update: JSON.parse(JSON.stringify(update.value)),
-		title: title.value,
-		description: description.value,
-		privacy: privacy.value,
-		rating: rating.value,
-		activeTags: activeTags.value,
-		savedTags: savedTags.value,
-		tagSuggestions: tagSuggestions.value,
-		userSets: userSets.value,
-		meta: {
-			filename: filename,
-			showUpload: showUpload.value,
-			isUploading: isUploading.value,
-			uploadLoaded: uploadLoaded.value,
-			uploadTotal: uploadTotal,
-			// uploadUnavailable: this.uploadUnavailable,
-			uploadDone: uploadDone.value,
-		},
-	});
-}
-
 function uploadFile(finish: boolean = false) {
 	saving.value = true;
 	return new Promise<void>((resolve, reject) => {
@@ -827,6 +802,7 @@ function postWatcher(value?: string) {
 
 	postId.value = value;
 	const unset = () => {
+		sets.value = null;
 		uploadDone.value = false;
 		filename = null;
 		file.value = undefined;

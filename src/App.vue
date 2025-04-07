@@ -8,6 +8,7 @@
 	</div>
 	<Toast/>
 	<Cookies/>
+	<Notifications/>
 </template>
 <script setup lang='ts'>
 import { onMounted, ref, type Ref } from 'vue';
@@ -21,6 +22,7 @@ import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
 import Toast from '@/components/Toast.vue';
+import Notifications from '@/components/Notifications.vue';
 
 import light32 from '$/favicon/light/32.png?url';
 import light64 from '$/favicon/light/64.png?url';
@@ -382,6 +384,7 @@ html {
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;
 	--linecolor: var(--bordercolor);
+	--nestedlinecolor: #5b6775;
 	--borderhover: var(--interact);
 	--subtle: #EEEEEE80;
 	--shadowcolor: #00000080;

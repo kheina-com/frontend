@@ -13,16 +13,19 @@ import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 
 const props = defineProps<{
-	postId?: string | null,
-	score?: Score | null,
+	postId?:   string | null,
+	score?:    Score | null,
+	disabled?: boolean,
 }>();
 const score = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 
 onMounted(() => {
-	if (!props.score)
-	{ score.value.classList.add('disabled'); }
-	else
-	{ score.value.classList.remove('disabled'); }
+	if (!props.score || props.disabled) {
+		score.value.classList.add('disabled');
+	}
+	else {
+		score.value.classList.remove('disabled');
+	}
 
 	if (props.score) setElementVote(props.score.vote ?? props.score.user_vote);
 });
@@ -35,10 +38,12 @@ function setElementVote(vote?: number | null) {
 		voteElement.classList.remove('vote');
 	}
 
-	if (vote === 1)
-	{ (score.value.firstChild as HTMLElement).classList.add('vote') }
-	else if (vote === -1)
-	{ (score.value.lastChild as HTMLElement).classList.add('vote') }
+	if (vote === 1) {
+		(score.value.firstChild as HTMLElement).classList.add('vote');
+	}
+	else if (vote === -1) {
+		(score.value.lastChild as HTMLElement).classList.add('vote');
+	}
 }
 
 function vote(vote: number) {
@@ -66,8 +71,9 @@ function vote(vote: number) {
 }
 
 watch(() => props.score, (value?: Score | null) => {
-	if (!value)
-	{ score.value.classList.add('disabled'); }
+	if (!value) {
+		score.value.classList.add('disabled');
+	}
 	else {
 		score.value.classList.remove('disabled');
 		setElementVote(value?.vote ?? value?.user_vote);
@@ -76,8 +82,8 @@ watch(() => props.score, (value?: Score | null) => {
 </script>	
 
 <style scoped>
-.disabled {
-	pointer-events: none;
+.disabled * {
+	pointer-events: none !important;
 }
 .disabled button, .disabled p {
 	opacity: 50%;
@@ -85,11 +91,10 @@ watch(() => props.score, (value?: Score | null) => {
 .score {
 	text-align: center;
 }
-button {
-	pointer-events: all;
-}
+
 button b {
 	display: block;
+	pointer-events: all;
 	padding: 0.25em 0.5em;
 	border-radius: var(--border-radius);
 	-webkit-transition: var(--transition) var(--fadetime);

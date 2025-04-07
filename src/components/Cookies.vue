@@ -7,8 +7,7 @@
 		<button id='cookies' class='interactable' @click='cookies = true'>coolio</button>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, watch, type Ref } from 'vue';
 import store from '@/globals';
 
@@ -16,7 +15,6 @@ const globals = store();
 const cookies: Ref<boolean> = ref(globals.cookies);
 watch(cookies, globals.cookiesAllowed);
 </script>
-
 <style scoped>
 .cookies {
 	position: fixed;

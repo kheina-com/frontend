@@ -68,7 +68,7 @@
 						</Button>
 						<div class='badges'>
 							<p class='verified' v-if='user?.verified'>
-								<i class='kheina-icons' v-if='user.verified === "admin"' :title='`@${user?.handle} is an admin`'>sword</i>
+								<i class='kheina-icons' v-if='user.verified === "admin"' v-translate:handle_is_admin.title.prevent='{ handle: user?.handle }'>sword</i>
 								<i class='material-icons' v-else-if='user.verified === "mod"' :title='`@${user?.handle} is a moderator`'>verified_user</i>
 								<i class='material-icons-round' v-else-if='user.verified === "artist"' :title='`@${user?.handle} is a verified artist`'>verified</i>
 								{{user.verified}}	
@@ -291,6 +291,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { Badge, FullUser, User } from '@/types/user';
 import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';

@@ -2,7 +2,7 @@
 	<span ref='markdown' class='markdown inline' v-html='rendered' v-if='inline'></span>
 	<div ref='markdown' class='markdown block' v-html='rendered' v-else></div>
 </template>
-<script setup lang="ts"> 
+<script setup lang='ts'> 
 import { onMounted, ref, watch, type Ref } from 'vue';
 import { lazyConfig } from '@/utilities';
 import { mdEscape, mdExtensions, mdRenderer, mdTokenizer } from '@/utilities/markdown';
@@ -40,12 +40,14 @@ marked.use({
 const props = withDefaults(defineProps<{
 	content?: string | null,
 	concise?: boolean,
+	superconcise?: boolean,
 	inline?:  boolean,
 	lazy?:    boolean,
 }>(), {
-	concise: false,
-	inline:  false,
-	lazy:    false,
+	concise:      false,
+	superconcise: false,
+	inline:       false,
+	lazy:         false,
 });
 
 const markdown = ref<HTMLDivElement | HTMLSpanElement | null>(null) as Ref<HTMLDivElement | HTMLSpanElement>;
@@ -75,6 +77,23 @@ onMounted(() => {
 
 function mdString(): string {
 	if (!props.content) return "";
+
+	if (props.superconcise) {
+		const match = props.content.match(/((?:[^\n\r]*[\n\r]?){0,1})([\s\S]+)?/);
+
+		if (!match) return props.content.substring(0, 100);
+
+		let end = '';
+		if (match[1].length > 100) {
+			end = '...';
+			cut = true;
+		}
+		else if (match[2]) {
+			cut = true;
+		}
+
+		return match[1].substring(0, 100) + end;
+	}
 
 	if (props.concise) {
 		const match = props.content.match(/((?:[^\n\r]*[\n\r]?){0,5})([\s\S]+)?/);

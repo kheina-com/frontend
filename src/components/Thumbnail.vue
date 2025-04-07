@@ -7,26 +7,22 @@
 		</ul>
 	</div>
 </template>
-
-<script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref, toRaw } from 'vue';
+<script setup lang='ts'>
+import { computed, onMounted, ref, watch, type Ref, toRaw, toRef } from 'vue';
 import { base64ToBytes, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
 import { isMobile } from '@/config/constants';
 import { thumbHashToDataURL } from 'thumbhash';
 import lightnoise from '$/lightnoise.png?url';
 
 const props = withDefaults(defineProps<{
-	media:     Media | null,
-	size?:     number,
-	maxWidth?: number | null,
-	load?:     boolean,
+	media:   Media | null,
+	size?:   number,
+	render?: boolean,
 }>(), {
 	size: 400,
-	maxWidth: null,
-	load: true,
+	render: true,
 });
 
-const emits = defineEmits(["load"]);
 const media = ref<HTMLImageElement | null>(null) as Ref<HTMLImageElement>;
 const isLoading: Ref<boolean> = ref(true);
 let webp: boolean = true;
@@ -35,22 +31,42 @@ let webp: boolean = true;
 const src = computed(() => props.media ? getMediaThumbnailUrl(props.media, props.size) : null);
 
 onMounted(() => {
-	if (props.load) lazyObserver.observe(media.value);
+	if (props.render) lazyObserver.observe(media.value);
 	loadThumbnail();
 });
 
 function loadThumbnail() {
 	const parentStyle = getComputedStyle((media.value.parentElement as HTMLDivElement));
-	const maxWidth = props.maxWidth ?? (parentStyle.maxWidth.endsWith('%') ? (
-		(((media.value.parentElement as HTMLDivElement).parentElement as HTMLElement).parentElement as HTMLElement).getBoundingClientRect().width - 50 * (parseFloat(parentStyle.maxWidth) / 100)
-		) : parseFloat(parentStyle.maxWidth));
+	// console.debug("[Thumbnail] parentStyle: maxWidth:", parentStyle.maxWidth, "maxHeight", parentStyle.maxHeight);
+	const maxWidth = ((): number => {
+		if (parentStyle.maxWidth.endsWith("%")) {
+			return (((media.value.parentElement as HTMLDivElement).parentElement as HTMLElement).parentElement as HTMLElement).getBoundingClientRect().width - 50 * (parseFloat(parentStyle.maxWidth) / 100)
+		}
+
+		if (parentStyle.maxWidth.endsWith("em")) {
+			return parseFloat(parentStyle.maxWidth) * parseFloat(parentStyle.fontSize);
+		}
+
+		return parseFloat(parentStyle.maxWidth);
+	})();
 
 	if (!props.media) {
-		media.value.style.cssText = `width: ${maxWidth / (Number(!isMobile) + 1)}px; height: ${parentStyle.maxHeight}`;
+		media.value.style.width = (maxWidth / (Number(!isMobile) + 1)).toString() + "px";
+		media.value.style.height = parentStyle.maxHeight;
 		return;
 	}
 
-	const maxHeight = parseFloat(parentStyle.maxHeight);
+	const maxHeight = ((): number => {
+		if (parentStyle.maxHeight.endsWith("%")) {
+			return (((media.value.parentElement as HTMLDivElement).parentElement as HTMLElement).parentElement as HTMLElement).getBoundingClientRect().height - 50 * (parseFloat(parentStyle.maxHeight) / 100)
+		}
+
+		if (parentStyle.maxHeight.endsWith("em")) {
+			return parseFloat(parentStyle.maxHeight) * parseFloat(parentStyle.fontSize);
+		}
+
+		return parseFloat(parentStyle.maxHeight);
+	})();
 	const boundingBox = maxWidth / maxHeight;
 	const aspectRatio = props.media.size.width / props.media.size.height;
 
@@ -58,14 +74,23 @@ function loadThumbnail() {
 		// image is wider
 
 		const ratio = maxWidth / props.media.size.width;
-		media.value.style.cssText = `width: ${maxWidth}px; height: ${Math.round(props.media.size.height * ratio)}px`;
+		const width = maxWidth.toString() + "px";
+		media.value.style.width = width;
+		const height = Math.round(props.media.size.height * ratio).toString() + "px";
+		media.value.style.height = height;
+		// console.debug("[Thumbnail] (wider) width:", width, "height:", height);
 	}
 	else {
 		// image is taller
 
 		const ratio = maxHeight / props.media.size.height;
-		media.value.style.cssText = `width: ${Math.round(props.media.size.width * ratio)}px; height: ${parentStyle.maxHeight}`;
+		const width = Math.round(props.media.size.width * ratio).toString() + "px";
+		media.value.style.width = width;
+		const height = maxHeight.toString() + "px";
+		media.value.style.height = height;
+		// console.debug("[Thumbnail] (taller) width:", width, "height:", height);
 	}
+	// console.debug("[Thumbnail] css:", media.value.style.cssText)
 	th(props.media.thumbhash);
 }
 
@@ -74,7 +99,6 @@ function loaded(event: Event) {
 
 	(media.value.parentElement as HTMLDivElement).classList.remove("loading");
 	isLoading.value = false;
-	emits("load", event);
 }
 
 function onError() {
@@ -83,7 +107,7 @@ function onError() {
 
 	if (webp) {
 		webp = false;
-		media.value.src = getMediaThumbnailUrl(props.media, props.size);
+		media.value.src = getMediaThumbnailUrl(props.media, props.size, "jpeg");
 	}
 	else {
 		isLoading.value = false;
@@ -124,7 +148,7 @@ function th(value: string | null) {
 	}
 }
 
-watch(() => props.media, (value: Media | null, prev: Media | null) => {
+watch(toRef(props, "media"), (value: Media | null, prev: Media | null) => {
 	if (value?.crc === prev?.crc) return;
 	// reset state
 	isLoading.value = true;
@@ -137,7 +161,7 @@ watch(() => props.media, (value: Media | null, prev: Media | null) => {
 	if (media.value.dataset.intersected) media.value.src = media.value.dataset.src || "";
 });
 
-watch(() => props.load, (value: boolean) => {
+watch(toRef(props, "render"), (value: boolean) => {
 	if (value) lazyObserver.observe(media.value);
 });
 </script>

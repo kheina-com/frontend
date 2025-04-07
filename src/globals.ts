@@ -1,3 +1,4 @@
+import type { Notification } from '@/types/notifications';
 import { defineStore } from 'pinia';
 import { authCookie, deleteCookie, khatch, setCookie } from '@/utilities';
 import { host, environment } from '@/config/constants';
@@ -39,11 +40,20 @@ interface Globals {
 	transitions: boolean,
 	tiles: boolean,
 	rating: Rating,
-	notifications: number,
+	notifications: Notification[],
 	postCache: Post | null,
 	config: any | null,
 	cookies: boolean,
-};
+}
+
+export interface AuthToken {
+	version: string,
+	algorithm: string,
+	key_id: 66,
+	issued: Date | string,
+	expires: Date | string,
+	token: string,
+}
 
 export const cookieFailedError = 'This setting will work until you close the tab. To persist between sessions, hit the "coolio" button on the cookies popup';
 
@@ -62,7 +72,7 @@ export default defineStore("globals", {
 		transitions: true,
 		tiles: true,
 		rating: "general" as Rating,
-		notifications: 0,
+		notifications: [],
 		postCache: null,
 		config: null,
 		cookies: false,
@@ -88,7 +98,10 @@ export default defineStore("globals", {
 			this.toasts[id] = toast;
 			console.debug("[createToast]", id, toast);
 		},
-		userConfig(config: any) {
+		appendNotification(notification: Notification): void {
+			this.notifications.push(notification);
+		},
+		userConfig(config: any): void {
 			this.config = {
 				...config,
 				blockingBehavior: config.blocking_behavior,
@@ -117,12 +130,12 @@ export default defineStore("globals", {
 				document.body.style.backgroundImage = "";
 			}
 		},
-		cookiesAllowed(cookies: boolean) {
+		cookiesAllowed(cookies: boolean): void {
 			console.debug("cookies:", cookies);
 			this.cookies = cookies;
 			setCookie("cookies", "true", 31536000);
 		},
-		setTheme(theme: string) {
+		setTheme(theme: string): void {
 			setCookie("theme", theme);
 			if (this.theme) {
 				document.documentElement.classList.remove(this.theme);
@@ -137,7 +150,7 @@ export default defineStore("globals", {
 				});
 			}
 		},
-		setAccent(accent: string) {
+		setAccent(accent: string): void {
 			setCookie("accent", accent);
 			if (this.accent) {
 				document.documentElement.classList.remove(this.accent);
@@ -152,7 +165,7 @@ export default defineStore("globals", {
 				});
 			}
 		},
-		maxRating(rating: Rating) {
+		maxRating(rating: Rating): void {
 			this.rating = rating;
 			setCookie("max-rating", rating.toString(), 3155695200);
 
@@ -163,7 +176,7 @@ export default defineStore("globals", {
 				});
 			}
 		},
-		setAuth(auth: any) {
+		setAuth(auth: AuthToken | null): void {
 			if (auth && auth.token.length > 10) {
 				if (!this.cookiesAllowed) {
 					this.createToast({
@@ -172,7 +185,7 @@ export default defineStore("globals", {
 					});
 				}
 				else {
-					const maxage = Math.round(auth.expires - new Date().valueOf() / 1000);
+					const maxage = Math.round((new Date(auth.expires).valueOf() - new Date().valueOf()) / 1000);
 					if (environment !== 'local') { // specifically open this cookie to subdomains so that cdn works
 						document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
 					}
@@ -213,7 +226,7 @@ export default defineStore("globals", {
 				this.auth = this.user = null;
 			}
 		},
-		animatedAccents(animatedAccents: boolean) {
+		animatedAccents(animatedAccents: boolean): void {
 			this.animations = animatedAccents;
 			setCookie('animated-accents', animatedAccents);
 			if (animatedAccents) {
@@ -230,7 +243,7 @@ export default defineStore("globals", {
 				});
 			}
 		},
-		cssTransitions(transitions: boolean) {
+		cssTransitions(transitions: boolean): void {
 			this.transitions = transitions;
 			setCookie('css-transitions', transitions, 3155695200);
 			if (transitions) {
@@ -247,7 +260,7 @@ export default defineStore("globals", {
 				});
 			}
 		},
-		searchResultsTiles(tiles: boolean) {
+		searchResultsTiles(tiles: boolean): void {
 			this.tiles = tiles;
 			setCookie('search-results-tiles', tiles, 3155695200);
 			if (tiles) {

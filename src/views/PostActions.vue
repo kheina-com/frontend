@@ -1,14 +1,15 @@
 <template>
+	<!-- eslint-disable vue/no-v-model-argument -->
 	<main>
-		<Title>Your Reports</Title>
-		<div class='container' v-if='!reports'>
+		<Title>Actions Performed against {{postId}}</Title>
+		<div class='container' v-if='!actions'>
 			<span>Loading...</span>
 		</div>
-		<div class='container' v-else-if='reports.length !== 0'>
-			<ReportComponent class='report' v-bind='report' v-for='report in reports' nested/>
+		<div class='container' v-else-if='actions.length !== 0'>
+			<Action class='action' v-bind='action' v-for='action in actions' nested/>
 		</div>
 		<div class='container' v-else>
-			You have no active reports
+			No actions have been taken against {{postId}}
 		</div>
 		<ThemeMenu/>
 	</main>
@@ -16,19 +17,22 @@
 <script setup lang='ts'>
 import { ref, type Ref } from 'vue';
 import { khatch } from '@/utilities';
-import { type Report } from '@/utilities/report';
+import { type ModAction } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
-import ReportComponent from '@/components/Report.vue';
+import Action from '@/components/Action.vue';
 
-const reports: Ref<Report[] | undefined> = ref();
+const props = defineProps<{
+	postId: string,
+}>();
+const actions: Ref<ModAction[] | undefined> = ref();
 
-khatch(`${host}/v1/reports`, {
+khatch(`${host}/v1/actions/${props.postId}`, {
 	handleError: true
 }).then(r => r.json())
 .then(r => {
-	reports.value = r;
+	actions.value = r;
 	console.log(r);
 });
 </script>
@@ -49,10 +53,10 @@ main {
 	width: 100%;
 }
 
-.report {
+.action {
 	margin-bottom: var(--margin);
 }
-.report:last-child {
+.action:last-child {
 	margin: 0;
 }
 

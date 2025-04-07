@@ -2,10 +2,11 @@ import { createApp } from 'vue';
 import Router from '@/router';
 import App from '@/App.vue';
 import { routerMetaTag } from '@/config/constants';
-import { setMeta } from '@/utilities';
-// import vClickOutside from 'click-outside-vue3';
+import { setMeta, getCookie } from '@/utilities';
+import { loadLangFile, vTranslate } from '@/localization';
 import { createPinia } from 'pinia';
 
+loadLangFile(getCookie("locale", Intl.DateTimeFormat().resolvedOptions().locale.toLowerCase()));
 
 Router.afterEach((to, from) => {
 	// we let views handle self-updates
@@ -38,7 +39,7 @@ Router.afterEach((to, from) => {
 
 	// Remove any stale meta tags from the document using the key attribute we set below.
 	Array.from(document.querySelectorAll(`meta[${routerMetaTag}]`))
-	.forEach(e => (e.parentNode as HTMLElement).removeChild(e));
+		.forEach(e => (e.parentNode as HTMLElement).removeChild(e));
 
 	document.title = meta.title;
 	setMeta({
@@ -48,12 +49,12 @@ Router.afterEach((to, from) => {
 
 	// Turn the meta tag definitions into actual elements in the head.
 	Object.entries(meta.metaTags)
-	.forEach(([name, tag]) => setMeta(Object.assign({ name }, tag)));
+		.forEach(([name, tag]) => setMeta(Object.assign({ name }, tag)));
 });
 
-
 createApp(App)
-.use(Router)
-.use(createPinia())
-// .use(vClickOutside)
-.mount("body");
+	.use(Router)
+	.use(createPinia())
+	.directive("translate", vTranslate)
+	// .use(vClickOutside)
+	.mount("body");

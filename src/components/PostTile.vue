@@ -1,16 +1,16 @@
 <template>
 	<!-- eslint-disable vue/require-v-for-key -->
-	<div :class='divClass' :title='title || postId || undefined'>
+	<div :class='divClass' ref='self'>
 		<a :href='`/p/${postId}`' class='background-link' @click.prevent.stop='nav' v-show='!unlink'/>
-		<div :to='`/p/${postId}`'  v-if='media || isLoading'>
-			<Thumbnail :media='media' :size='isMobile ? 800 : 400' v-if='acceptedMature'/>
-			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' :style='`aspect-ratio: ${media?.size?.width}/${media?.size?.height}`' v-else>
-				this post is <b>{{rating}}</b>, click to show.
+		<div :to='`/p/${postId}`'  v-if='media || isLoading' class='thumbnail'>
+			<Thumbnail :media='media' :size='isMobile ? 800 : 400' :render='acceptedMature'/>
+			<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-translate:accept_mature_short.html='{ rating }' v-if='!acceptedMature'>
+				this post is <b>{{ rating }}</b>, click to show.
 			</button>
 		</div>
 		<div class='text' v-else>
-			<div class='parent' v-if='parent'>
-				<Markdown :content='parent?.title || parent?.post_id' inline/>
+			<div class='parent' v-if='parent_id'>
+				<Markdown :content='parent?.title || parent_id' inline/>
 				<i class='material-icons'>reply</i>
 			</div>
 			<Loading span v-if='isLoading'>this is an example title</Loading>
@@ -25,9 +25,9 @@
 			<RepostButton :postId='postId'/>
 			<FavoriteButton :postId='postId'/>
 			<DropDown :options="[
-				{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
-				{ html: `Block @${user?.handle}`, action: () => { } },
-				{ html: `Report @${user?.handle}`, action: () => { } },
+				{ html: `${user?.following ? 'Unf' : 'F'}ollow @${user?.handle}`, action: followUser },
+				{ html: `Block @${user?.handle}`,                                 action: () => { } },
+				{ html: `Report @${user?.handle}`,                                action: () => { } },
 			]">
 				<div class='more-button'>
 					<i class='material-icons-round'>more_horiz</i>
@@ -36,10 +36,11 @@
 		</div>
 	</div>
 </template>
-<script setup lang="ts">
-import { computed, ref, type Ref } from 'vue';
+<script setup lang='ts'>
+import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { khatch } from '@/utilities';
+import { demarkdown } from '@/utilities/markdown';
 import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host, ratingMap } from '@/config/constants';
 import store from '@/globals';
 import Loading from '@/components/Loading.vue';
@@ -96,12 +97,22 @@ const props = withDefaults(defineProps<{
 	tags: null,
 });
 
-const parentData: Ref<Post | null> = ref(null);
+const self = ref<HTMLDivElement | undefined>() as Ref<HTMLDivElement>;
 const acceptedMature: Ref<boolean> = ref(ratingMap[globals.rating] >= ratingMap[props.rating]);
-
 const isLoading = computed(() => !props.postId);
 const divClass = computed(() => "post tile" + (isLoading.value ? " loading" : "") + (props.unlink ? "" : " link") + (props.nested ? " nested" : ""));
-// const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
+const setTitle = async () => {
+	if (props.title) {
+		self.value.title = await demarkdown(props.title);
+		return;
+	}
+	if (props.postId) {
+		self.value.title = props.postId;
+		return;
+	}
+};
+
+onMounted(setTitle);
 
 function nav() {
 	if (!props.postId || !props.user || !props.created || !props.updated) return;
@@ -159,6 +170,11 @@ function followUser() {
 		}
 	});
 }
+
+watch(toRef(props, "title"), setTitle);
+watch(toRef(props, "rating"), (value: "general" | "mature" | "explicit") =>
+	acceptedMature.value = ratingMap[globals.rating] >= ratingMap[value]
+);
 </script>
 <style scoped>
 .post {
@@ -187,6 +203,22 @@ function followUser() {
 }
 .post.no-buttons {
 	padding: var(--margin);
+}
+.show-mature {
+	padding: var(--margin);
+	background: var(--bg2color);
+	position: absolute;
+	align-self: center;
+	max-width: 100%;
+	margin: auto var(--margin);
+	pointer-events: all;
+}
+.thumbnail {
+	position: relative;
+	display: flex;
+	max-width: 100%;
+	pointer-events: none;
+	justify-content: center;
 }
 .thumbnail, .show-mature {
 	max-width: 20em;

@@ -1,0 +1,101 @@
+<template>
+	<div class='notifications nested' v-if='show'>
+		<div/>
+		<p>Enable push notifications</p>
+		<Button id='notifications' class='interactable' @click='enableNotifications' :isLoading='loading'>Enable</Button>
+		<button class='close' @click='hide = true'><i class='material-icons'>close</i></button>
+	</div>
+</template>
+<script setup lang='ts'>
+import { computed, ref, toRef, type Ref } from 'vue';
+import store from '@/globals';
+import { getCookie, setCookie } from '@/utilities';
+import startNotifications, { bindListener } from '@/notifications';
+import Button from '@/components/Button.vue';
+
+const cookie = "notifications";
+const loading: Ref<boolean> = ref(false);
+const registered: Ref<boolean> = ref(getCookie(cookie, null, "number") !== null);
+const hide: Ref<boolean> = ref(false);
+const user = toRef(store(), "user");
+console.debug("[notifications] user:", user.value, "hide:", hide.value, "registered:", registered.value);
+const show = computed(() => user.value && !hide.value && !registered.value);
+
+if (registered.value) {
+	console.debug("[notifications] attempting bind listener");
+	loading.value = true;
+	bindListener().then(r =>
+		registered.value = r
+	).finally(() =>
+		loading.value = false
+	);
+}
+
+function enableNotifications() {
+	loading.value = true;
+	startNotifications().then(() =>
+		setCookie(cookie, new Date().valueOf())
+	).then(() =>
+		hide.value = true
+	).finally(() =>
+		loading.value = false
+	);
+}
+</script>
+<style scoped>
+.notifications {
+	position: fixed;
+	left: var(--margin);
+	top: calc(2rem + var(--margin));
+	background: var(--bg2color);
+	border: var(--border-size) solid var(--bordercolor);
+	border-radius: var(--border-radius);
+	padding: calc(var(--margin) - 0.5em) var(--margin);
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+	display: flex;
+	align-items: center;
+}
+.notifications div {
+	border-top: var(--border-size) solid var(--bordercolor);
+	border-left: var(--border-size) solid var(--bordercolor);
+	width: 1.2em;
+	height: 1.2em;
+	border-top-left-radius: var(--border-radius);
+	position: absolute;
+	top: -0.67em;
+	background: var(--bg2color);
+	left: 1.5rem;
+	transform: rotate(45deg);
+}
+.interactable {
+	margin: 0 0 0 var(--margin);
+	display: inline-block;
+}
+.close {
+	color: var(--subtle);
+	margin-left: var(--margin);
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
+}
+.close:hover {
+	color: var(--red);
+}
+.mobile {
+	.notifications {
+		top: unset;
+		padding: var(--margin) calc(var(--margin) * 2);
+		left: var(--margin);
+		bottom: var(--margin);
+	}
+	.notifications div {
+		display: none;
+	}
+	.close {
+		margin: var(--neg-margin) var(--neg-margin) var(--neg-margin) 0;
+		padding: var(--margin);
+	}
+}
+
+</style>

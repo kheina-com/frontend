@@ -55,7 +55,7 @@
 			</div>
 			<div class='container'>
 				<span>Please describe the reason for your report below, including any offending usernames and post ids</span>
-				<MarkdownEditor v-model:value='data.message'/>
+				<MarkdownEditor v-model:value='data.message' resize='vertical'/>
 				<div class='buttons'>
 					<button class='interactable' @click='sendReport'>{{ !report ? "Submit" : "Update" }} »</button>
 				</div>
@@ -75,12 +75,11 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { createToast, khatch } from '@/utilities';
-import { reportHistory, reportRevisions, type HistoryMask, type Report, type ReportData, type ReportDataHistory, type ReportType } from '@/utilities/report';
+import { reportHistory, reportRevisions, type Report, type ReportType } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
@@ -200,7 +199,6 @@ watch(data, (value: { [k: string]: any; }) => {
 	if (value?.post && value.post !== post.value?.post_id) post.value = null;
 })
 </script>
-
 <style scoped>
 main {
 	background: var(--main);
