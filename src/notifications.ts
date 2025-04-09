@@ -1,4 +1,4 @@
-import type { Message } from '@/types/notifications';
+import type { Notification } from '@/types/notifications';
 import { createToast, khatch, registerServiceWorker } from '@/utilities';
 import sw from '@/service_worker?url';
 import { host } from '@/config/constants';
@@ -68,6 +68,11 @@ export const bindListener = () => {
 	);
 };
 
+interface Message {
+	primary: boolean,
+	payload: Notification,
+}
+
 // const audio = new Audio(notify);
 const listener = (e: MessageEvent<Message>) => {
 	e.stopImmediatePropagation();  // just in case multiple listeners were added
@@ -76,20 +81,20 @@ const listener = (e: MessageEvent<Message>) => {
 	switch (e?.data?.payload?.type) {
 	case "interact":
 		console.debug(`[notification] interact ${e.data.payload.event}:`, e.data.payload.post);
-		globals.appendNotification(e.data.payload);
 		break;
 
 	case "post":
 		console.debug(`[notification] post ${e.data.payload.event}:`, e.data.payload.post);
-		globals.appendNotification(e.data.payload);
 		break;
 
 	case "user":
 		console.debug(`[notification] user ${e.data.payload.event}:`, e.data.payload.user);
-		globals.appendNotification(e.data.payload);
 		break;
 
 	default:
 		console.warn("[notification] unknown message type:", e?.data?.payload ?? e);
+		return;
 	}
+
+	globals.appendNotification(e.data.payload);
 };

@@ -204,6 +204,29 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 				// unreachable?
 				return response;
 			}
+			else if (response.status === 422) {
+				// specifically add a special handler for Unprocessable Content
+				// note, this can still be overridden
+				const r = await response.json();
+				const detail: { loc: string[], msg: string, type: string, }[] | undefined = r?.detail;
+				if (!detail) {
+					createToast({
+						title: errorMessage,
+						description: r?.error ?? apiErrorDescriptionToast,
+						dump: r,
+					});
+					throw "([khatch] handled)";
+				}
+
+				const desc: string[] = [];
+				for (let d of detail) {
+					desc.push(`request ${d.loc.shift()} ${d.msg}: ${d.loc.join(".")}`);
+				}
+				createToast({
+					title: "Request could not be processed",
+					description: desc.join("\n"),
+				});
+			}
 			else if (response.status < 500) {
 				const r = await response.json();
 				createToast({
@@ -226,7 +249,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 				});
 			}
 
-			return new Promise((_, reject) => reject("([khatch] handled)"));
+			throw "([khatch] handled)";
 		}
 		throw error;
 	}

@@ -8,7 +8,7 @@
 				<button
 					v-for='option in props.options'
 					@click.prevent.stop='option.action ? runAction(option) : setValue(option)'
-					:class='option?.value === props.value ? "selected" : null'
+					:class='props.value && option?.value === props.value ? "selected" : null'
 					v-html='option.html'
 				/>
 			</div>

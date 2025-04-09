@@ -38,6 +38,10 @@
 				<textarea class='interactable text' v-model='localConfig.blocked_tags' @change='save' placeholder='enter blocked tag combinations in the same format as a search&#10;each combination should be on its own line'/>
 			</li>
 			<li>
+				<span>Blocked Users</span>
+				<textarea class='interactable text' v-model='localConfig.blocked_users' @change='save' placeholder='enter blocked users, separated by commas (without the @)'/>
+			</li>
+			<li>
 				<span>Wallpaper Post Id</span>
 				<input class='interactable text code' v-model='localConfig.wallpaper' @change='save' placeholder='enter the 8 character post id, found in the url of a post page after "/p/"'>
 			</li>
@@ -131,10 +135,6 @@
 				<input class='interactable text' :placeholder='`${globals.user?.handle}`'>
 			</li>
 			<li>
-				<span>Blocked Users</span>
-				<textarea class='interactable text' v-model='localConfig.blocked_users' @change='save' placeholder='enter blocked users, separated by commas (without the @)'/>
-			</li>
-			<li>
 				<span>Custom Theme</span>
 				<textarea class='interactable text' v-model='localConfig.colors' @change='save' placeholder='enter blocked users, separated by commas (without the @)'/>
 			</li>
@@ -183,6 +183,7 @@
 </template>
 
 <script setup lang="ts">
+import * as _ from 'lodash-es';
 import { onMounted, ref, watch, type Ref } from 'vue';
 // import QRCode from 'qrcode';
 import { getCookie, khatch, setCookie, createToast, tagSplit } from '@/utilities';
@@ -197,6 +198,24 @@ import store, { Rating } from '@/globals';
 import CopyText from '@/components/CopyText.vue';
 import QR from '@/components/QR.vue';
 
+interface Theme {
+	wallpaper:      string | null,
+	css_properties: { [k: string]: number | string } | null,
+}
+
+interface OTP {
+	type:    "totp" | "u2f",
+	created: Date | string,
+}
+
+interface UserConfig {
+	blocking_behavior: "omit" | "hide",
+	blocked_tags:      string[][],
+	blocked_users:     string[],
+	theme:             Theme | null,
+	otp?:              OTP[],
+}
+
 const globals = store();
 const maxRating: Ref<Rating> = ref(getCookie("max-rating", "general"));
 const fontFamily: Ref<string> = ref(getCookie("font-family"));
@@ -206,6 +225,7 @@ const animatedEmoji: Ref<boolean> = ref(getCookie("animated-emoji", true, "boole
 const CssTransitions: Ref<boolean> = ref(globals.transitions);
 const isLoading: Ref<boolean> = ref(true);
 const otpLoading: Ref<boolean> = ref(false);
+const savedConfig: Ref<UserConfig | void> = ref();
 const localConfig: Ref<any> = ref({ });
 const addOtpStage: Ref<number> = ref(0);
 const otpRecoveryKeys: Ref<Array<string> | null> = ref(null);
@@ -219,6 +239,28 @@ let saveTimeout: number | null = null;
 
 onMounted(retrieve);
 
+const parseConfig = (c: {
+	blocking_behavior?: "omit" | "hide",
+	blocked_tags?:      string[][],
+	blocked_users?:     string[],
+	theme?:             Theme | null,
+	otp?:               OTP[],
+}) => {
+	localConfig.value = {
+		...c,
+		blocked_tags: c.blocked_tags ? c.blocked_tags.map((x: string[]) => x.join(" ")).join("\n") : localConfig.value.blocked_tags,
+		blocked_users: c.blocked_users ? c.blocked_users.join(" ") : localConfig.value.blocked_users,
+	};
+	savedConfig.value = {
+		...localConfig.value,
+	};
+	c.otp?.forEach((x: { type: string }) => {
+		if (x.type == "totp") {
+			addOtpStage.value = Math.min(addOtpStage.value, -1);
+		}
+	});
+}
+
 function retrieve() {
 	return khatch(`${host}/v1/config/user`, {
 		errorMessage: "Could Not Retrieve User Config!",
@@ -226,19 +268,11 @@ function retrieve() {
 			// do nothing, we don't care
 			401: () => { },
 		},
-	}).then(r => r.json())
-	.then(r => {
+	}).then(
+		r => r.json()
+	).then((r: UserConfig) => {
 		globals.userConfig(r);
-		localConfig.value = {
-			...r,
-			blocked_tags: r.blocked_tags ? r.blocked_tags.map((x: string[]) => x.join(" ")).join("\n") : null,
-			blocked_users: r.blocked_users ? r.blocked_users.join(" ") : null,
-		};
-		r.otp?.forEach((x: { type: string }) => {
-			if (x.type == "totp") {
-				addOtpStage.value = Math.min(addOtpStage.value, -1);
-			}
-		});
+		parseConfig(r);
 		isLoading.value = false;
 	});
 }
@@ -246,18 +280,45 @@ function retrieve() {
 function save() {
 	if (saveTimeout) clearTimeout(saveTimeout);
 
+	interface UserConfigRequest {
+		field_mask:         string[],
+		blocking_behavior?: "omit" | "hide",
+		blocked_tags?:      string[][],
+		blocked_users?:     string[],
+		theme?:             Theme | null,
+	}
+
+	const body: UserConfigRequest = {
+		field_mask: [],
+	};
+
+	if (localConfig.value.blocking_behavior !== savedConfig.value?.blocking_behavior) {
+		body.blocking_behavior = localConfig.value.blocking_behavior;
+		body.field_mask.push("blocking_behavior");
+	}
+
+	if (!_.isEqual(localConfig.value.blocked_tags, savedConfig.value?.blocked_tags)) {
+		body.blocked_tags = localConfig.value.blocked_tags.split("\n").map(tagSplit);
+		body.field_mask.push("blocked_tags");
+	}
+
+	if (!_.isEqual(localConfig.value.blocked_users, savedConfig.value?.blocked_users)) {
+		body.blocked_users = tagSplit(localConfig.value.blocked_users);
+		body.field_mask.push("blocked_users");
+	}
+
+	if (!_.isEqual(localConfig.value.theme, savedConfig.value?.theme)) {
+		body.theme = localConfig.value.theme;
+		body.field_mask.push("theme");
+	}
+
 	saveTimeout = setTimeout(() => {
 		khatch(`${host}/v1/config/user`, {
 			method: "PATCH",
 			errorMessage: "Could Not Save User Config!",
-			body: {
-				blocking_behavior: localConfig.value?.blocking_behavior,
-				blocked_tags: localConfig.value?.blocked_tags ? localConfig.value.blocked_tags.split("\n").map(tagSplit) : null,
-				blocked_users: localConfig.value?.blocked_users ? tagSplit(localConfig.value.blocked_users) : null,
-				wallpaper: localConfig.value?.wallpaper ? localConfig.value.wallpaper.trim() : null,
-			},
-		}).then(retrieve)
-		.then(() => {
+			body,
+		}).then(() => {
+			parseConfig(body);
 			createToast({
 				icon: "done",
 				title: "Saved Config!",

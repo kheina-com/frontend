@@ -209,6 +209,12 @@ function followUser() {
 
 	khatch(`${host}/v1/user/${props.user.handle}/follow`, {
 		method: props.user.following ? "DELETE" : "PUT",
+		errorHandlers: {
+			400: () => {
+				if (!props.user) return;
+				props.user.following = !props.user.following;
+			},
+		},
 	}).then(response => {
 		if (!props.user) return;
 		if (response.status < 300) {

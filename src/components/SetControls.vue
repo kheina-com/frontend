@@ -2,11 +2,11 @@
 	<div class='set-controls'>
 		<p>
 			<a :href='"/p/" + set.first?.post_id' @click.prevent='() => nav(set.first)' :id='setTitle(set.first)'><i class='material-icons'>first_page</i></a>
-			<a v-for='(p, i) in reverse(set.neighbors.before)' :href='"/p/" + p.post_id' @click.prevent='() => nav(p)' :id='setTitle(p)'><span v-if='set.neighbors.before.length - i - 1'>{{ set.neighbors.index - i - set.neighbors.before.length }}</span><i class='material-icons' v-else>navigate_before</i></a>
+			<a v-for='(p, i) in reverse(set.neighbors.before)' :href='"/p/" + p.post_id' @click.prevent='() => nav(p)' :id='setTitle(p)'><span v-if='set.neighbors.before.length - i - 1'>{{ set.neighbors.index + i - set.neighbors.before.length + 1 }}</span><i class='material-icons' v-else>navigate_before</i></a>
 		</p>
 		<router-link :to='`/s/${set.set_id}`' :title='`${set.title} post ${set.neighbors.index + 1} of ${set.count}`'>{{ set.title }}</router-link>
 		<p>
-			<a v-for='(p, i) in set.neighbors.after' :href='"/p/" + p.post_id' @click.prevent='() => nav(p)' :id='setTitle(p)'><span v-if='i'>{{ set.neighbors.index + i + 1 }}</span><i class='material-icons' v-else>navigate_next</i></a>
+			<a v-for='(p, i) in set.neighbors.after' :href='"/p/" + p.post_id' @click.prevent='() => nav(p)' :id='setTitle(p)'><span v-if='i'>{{ set.neighbors.index + i + 2 }}</span><i class='material-icons' v-else>navigate_next</i></a>
 			<a :href='"/p/" + set.last?.post_id' @click.prevent='() => nav(set.last)' :id='setTitle(set.last)'><i class='material-icons'>last_page</i></a>
 		</p>
 	</div>
@@ -56,6 +56,9 @@ function setTitle(post: Post | null | undefined): string {
 }
 .mobile .set-controls {
 	margin: 0 var(--margin) var(--margin);
+}
+.set-controls:first-child {
+	margin-top: 0;
 }
 .set-controls p {
 	display: flex;

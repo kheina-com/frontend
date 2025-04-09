@@ -1,11 +1,22 @@
 <template>
 	<div class='notification'>
-		<a :href='target' class='background-link' @click.prevent='nav' v-if='target'/>
+		<a :href='target' class='link' @click.prevent='nav' v-if='target'/>
 		<div class='user' v-if='notification.type === "user"'>
-			<Profile v-bind='notification.user'/>
+			<div class='content'>
+				<div class='interaction follow' v-if='notification.event === "follow"'>
+					<i class='material-icons-round'>person_add_alt</i>
+					<span v-translate:followed_by>followed by</span>
+				</div>
+				<Profile v-bind='notification.user' :link='false'/>
+			</div>
 		</div>
 		<div class='post' v-else-if='notification.type === "post"'>
 			<div class='content'>
+				<div class='interaction follow' v-if='notification.event === "mention"'>
+					<i class='material-icons'>alternate_email</i>
+					<!-- <i class='material-icons-outline'>feedback</i> -->
+					<span v-translate:followed_by>mentioned you</span>
+				</div>
 				<div class='header-block'>
 					<Score :score='notification.post.score' :postId='notification.post.post_id' :disabled='notification.post.locked'/>
 					<div class='locked' v-if='notification.post.locked'><p>This post has been locked.</p></div>
@@ -19,7 +30,7 @@
 				<Markdown :content='notification.post.description' superconcise/>
 			</div>
 			<div class='_thumbnail' v-if='notification.post.media'>
-				<Thumbnail :media='notification.post.media' :size='400'/>
+				<Thumbnail :key='notification.post.post_id' :media='notification.post.media' :size='400'/>
 			</div>
 		</div>
 		<div class='post' v-else-if='notification.type === "interact"'>
@@ -52,7 +63,7 @@
 				<Markdown :content='notification.post.description' superconcise/>
 			</div>
 			<div class='_thumbnail' v-if='notification.post.media'>
-				<Thumbnail :media='notification.post.media' :size='400'/>
+				<Thumbnail :key='notification.post.post_id' :media='notification.post.media' :size='400'/>
 			</div>
 		</div>
 	</div>
@@ -71,11 +82,23 @@ import MicroProfile from '@/components/MicroProfile.vue';
 const globals = store();
 const router = useRouter();
 const notification = defineProps<Notification>();
-const target = computed(() => notification.type === "post" || notification.type === "interact" ? "/p/" + notification.post.post_id : undefined);
+const target = computed(() => {
+	switch (notification.type) {
+	case "interact":
+	case "post":
+		return "/p/" + notification.post.post_id;
+	case "user":
+		return "/" + notification.user.handle;
+	}
+});
 
 function nav() {
-	if ((notification.type !== "post" && notification.type !== "interact") || !target.value) return;
-	globals.postCache = notification.post;
+	if (!target.value) return;
+
+	if (notification.type === "post" || notification.type === "interact") {
+		globals.postCache = notification.post;
+	}
+
 	router.push(target.value);
 }
 </script>
@@ -97,25 +120,25 @@ function nav() {
 	transition: var(--transition) var(--fadetime);
 }
 
-.background-link {
+.link {
 	top: 0;
 	left: 0;
 	position: absolute;
 	width: 100%;
 	height: 100%;
 }
+.notification:has(> .link) {
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
+}
+.notification:has(> .link):hover {
+	border-color: var(--interact);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
+}
 
 .post {
 	display: flex;
 	width: 100%;
 	justify-content: space-between;
-}
-.notification:has(> .post) {
-	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-}
-.notification:has(> .post):hover {
-	border-color: var(--interact);
-	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 
 .header-block {
@@ -171,7 +194,7 @@ function nav() {
 .fav i {
 	color: var(--red);
 }
-.reply i {
+.reply i, .follow i, .mention i {
 	color: var(--blue);
 }
 .repost i {

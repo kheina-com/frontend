@@ -480,6 +480,12 @@ function follow() {
 	khatch(`${host}/v1/user/${user.value?.handle}/follow`, {
 		method: user.value?.following ? "DELETE" : "PUT",
 		errorMessage: `Failed to ${user.value?.following ? "unfollow" : "follow"} user`,
+		errorHandlers: {
+			400: () => {
+				if (!user.value) return;
+				user.value.following = !user.value?.following;
+			},
+		},
 	}).then(() => {
 		if (!user.value) return;
 		user.value.following = !user.value?.following;

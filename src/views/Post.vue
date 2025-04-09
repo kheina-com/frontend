@@ -11,8 +11,11 @@
 		<div class='scroller' ref='scroller'/>
 		<Sidebar :post='post' v-model:scalar='scalar' class='sidebar'/>
 		<div class='content'>
-			<div ref='media' class='media-container' v-show='post'>
-				<Media class='media' v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
+			<div ref='media' class='media-container' v-if='post?.media'>
+				<Media class='media' :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
+				<SetControls :set='set' v-for='set in sets'/>
+			</div>
+			<div v-else='sets?.length'>
 				<SetControls :set='set' v-for='set in sets'/>
 			</div>
 			<main>
@@ -87,8 +90,11 @@
 	</div>
 	<div class='content' v-else>
 		<div class='scroller' ref='scroller'/>
-		<div class='media-container' v-show='post'>
-			<Media v-if='post?.media' :mime='post.media.type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
+		<div class='media-container' v-if='post?.media'>
+			<Media :mime='post.media.type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
+			<SetControls :set='set' v-for='set in sets'/>
+		</div>
+		<div v-else='sets?.length'>
 			<SetControls :set='set' v-for='set in sets'/>
 		</div>
 		<main>
@@ -331,8 +337,13 @@ function setPageTitle() {
 function followUser() {
 	khatch(`${host}/v1/user/${post.value?.user.handle}/follow`, {
 		method: post.value?.user.following ? "DELETE" : "PUT",
-	})
-	.then(response => {
+		errorHandlers: {
+			400: () => {
+				if (!post.value) return;
+				post.value.user.following = !post.value?.user.following;
+			},
+		},
+	}).then(response => {
 		if (!post.value) return;
 
 		if (response.status < 300) {

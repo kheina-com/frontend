@@ -30,10 +30,10 @@
 	<main>
 		<ol class='results'>
 			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
-			<li v-for='post in posts || count' v-else-if='tiles'>
+			<li v-for='post in viewable' v-else-if='tiles'>
 				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
-			<li v-for='post in posts || count' v-else>
+			<li v-for='post in viewable' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
 		</ol>
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, type Ref } from 'vue';
+import { computed, ref, watch, type Ref } from 'vue';
 import { khatch, saveToHistory, tagSplit } from '@/utilities';
 import { useRoute, useRouter } from 'vue-router';
 import store, { Rating } from '@/globals';
@@ -89,6 +89,12 @@ function defaultSearch() {
 		return ["general"];
 	}
 }
+
+const viewable = computed(() => {
+	if (!posts.value) return count;
+	if (globals.config?.blocking_behavior !== "omit") return posts.value;
+	return posts.value.filter((x) => !x?.blocked);
+});
 
 function fetchPosts() {
 	if (route.path.length > 1 && !route.path.startsWith(path)) return;

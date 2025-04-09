@@ -2,11 +2,6 @@ import type { User } from './user';
 
 export type Notification = InteractNotification | PostNotification | UserNotification;
 
-export interface Message {
-	primary: boolean,
-	payload: Notification,
-}
-
 export interface InteractNotification {
 	type: "interact",
 	event: "favorite" | "reply" | "repost",
@@ -16,7 +11,7 @@ export interface InteractNotification {
 
 export interface PostNotification {
 	type: "post",
-	event: "mention",
+	event: "mention" | "tagged",
 	post: Post,
 }
 

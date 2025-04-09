@@ -37,6 +37,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { User } from '@/types/user';
 import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { khatch } from '@/utilities';
@@ -141,8 +142,13 @@ function nav() {
 function followUser() {
 	khatch(`${host}/v1/user/${props.user?.handle}/follow`, {
 		method: props.user?.following ? "DELETE" : "PUT",
-	})
-	.then(response => {
+		errorHandlers: {
+			400: () => {
+				if (!props.user) return;
+				props.user.following = !props.user.following;
+			},
+		},
+	}).then(response => {
 		if (response.status < 300) {
 			props.user.following = !props.user.following;
 			globals.createToast({
