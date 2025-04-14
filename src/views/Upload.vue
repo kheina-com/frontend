@@ -8,7 +8,7 @@
 			<ol class='results'>
 				<p v-show='drafts?.length === 0' style='text-align: center'>No drafts found</p>
 				<li v-for='post in drafts || [undefined, undefined, undefined]' @click='closeDrafts'>
-					<Post :postId='post?.post_id' :to='`/create?post=${post?.post_id}`' v-bind='post' hideButtons/>
+					<PostComponent :postId='post?.post_id' :to='`/create?post=${post?.post_id}`' v-bind='post' hideButtons/>
 				</li>
 			</ol>
 		</div>
@@ -23,7 +23,7 @@
 						<span>Reply To</span>
 						<input class='interactable text' v-model='update.parent'>
 						<div v-if='validParent'>
-							<Post :postId='parentPost.post_id' v-bind='parentPost' style='margin-top: var(--margin)' nested hideButtons/>
+							<PostComponent :postId='parentPost.post_id' v-bind='parentPost' style='margin-top: var(--margin)' nested hideButtons/>
 						</div>
 						<div v-else-if='update.parent' style='margin-top: var(--margin)'>
 							invalid post id
@@ -263,6 +263,7 @@
 	</main>
 </template>
 <script setup lang='ts'>
+import { ToPost, type MediaLike, type Post, type PostLike, type PostSet } from '@/types/post'
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
@@ -280,10 +281,11 @@ import RadioButtons from '@/components/RadioButtons.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
 import CheckBox from '@/components/CheckBox.vue';
-import Post from '@/components/Post.vue';
+import PostComponent from '@/components/Post.vue';
 import SetComponent from '@/components/Set.vue';
 import DropDownSelector from '@/components/DropDownSelector.vue';
 import EditBox from '@/components/EditBox.vue';
+import type { TagPortable } from '@/types/tag';
 
 const globals = store();
 const route = useRoute();
@@ -328,7 +330,7 @@ const rating: Ref<"general" | "mature" | "explicit"> = ref("explicit");
 const parent: Ref<string | null> = ref(null);
 
 // drafts
-const drafts: Ref<Post[] | null> = ref(null);
+const drafts: Ref<PostLike[] | null> = ref(null);
 const showDrafts: Ref<boolean> = ref(false);
 
 // sets
@@ -341,7 +343,7 @@ const creatingSet: Ref<boolean> = ref(false);
 const removingSet: Ref<boolean> = ref(false);
 
 // parent post
-const parentPost:  Ref<Post | null>    = ref(null);
+const parentPost:  Ref<PostLike | null>    = ref(null);
 const validParent: Ref<boolean | null> = ref(null);
 
 // active tag tracking
@@ -538,15 +540,14 @@ function fetchDrafts() {
 	drafts.value = null;
 	khatch(`${host}/v1/posts/drafts`, {
 		handleError: true,
-	}).then(r => r.json())
-	.then((r: Post[]) => r.map((p: Post) => {
-		p.created = new Date(p.created);
-		p.updated = new Date(p.updated);
-		if (p.media) p.media.updated = new Date(p.media.updated);
-		return p;
-	})).then((r: Post[]) =>
+	}).then(
+		r => r.json()
+	).then((r: PostLike[]) =>
+		r.map(ToPost)
+	).then((r: Post[]) =>
 		drafts.value = r.sort((a: Post, b: Post) =>
-			Math.max(b.updated.valueOf(), b?.media?.updated?.valueOf() || 0) - Math.max(a.updated.valueOf(), a?.media?.updated?.valueOf() || 0)
+			Math.max(b.updated.valueOf(), b?.media?.updated?.valueOf() || 0) -
+			Math.max(a.updated.valueOf(), a?.media?.updated?.valueOf() || 0)
 		)
 	);
 }
@@ -644,7 +645,7 @@ function uploadFile(finish: boolean = false) {
 			console.debug("xhr:", xhr);
 			if (xhr.status >= 400) return reject(errorHandler(event));
 
-			const response: Media = JSON.parse(xhr.responseText);
+			const response: MediaLike = JSON.parse(xhr.responseText);
 			mediaUrl.value = response.url;
 			mime.value = response.type.mime_type;
 
@@ -812,7 +813,7 @@ function postWatcher(value?: string) {
 		uploadTotal = 0;
 	};
 
-	const setPostFields = (r: Post) => {
+	const setPostFields = (r: PostLike) => {
 		console.debug("postWatcher:", value, ">", r);
 		postId.value = r.post_id;
 		unset();
@@ -868,7 +869,7 @@ function postWatcher(value?: string) {
 			errorMessage: "Unable To Create New Post Draft!",
 			body: { },
 		}).then(r => r.json())
-		.then((r: Post) => {
+		.then((r: PostLike) => {
 			setPostFields(r);
 			document.dispatchEvent(new CustomEvent<RouterEvent>("router-event", { detail: { query: { post: r.post_id } } }));
 		});

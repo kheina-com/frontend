@@ -2,13 +2,13 @@
 	<!-- eslint-disable vue/no-v-model-argument -->
 	<main>
 		<Title>Actions Performed against @{{handle}}</Title>
-		<div class='container' v-if='!actions'>
+		<div class='container text' v-if='!actions'>
 			<span>Loading...</span>
 		</div>
 		<div class='container' v-else-if='actions.length !== 0'>
 			<Action class='action' v-bind='action' v-for='action in actions' nested/>
 		</div>
-		<div class='container' v-else>
+		<div class='container text' v-else>
 			No actions taken against @{{handle}}
 		</div>
 		<ThemeMenu/>
@@ -16,8 +16,8 @@
 </template>
 <script setup lang='ts'>
 import { ref, type Ref } from 'vue';
+import type { ModAction } from '@/types/report';
 import { khatch } from '@/utilities';
-import { type ModAction } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
@@ -51,6 +51,9 @@ main {
 }
 .mobile .container {
 	width: 100%;
+}
+.text {
+	text-align: center;
 }
 
 .action {

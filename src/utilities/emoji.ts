@@ -1,5 +1,7 @@
+import { Lock } from './async';
+import type { Emoji, EmojiLike } from '@/types/emoji';
 import { host } from '@/config/constants';
-import { khatch, RefId } from '.';
+import { khatch } from '.';
 import fuzzysort from 'fuzzysort';
 
 let emojiDb: IDBDatabase;
@@ -13,52 +15,13 @@ const emojiDbIndex = "emoji";
 const updatedDbStore = "latest";
 const readonly = "readonly";
 const readwrite = "readwrite";
-
-let _cp: { time: number, refId: number, onRelease: Promise<void>, _release: { (): void; }; } | null = null;
-const interval = 1000;
-
-async function getCriticalPoint(refId: number) {
-	let cpRefId: number | null = null;
-	let sleep: number = 5;
-	do {
-		const cp = _cp;
-		// cp === null: the critical point is up for grabs
-		// cp.refId === this.refId: we have the critical point, so we should update the checkin time
-		// cp.refId !== this.refId: we do not have the critical point
-		// 	cp.refId !== this.refId && cp.time > now: another tab is running the consumer and is active
-		// 	cp.refId !== this.refId && cp.time <= now: another tab is running the consumer and is inactive
-		if (!cp || cp.refId === refId || cp.time <= new Date().valueOf()) {
-			// @ts-ignore
-			let r: { (): void; } = null;
-			// try to access the critical point
-			_cp = { refId, time: new Date().valueOf() + interval * 1.5, onRelease: new Promise(_r => r = _r), _release: r };
-			await new Promise(r => setTimeout(r, 1)); // wait a second to make sure any other sets have resolved
-			cpRefId = _cp?.refId;
-		} else {
-			// sleep for a little bit to let the other tab(s) release the critical point
-			await new Promise(r => setTimeout(r, sleep));
-			sleep = Math.min(sleep ** 2, interval);
-		}
-	} while (cpRefId !== refId);
-}
-
-async function releaseCriticalPoint(refId: number) {
-	const cp = _cp;
-	if (cp?.refId === refId && cp.time > new Date().valueOf()) {
-		// critical point belongs to us, so we can safely release it
-		_cp = null;
-		cp._release();
-	}
-}
+const lock = new Lock();
 
 function transaction(mode: IDBTransactionMode): Promise<IDBTransaction> {
 	return new Promise<IDBTransaction>(async r => {
 		try {
 			// the critical point is so that we don't do anything while PopulateEmojiDb is running
-			const cp = _cp;
-			if (cp) {
-				await cp.onRelease;
-			}
+			await lock.Free();
 			r(emojiDb.transaction([emojiDbStore], mode));
 		}
 		catch {
@@ -69,27 +32,27 @@ function transaction(mode: IDBTransactionMode): Promise<IDBTransaction> {
 	});
 }
 
-function addEmoji(emoji: Emoji, store: IDBObjectStore): Promise<void> {
-	emoji.updated = new Date(emoji.updated);
-	// @ts-ignore
-	emoji._prepared = fuzzysort.prepare(emoji.emoji);
+function addEmoji(emoji: EmojiLike, store: IDBObjectStore): Promise<void> {
+	const e: Emoji = {
+		...emoji,
+		updated: new Date(emoji.updated),
+		_prepared: fuzzysort.prepare(emoji.emoji),
+	};
 	return new Promise<void>((resolve, reject) => {
-		const req = store.put(emoji);
+		const req = store.put(e);
 		req.onerror = err => {
 			console.log("req:", req);
-			console.log("emoji:", emoji);
+			console.log("emoji:", e);
 			reject(err);
 		};
 		req.onsuccess = () => resolve();
 	});
 }
 
-export function PopulateEmojiDb(): Promise<IDBDatabase> {
-	const refId = RefId();
+export async function PopulateEmojiDb(): Promise<IDBDatabase> {
+	const refId = await lock.Acquire();
 	return new Promise<IDBDatabase>(async res => {
-		await getCriticalPoint(refId);
 		const DBOpenRequest = indexedDB.open(emojiDbName, emojiDbVersion);
-
 		DBOpenRequest.onerror = DBOpenRequest.onblocked = () => {
 			console.error("[emoji] failed to open database:", DBOpenRequest);
 		};
@@ -135,7 +98,7 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 				handleError: true,
 			}).then(
 				r => r.json()
-			).then(async (emojis: Emoji[]) => {
+			).then(async (emojis: EmojiLike[]) => {
 				const transaction = emojiDb.transaction([emojiDbStore], readwrite);
 				const store = transaction.objectStore(emojiDbStore);
 
@@ -166,11 +129,10 @@ export function PopulateEmojiDb(): Promise<IDBDatabase> {
 			console.debug("[emoji] successfully connected to db");
 		};
 		console.debug("[emoji] opening database:", DBOpenRequest);
-	}).finally(() => releaseCriticalPoint(refId));
+	}).finally(() => lock.Release(refId));
 }
 
-export function LookupEmoji(emoji: string): Promise<Emoji[]> {
-	const lim = 100;
+export function LookupEmoji(emoji: string, limit: number = 100): Promise<Emoji[]> {
 	const thr = 0.5;
 	return new Promise<Emoji[]>(async (_resolve, reject) => {
 		const req = (await transaction(readonly))
@@ -184,14 +146,14 @@ export function LookupEmoji(emoji: string): Promise<Emoji[]> {
 		};
 
 		req.onerror = reject;
-		req.onsuccess = e => {
-			const cur = (e.target as IDBRequest).result;
+		req.onsuccess = (e: Event) => {
+			const cur = (e.target as IDBRequest<IDBCursorWithValue | null>).result;
 			if (!cur) return resolve(emojis);
 
 			const result = fuzzysort.single(emoji, cur.value._prepared);
 			if (result && result.score >= thr) {
 				emojis.push({ score: result.score, value: cur.value });
-				if (emojis.length >= lim) resolve(emojis);
+				if (emojis.length >= limit) resolve(emojis);
 				else cur.continue();
 			}
 			else {
@@ -227,6 +189,20 @@ export function GetEmoji(emoji: string): Promise<Emoji> {
 				addEmoji(r, store);
 				resolve(r);
 			}).catch(reject);
+		};
+	});
+}
+
+export function GetAll(): Promise<Emoji[]> {
+	return new Promise<Emoji[]>(async (resolve, reject) => {
+		const req = (await transaction(readonly))
+			.objectStore(emojiDbStore)
+			.index(emojiDbIndex)
+			.getAll();
+
+		req.onerror = reject;
+		req.onsuccess = () => {
+			resolve(req.result);
 		};
 	});
 }

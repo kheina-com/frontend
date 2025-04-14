@@ -3,10 +3,11 @@
 	"include": [
 		"env.d.ts",
 		"src/**/*.ts",
-		"src/**/*.vue"
+		"src/**/*.vue",
+		"src/**/tsconfig.json",
 	],
 	"exclude": [
-		"src/**/__tests__/*"
+		"src/**/__tests__/*",
 	],
 	"compilerOptions": {
 		"lib": [
@@ -18,8 +19,8 @@
 		"baseUrl": ".",
 		"paths": {
 			"@/*": [
-				"./src/*"
-			]
-		}
-	}
+				"./src/*",
+			],
+		},
+	},
 }

@@ -8,8 +8,8 @@
 		<Markdown :content='description'/>
 	</a>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { User } from '@/types/user';
 import { onMounted, ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
@@ -23,8 +23,8 @@ const props = withDefaults(defineProps<{
 	title: string | null,
 	description: string | null,
 	privacy: string,
-	created: string,	
-	updated: string,
+	created: string | Date,	
+	updated: string | Date,
 	nested?: boolean,
 	unlink?: boolean,
 }>(), {
@@ -39,7 +39,6 @@ onMounted(() => {
 	if (props.nested && set.value) set.value.classList.add("nested");
 });
 </script>
-
 <style scoped>
 .set {
 	padding: var(--margin);

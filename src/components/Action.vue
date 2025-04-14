@@ -22,7 +22,7 @@
 	</router-link>
 </template>
 <script setup lang='ts'>
-import { type ForceUpdateAction, type ModAction } from '@/utilities/report';
+import type { ForceUpdateAction, ModAction } from '@/types/report';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -48,9 +48,11 @@ defineProps<ModAction>();
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
+	box-shadow: 0 2px 3px 1px var(--shadowcolor);
 }
 ._report:hover {
 	border-color: var(--interact);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 
 h3 {

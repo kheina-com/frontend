@@ -24,11 +24,11 @@
 			<ReportButton :data='{ post: postId }'/>
 			<RepostButton :postId='postId'/>
 			<FavoriteButton :postId='postId'/>
-			<DropDown :options="[
-				{ html: `${user?.following ? 'Unf' : 'F'}ollow @${user?.handle}`, action: followUser },
-				{ html: `Block @${user?.handle}`,                                 action: () => { } },
-				{ html: `Report @${user?.handle}`,                                action: () => { } },
-			]">
+			<DropDown :options='[
+				{ html: user?.following ? "unfollow_user" : "follow_user", kwargs: { handle: user?.handle ?? "" }, action: followUser },
+				{ html: "block_user",                                      kwargs: { handle: user?.handle ?? "" }, action: () => { } },
+				{ html: "report_user",                                     kwargs: { handle: user?.handle ?? "" }, action: () => { } },
+			]'>
 				<div class='more-button'>
 					<i class='material-icons-round'>more_horiz</i>
 				</div>
@@ -37,6 +37,8 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { MediaLike, PostLike, Score } from '@/types/post';
+import type { Tags } from '@/types/tag';
 import type { User } from '@/types/user';
 import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -59,7 +61,7 @@ const props = withDefaults(defineProps<{
 	unlink?:     boolean,
 	nested?:     boolean,
 	parent_id?:  string | null,
-	parent?:     Post | null,
+	parent?:     PostLike | null,
 	rating?:     "general" | "mature" | "explicit",
 
 	// post fields
@@ -68,9 +70,9 @@ const props = withDefaults(defineProps<{
 	title:       string | null,
 	description: string | null,
 	privacy:     "public" | "unlisted" | "private" | "unpublished" | "draft",
-	created:     Date,
-	updated:     Date,
-	media:       Media | null,
+	created:     string | Date,
+	updated:     string | Date,
+	media:       MediaLike | null,
 	tags?:       Tags | null,
 	blocked:     boolean,
 	favorites?:  number | null,

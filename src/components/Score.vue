@@ -5,8 +5,8 @@
 		<button @click.stop='vote(-1)'><b>▼</b></button>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { Score } from '@/types/post';
 import { computed, onMounted, ref, watch, type Ref } from 'vue';
 import { abbreviate, khatch } from '@/utilities';
 import { host } from '@/config/constants';
@@ -80,7 +80,6 @@ watch(() => props.score, (value?: Score | null) => {
 	}
 });
 </script>	
-
 <style scoped>
 .disabled * {
 	pointer-events: none !important;

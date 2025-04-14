@@ -44,11 +44,11 @@
 					<RepostButton :postId='props.postId' v-model:count='post.reposts'/>
 					<FavoriteButton :postId='props.postId' v-model:count='post.favorites'/>
 					<ShareLink :content='`/p/${props.postId}`' v-if='!unpublishedPrivacy.has(post?.privacy)'/>
-					<DropDown :options="[
-						{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
-						{ html: `Block @${post?.user?.handle}`, action: () => { } },
-						{ html: `Report @${post?.user?.handle}`, action: () => { } },
-					]">
+					<DropDown :options='[
+						{ html: translate(post?.user.following ? "unfollow_user" : "follow_user", { handle: post?.user?.handle ?? "" }), action: followUser },
+						{ html: translate("block_user", { handle: post?.user?.handle ?? "" }), action: () => { } },
+						{ html: translate("report_user", { handle: post?.user?.handle ?? "" }), action: () => { } },
+					]'>
 						<i class='more-button material-icons-round'>more_horiz</i>
 					</DropDown>
 				</div>
@@ -60,12 +60,12 @@
 					<div class='reply-field'>
 						<p class='reply-label'>
 							{{replies ? countComments : 'Loading'}} {{countComments !== 1 ? 'Replies' : 'Reply'}}
-							<DropDown class='sort-dropdown' v-model:value='commentSort' :options="[
-								{ html: 'Top', value: 'top' },
-								{ html: 'Hot', value: 'hot' },
-								{ html: 'Best', value: 'best' },
-								{ html: 'Controversial', value: 'controversial' },
-							]">
+							<DropDown class='sort-dropdown' v-model:value='commentSort' :options='[
+								{ html: "Top", value: "top" },
+								{ html: "Hot", value: "hot" },
+								{ html: "Best", value: "best" },
+								{ html: "Controversial", value: "controversial" },
+							]'>
 								<span class='sort-by'>
 									<i class='material-icons-round'>sort</i>
 									sort by
@@ -123,11 +123,11 @@
 				<RepostButton :postId='props.postId' v-model:count='post.reposts'/>
 				<FavoriteButton :postId='props.postId' v-model:count='post.favorites'/>
 				<ShareLink :content='`/p/${props.postId}`' v-if='!unpublishedPrivacy.has(post?.privacy)'/>
-				<DropDown :options="[
-					{ html: `${post?.user.following ? 'Unfollow' : 'Follow'} @${post?.user?.handle}`, action: followUser },
-					{ html: `Block @${post?.user?.handle}`, action: () => { } },
-					{ html: `Report @${post?.user?.handle}`, action: () => { } },
-				]">
+				<DropDown :options='[
+					{ html: translate(post?.user.following ? "unfollow_user" : "follow_user", { handle: post?.user?.handle ?? "" }), action: followUser },
+					{ html: translate("block_user", { handle: post?.user?.handle ?? "" }), action: () => { } },
+					{ html: translate("report_user", { handle: post?.user?.handle ?? "" }), action: () => { } },
+				]'>
 					<i class='more-button material-icons-round'>more_horiz</i>
 				</DropDown>
 			</div>
@@ -182,9 +182,11 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { PostLike, PostSet } from '@/types/post';
 import { onMounted, computed, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
+import translate from '@/localization';
 import { khatch, setTitle, createToast } from '@/utilities';
 import { demarkdown } from '@/utilities/markdown';
 import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, host } from '@/config/constants';
@@ -210,15 +212,13 @@ import SetControls from '@/components/SetControls.vue';
 const props = defineProps<{
 	postId: string,
 }>();
-
 const globals = store();
 const route = useRoute();
 const router = useRouter();
 const unpublishedPrivacy: Set<string | undefined> = new Set(["unpublished", "draft"]);
-
-const post: Ref<Post | undefined> = ref();
+const post: Ref<PostLike | undefined> = ref();
 const writeComment: Ref<boolean> = ref(false);
-const replies: Ref<Post[] | null> = ref(null);
+const replies: Ref<PostLike[] | null | void> = ref(null);
 const newComment: Ref<string | null> = ref(null);
 const width: Ref<number | undefined> = ref();
 const height: Ref<number | undefined> = ref();
@@ -270,7 +270,7 @@ if (isMobile) {
 khatch(`${host}/v1/post/${props.postId}`, {
 	errorMessage: "Could not retrieve post!",
 }).then(r => r.json())
-.then((r: Post) => {
+.then((r: PostLike) => {
 	r.favorites = 0;
 	r.reposts = 0;
 	post.value = r;
@@ -432,7 +432,7 @@ function openEditor() {
 	router.push(path);
 }
 
-function countNestedComments(p: Post) {
+function countNestedComments(p: PostLike) {
 	if (!p.replies) return 0;
 
 	let count = p.replies.length;
@@ -452,10 +452,10 @@ function setLeft() {
 	}
 }
 
-function parents(): Post[] {
+function parents(): PostLike[] {
 	if (!post.value) return [];
-	const posts: Post[] = [];
-	let p: Post = post.value;
+	const posts: PostLike[] = [];
+	let p: PostLike = post.value;
 
 	while (p.parent) {
 		posts.unshift(p.parent);

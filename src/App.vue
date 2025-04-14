@@ -121,12 +121,9 @@ function setAnimated(e: MouseEvent) {
 }
 
 function onResize() {
-	let offset: number;
+	let offset: number = (banner as HTMLDivElement).clientHeight;
 	if (route.meta.applyOffset ?? true) {
 		offset = Math.max((banner as HTMLDivElement).clientHeight + 25, (window.innerHeight - (content as HTMLDivElement).clientHeight) / 2);
-	}
-	else {
-		offset = (banner as HTMLDivElement).clientHeight;
 	}
 	(content as HTMLDivElement).style.top = offset.toString() + "px";
 	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
@@ -148,7 +145,7 @@ function configsLoop() {
 		costs.value = null;
 		funds.value = null;
 	});
-	setTimeout(configsLoop, 300e3); // 5 minutes
+	// setTimeout(configsLoop, 300e3);  // 5 minutes
 }
 
 function ResizeSensor(element: HTMLElement, callback: Function) {

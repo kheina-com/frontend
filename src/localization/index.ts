@@ -13,19 +13,51 @@ let loaded: null | {
 	},
 } = null;
 
-const localizationKeyTag = "data-locale-key";
-const localizationArgsTag = "data-locale-args";
-const localizationModifiersTag = "data-locale-mods";
-const defaultLangFile = "en-us";
+const logstr = "[localization]";
+const localeKeyTag = "data-locale-key";
+const localeArgsTag = "data-locale-args";
+const localeModsTag = "data-locale-mods";
+export const defaultLangFile = "en-us";
 
-export default function translate(key: string, kwargs: { [k: string]: string; } = {}): string | void {
+export async function loadLangFile(lang: string) {
+	if (!languages.hasOwnProperty(lang)) {
+		console.error(logstr, "cannot load unregistered language file:", lang);
+		lang = defaultLangFile;
+	}
+
+	// attempt to load the lang file and store it into loaded
+	const i = await import(`./${lang}.lang.ts`);
+	loaded = Object.assign(loaded ?? {}, i.default);
+	if (!loaded) return;
+
+	loaded.code = lang;
+	console.debug(logstr, "loaded:", lang);
+	document.querySelectorAll(
+		"[" + localeKeyTag + "]",
+	).forEach(e => {
+		const key = e.getAttribute(localeKeyTag);
+		if (!key) return;
+
+		const binding: Binding = { arg: key, modifiers: {} };
+
+		const args = e.getAttribute(localeArgsTag);
+		if (args) binding.value = JSON.parse(args);
+
+		const mods = e.getAttribute(localeModsTag);
+		if (mods) mods.split(".").forEach(mod => binding.modifiers[mod] = true);
+
+		translateElement(key, e, binding);
+	});
+}
+
+export default function translate(key: string, kwargs: { [k: string]: string; } = {}): string {
 	if (!loaded) {
-		console.warn("[localization] failed for", key, "locale has not been loaded yet");
-		return;
+		console.warn(logstr, "failed for", key, "locale has not been loaded yet");
+		return key;
 	}
 	if (!loaded.hasOwnProperty(key)) {
-		console.warn("[localization]", loaded.code, "translation does not exist for:", key);
-		return;
+		console.warn(logstr, loaded.code, "translation does not exist for:", key);
+		return key;
 	}
 	const fmt = loaded[key];
 	const args: { [k: string]: string; } = {};
@@ -56,71 +88,51 @@ const directiveSet = (el: Element, binding: Binding) => {
 	const key: string = binding.arg ?? binding.value;
 	if (key === binding.value) binding.value = undefined;
 	// we don't want to re-run the directive during update if nothing has changed in the translation
-	if (key === el.getAttribute(localizationKeyTag) && (!binding.value || _.isEqual(binding.value, binding.oldValue))) return;
-	// console.debug("[localization] el:", el, "key:", key, "value:", binding.value);
+	if (key === el.getAttribute(localeKeyTag) && (!binding.value || _.isEqual(binding.value, binding.oldValue))) return;
+	// console.debug(logstr, "el:", el, "key:", key, "value:", binding.value);
 
 	(async () => {
 		// I don't know if this actually unblocks the rest of the code to run independently, but that's what I intended
-		el.setAttribute(localizationKeyTag, key);
-		if (binding.value) el.setAttribute(localizationArgsTag, JSON.stringify(binding.value));
-		if (Object.keys(binding.modifiers).length) el.setAttribute(localizationModifiersTag, Object.keys(binding.modifiers).join("."));
+		el.setAttribute(localeKeyTag, key);
+		if (binding.value) el.setAttribute(localeArgsTag, JSON.stringify(binding.value));
+		if (Object.keys(binding.modifiers).length) el.setAttribute(localeModsTag, Object.keys(binding.modifiers).join("."));
 	})();
 
 	translateElement(key, el, binding);
 };
 
-export async function loadLangFile(lang: string) {
-	if (!languages.includes(lang)) {
-		console.error("[localization] cannot load unregistered language file:", lang);
-		lang = defaultLangFile;
-	}
-
-	// attempt to load the lang file and store it into loaded
-	const i = await import(`./${lang}.lang.ts`);
-	loaded = Object.assign(loaded ?? {}, i.default);
-	if (!loaded) return;
-	loaded.code = lang;
-	console.debug("[localization] loaded:", lang);
-	document.querySelectorAll(
-		"[" + localizationKeyTag + "]",
-	).forEach(e => {
-		const key = e.getAttribute(localizationKeyTag);
-		if (!key) return;
-
-		const binding: Binding = { arg: key, modifiers: {} };
-
-		const args = e.getAttribute(localizationArgsTag);
-		if (args) binding.value = JSON.parse(args);
-
-		const mods = e.getAttribute(localizationModifiersTag);
-		if (mods) mods.split(".").forEach(mod => binding.modifiers[mod] = true);
-
-		translateElement(key, e, binding);
-	});
-}
-
 interface Binding {
-	// The value passed to the directive. For example in v-my-directive="1 + 1", the value would be `2`.
+	/**
+	 * The value passed to the directive. For example in v-my-directive="1 + 1", the value would be `2`.
+	 */
 	value?: any,
 
-	// The previous value, only available in `beforeUpdate` and `updated`. It is available whether or not the value has changed.
+	/**
+	 * The previous value, only available in `beforeUpdate` and `updated`. It is available whether or not the value has changed.
+	 */
 	oldValue?: any,
 
-	// The argument passed to the directive, if any. For example in `v-my-directive:foo`, the arg would be `"foo"`.
+	/**
+	 * The argument passed to the directive, if any. For example in `v-my-directive:foo`, the arg would be `"foo"`.
+	 */
 	arg?: string,
 
-	// An object containing modifiers, if any. For example in `v-my-directive.foo.bar`, the modifiers object would be `{ foo: true, bar: true }`.
+	/**
+	 * An object containing modifiers, if any. For example in `v-my-directive.foo.bar`, the modifiers object would be `{ foo: true, bar: true }`.
+	 */
 	modifiers: {
 		[k: string]: boolean,
 	},
 
-	// The instance of the component where the directive is used.
-	// TODO: idk the type on this
-	instance?: any,
+	/**
+	 * The instance of the component where the directive is used.
+	 */
+	instance?: any,  // TODO: idk the type on this
 
-	// the directive definition object.
-	// TODO: idk the type on this
-	dir?: any,
+	/**
+	 * the directive definition object.
+	 */
+	dir?: any,  // TODO: idk the type on this
 }
 
 export const vTranslate: Directive = {

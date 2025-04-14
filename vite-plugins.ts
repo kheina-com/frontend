@@ -1,7 +1,3 @@
-import { join } from 'node:path';
-import { buildSync } from 'esbuild';
-import type { PluginOption } from 'vite';
-
 export default null;
 
 export const minifyHtml = () => {
@@ -26,23 +22,6 @@ export const minifyHtml = () => {
 				// do one final pass for any misc whitespace between tags
 				/>\s+</g, "><"
 			);
-		},
-	};
-};
-
-export const exportFile = (path: string): PluginOption => {
-	const fullpath = "src/" + path;
-	return {
-		name: "export-file",
-		apply: "build",
-		enforce: "post",
-		transformIndexHtml() {
-			buildSync({
-				minify: true,
-				bundle: true,
-				entryPoints: [join(process.cwd(), fullpath)],
-				outfile: join(process.cwd(), "dist", path),
-			});
 		},
 	};
 };

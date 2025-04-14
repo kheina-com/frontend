@@ -1,9 +1,10 @@
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import { minifyHtml, exportFile } from './vite-plugins';
+import { minifyHtml } from './vite-plugins';
 import mkcert from 'vite-plugin-mkcert';
 import path from 'path';
 import child_process from 'child_process';
+import { serviceWorkerPlugin } from '@gautemo/vite-plugin-service-worker';
 
 const fullCommit = child_process
 	.execSync("git rev-parse HEAD")
@@ -18,7 +19,9 @@ export default defineConfig({
 		vue(),
 		minifyHtml(),
 		mkcert(),
-		exportFile("service_worker/index.ts"),
+		serviceWorkerPlugin({
+			filename: "src/service_worker/index.ts",
+		}),
 	],
 	build: {
 		// vite won't base64-encode files and inject them into the html

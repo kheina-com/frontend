@@ -4,8 +4,7 @@
 		<slot/>
 	</label>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 const props = withDefaults(defineProps<{
 	value: string,
 	onClick: { (payload: MouseEvent): void },
@@ -13,7 +12,6 @@ const props = withDefaults(defineProps<{
 	onClick: () => { },
 });
 </script>
-
 <style scoped>
 .submit {
 	right: 0;
@@ -26,5 +24,4 @@ input#submit {
 	height: 0;
 	width: 0;
 }
-
 </style>

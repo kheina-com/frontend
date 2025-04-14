@@ -1,3 +1,6 @@
+import type { Emoji } from '@/types/emoji';
+import type { MediaLike } from '@/types/post';
+import type { TagPortable, Tags } from '@/types/tag';
 import { apiErrorDescriptionToast, apiErrorMessageToast, authRegex } from '@/config/constants';
 import store, { type ToastOptions } from '@/globals';
 import { tagGroups } from '@/config/constants';
@@ -51,6 +54,7 @@ export function setTitle(title: string): void {
 }
 
 import { routerMetaTag } from "@/config/constants";
+import type { UserAuth } from '@/types/auth';
 export function setMeta(content: object): void {
 	const tag = document.createElement("meta");
 
@@ -68,7 +72,7 @@ export function commafy(x: number): string { // from https://stackoverflow.com/a
 	return parts.join(".");
 }
 
-export function getMediaThumbnailUrl(media: Media, resolution: number = 800, extension: "webp" | "jpeg" = "webp") {
+export function getMediaThumbnailUrl(media: MediaLike, resolution: number = 800, extension: "webp" | "jpeg" = "webp") {
 	return media.thumbnails.filter(x => x.type.file_type === extension).sort((a, _) => a.bounds - resolution)[0].url;
 };
 
@@ -102,12 +106,12 @@ export function sortTagGroups(tags: { [k: string]: TagPortable[]; } | Tags): Tag
 /**
  * 
  * @param options interface ToastOptions {
- * 	title?: string,
+ * 	title?:       string,
  * 	description?: string,
- * 	dump?: any,
- * 	color?: string,
- * 	icon?: string,
- * 	time?: number,
+ * 	dump?:        any,
+ * 	color?:       string,
+ * 	icon?:        string,
+ * 	time?:        number,
  * }
  */
 export function createToast(options: ToastOptions): void {
@@ -130,6 +134,21 @@ interface KhatchOptions {
 	body?: string | any,
 }
 
+/**
+ * 
+ * @param url 
+ * @param options interface KhatchOptions {
+ * 	attempts?:      number,
+ * 	handleError?:   boolean,
+ * 	errorMessage?:  string,
+ * 	errorHandlers?: { [statusCode: number]: { (r: Response): void; }; },
+ * 	method?:        string,
+ * 	credentials?:   "include",
+ * 	headers?:       { [header: string]: string; },
+ * 	body?:          string | any,
+ * }
+ * @returns 
+ */
 export async function khatch(url: string, options: KhatchOptions = {}): Promise<Response> {
 	const attempts = options?.attempts || 3;
 	const handleError = Boolean(options?.handleError || options?.errorMessage || options?.errorHandlers);
@@ -424,8 +443,8 @@ export function int_from_bytes(bytestring: string): number {
 }
 
 const b64repl: { [k: string]: string; } = { "-": "+", "_": "/" };
-export function authCookie(cookie: string | null = null) {
-	const token = cookie ?? getCookie("kh-auth");
+export function authCookie(cookie: string | null = null): UserAuth | null {
+	const token: string = cookie ?? getCookie("kh-auth");
 	if (!token || token.length <= 10) return null;
 
 	const components: string[] = token.replace("-", "+").replace("_", "/").split(".");
@@ -453,8 +472,9 @@ export function authCookie(cookie: string | null = null) {
 		expires: new Date(int_from_bytes(atob(payload[2])) * 1000),
 		userId: int_from_bytes(atob(payload[3])),
 		guid: payload[4].replace(/\+/g, "-").replace(/\//g, "_"),
-		isMod: misc?.scope?.includes("mod"),
-		isAdmin: misc?.scope?.includes("admin"),
+		isMod: Boolean(misc?.scope?.includes("mod")),
+		isAdmin: Boolean(misc?.scope?.includes("admin")),
+		scope: misc?.scope ?? [],
 		...misc,
 	};
 

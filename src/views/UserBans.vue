@@ -1,34 +1,38 @@
 <template>
+	<!-- eslint-disable vue/no-v-model-argument -->
 	<main>
-		<Title>Your Reports</Title>
-		<div class='container' v-if='!reports'>
+		<Title>@{{handle}} Bans</Title>
+		<div class='container text' v-if='!bans'>
 			<span>Loading...</span>
 		</div>
-		<div class='container' v-else-if='reports.length !== 0'>
-			<ReportComponent class='report' v-bind='report' v-for='report in reports' nested/>
+		<div class='container' v-else-if='bans.length !== 0'>
+			<p v-for='ban in bans'>ban: {{ ban }}</p>
 		</div>
-		<div class='container' v-else>
-			You have no active reports
+		<div class='container text' v-else>
+			@{{handle}} has not been banned
 		</div>
 		<ThemeMenu/>
 	</main>
 </template>
 <script setup lang='ts'>
-import type { Report } from '@/types/report';
 import { ref, type Ref } from 'vue';
+import type { Ban } from '@/types/report';
 import { khatch } from '@/utilities';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
-import ReportComponent from '@/components/Report.vue';
 
-const reports: Ref<Report[] | undefined> = ref();
+const props = defineProps<{
+	handle: string,
+}>();
+const bans: Ref<Ban[] | undefined> = ref();
 
-khatch(`${host}/v1/reports`, {
+khatch(`${host}/v1/bans/${props.handle}`, {
 	handleError: true
-}).then(r => r.json())
-.then(r => {
-	reports.value = r;
+}).then(
+	r => r.json()
+).then((r: Ban[]) => {
+	bans.value = r;
 	console.log(r);
 });
 </script>
@@ -48,11 +52,14 @@ main {
 .mobile .container {
 	width: 100%;
 }
+.text {
+	text-align: center;
+}
 
-.report {
+.action {
 	margin-bottom: var(--margin);
 }
-.report:last-child {
+.action:last-child {
 	margin: 0;
 }
 

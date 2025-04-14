@@ -112,10 +112,12 @@
 	</main>
 </template>
 <script setup lang='ts'>
+import type { PostLike } from '@/types/post';
+import type { Report, ReportData } from '@/types/report';
 import { computed, ref, watch, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { createToast, khatch } from '@/utilities';
-import { reportHistory, reportRevisions, type Report, type ReportData } from '@/utilities/report';
+import { reportHistory, reportRevisions } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
@@ -166,7 +168,7 @@ const reportData: Ref<ReportData | null> = ref(null);
 const showHistory: Ref<boolean> = ref(false);
 const data: Ref<{ [k: string]: any }> = ref(Object.fromEntries(Object.entries(route.query).map(([k, v]) => [k, v?.toString() ?? null])));
 const action: Ref<ActionType | undefined> = ref();
-const post: Ref<Post | null> = ref(null);
+const post: Ref<PostLike | null> = ref(null);
 const fieldUpdates: Ref<{ field?: string, value?: string }[]> = ref([{ }]);
 
 const props = defineProps<{

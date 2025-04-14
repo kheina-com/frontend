@@ -46,13 +46,12 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onMounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { khatch, sha1 } from '@/utilities';
-import { apiErrorMessage, host } from '@/config/constants';
+import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -174,7 +173,6 @@ function hasPasswordBeenPwned(password: string) {
 	.catch(error => console.error(error));
 }
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

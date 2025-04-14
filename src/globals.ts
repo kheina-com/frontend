@@ -1,7 +1,10 @@
-import type { User } from '@/types/user';
-import type { Notification } from '@/types/notifications';
+import type { UserAuth } from '@/types/auth';
+import type { NotificationEvent } from '@/types/notifications';
+import type { PostLike } from '@/types/post';
+import type { FullUser, FullUserLike, User } from '@/types/user';
 import { defineStore } from 'pinia';
 import { authCookie, deleteCookie, khatch, setCookie } from '@/utilities';
+import { ClearNotifications, PopulateNotificationsDb } from '@/utilities/notifications';
 import { host, environment } from '@/config/constants';
 
 export interface ToastOptions {
@@ -31,7 +34,7 @@ export enum Rating {
 
 interface Globals {
 	init: boolean,
-	auth: any | null,
+	auth: UserAuth | null,
 	user: User | null,
 	theme: string | null,
 	accent: string | null,
@@ -41,9 +44,7 @@ interface Globals {
 	transitions: boolean,
 	tiles: boolean,
 	rating: Rating,
-	notifications: Notification[],
-	notificationCounter: number,
-	postCache: Post | null,
+	postCache: PostLike | null,
 	config: any | null,
 	cookies: boolean,
 }
@@ -51,8 +52,8 @@ interface Globals {
 export interface AuthToken {
 	version: string,
 	algorithm: string,
-	key_id: 66,
-	issued: Date | string,
+	keyId: number,
+	// issued: Date | string,
 	expires: Date | string,
 	token: string,
 }
@@ -74,8 +75,6 @@ export default defineStore("globals", {
 		transitions: true,
 		tiles: true,
 		rating: "general" as Rating,
-		notifications: [],
-		notificationCounter: 0,
 		postCache: null,
 		config: null,
 		cookies: false,
@@ -101,10 +100,6 @@ export default defineStore("globals", {
 			this.toasts[id] = toast;
 			console.debug("[createToast]", id, toast);
 		},
-		appendNotification(notification: Notification): void {
-			this.notifications.unshift(notification);
-			this.notificationCounter++;
-		},
 		userConfig(config: any): void {
 			this.config = {
 				...config,
@@ -116,7 +111,7 @@ export default defineStore("globals", {
 					errorMessage: "Failed to Retrieve User Wallpaper!",
 				}).then(
 					r => r.json()
-				).then((r: Post) => {
+				).then((r: PostLike) => {
 					if (!r.media) return;
 					document.documentElement.style.backgroundImage = `url(${r.media.url})`;
 					document.documentElement.style.backgroundAttachment = "fixed";
@@ -184,6 +179,7 @@ export default defineStore("globals", {
 		setAuth(auth: AuthToken | null): void {
 			if (auth && auth.token.length > 10) {
 				if (!this.cookiesAllowed) {
+					ClearNotifications();
 					this.createToast({
 						title: "Could not complete login",
 						description: 'Logins require the use of browser cookies. To login, hit the "coolio" button on the cookies popup',
@@ -199,6 +195,11 @@ export default defineStore("globals", {
 					}
 					this.auth = authCookie();
 
+					// this has to be after auth assignment
+					PopulateNotificationsDb().then((unread: number) =>
+						document.dispatchEvent(new CustomEvent<NotificationEvent>("notification", { detail: { unread } }))
+					);
+
 					khatch(`${host}/v1/user/self`, {
 						errorMessage: "Error Occurred While Fetching Self",
 						errorHandlers: {
@@ -212,9 +213,11 @@ export default defineStore("globals", {
 								}
 							},
 						},
-					}).then(r => r.json()).then(r => {
+					}).then(
+						r => r.json()
+					).then((r: FullUserLike) => {
 						r.created = new Date(r.created);
-						this.user = r;
+						this.user = r as FullUser;
 					});
 
 					khatch(`${host}/v1/config/user`, {
@@ -224,10 +227,11 @@ export default defineStore("globals", {
 							401: () => { },
 							404: () => { },
 						},
-					}).then(r => r.json()).then(r => this.userConfig);
+					}).then(r => r.json()).then(this.userConfig);
 				}
 			}
 			else {
+				ClearNotifications();
 				this.auth = this.user = null;
 			}
 		},

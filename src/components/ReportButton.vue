@@ -8,8 +8,7 @@
 		<span>Report Content</span>
 	</router-link>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import store from '@/globals';
@@ -30,7 +29,6 @@ const destination = computed(() => {
 	return '/r?' + params;
 });
 </script>
-
 <style scoped>
 .report {
 	display: flex;
@@ -38,7 +36,7 @@ const destination = computed(() => {
 	color: var(--subtle);
 	margin: -0.1em -0.25em -0.25em;
 	position: relative;
-	z-index: 1;
+	/* z-index: 1; */
 }
 .mobile .report {
 	padding: 0;

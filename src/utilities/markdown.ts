@@ -5,6 +5,7 @@ import { type Tokens, type TokenizerAndRendererExtension } from 'marked';
 import defaultUserIcon from '$/default-icon.png?url';
 import defaultEmoji from '$/default-emoji.png?url';
 import router from '@/router';
+import type { PostLike } from '@/types/post';
 
 // @ts-format-ignore-region
                                                        /*::/++++++++ooo++/:.
@@ -478,6 +479,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 						span.innerText = token.text;
 						element.parentElement?.replaceChild(span, element);
 					}
+					element.removeChild(element.firstChild as HTMLSpanElement);
 				});
 
 				return `<a href="${htmlEscape(token.href)}" id="${id}" title="@${token.username}"><span class="profile-user-icon loading wave"/></a>`;
@@ -551,7 +553,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		renderer(token: Tokens.Generic) {
 			const id = mdRefId();
 
-			token.req.then((r: Post) => {
+			token.req.then((r: PostLike) => {
 				const element = document.getElementById(id);
 				if (!element || !r) return;
 

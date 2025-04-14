@@ -127,6 +127,7 @@
 	</main>
 </template>
 <script setup lang='ts'>
+import type { PostLike } from '@/types/post';
 import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
 import store from '@/globals';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -151,12 +152,12 @@ let epoch: string = new Date(epoch_).toString();
 let date: string = new Date(Date.now() + 500000000).toString();
 let datetime: string = new Date(Date.now()).toString();
 let audio = new Audio(notify);
-let content: Ref<string> = ref(authCookie()?.token);
+let content: Ref<string> = ref(authCookie()?.token ?? "");
 let audioLoading: Ref<boolean> = ref(false);
 let colors: Ref<string[]> = ref([]);
 let cutoff: string = "";
 let postId: Ref<string | null> = ref("ugE_qTJL");
-let post: Post | null = null;
+let post: PostLike | null = null;
 let speed: Ref<number> = ref(1);
 let loaded: Ref<number> = ref(0);
 let animate: boolean = true;
@@ -382,8 +383,8 @@ function deleteAuth() {
 
 const cookie = computed(() => {
 	try {
-		const c = authCookie(content.value);
-		if (c) { delete c.token; }
+		const c: any = authCookie(content.value);
+		if (c) delete c.token;
 		return "```json\n" + JSON.stringify(c, null, 4) + "\n```";
 	}
 	catch (e) {

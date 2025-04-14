@@ -6,8 +6,7 @@
 		<p :class='pClass'><slot/></p>
 	</DivLink>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed } from 'vue';
 import DivLink from '@/components/DivLink.vue';
 
@@ -39,23 +38,22 @@ const props = defineProps({
 })
 
 const spanFill = computed(() =>
-	'width:' + (props.fill * 100).toString() + '%;'
+	"width:" + (props.fill * 100).toString() + "%;"
 );
 
 const pClass = computed(() => {
 	if (props.fill >= 1)
-	{ return 'center'; }
+	{ return "center"; }
 	else if (props.fill > 0.5)
-	{ return 'left'; }
+	{ return "left"; }
 	else
-	{ return 'right'; }
+	{ return "right"; }
 });
 
 const barColors = computed(() =>
-	(props.textColor ? ('--bartextcolor:' + props.textColor + ';') : '') + (props.fillColor ? ('--barfillcolor:' + props.fillColor + ';') : '')
+	(props.textColor ? ("--bartextcolor:" + props.textColor + ";") : "") + (props.fillColor ? ("--barfillcolor:" + props.fillColor + ";") : "")
 );
 </script>
-
 <style scoped>
 .progressbar
 {

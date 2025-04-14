@@ -1,8 +1,7 @@
 <template>
 	<Loading :span='span' :isLoading='isLoading'><p class='title' :style='titleStyle'><slot name='default'/><span class='super'><slot name='super'/></span></p></Loading>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import Loading from '@/components/Loading.vue';
 import { computed } from 'vue';
 
@@ -26,7 +25,6 @@ const props = defineProps({
 });
 const titleStyle = computed(() => `font-size: ${props.size}; text-align: ${props.static};`);
 </script>
-
 <style scoped>
 p {
 	word-wrap: anywhere;

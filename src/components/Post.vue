@@ -21,10 +21,13 @@
 					<i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i>
 				</Button>
 			</div>
-			<div class='header-block'>
-				<Score :score='score' :postId='postId' :disabled='locked'/>
-				<div class='locked' v-if='locked'><p>This post has been locked.</p></div>
-				<div class='post-header' v-else>
+			<div class='locked' v-if='locked'>
+				<i class='material-icons-round'>warning</i>
+				<span>This post has been locked.</span>
+			</div>
+			<div class='header-block' v-else>
+				<ScoreComponent :score='score' :postId='postId' :disabled='locked'/>
+				<div class='post-header'>
 					<h2 v-if='isLoading || title'>
 						<Loading span v-if='isLoading'>this is an example title</Loading>
 						<Markdown :content='title' inline class='title' lazy v-else/>
@@ -68,7 +71,9 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import { type User } from '@/types/user';
+import type { MediaLike, PostLike, Score } from '@/types/post';
+import type { Tags } from '@/types/tag';
+import type { User } from '@/types/user';
 import { computed, ref, toRef, watch, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/globals';
@@ -79,7 +84,7 @@ import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
-import Score from '@/components/Score.vue';
+import ScoreComponent from '@/components/Score.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
@@ -96,7 +101,7 @@ const props = withDefaults(defineProps<{
 	concise?: boolean,
 	nested?:  boolean,
 	parent_id?:  string | null,
-	parent?:  Post | null,
+	parent?:  PostLike | null,
 	reply?:   boolean,
 
 	// loadTrigger: {
@@ -104,7 +109,7 @@ const props = withDefaults(defineProps<{
 	// 	default: null,
 	// },
 	
-	replies?:    Post[] | null,
+	replies?:    PostLike[] | null,
 	rating?:     "general" | "mature" | "explicit",
 
 	// post fields
@@ -115,9 +120,9 @@ const props = withDefaults(defineProps<{
 	privacy?:        "public" | "unlisted" | "private" | "unpublished" | "draft",
 	tags?:           Tags | null,
 	userIsUploader?: boolean,
-	created?:        Date,
-	updated?:        Date,
-	media?:          Media | null,
+	created?:        string | Date,
+	updated?:        string | Date,
+	media?:          MediaLike | null,
 	blocked?:        boolean,
 	locked?:         boolean,
 	favorites?:      number | null,
@@ -309,7 +314,6 @@ watch(toRef(props, "rating"), (value: "general" | "mature" | "explicit") =>
 
 <style scoped>
 .post {
-	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
 	padding: var(--margin);
@@ -587,6 +591,15 @@ ol > :last-child, ol > :last-child .post {
 
 .unnested .report:hover {
 	background: var(--bg2color) !important;
+}
+
+.locked {
+	display: flex;
+	align-items: center;
+}
+.locked i {
+	color: var(--warning);
+	font-size: 3em;
 }
 
 /* theme overrides */

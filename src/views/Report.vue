@@ -76,10 +76,12 @@
 	</main>
 </template>
 <script setup lang='ts'>
+import type { Report, ReportType } from '@/types/report';
+import type { PostLike } from '@/types/post';
 import { computed, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { createToast, khatch } from '@/utilities';
-import { reportHistory, reportRevisions, type Report, type ReportType } from '@/utilities/report';
+import { reportHistory, reportRevisions } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
@@ -98,7 +100,7 @@ interface CreateReport {
 const route = useRoute();
 const router = useRouter();
 const data: Ref<{ [k: string]: any }> = ref(Object.fromEntries(Object.entries(route.query).map(([k, v]) => [k, v?.toString() ?? null])));
-const post: Ref<Post | null> = ref(null);
+const post: Ref<PostLike | null> = ref(null);
 const report: Ref<Report | null> = ref(null);
 const showHistory: Ref<boolean> = ref(false);
 

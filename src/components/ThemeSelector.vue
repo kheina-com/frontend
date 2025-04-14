@@ -32,39 +32,38 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import CheckBox from '@/components/CheckBox.vue';
 import store from '@/globals';
 
 const globals = store();
 const themes = [
-	['kheina', 'kheina'],
-	['light', 'light mode'],
-	['midnight', 'midnight'],
-	['e621', 'e621'],
-	['youtube', 'youtube'],
-	['wikipedia', 'wikipedia'],
-	['terminal', 'terminal'],
-	['high-contrast-dark', 'high contrast dark'],
-	['high-contrast-light', 'high contrast light'],
-	['solarized-dark', 'solarized dark'],
-	['solarized-light', 'solarized light'],
-	['furaffinity', 'fur affinity'],
-	['discord', 'discord'],
-	['xfire', 'xfire'],
-	['gay', 'gay'],
+	["kheina", "kheina"],
+	["light", "light mode"],
+	["midnight", "midnight"],
+	["e621", "e621"],
+	["youtube", "youtube"],
+	["wikipedia", "wikipedia"],
+	["terminal", "terminal"],
+	["high-contrast-dark", "high contrast dark"],
+	["high-contrast-light", "high contrast light"],
+	["solarized-dark", "solarized dark"],
+	["solarized-light", "solarized light"],
+	["furaffinity", "fur affinity"],
+	["discord", "discord"],
+	["xfire", "xfire"],
+	["gay", "gay"],
 ];
 const accents = [
-	['none', 'none'],
-	['aurora', 'aurora'],
-	['autumn', 'autumn'],
-	['hex', 'hex grid'],
-	['summer', 'summer'],
-	['space', 'space'],
-	['spring', 'spring'],
-	['stars', 'stars'],
-	['winter', 'winter'],
+	["none", "none"],
+	["aurora", "aurora"],
+	["autumn", "autumn"],
+	["hex", "hex grid"],
+	["summer", "summer"],
+	["space", "space"],
+	["spring", "spring"],
+	["stars", "stars"],
+	["winter", "winter"],
 ];
 
 function setTheme(event: Event) {
@@ -75,7 +74,6 @@ function setAccent(event: Event) {
 	globals.setAccent((event.target as HTMLSelectElement).value);
 }
 </script>
-
 <style scoped>
 select option
 { color: var(--textcolor) !important; }

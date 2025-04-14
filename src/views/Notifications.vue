@@ -1,20 +1,36 @@
 <template>
 	<main>
 		<Title>Notifications</Title>
-		<Notification class='notification' v-bind='n' v-for='n in globals.notifications'/>
+		<div class='container text' v-if='!notifications'>
+			<span>Loading...</span>
+		</div>
+		<div class='container text' v-else-if='notifications.length === 0'>
+			<span>You have no notifications yet!</span>
+		</div>
+		<div class='container' v-else>
+			<NComponent class='notification' v-bind='n' v-for='n in notifications'/>
+		</div>
 		<ThemeMenu/>
 	</main>
 </template>
 <script setup lang='ts'>
-import store from '@/globals';
+import type { Notification } from '@/types/notifications';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
-import Notification from '@/components/Notification.vue';
-import { onMounted, onUnmounted } from 'vue';
-const globals = store();
+import NComponent from '@/components/Notification.vue';
+import { onMounted, onUnmounted, ref, type Ref } from 'vue';
+import { ClearUnreads, GetNotifications } from '@/utilities/notifications';
 
-onMounted(() => globals.notificationCounter = 0);
-onUnmounted(() => globals.notificationCounter = 0);
+const notifications: Ref<Notification[] | void> = ref();
+const loadNotifications = () => GetNotifications().then((n: Notification[]) => notifications.value = n);
+loadNotifications();
+document.addEventListener("notification", loadNotifications);
+
+onMounted(ClearUnreads);
+onUnmounted(() => {
+	ClearUnreads();
+	document.removeEventListener("notification", loadNotifications);
+});
 </script>
 <style scoped>
 main {
@@ -22,6 +38,9 @@ main {
 	position: relative;
 	padding: var(--margin);
 	display: block;
+}
+.text {
+	text-align: center;
 }
 
 .notification {

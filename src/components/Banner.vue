@@ -16,7 +16,12 @@
 		<div class='nav'>
 			<div class='bg'/>
 			<div class='profile' v-if='globals.auth'>
-				<div class='icon' id='user-verification'></div>
+				<DropDown class='translate-button icon' :options='Object.entries(languages).map(([k, v]): DropDownOption => {
+					return { html: v, value: k };
+				})'>
+					<i class='material-icons center'>translate</i>
+				</DropDown>
+				<div class='icon' id='user-verification' v-show='false'></div>
 				<Loading :isLoading='isIconLoading' class='profile-image'>
 					<router-link :to='`/${globals.user?.handle}`'>
 						<UserIcon :handle='globals.user?.handle' :post='globals.user?.icon' v-model:isLoading='isIconLoading' v-if='globals.user'/>
@@ -24,6 +29,11 @@
 				</Loading>
 			</div>
 			<div class='profile' v-else>
+				<DropDown class='translate-button icon' :options='Object.entries(languages).map(([k, v]) => {
+					return { html: v, value: k };
+				})'>
+					<i class='material-icons center'>translate</i>
+				</DropDown>
 				<router-link :to='loginPath' class='interactable login'>Login</router-link>
 			</div>
 			<SearchBar v-model:value='searchValue' :func='runSearchQuery'/>
@@ -57,8 +67,8 @@
 							<router-link to='/n'>
 								<div class='notifications'>
 									<i class='material-icons-round'>notifications</i>
-									<div class='counter' v-show='globals.notificationCounter'>
-										<span>{{ globals.notificationCounter }}</span>
+									<div class='counter' v-show='notifications'>
+										<span>{{ notifications }}</span>
 									</div>
 								</div>
 								Notifications
@@ -195,8 +205,8 @@
 		<div class='menu-button' v-if='isMobile'>
 			<button @click='toggleMenu' class='icon' :title='`${menuOpen ? "Close" : "Open"} menu`'>
 				<i class='material-icons-round'>{{menuOpen ? 'close' : 'menu'}}</i>
-				<div class='counter' v-show='!menuOpen && globals.notificationCounter'>
-					<span>{{ globals.notificationCounter }}</span>
+				<div class='counter' v-show='!menuOpen && notifications'>
+					<span>{{ notifications }}</span>
 				</div>
 			</button>
 		</div>
@@ -206,8 +216,8 @@
 			</button>
 			<router-link to='/n' class='icon notifications' title='Notifications' v-if='globals.auth'>
 				<i class='material-icons-round'>notifications</i>
-				<div class='counter' v-show='globals.notificationCounter'>
-					<span>{{ globals.notificationCounter }}</span>
+				<div class='counter' v-show='notifications'>
+					<span>{{ notifications }}</span>
 				</div>
 			</router-link>
 			<router-link to='/tl' class='icon timeline' title='Timeline' v-if='globals.auth'>
@@ -217,10 +227,13 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { NotificationEvent } from '@/types/notifications';
 import { computed, ref, type Ref, watch, toRaw } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { deleteCookie, khatch } from '@/utilities';
 import { host, environment, isMobile } from '@/config/constants';
+import { defaultLangFile, loadLangFile } from '@/localization';
+import languages from '@/localization/languages';
 import Loading from '@/components/Loading.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import Markdown from '@/components/Markdown.vue';
@@ -228,6 +241,7 @@ import Button from '@/components/Button.vue';
 import UserIcon from '@/components/UserIcon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
 import SearchBar from '@/components/SearchBar.vue';
+import DropDown, { type DropDownOption } from '@/components/DropDown.vue';
 import store, { Rating } from '@/globals';
 
 const banner  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -248,6 +262,13 @@ const editMessage:   Ref<boolean>       = ref(false);
 const menuOpen:      Ref<boolean>       = ref(false);
 const isIconLoading: Ref<boolean>       = ref(true);
 const searchValue:   Ref<string | null> = ref(null);
+const notifications: Ref<number>        = ref(0);
+const lang:          Ref<string>        = ref(defaultLangFile);
+
+document.addEventListener("notification", (e: Event) => {
+	const event = e as CustomEvent<NotificationEvent>;
+	notifications.value = event.detail.unread;
+});
 
 function navCreate() {
 	if (globals.auth) router.push("/create");
@@ -355,6 +376,7 @@ function removeMessage() {
 
 watch(() => route.path, setQuery);
 watch(() => globals.user, setUser);
+watch(lang, loadLangFile);
 watch(props, () => {
 	message.value = props.message;
 	setTimeout(props.onResize, 0);
@@ -486,9 +508,6 @@ textarea {
 	position: absolute;
 	right: 0;
 }
-.profile i {
-	cursor: default;
-}
 .profile .inner {
 	display: flex;
 	align-items: center;
@@ -517,6 +536,12 @@ i {
 .menu-border {
 	border-top: var(--border-size) solid var(--bordercolor);
 	margin: 2.5rem 20px 0;
+}
+.translate-button {
+
+}
+.center {
+	margin: auto;
 }
 
 .mobile .menu-border {

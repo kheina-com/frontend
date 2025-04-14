@@ -181,8 +181,7 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import * as _ from 'lodash-es';
 import { onMounted, ref, watch, type Ref } from 'vue';
 // import QRCode from 'qrcode';
@@ -425,11 +424,10 @@ watch(fontFamily, (value: string) => {
 	}
 });
 
-watch(CssTransitions, (value: boolean) => {
-	globals.cssTransitions(value);
-});
+watch(CssTransitions, (value: boolean) =>
+	globals.cssTransitions(value)
+);
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

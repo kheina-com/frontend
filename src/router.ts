@@ -288,15 +288,15 @@ const routes: RouteRecordRaw[] = [
 			title: "User Actions | fuzz.ly",
 		},
 	},
-	// {
-	// 	path: "/mod/b/:handle",
-	// 	name: "modqueue",
-	// 	props: true,
-	// 	component: () => import("./views/UserBans.vue"),
-	// 	meta: {
-	// 		title: "User Bans | fuzz.ly",
-	// 	},
-	// },
+	{
+		path: "/mod/b/:handle",
+		name: "userbans",
+		props: true,
+		component: () => import("./views/UserBans.vue"),
+		meta: {
+			title: "User Bans | fuzz.ly",
+		},
+	},
 	{
 		path: "/mod/p/:postId",
 		name: "postactions",
@@ -320,6 +320,14 @@ const routes: RouteRecordRaw[] = [
 		component: Version,
 		meta: {
 			title: "Version Info | fuzz.ly",
+		},
+	},
+	{
+		path: "/emoji",
+		name: "emoji",
+		component: () => import("./views/Emoji.vue"),
+		meta: {
+			title: "Site Emojis | fuzz.ly",
 		},
 	},
 	{

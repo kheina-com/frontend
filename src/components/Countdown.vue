@@ -4,8 +4,7 @@
 		<button @click.prevent.stop='toggleDisplayType'>{{displayAbsolute ? absoluteTime : relativeTime()}}</button>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, getCurrentInstance, onMounted, ref, type Ref } from 'vue';
 
 const displayAbsolute: Ref<boolean> = ref(false);
@@ -64,9 +63,7 @@ function toggleDisplayType(): void {
 function timeout(): number {
 	return (date.value.valueOf() - Date.now()) % 1000;
 }
-
 </script>
-
 <style scoped>
 button {
 	text-decoration-style: dotted;

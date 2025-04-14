@@ -1,9 +1,9 @@
 import type { Notification } from '@/types/notifications';
 import { createToast, khatch, registerServiceWorker } from '@/utilities';
-import sw from '@/service_worker?url';
+import { AddNotification } from '@/utilities/notifications';
+import { serviceWorkerFile as sw } from 'virtual:vite-plugin-service-worker';
 import { host } from '@/config/constants';
 import notify from '$/sounds/notify.ogg';
-import store from '@/globals';
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
@@ -37,15 +37,18 @@ export default function start(): Promise<void> {
 	);
 }
 
+export const cookie = "notifications";
+export const logstr = "[notifications]";
+
 const _listen = () => {
 	const m = "message";
 	navigator.serviceWorker.removeEventListener(m, listener);
 	navigator.serviceWorker.addEventListener(m, listener);
-	console.debug("[notifications] added listener:", listener);
+	console.debug(logstr, "added listener:", listener);
 };
 
 const _error = (err: any) => {
-	console.error("[notifications] failed to subscribe to push manager", err);
+	console.error(logstr, "failed to subscribe to push manager", err);
 	createToast({
 		title: "failed to subscribe to push manager",
 		description: err.toString(),
@@ -57,7 +60,7 @@ export const bindListener = () => {
 		registerServiceWorker(sw).then(reg =>
 			reg.pushManager.getSubscription()
 		).then((sub: PushSubscription | null) => {
-			console.debug("[notifications] active sub:", sub);
+			console.debug(logstr, "active sub:", sub);
 			if (sub) _listen();
 			else throw "";
 		}).then(
@@ -73,28 +76,29 @@ interface Message {
 	payload: Notification,
 }
 
-// const audio = new Audio(notify);
-const listener = (e: MessageEvent<Message>) => {
+const notificationLogStr = "[notification]";
+const listener = async (e: MessageEvent<Message>) => {
 	e.stopImmediatePropagation();  // just in case multiple listeners were added
 	if (e?.data?.primary) new Audio(notify).play();
-	const globals = store();
+
 	switch (e?.data?.payload?.type) {
 	case "interact":
-		console.debug(`[notification] interact ${e.data.payload.event}:`, e.data.payload.post);
+		console.debug(notificationLogStr, `interact ${e.data.payload.event}:`, e.data.payload.post);
 		break;
 
 	case "post":
-		console.debug(`[notification] post ${e.data.payload.event}:`, e.data.payload.post);
+		console.debug(notificationLogStr, `post ${e.data.payload.event}:`, e.data.payload.post);
 		break;
 
 	case "user":
-		console.debug(`[notification] user ${e.data.payload.event}:`, e.data.payload.user);
+		console.debug(notificationLogStr, `user ${e.data.payload.event}:`, e.data.payload.user);
 		break;
 
 	default:
-		console.warn("[notification] unknown message type:", e?.data?.payload ?? e);
+		console.warn(notificationLogStr, "unknown message type:", e?.data?.payload ?? e);
 		return;
 	}
 
-	globals.appendNotification(e.data.payload);
+	e.data.payload.created = new Date(e.data.payload.created);
+	await AddNotification(e.data.payload);
 };

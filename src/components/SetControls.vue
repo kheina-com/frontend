@@ -12,6 +12,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { PostLike, PostSet } from '@/types/post';
 import { useRouter } from 'vue-router';
 import store from '@/globals';
 import { RefId } from '@/utilities';
@@ -21,7 +22,7 @@ defineProps<{ set: PostSet }>();
 const router = useRouter();
 const globals = store();
 
-function nav(post: Post | null | undefined) {
+function nav(post: PostLike | null | undefined) {
 	if (!post || !post.post_id) return;
 	globals.postCache = post;
 	router.push("/p/" + post.post_id);
@@ -36,7 +37,7 @@ function reverse(l: any[]): any[] {
 }
 
 // setTitle should be called in the id parameter, as it is async and uses the returned id to set the title later
-function setTitle(post: Post | null | undefined): string {
+function setTitle(post: PostLike | null | undefined): string {
 	if (!post) return "";
 	const refid = RefId().toString(16);
 

@@ -8,6 +8,13 @@
 					<span v-translate:followed_by>followed by</span>
 				</div>
 				<Profile v-bind='notification.user' :link='false'/>
+				<Timestamp class='timestamp' :datetime='created'/>
+			</div>
+			<div class='follow'>
+				<Button @click='() => follow(notification.user)' :isLoading='buttonLoading' :red='notification.user.following' class='follow-button' :nested='false'>
+					<i class='material-icons'>{{ notification.user.following ? "person_off" : "person_add_alt" }}</i>
+					<span v-translate:[translatedFollow]>{{ translatedFollow }}</span>
+				</Button>
 			</div>
 		</div>
 		<div class='post' v-else-if='notification.type === "post"'>
@@ -15,7 +22,7 @@
 				<div class='interaction follow' v-if='notification.event === "mention"'>
 					<i class='material-icons'>alternate_email</i>
 					<!-- <i class='material-icons-outline'>feedback</i> -->
-					<span v-translate:followed_by>mentioned you</span>
+					<span v-translate:mentioned_you>mentioned you</span>
 				</div>
 				<div class='header-block'>
 					<Score :score='notification.post.score' :postId='notification.post.post_id' :disabled='notification.post.locked'/>
@@ -28,6 +35,7 @@
 					</div>
 				</div>
 				<Markdown :content='notification.post.description' superconcise/>
+				<Timestamp class='timestamp' :datetime='created'/>
 			</div>
 			<div class='_thumbnail' v-if='notification.post.media'>
 				<Thumbnail :key='notification.post.post_id' :media='notification.post.media' :size='400'/>
@@ -61,6 +69,7 @@
 					</div>
 				</div>
 				<Markdown :content='notification.post.description' superconcise/>
+				<Timestamp class='timestamp' :datetime='created'/>
 			</div>
 			<div class='_thumbnail' v-if='notification.post.media'>
 				<Thumbnail :key='notification.post.post_id' :media='notification.post.media' :size='400'/>
@@ -69,19 +78,26 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import type { Notification } from '@/types/notifications';
+import type { User } from '@/types/user';
+import type { Notification, UserNotification } from '@/types/notifications';
 import { useRouter } from 'vue-router';
-import { computed } from 'vue';
+import { computed, ref, type Ref } from 'vue';
+import { host } from '@/config/constants';
+import { khatch } from '@/utilities';
+import { UpdateUserNotifications } from '@/utilities/notifications';
 import store from '@/globals';
 import Score from '@/components/Score.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
 import Thumbnail from '@/components/Thumbnail.vue';
 import MicroProfile from '@/components/MicroProfile.vue';
+import Button from '@/components/Button.vue';
+import Timestamp from '@/components/Timestamp.vue';
 
 const globals = store();
 const router = useRouter();
 const notification = defineProps<Notification>();
+const buttonLoading: Ref<boolean> = ref(false);
 const target = computed(() => {
 	switch (notification.type) {
 	case "interact":
@@ -91,6 +107,7 @@ const target = computed(() => {
 		return "/" + notification.user.handle;
 	}
 });
+const translatedFollow = computed(() => (notification as UserNotification)?.user?.following ? "unfollow" : "follow");
 
 function nav() {
 	if (!target.value) return;
@@ -100,6 +117,25 @@ function nav() {
 	}
 
 	router.push(target.value);
+}
+
+function follow(user: User) {
+	buttonLoading.value = true;
+	khatch(`${host}/v1/user/${user.handle}/follow`, {
+		method: user.following ? "DELETE" : "PUT",
+		errorMessage: `Failed to ${user.following ? "unfollow" : "follow"} user`,
+		errorHandlers: {
+			400: () => user.following = !user.following,
+		},
+	}).then((r: Response) =>
+		r.json()
+	).then((r: boolean) =>
+		user.following = r
+	).then(() =>
+		UpdateUserNotifications(user)
+	).finally(() =>
+		buttonLoading.value = false
+	);
 }
 </script>
 <style scoped>
@@ -135,7 +171,7 @@ function nav() {
 	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 
-.post {
+.post, .user {
 	display: flex;
 	width: 100%;
 	justify-content: space-between;
@@ -199,5 +235,9 @@ function nav() {
 }
 .repost i {
 	color: var(--green);
+}
+
+.timestamp {
+	margin-top: var(--half-margin);
 }
 </style>

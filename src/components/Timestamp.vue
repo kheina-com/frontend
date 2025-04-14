@@ -1,9 +1,8 @@
 <template>
-	<button @click.prevent.stop='toggleDisplayType'>{{displayAbsolute ? absoluteTime : relativeTime()}}</button>
+	<button @click.prevent.stop='toggleDisplayType'>{{ displayAbsolute ? absoluteTime : relativeTime() }}</button>
 </template>
-
-<script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, onUnmounted, ref, type Ref } from 'vue';
+<script setup lang='ts'>
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, type Ref } from "vue";
 
 const yearRepl = `, ${new Date().getFullYear()}`;
 const props = withDefaults(defineProps<{
@@ -25,20 +24,17 @@ onUnmounted(clearLoop);
 
 const date = computed(() => new Date(props.datetime));
 const absoluteTime = computed(() => date.value
-	.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })
-	.replace(yearRepl, '')
-	+ ', '
+	.toLocaleDateString("en", { year: "numeric", month: "short", day: "numeric" })
+	.replace(yearRepl, "")
+	+ ", "
 	+ date.value.toLocaleTimeString()
 	.toLowerCase()
 );
 
 function setLoop(t: number = 0) {
 	clearLoop();
-	if (t > 0x7fffffff) {
-		// setTimeout breaks above the 32bit int max value
-		return;
-	}
-	// console.log("t:", t);
+	// setTimeout breaks above the 32bit int max value
+	if (t > 0x7fffffff) return;
 	loop = setTimeout(updateSelf, t);
 }
 
@@ -61,7 +57,7 @@ function updateSelf() {
 }
 
 function relativeTime() {
-	return prettyTime((Date.now() - date.value.valueOf()) / 1000, 0) + ' ago';
+	return prettyTime((Date.now() - date.value.valueOf()) / 1000, 0) + " ago";
 }
 
 function toggleDisplayType() {
@@ -82,38 +78,38 @@ function timeout(): number {
 
 function conversion(time: number) {
 	let conversion = 1;
-	let unit = 'second';
+	let unit = "second";
 	if (time > 31556952) {
 		conversion = 1 / 31556952;
-		unit = 'year';
+		unit = "year";
 	}
 	else if (time > 2592000) {
 		conversion = 1 / 2592000;
-		unit = 'month';
+		unit = "month";
 	}
 	else if (time > 86400) {
 		conversion = 1 / 86400;
-		unit = 'day';
+		unit = "day";
 	}
 	else if (time > 3600) {
 		conversion = 1 / 3600;
-		unit = 'hour';
+		unit = "hour";
 	}
 	else if (time > 60) {
 		conversion = 1 / 60;
-		unit = 'minute';
+		unit = "minute";
 	}
 	else if (time < 0.000001) {
 		conversion = 1000000000;
-		unit = 'nanosecond';
+		unit = "nanosecond";
 	}
 	else if (time < 0.001) {
 		conversion = 1000000;
-		unit = 'microsecond';
+		unit = "microsecond";
 	}
 	else if (time < 1) {
 		conversion = 1000;
-		unit = 'millisecond';
+		unit = "millisecond";
 	}
 	return { conversion, unit };
 }
@@ -122,10 +118,9 @@ function prettyTime(time: number, fixed=2) {
 	if (time === null) return null;
 	const c = conversion(time);
 	const value = (time * c.conversion).toFixed(fixed);
-	return value + ' ' + c.unit + (value === '1' ? '' : 's');
+	return value + " " + c.unit + (value === "1" ? "" : "s");
 }
 </script>
-
 <style scoped>
 button {
 	color: var(--subtle);

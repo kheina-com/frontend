@@ -8,14 +8,15 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import { computed, onMounted, ref, watch, type Ref, toRaw, toRef } from 'vue';
+import type { MediaLike } from '@/types/post';
+import { computed, onMounted, ref, watch, type Ref, toRef } from 'vue';
 import { base64ToBytes, getMediaThumbnailUrl, lazyObserver } from '@/utilities';
 import { isMobile } from '@/config/constants';
 import { thumbHashToDataURL } from 'thumbhash';
 import lightnoise from '$/lightnoise.png?url';
 
 const props = withDefaults(defineProps<{
-	media:   Media | null,
+	media:   MediaLike | null,
 	size?:   number,
 	render?: boolean,
 }>(), {
@@ -148,7 +149,7 @@ function th(value: string | null) {
 	}
 }
 
-watch(toRef(props, "media"), (value: Media | null, prev: Media | null) => {
+watch(toRef(props, "media"), (value: MediaLike | null, prev: MediaLike | null) => {
 	if (value?.crc === prev?.crc) return;
 	// reset state
 	isLoading.value = true;

@@ -1,8 +1,8 @@
 <template>
-	<div class='notifications nested' v-if='show'>
+	<div class='notifications' v-if='show'>
 		<div/>
-		<p>Enable push notifications</p>
-		<Button id='notifications' class='interactable' @click='enableNotifications' :isLoading='loading'>Enable</Button>
+		<p v-translate:enable_notifications>Enable push notifications</p>
+		<Button class='interactable' @click='enableNotifications' :isLoading='loading'><span v-translate:enable>Enable</span></Button>
 		<button class='close' @click='hide = true'><i class='material-icons'>close</i></button>
 	</div>
 </template>
@@ -10,23 +10,23 @@
 import { computed, ref, toRef, type Ref } from 'vue';
 import store from '@/globals';
 import { getCookie, setCookie } from '@/utilities';
-import startNotifications, { bindListener } from '@/notifications';
+import startNotifications, { bindListener, cookie, logstr } from '@/notifications';
 import Button from '@/components/Button.vue';
 
-const cookie = "notifications";
 const loading: Ref<boolean> = ref(false);
 const registered: Ref<boolean> = ref(getCookie(cookie, null, "number") !== null);
 const hide: Ref<boolean> = ref(false);
 const user = toRef(store(), "user");
-console.debug("[notifications] user:", user.value, "hide:", hide.value, "registered:", registered.value);
+console.debug(logstr, "user:", user.value, "hide:", hide.value, "registered:", registered.value);
 const show = computed(() => user.value && !hide.value && !registered.value);
 
 if (registered.value) {
-	console.debug("[notifications] attempting bind listener");
+	console.debug(logstr, "attempting bind listener");
 	loading.value = true;
-	bindListener().then(r =>
-		registered.value = r
-	).finally(() =>
+	bindListener().then(r => {
+		registered.value = r;
+		setCookie(cookie, new Date().valueOf());
+	}).finally(() =>
 		loading.value = false
 	);
 }
@@ -97,5 +97,4 @@ function enableNotifications() {
 		padding: var(--margin);
 	}
 }
-
 </style>

@@ -20,8 +20,8 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { FullUser } from '@/types/user';
 import { onMounted, ref, type Ref } from 'vue';
 import { khatch } from '@/utilities';
 import { host } from '@/config/constants';
@@ -41,7 +41,6 @@ onMounted(() => {
 	});
 });
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

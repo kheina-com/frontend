@@ -52,15 +52,16 @@ import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
 import CopyText from '@/components/CopyText.vue';
 import { toRef, type Ref } from 'vue';
+import type { PostLike } from '@/types/post';
 
 const props = defineProps<{
-	post?:   Post,
+	post?:   PostLike,
 	scalar?: boolean,
 }>();
 
 const globals = store();
 const scalar: Ref<boolean> = toRef(props, "scalar");
-const post: Ref<Post | undefined> = toRef(props, "post");
+const post: Ref<PostLike | undefined> = toRef(props, "post");
 const emits = defineEmits(["update:scalar"]);
 function toggleScalar() {
 	// scalar.value = !scalar.value;

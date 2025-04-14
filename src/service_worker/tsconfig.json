@@ -1,10 +1,14 @@
 {
-	// "extends": "../../tsconfig.node.json",
+	"extends": "../../tsconfig.node.json",
 	"compilerOptions": {
+		"module": "ESNext",
 		"lib": [
-			"webworker"
+			"webworker",
 		],
 	},
+	"include": [
+		"./*",
+	],
 	// "references": [
 	// 	{
 	// 		"path": ".",

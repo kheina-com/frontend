@@ -15,7 +15,15 @@ export interface Badge {
 export interface FullUser extends User {
 	description: string | null,
 	website: string | null,
-	created: string,
+	created: Date,
+	banner: string | null,
+	badges: Badge[],
+}
+
+export interface FullUserLike extends User {
+	description: string | null,
+	website: string | null,
+	created: string | Date,
 	banner: string | null,
 	badges: Badge[],
 }

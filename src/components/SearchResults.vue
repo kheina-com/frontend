@@ -12,7 +12,6 @@
 	</main>
 	<MoreResults :results='results' :maxRating='maxRating()'/>
 </template>
-
 <script>
 import TopResult from '@/components/TopResult.vue';
 import MoreResults from '@/components/MoreResults.vue';
@@ -131,28 +130,23 @@ export default {
 	},
 }
 </script>
-
 <style scoped>
-i
-{
+i {
 	top: -0.1em;
 	position: absolute;
 	right: var(--neg-margin);
 }
-span
-{
+span {
 	position: relative;
 	margin: 0 0 8px;
 	display: inline-block;
 }
 
-.top
-{
+.top {
 	width: 800px;
 	max-width: calc(100% - 50px);
 	margin: 0 auto;
 	position: relative;
 	padding: 0;
 }
-
 </style>

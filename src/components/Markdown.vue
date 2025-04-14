@@ -131,6 +131,12 @@ function render() {
 watch(() => props.content, render);
 </script>
 <style>
+.markdown .profile-user-icon {
+	width: 3em;
+	height: 3em;
+	border-radius: var(--border-radius);
+	display: inline-block;
+}
 a.external-link::after {
 	font-family: 'Material Icons Round' !important;
 	content: "open_in_new";
