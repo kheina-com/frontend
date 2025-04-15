@@ -8,19 +8,20 @@ declare var self: ServiceWorkerGlobalScope;
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/serviceWorker
 // https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register
 
-console.debug("[service worker]: registered");
+const logstr = "[service worker]";
+console.debug(logstr, "registered");
 
 self.addEventListener("install", (event: ExtendableEvent) =>
-	console.debug("[service worker] installed:", event)
+	console.debug(logstr, "installed:", event)
 );
 
 self.addEventListener("activate", (event: ExtendableEvent) => {
 	event.waitUntil(self.clients.claim());
-	console.debug("[service worker] activated:", event);
+	console.debug(logstr, "activated:", event);
 });
 
 self.addEventListener("push", (e: PushEvent) => {
-	console.debug("[service worker] received push:", e, "data:", e.data?.text());
+	console.debug(logstr, "received push:", e, "data:", e.data?.text());
 	if (!e.data) return;
 
 	self.clients.matchAll({ type: "window" }).then((c: readonly WindowClient[]) =>

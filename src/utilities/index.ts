@@ -123,6 +123,12 @@ export function saveToHistory(data: any): void {
 	history.replaceState(Object.assign(window.history.state, data), "");
 }
 
+export function uuid4(): string {
+	let uuid = '';
+	for (let i = 0; i < 4; i++) { uuid += Math.round(Math.random() * 0xffffffff).toString(16).padStart(8, "0"); }
+	return uuid;
+}
+
 interface KhatchOptions {
 	attempts?: number,
 	handleError?: boolean,
@@ -132,6 +138,7 @@ interface KhatchOptions {
 	credentials?: "include",
 	headers?: { [header: string]: string; },
 	body?: string | any,
+	trace?: string,
 }
 
 /**
@@ -162,7 +169,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 		if (auth) options.headers.authorization = "bearer " + auth;
 	}
 
-	// options.headers["kh-trace"] = options.headers["kh-trace"] || options?.trace || uuid4();
+	options.headers["kh-trace"] = options.headers["kh-trace"] || options?.trace || uuid4();
 
 	if (options.hasOwnProperty("body") && typeof (options.body) != "string") {
 		options.headers["content-type"] = "application/json";

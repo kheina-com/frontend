@@ -1,10 +1,9 @@
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import { minifyHtml } from './vite-plugins';
+import { minifyHtml, serviceWorkerPlugin } from './vite-plugins';
 import mkcert from 'vite-plugin-mkcert';
 import path from 'path';
 import child_process from 'child_process';
-import { serviceWorkerPlugin } from '@gautemo/vite-plugin-service-worker';
 
 const fullCommit = child_process
 	.execSync("git rev-parse HEAD")
