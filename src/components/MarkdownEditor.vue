@@ -26,6 +26,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { Emoji } from '@/types/emoji';
 import { getEmojiUrl, RefId, tab } from '@/utilities';
 import { onMounted, ref, toRef, watch, type Ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';

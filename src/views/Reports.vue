@@ -1,5 +1,4 @@
 <template>
-	<!-- eslint-disable vue/no-v-model-argument -->
 	<main>
 		<Title>Your Reports</Title>
 		<div class='container' v-if='!reports'>
@@ -14,11 +13,10 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { Report } from '@/types/report';
 import { ref, type Ref } from 'vue';
 import { khatch } from '@/utilities';
-import { type Report } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
@@ -34,7 +32,6 @@ khatch(`${host}/v1/reports`, {
 	console.log(r);
 });
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

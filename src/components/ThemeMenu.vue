@@ -5,11 +5,9 @@
 	</div>
 	<!-- <label class='themebutton' for='themecheck'><a>theme</a></label> -->
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import ThemeSelector from '@/components/ThemeSelector.vue';
 </script>
-
 <style scoped>
 .changemascot {
 	font-size: 0.9em;

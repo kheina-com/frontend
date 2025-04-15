@@ -102,8 +102,8 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { PostSet } from '@/types/post';
 import { computed, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
@@ -324,7 +324,6 @@ watch(sort, () => {
 	router.push(pageLink(page.value));
 });
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

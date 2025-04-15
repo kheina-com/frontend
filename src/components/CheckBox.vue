@@ -18,8 +18,7 @@
 		</label>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, type Ref, onMounted, watch } from 'vue';
 
 const label = ref<HTMLLabelElement | null>(null) as Ref<HTMLLabelElement>;
@@ -69,7 +68,6 @@ watch(() => props.checked, (value: boolean) => {
 	{ label.value.classList.remove('checked'); }
 })
 </script>
-
 <style scoped>
 input {
 	position: absolute;

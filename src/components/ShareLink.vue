@@ -7,8 +7,7 @@
 		<i class='material-icons-round'>share</i>
 	</button>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { environment } from '@/config/constants';
 import { ref, type Ref } from 'vue';
 
@@ -34,7 +33,6 @@ function copy() {
 	});
 }
 </script>
-
 <style scoped>
 i {
 	border-radius: var(--border-radius);

@@ -24,8 +24,7 @@
 		</b>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed } from 'vue';
 
 const props = withDefaults(defineProps<{
@@ -54,7 +53,6 @@ const pagesAfterCurrent = computed(() => {
 	return pages;
 });
 </script>
-
 <style scoped>
 .page-links {
 	display: flex;

@@ -8,6 +8,7 @@
 	</div>
 	<Toast/>
 	<Cookies/>
+	<Notifications/>
 </template>
 <script setup lang='ts'>
 import { onMounted, ref, type Ref } from 'vue';
@@ -21,6 +22,7 @@ import Footer from '@/components/Footer.vue';
 import Cookies from '@/components/Cookies.vue';
 import Banner from '@/components/Banner.vue';
 import Toast from '@/components/Toast.vue';
+import Notifications from '@/components/Notifications.vue';
 
 import light32 from '$/favicon/light/32.png?url';
 import light64 from '$/favicon/light/64.png?url';
@@ -119,12 +121,9 @@ function setAnimated(e: MouseEvent) {
 }
 
 function onResize() {
-	let offset: number;
+	let offset: number = (banner as HTMLDivElement).clientHeight;
 	if (route.meta.applyOffset ?? true) {
 		offset = Math.max((banner as HTMLDivElement).clientHeight + 25, (window.innerHeight - (content as HTMLDivElement).clientHeight) / 2);
-	}
-	else {
-		offset = (banner as HTMLDivElement).clientHeight;
 	}
 	(content as HTMLDivElement).style.top = offset.toString() + "px";
 	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
@@ -146,7 +145,7 @@ function configsLoop() {
 		costs.value = null;
 		funds.value = null;
 	});
-	setTimeout(configsLoop, 300e3); // 5 minutes
+	// setTimeout(configsLoop, 300e3);  // 5 minutes
 }
 
 function ResizeSensor(element: HTMLElement, callback: Function) {
@@ -382,6 +381,7 @@ html {
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;
 	--linecolor: var(--bordercolor);
+	--nestedlinecolor: #5b6775;
 	--borderhover: var(--interact);
 	--subtle: #EEEEEE80;
 	--shadowcolor: #00000080;

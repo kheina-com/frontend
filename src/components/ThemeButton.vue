@@ -1,10 +1,6 @@
 <template>
 	<label class='themebutton' for='themecheck'><a>theme</a></label>
 </template>
-
-<script setup lang="ts">
-</script>
-
 <style scoped>
 .mobile .themebutton {
 	display: none;

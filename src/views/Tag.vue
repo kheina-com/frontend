@@ -126,8 +126,8 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { Tag } from '@/types/tag';
 import { computed, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
@@ -144,7 +144,6 @@ import DropDown from '@/components/DropDown.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
-
 
 const path = "/t/";
 const route = useRoute();
@@ -355,7 +354,6 @@ watch(sort, () => {
 	router.push(pageLink(page.value));
 });
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

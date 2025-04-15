@@ -13,9 +13,9 @@
 		</li>
 	</ol>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import Loading from '@/components/Loading.vue';
+import type { TagPortable } from '@/types/tag';
 
 const props = defineProps<{
 	group: "artist" | "sponsor" | "subject" | "species" | "gender" | "misc" | "system" | "rating",
@@ -33,7 +33,6 @@ const loadingMap = {
 	rating:  1,
 };
 </script>
-
 <style scoped>
 ol {
 	list-style: none;

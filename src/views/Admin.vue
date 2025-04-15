@@ -21,16 +21,15 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { createToast, khatch } from '@/utilities';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
 import store from '@/globals';
 
-
 const globals = store();
+
 let monthlyCost: string = "";
 function setMonthlyCost() {
 	const costs = parseInt(monthlyCost.trim().replace(".", ""));
@@ -54,7 +53,6 @@ function setMonthlyCost() {
 	});
 }
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

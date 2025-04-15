@@ -93,6 +93,7 @@
 }</pre>
 			</div>
 			<div class='container buttons'>
+				<button class='interactable' @click='closeNoAction'>Close without Action</button>
 				<button class='interactable' @click='takeAction'>Take Action »</button>
 			</div>
 			<div class='history' v-if='showHistory'>
@@ -110,12 +111,13 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { PostLike } from '@/types/post';
+import type { Report, ReportData } from '@/types/report';
 import { computed, ref, watch, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { createToast, khatch } from '@/utilities';
-import { reportHistory, reportRevisions, type Report, type ReportData } from '@/utilities/report';
+import { reportHistory, reportRevisions } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';
@@ -155,6 +157,10 @@ interface CreateAction {
 	action:      RemovePostAction | ForceUpdateAction | BanAction,
 }
 
+interface CloseWithoutAction {
+	response: string,
+}
+
 const placeholder = "undefined";
 const route = useRoute();
 const report: Ref<Report | null> = ref(null);
@@ -162,7 +168,7 @@ const reportData: Ref<ReportData | null> = ref(null);
 const showHistory: Ref<boolean> = ref(false);
 const data: Ref<{ [k: string]: any }> = ref(Object.fromEntries(Object.entries(route.query).map(([k, v]) => [k, v?.toString() ?? null])));
 const action: Ref<ActionType | undefined> = ref();
-const post: Ref<Post | null> = ref(null);
+const post: Ref<PostLike | null> = ref(null);
 const fieldUpdates: Ref<{ field?: string, value?: string }[]> = ref([{ }]);
 
 const props = defineProps<{
@@ -185,8 +191,40 @@ if (props?.id) {
 	});	
 }
 
+function closeNoAction() {
+	const title = "unable to close report";
+	if (!data.value.report_id) {
+		return createToast({
+			title,
+			description: "no report id available (should be in the url /mod/:report_id)",
+		});
+	}
+	if (!data.value.response) {
+		return createToast({
+			title,
+			description: "no reporter response written",
+		});
+	}
+
+	const cna: CloseWithoutAction = {
+		response: data.value.response,
+	}
+
+	khatch(`${host}/v1/report/${data.value.report_id}`, {
+		method: "DELETE",
+		errorMessage: "failed to close report",
+		body: cna,
+	}).then(() =>
+		createToast({
+			title: "Report Closed",
+			icon:  "done",
+			color: "green",
+		})
+	);
+}
+
 function takeAction() {
-	const title = "unable to take action"
+	const title = "unable to take action";
 	if (!action.value) {
 		return createToast({
 			title,
@@ -219,18 +257,24 @@ function takeAction() {
 	}
 
 	const ca: CreateAction = {
-		report_id: data.value.report_id,
-		response: data.value.response,
-		reason: data.value.reason,
+		report_id:   data.value.report_id,
+		response:    data.value.response,
+		reason:      data.value.reason,
 		action_type: action.value,
-		action: data.value.action,
+		action:      data.value.action,
 	};
 
-	createToast({
-		title: "This feature doesn't exist yet, sorry!",
-		description: "yes, I know this is a very important feature. it's currently being worked on",
-		dump: ca,
-	});
+	khatch(`${host}/v1/action`, {
+		method: "PUT",
+		errorMessage: "failed to create mod action",
+		body: ca,
+	}).then(() =>
+		createToast({
+			title: "Action Created",
+			icon:  "done",
+			color: "green",
+		})
+	);
 }
 
 function fetchPost(postId: string) {
@@ -264,9 +308,8 @@ function setFields() {
 
 	case "ban":
 	case "ip_ban":
-		data.value.action = {
-			user: data.value.user,
-		};
+		data.value.action = { };
+		data.value.action.user = data.value.user = data.value.user ?? post.value?.user?.handle;
 		break;
 
 	default:
@@ -392,6 +435,12 @@ span {
 .buttons {
 	margin-top: var(--margin);
 	text-align: right;
+}
+.buttons > * {
+	margin-right: 25px;
+}
+.buttons :last-child {
+	margin-right: 0;
 }
 
 .field-updates {

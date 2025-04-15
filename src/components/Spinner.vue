@@ -12,7 +12,6 @@
 		</svg>
 	</div>
 </template>
-
 <script setup lang='ts'>
 import { abbreviateBytes } from '@/utilities';
 import { ref, watch, type Ref } from 'vue';
@@ -43,7 +42,6 @@ watch(props, (props: Props) => {
 	spinner.value.style.strokeDashoffset = (186 - (props.loaded / props.total * 186)).toString();
 });
 </script>
-
 <style scoped>
 ._spinner {
 	position: relative;

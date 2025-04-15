@@ -9,7 +9,7 @@
 					<li>EXPLICIT real-world content</li>
 					<p>This does not include the following content</p>
 					<ul>
-						<li>photographs of depicting nudity or genitals, so long as genitals are not the main focus (i.e. post must be tagged 'mature', not 'explicit')</li>
+						<li>photographs depicting nudity or genitals, so long as genitals are not the main focus (i.e. post must be tagged 'mature', not 'explicit')</li>
 						<li>photographs of paintings or artwork containing NSFW content</li>
 						<li>photographs of statues depicting NSFW content</li>
 					</ul>
@@ -19,11 +19,9 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import ThemeMenu from '@/components/ThemeMenu.vue';
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

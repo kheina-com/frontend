@@ -1,7 +1,6 @@
 <template>
 	<a @click='toggleDisplayType'>{{displayAbsolute ? absoluteTime : relativeTime()}}</a>
 </template>
-
 <script>
 export default {
 	name: 'LastUpdated',
@@ -86,7 +85,6 @@ export default {
 	},
 }
 </script>
-
 <style scoped>
 a
 {

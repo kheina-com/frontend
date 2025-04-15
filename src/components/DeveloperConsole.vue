@@ -1,9 +1,19 @@
 <template>
-	<div ref='devConsole' id='developer-console'></div>
+	<div ref='devConsole' id='developer-console'>
+		<!-- {{ globals }} -->
+		{{ route }}
+		<!-- {{ router }} -->
+	</div>
 </template>
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onUnmounted, ref, type Ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import store from '@/globals';
 const devConsole = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+
+const globals = store();
+const route = useRoute();
+const router = useRouter();
 
 let entries = 0;
 let open = false;
@@ -46,6 +56,7 @@ onUnmounted(() => {
 	-moz-transition: linear 1s;
 	-o-transition: linear 1s;
 	transition: linear 1s;
+	overflow: hidden;
 }
 #developer-console.open {
 	top: 0;

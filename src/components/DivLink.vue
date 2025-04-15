@@ -9,8 +9,7 @@
 		<slot/>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 const props = defineProps({
 	link: {
 		type: String,
@@ -22,7 +21,3 @@ const props = defineProps({
 	},
 });
 </script>
-
-<style scoped>
-
-</style>

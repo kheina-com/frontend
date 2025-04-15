@@ -34,8 +34,7 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Loading from '@/components/Loading.vue';
@@ -100,16 +99,12 @@ function navigateToUser() {
 	router.push("/" + props.handle);
 }
 </script>
-
-<style>
+<style scoped>
 .profile-user-icon {
 	width: 3em;
 	height: 3em;
 	border-radius: var(--border-radius);
 }
-</style>
-
-<style scoped>
 .profile {
 	display: block;
 	margin-right: auto;

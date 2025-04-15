@@ -67,11 +67,9 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import ThemeMenu from '@/components/ThemeMenu.vue';
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

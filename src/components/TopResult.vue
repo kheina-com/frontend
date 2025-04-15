@@ -25,7 +25,6 @@
 		<h3 class='similarity' :style='similarityColor()'>{{similarity.toFixed(1)}}%</h3>
 	</DivLink>
 </template>
-
 <script>
 import DivLink from '@/components/DivLink.vue';
 
@@ -130,7 +129,6 @@ export default {
 	},
 }
 </script>
-
 <style scoped>
 .similarity
 {

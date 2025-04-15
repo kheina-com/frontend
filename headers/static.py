@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 
-from utilities.constants import Environment, cdn_host, environment, host
+from utilities.constants import cdn_host, environment, host
 
 
 Headers: dict[str, str]
@@ -20,6 +20,7 @@ if environment.is_prod() :
 			"manifest-src 'self';"
 			"base-uri 'self';"
 			"frame-ancestors 'none'",
+		'service-worker-allowed': '/',
 	}
 
 else :
@@ -34,4 +35,5 @@ else :
 			"manifest-src 'self';"
 			"base-uri 'self';"
 			"frame-ancestors 'none'",
+		'service-worker-allowed': '/',
 	}

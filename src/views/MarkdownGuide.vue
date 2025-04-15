@@ -12,8 +12,7 @@
 		<ThemeMenu/>
 	</main>
 </template>
-		
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onMounted, ref, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { iconShortcode, isMobile } from '@/config/constants';
@@ -219,7 +218,6 @@ Text can be aligned by adding \`<\`, \`>\` characters onto either end of your te
 const content: Ref<string> = ref(mdGuide);
 
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

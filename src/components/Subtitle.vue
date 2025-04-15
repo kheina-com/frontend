@@ -1,8 +1,7 @@
 <template>
 	<p ref='title'><slot name='default'/></p>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onMounted, ref, type Ref } from 'vue';
 
 const props = defineProps<{
@@ -18,7 +17,6 @@ onMounted(() => {
 	if (props.static) title.value.classList.add("subtitle");
 });
 </script>
-
 <style scoped>
 p {
 	color: var(--subtle);

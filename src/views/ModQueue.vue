@@ -31,10 +31,10 @@
 </template>
 
 <script setup lang="ts">
+import type { ModQueueEntry } from '@/types/report';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { khatch } from '@/utilities';
-import { type ModQueueEntry } from '@/utilities/report';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import Title from '@/components/Title.vue';

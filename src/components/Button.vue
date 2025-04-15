@@ -2,7 +2,7 @@
 	<router-link :class='buttonClass' :to='href' v-if='href'><slot/></router-link>
 	<button :class='buttonClass' v-else><slot/></button>
 </template>
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed } from 'vue';
 
 const props = defineProps({

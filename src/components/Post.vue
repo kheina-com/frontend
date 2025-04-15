@@ -2,27 +2,31 @@
 	<!-- eslint-disable vue/require-v-for-key -->
 	<!-- TODO: add some serious optimizations in here. this component causes lag on search pages (lazy rendering?) -->
 	<div>
-		<div :class='divClass' ref='self'>
+		<div :class='divClass'>
 			<div class='guide-line' v-show='props.reply'/>
-			<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && !unlink'/>
+			<a :href='target' class='background-link' @click.prevent='nav' v-show='!isLoading && !unlink && !locked'/>
 			<div class='labels' v-show='!isLoading'>
-				<DropDown class='more-button' v-show='!hideButtons' :options="[
-					{ html: `${user?.following ? 'Unfollow' : 'Follow'} @${user?.handle}`, action: followUser },
-					{ html: `Block @${user?.handle}`, action: missingFeature },
-					{ html: `Report @${user?.handle}`, action: missingFeature },
+				<DropDown class='more-button' v-show='!hideButtons && !locked' :options="[
+					{ html: `${user?.following ? 'Unf' : 'F'}ollow @${user?.handle}`, action: followUser },
+					{ html: `Block @${user?.handle}`,                                 action: missingFeature },
+					{ html: `Report @${user?.handle}`,                                action: missingFeature },
 				]">
 					<i class='material-icons-round'>more_horiz</i>
 				</DropDown>
 				<div v-if='labels'>
 					<Subtitle static='right' v-show='showPrivacy'>{{privacy}}</Subtitle>
-					<Subtitle static='right' v-show='parent'>reply</Subtitle>
+					<Subtitle static='right' v-show='parent_id'>reply</Subtitle>
 				</div>
 				<Button class='edit-button' v-if='!concise && userIsUploader' @click='editToggle'>
 					<i class='material-icons-round' style='margin: 0'>{{editing ? 'edit_off' : 'edit'}}</i>
 				</Button>
 			</div>
-			<div class='header-block'>
-				<Score :score='score' :postId='postId'/>
+			<div class='locked' v-if='locked'>
+				<i class='material-icons-round'>warning</i>
+				<span>This post has been locked.</span>
+			</div>
+			<div class='header-block' v-else>
+				<ScoreComponent :score='score' :postId='postId' :disabled='locked'/>
 				<div class='post-header'>
 					<h2 v-if='isLoading || title'>
 						<Loading span v-if='isLoading'>this is an example title</Loading>
@@ -32,25 +36,17 @@
 				</div>
 			</div>
 			<Loading class='description' v-if='isLoading'><p>this is a very long example description</p></Loading>
-			<!-- <div v-else-if='editing' style='width: 100%'>
-				<MarkdownEditor v-model:value='description' height='10em' resize='vertical' class='bottom-margin'/>
-				<div class='update-button'>
-					<Button @click='updatePost' green><i class='material-icons-round'>check</i>Update</Button>
-					<Button @click='updatePost' red><i class='material-icons-round'>close</i>Delete</Button>
-				</div>
-			</div> -->
 			<Markdown v-else-if='description' :content='description' :concise='concise' lazy/>
 			<div class='bottom-margin thumbnail' v-if='media && !isLoading'>
-				<Thumbnail :media='media' :size='isMobile ? 1200 : 800' v-if='acceptedMature'/>
-				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-show='!acceptedMature'>
-					this post contains <b>{{rating}}</b> content, click here to show it anyway.
+				<Thumbnail :media='media' :size='isMobile ? 1200 : 800' :render='acceptedMature'/>
+				<button @click.stop.prevent='acceptedMature = true' class='interactable show-mature' v-translate:accept_mature.html='{ rating }' v-if='!acceptedMature'>
 				</button>
 			</div>
 			<Loading :isLoading='isLoading' class='date' v-if='created || isLoading'>
 				<Subtitle static='left' v-if='isUpdated'>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/> (edited <Timestamp :datetime='updated'/>)</Subtitle>
 				<Subtitle static='left' v-else>{{unpublishedPrivacy.has(privacy) ? 'created' : 'posted'}} <Timestamp :datetime='created'/></Subtitle>
 			</Loading>
-			<div class='buttons' v-if='!isLoading' v-show='!hideButtons'>
+			<div class='buttons' v-if='!isLoading' v-show='!hideButtons && !locked'>
 				<ReportButton :data='{ post: postId }' v-if='!isLoading'/>
 				<RepostButton :postId='postId' v-bind:count='reposts'/>
 				<FavoriteButton :postId='postId' v-bind:count='favorites'/>
@@ -69,23 +65,26 @@
 				</div>
 			</li>
 			<li v-for='reply in replies'>
-				<Post :postId='reply.post_id' v-bind='reply' reply/> <!-- @loaded='onLoad' :loadTrigger='childTrigger' -->
+				<Post :postId='reply.post_id' :nested='nested' v-bind='reply' reply/> <!-- @loaded='onLoad' :loadTrigger='childTrigger' -->
 			</li>
 		</ol>
 	</div>
 </template>
 <script setup lang='ts'>
-import { computed, ref, type Ref } from 'vue';
+import type { MediaLike, PostLike, Score } from '@/types/post';
+import type { Tags } from '@/types/tag';
+import type { User } from '@/types/user';
+import { computed, ref, toRef, watch, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/globals';
 import { khatch } from '@/utilities';
-import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, host, apiErrorMessage } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, isMobile, ratingMap, host } from '@/config/constants';
 import ReportButton from '@/components/ReportButton.vue';
 import Button from '@/components/Button.vue';
 import Loading from '@/components/Loading.vue';
 import Profile from '@/components/Profile.vue';
 import Markdown from '@/components/Markdown.vue';
-import Score from '@/components/Score.vue';
+import ScoreComponent from '@/components/Score.vue';
 import Timestamp from '@/components/Timestamp.vue';
 import Subtitle from '@/components/Subtitle.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
@@ -102,7 +101,7 @@ const props = withDefaults(defineProps<{
 	concise?: boolean,
 	nested?:  boolean,
 	parent_id?:  string | null,
-	parent?:  Post | null,
+	parent?:  PostLike | null,
 	reply?:   boolean,
 
 	// loadTrigger: {
@@ -110,7 +109,7 @@ const props = withDefaults(defineProps<{
 	// 	default: null,
 	// },
 	
-	replies?:    Post[] | null,
+	replies?:    PostLike[] | null,
 	rating?:     "general" | "mature" | "explicit",
 
 	// post fields
@@ -121,10 +120,11 @@ const props = withDefaults(defineProps<{
 	privacy?:        "public" | "unlisted" | "private" | "unpublished" | "draft",
 	tags?:           Tags | null,
 	userIsUploader?: boolean,
-	created?:        Date,
-	updated?:        Date,
-	media?:          Media | null,
+	created?:        string | Date,
+	updated?:        string | Date,
+	media?:          MediaLike | null,
 	blocked?:        boolean,
+	locked?:         boolean,
 	favorites?:      number | null,
 	reposts?:        number | null,
 	hideButtons?:    boolean,
@@ -168,8 +168,6 @@ const props = withDefaults(defineProps<{
 const globals = store();
 const emits = defineEmits(["loaded"]);
 const unpublishedPrivacy = new Set(["unpublished", "draft"]);
-// const guide = ref(null);
-const self = ref(null);
 const router = useRouter();
 
 let editing = false;
@@ -177,10 +175,10 @@ const replying: Ref<boolean> = ref(false);
 const replyMessage: Ref<string> = ref("");
 const acceptedMature: Ref<boolean> = ref(ratingMap[globals.rating] >= ratingMap[props.rating]);
 const isLoading = computed(() => !props.postId);
-const divClass = computed(() => "post" + (props.postId && !props.unlink ? " link" : "") + (props.nested ? " nested" : " unnested") + (props.reply ? " reply" : ""));
+const divClass = computed(() => "post" + (props.postId && !props.unlink && !props.locked ? " link" : "") + (props.nested ? " nested" : " unnested") + (props.reply ? " reply" : ""));
 const showPrivacy = computed(() => props.privacy && props.privacy.toLowerCase() !== "public");
 const isUpdated = computed(() => !props.postId ? props.created !== props.updated : false);
-const target = computed(() => props.to || "/p/" + props.postId	);
+const target = computed(() => props.to || "/p/" + props.postId);
 
 function popPostCache() {
 	if (!props.postId || !props.user || !props.created || !props.updated) return;
@@ -216,6 +214,12 @@ function followUser() {
 
 	khatch(`${host}/v1/user/${props.user.handle}/follow`, {
 		method: props.user.following ? "DELETE" : "PUT",
+		errorHandlers: {
+			400: () => {
+				if (!props.user) return;
+				props.user.following = !props.user.following;
+			},
+		},
 	}).then(response => {
 		if (!props.user) return;
 		if (response.status < 300) {
@@ -291,6 +295,10 @@ function openEditor() {
 function editToggle() {
 	editing = !editing;
 }
+
+watch(toRef(props, "rating"), (value: "general" | "mature" | "explicit") =>
+	acceptedMature.value = ratingMap[globals.rating] >= ratingMap[value]
+);
 </script>
 <style>
 .post.link .title {
@@ -306,12 +314,12 @@ function editToggle() {
 
 <style scoped>
 .post {
-	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
 	padding: var(--margin);
 	align-items: flex-start;
 	position: relative;
+	background: var(--bg1color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
 	-webkit-transition: var(--transition) var(--fadetime);
@@ -334,15 +342,10 @@ function editToggle() {
 }
 .post.link:hover {
 	border-color: var(--interact);
+	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
 }
 .post.link {
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);
-}
-.post.link:hover {
-	box-shadow: 0 0 10px 3px var(--activeshadowcolor);
-}
-.post {
-	background: var(--bg1color);
 }
 /* .post .loading {
 	--bg1color: var(--bg2color);
@@ -464,7 +467,7 @@ ol > :last-child, ol > :last-child .post {
 .guide-line {
 	position: absolute;
 	bottom: 50%;
-	left: -14px;
+	left: -15px;
 	height: 10000000px;
 	width: 13px;
 	border-bottom-left-radius: 12px;
@@ -472,6 +475,12 @@ ol > :last-child, ol > :last-child .post {
 	border-color: var(--linecolor);
 	border-style: solid;
 	z-index: -1;
+}
+.nested .guide-line {
+	border-color: var(--nestedlinecolor);
+}
+.mobile .guide-line {
+	z-index: 0;
 }
 .direct-link {
 	color: var(--subtle);
@@ -571,7 +580,7 @@ ol > :last-child, ol > :last-child .post {
 	max-height: 150vw;
 	overflow: hidden;
 	/* this is necessary so that we can calc thumbnails sizes off of the max width */
-	max-width: calc(100vw - 100px - 2 * var(--border-size));
+	max-width: 100%;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -582,6 +591,15 @@ ol > :last-child, ol > :last-child .post {
 
 .unnested .report:hover {
 	background: var(--bg2color) !important;
+}
+
+.locked {
+	display: flex;
+	align-items: center;
+}
+.locked i {
+	color: var(--warning);
+	font-size: 3em;
 }
 
 /* theme overrides */

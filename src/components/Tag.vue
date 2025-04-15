@@ -8,11 +8,11 @@
 		<Markdown :content='description'/>
 	</a>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onMounted, ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
+import type { User } from '@/types/user';
 
 const props = withDefaults(defineProps<{
 	tag:           string,
@@ -33,7 +33,6 @@ onMounted(() => {
 	if (props.nested && tag.value) tag.value.classList.add("nested");
 });
 </script>
-
 <style scoped>
 .tag {
 	padding: var(--margin);

@@ -1,14 +1,13 @@
 <template>
-	<!-- eslint-disable vue/require-v-for-key -->
 	<div class='buttons'>
 		<div>
 			<button v-if='false'><i class='material-icons'>notification_add</i></button>
 			<DropDown v-model:value='sort' :options="[
-				{ html: 'Newest', value: 'new' },
-				{ html: 'Oldest', value: 'old' },
-				{ html: 'Top', value: 'top' },
-				{ html: 'Hot', value: 'hot' },
-				{ html: 'Best', value: 'best' },
+				{ html: 'Newest',        value: 'new' },
+				{ html: 'Oldest',        value: 'old' },
+				{ html: 'Top',           value: 'top' },
+				{ html: 'Hot',           value: 'hot' },
+				{ html: 'Best',          value: 'best' },
 				{ html: 'Controversial', value: 'controversial' },
 			]">
 				<span class='sort-by'>
@@ -29,11 +28,11 @@
 	</div>
 	<main>
 		<ol class='results'>
-			<p v-if='posts?.length === 0' style='text-align: center'>No posts found for <em>{{query}}</em></p>
-			<li v-for='post in posts || count' v-else-if='tiles'>
+			<p v-if='posts?.length === 0' style='text-align: center' v-translate:no_posts_found.html='{ query }'>No posts found for <em>{{query}}</em></p>
+			<li v-for='post in viewable' v-else-if='tiles'>
 				<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='true' v-bind='post' link/>
 			</li>
-			<li v-for='post in posts || count' v-else>
+			<li v-for='post in viewable' v-else>
 				<Post :postId='post?.post_id' :nested='true' v-bind='post' labels/>
 			</li>
 		</ol>
@@ -41,9 +40,8 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
-import { ref, watch, type Ref } from 'vue';
+<script setup lang='ts'>
+import { computed, ref, watch, type Ref } from 'vue';
 import { khatch, saveToHistory, tagSplit } from '@/utilities';
 import { useRoute, useRouter } from 'vue-router';
 import store, { Rating } from '@/globals';
@@ -54,7 +52,6 @@ import DropDown from '@/components/DropDown.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import PostTile from '@/components/PostTile.vue';
-
 
 const path = "/q/";
 const routes: Set<string | void> = new Set(["home", "search"]);
@@ -89,6 +86,12 @@ function defaultSearch() {
 		return ["general"];
 	}
 }
+
+const viewable = computed(() => {
+	if (!posts.value) return count.value;
+	if (globals.config?.blocking_behavior !== "omit") return posts.value;
+	return posts.value.filter((x) => !x?.blocked);
+});
 
 function fetchPosts() {
 	if (route.path.length > 1 && !route.path.startsWith(path)) return;
@@ -164,7 +167,6 @@ watch(sort, (_: string | undefined): void => {
 	router.push(pageLink(page.value));
 });
 </script>
-
 <style scoped>
 main {
 	background: var(--main);
@@ -191,6 +193,9 @@ ol > :last-child {
 	justify-content: space-around;
 	align-items: center;
 	margin: var(--neg-half-margin);
+}
+.tiles ol:has(> p) {
+	margin: 0;
 }
 .tiles ol li {
 	margin: var(--half-margin);

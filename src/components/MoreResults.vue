@@ -23,7 +23,6 @@
 		</DivLink>
 	</div>
 </template>
-
 <script>
 import DivLink from '@/components/DivLink.vue';
 
@@ -128,7 +127,6 @@ export default {
 	},
 }
 </script>
-
 <style scoped>
 .more
 {

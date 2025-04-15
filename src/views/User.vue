@@ -68,7 +68,7 @@
 						</Button>
 						<div class='badges'>
 							<p class='verified' v-if='user?.verified'>
-								<i class='kheina-icons' v-if='user.verified === "admin"' :title='`@${user?.handle} is an admin`'>sword</i>
+								<i class='kheina-icons' v-if='user.verified === "admin"' v-translate:handle_is_admin.title.prevent='{ handle: user?.handle }'>sword</i>
 								<i class='material-icons' v-else-if='user.verified === "mod"' :title='`@${user?.handle} is a moderator`'>verified_user</i>
 								<i class='material-icons-round' v-else-if='user.verified === "artist"' :title='`@${user?.handle} is a verified artist`'>verified</i>
 								{{user.verified}}	
@@ -211,7 +211,7 @@
 							<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='!isMobile' v-bind='post' link/>
 						</li>
 						<li v-for='post in posts || 3' v-else>
-							<Post :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
+							<PostComponent :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
 						</li>
 					</ol>
 					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts'/>
@@ -237,7 +237,7 @@
 						</p>
 						<ul class='tags' v-else>
 							<li v-for='tag in userTags'>
-								<Tag :inheritedTags='tag.inherited_tags' :nested='isMobile' v-bind='tag'/>
+								<TagComponent :inheritedTags='tag.inherited_tags' :nested='isMobile' v-bind='tag'/>
 							</li>
 						</ul>
 					</div>
@@ -291,6 +291,9 @@
 	</div>
 </template>
 <script setup lang='ts'>
+import type { PostLike, PostSet } from '@/types/post';
+import type { Tag } from '@/types/tag';
+import type { Badge, FullUser, User } from '@/types/user';
 import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
@@ -305,9 +308,9 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 import UserIcon from '@/components/UserIcon.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
-import Post from '@/components/Post.vue';
+import PostComponent from '@/components/Post.vue';
 import PostTile from '@/components/PostTile.vue';
-import Tag from '@/components/Tag.vue';
+import TagComponent from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import ResultsNavigation from '@/components/ResultsNavigation.vue';
@@ -476,15 +479,24 @@ function selectTab(event: Event) {
 
 function follow() {
 	followButtonLoading.value = true;
-	khatch(`${host}/v1/user/${user.value?.handle}/follow`, {
-		method: user.value?.following ? "DELETE" : "PUT",
-		errorMessage: `Failed to ${user.value?.following ? "unfollow" : "follow"} user`,
-	}).then(() => {
+	if (!user.value) return;
+	khatch(`${host}/v1/user/${user.value.handle}/follow`, {
+		method: user.value.following ? "DELETE" : "PUT",
+		errorMessage: `Failed to ${user.value.following ? "unfollow" : "follow"} user`,
+		errorHandlers: {
+			400: () => {
+				if (!user.value) return;
+				user.value.following = !user.value.following;
+			},
+		},
+	}).then((r: Response) =>
+		r.json()
+	).then((r: boolean) => {
 		if (!user.value) return;
-		user.value.following = !user.value?.following;
-		saveToHistory({ user: toRaw(user.value) });
-	}).catch(() => { })
-	.finally(() => followButtonLoading.value = false);
+		user.value.following = r
+	}).finally(() =>
+	followButtonLoading.value = false
+	);
 }
 
 function fetchData(query: LocationQuery | null = null) {
@@ -521,8 +533,9 @@ function fetchData(query: LocationQuery | null = null) {
 				sort: "new",
 				tags: [`@${props.handle}`]
 			},
-		}).then(r => r.json())
-		.then(r => {
+		}).then(
+			r => r.json()
+		).then(r => {
 			saveToHistory(r);
 			total_results.value = r.total;
 			posts.value = r.posts;
@@ -575,8 +588,9 @@ function fetchData(query: LocationQuery | null = null) {
 				page: page.value,
 				count: count.value,
 			},
-		}).then(r => r.json())
-		.then(r => {
+		}).then(
+			r => r.json()
+		).then(r => {
 			saveToHistory({ uploads: r });
 			posts.value = r;
 		});
@@ -739,7 +753,7 @@ watch(uploadPostId, (value: string | null) => {
 	khatch(`${host}/v1/post/${value}`, {
 		errorMessage: "Failed to fetch post for profile.",
 	}).then(r => r.json())
-	.then((r: Post) => {
+	.then((r: PostLike) => {
 		if (!r.media) return;
 		cropperImage.value = r.media.url;
 	});

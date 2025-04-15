@@ -19,19 +19,17 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { khatch } from '@/utilities';
-import { apiErrorMessage, host } from '@/config/constants';
+import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import store from '@/globals';
 
 const router = useRouter();
-const globals = store();
 const email = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
 const name = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
 const isLoading: Ref<boolean> = ref(false);
@@ -53,7 +51,6 @@ function sendCreate() {
 	);
 }
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

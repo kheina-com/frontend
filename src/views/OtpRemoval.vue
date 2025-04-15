@@ -28,13 +28,12 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
-import { onUnmounted, ref, type Ref } from 'vue';
+<script setup lang='ts'>
+import { ref, type Ref } from 'vue';
 import store from '@/globals';
 import { useRoute, useRouter } from 'vue-router';
 import { khatch, createToast } from '@/utilities';
-import { apiErrorMessage, host } from '@/config/constants';
+import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -86,7 +85,6 @@ function sendLogin() {
 	}).finally(() => isLoading.value = false);
 }
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

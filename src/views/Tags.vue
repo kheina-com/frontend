@@ -3,19 +3,19 @@
 		<ol class='results'>
 			<p v-if='tags?.length === 0' style='text-align: center'>No tags found!</p>
 			<li v-for='tag in tags' v-else>
-				<Tag :inheritedTags='tag.inherited_tags' v-bind='tag'/>
+				<TagComponent :inheritedTags='tag.inherited_tags' v-bind='tag'/>
 			</li>
 		</ol>
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { Tag } from '@/types/tag';
 import { ref, type Ref } from 'vue';
 import { khatch } from '@/utilities';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
-import Tag from '@/components/Tag.vue';
+import TagComponent from '@/components/Tag.vue';
 
 const tags: Ref<Tag[] | null> = ref(null);
 
@@ -26,7 +26,6 @@ khatch(`${host}/v1/tags/lookup`, {
 }).then(r => r.json())
 .then(r => tags.value = r);
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

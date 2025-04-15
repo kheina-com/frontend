@@ -25,8 +25,7 @@
 		<ThemeMenu/>
 	</main>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
@@ -94,7 +93,6 @@ function setPage(p: number) {
 watch(() => route.query, fetchPosts);
 watch(tiles, globals.searchResultsTiles);
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

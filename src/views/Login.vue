@@ -1,3 +1,4 @@
+
 <template>
 	<div class='bg'/>
 	<main>
@@ -30,14 +31,23 @@
 	</main>
 </template>
 <script setup lang='ts'>
-import { onUnmounted, ref, type Ref } from 'vue';
-import store from '@/globals';
+import { ref, type Ref } from 'vue';
+import store, { type AuthToken } from '@/globals';
 import { useRoute, useRouter } from 'vue-router';
-import { createToast, khatch } from '@/utilities';
+import { createToast, getCookie, khatch, setCookie } from '@/utilities';
+import startNotifications, { cookie } from '@/notifications';
 import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
+
+interface LoginResponse {
+	user_id: number,
+	handle:  string,
+	name:    string,
+	mod:     boolean,
+	token:   AuthToken,
+}
 
 const globals = store();
 const router  = useRouter();
@@ -48,17 +58,6 @@ const password:    Ref<string | null> = ref(null);
 const otp:         Ref<string | null> = ref(null);
 const otpRequired: Ref<boolean>       = ref(false);
 const isLoading:   Ref<boolean>       = ref(false);
-
-// mounted() {
-// 	const colors = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#24408E', '#732982', '#FFFFFF', '#FFAFC8', '#74D7EE', '#613915', '#000000', '#E40303', '#FF8C00'].map(e => e + '20').join(', ');
-// 	document.body.style.background = 'linear-gradient(90deg,' + colors + ')';
-// 	document.body.style.backgroundSize = `${100 * 12}%`;
-// 	document.body.style.animation = 'login 10s linear infinite';
-// };
-
-onUnmounted(() => {
-	document.body.style.cssText = "";
-});
 
 function sendLogin() {
 	isLoading.value = true;
@@ -96,14 +95,28 @@ function sendLogin() {
 			},
 		},
 	}).then(r => r.json())
-	.then(r => {
-		if (r.token.token.length <= 10) return;
+	.then((r: LoginResponse) => {
+		if (r.token.token.length <= 10) throw "invalid token returned";
 		globals.setAuth(r.token);
-		router.push(route.query?.path ? route.query.path.toString() : "/");
-	}).finally(() => isLoading.value = false);
+	}).then(() => {
+		if (getCookie(cookie, null, "number") !== null) {
+			startNotifications().then(() =>
+				setCookie(cookie, new Date().valueOf())
+			);
+		}
+	}).then(() => {
+		if (window.PublicKeyCredential) return window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+	}).then((available: boolean | undefined) =>
+		console.debug("[Login] platform auth availability:", available)
+	).then(() =>
+		router.push(route.query?.path ? route.query.path.toString() : "/")
+	).catch(err =>
+		console.error("[Login] failed to complete login:", err)
+	).finally(() =>
+		isLoading.value = false
+	);
 }
 </script>
-
 <style scoped>
 main {
 	background: var(--main);

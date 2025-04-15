@@ -6,8 +6,7 @@
 		</div>
 	</button>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import store from '@/globals';
 import { abbreviate } from '@/utilities';
 import { ref } from 'vue';
@@ -32,7 +31,6 @@ function fav() {
 	});
 }
 </script>
-
 <style scoped>
 div {
 	display: flex;

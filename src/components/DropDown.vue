@@ -8,8 +8,8 @@
 				<button
 					v-for='option in props.options'
 					@click.prevent.stop='option.action ? runAction(option) : setValue(option)'
-					:class='option?.value === props.value ? "selected" : null'
-					v-html='option.html'
+					:class='props.value && option?.value === props.value ? "selected" : null'
+					v-translate:[option.html].html='option.kwargs'
 				/>
 			</div>
 		</div>
@@ -19,9 +19,27 @@
 import { onMounted, ref, type Ref } from 'vue';
 
 export interface DropDownOption {
-	value?:  string,
-	html?:   string,
-	action?: { (): void },
+	/**
+	 * value to emit upon selection
+	 */
+	value?: string,
+
+	/**
+	 * the translation key to use
+	 */
+	html?: string,
+
+	/**
+	 * action to run upon selection. overrides emit.
+	 */
+	action?: { (opt: DropDownOption): void },
+
+	/**
+	 * kwargs to pass to translator.
+	 */
+	kwargs?: {
+		[k: string]: string,
+	},
 }
 
 const props = withDefaults(defineProps<{
@@ -38,9 +56,7 @@ const dropdownButton = ref<HTMLButtonElement | null>(null) as Ref<HTMLButtonElem
 let open: boolean = false;
 
 onMounted(() => {
-	if (props.interactable) {
-		dropdownButton.value.classList.add("interactable");
-	}
+	if (props.interactable) dropdownButton.value.classList.add("interactable");
 });
 
 const closeDropdown = () => toggleDropdown(false);
@@ -77,12 +93,12 @@ function toggleDropdown(state: boolean | null = null) {
 function setValue(option: DropDownOption) {
 	emits("update:value", option.value);
 	emits("change", option.value);
-	toggleDropdown(false);
+	closeDropdown();
 }
 
 function runAction(option: DropDownOption) {
-	(option.action as { (): void })();
-	toggleDropdown(false);
+	(option.action as { (opt: DropDownOption): void })(option);
+	closeDropdown();
 }
 </script>
 <style scoped>
@@ -92,6 +108,8 @@ function runAction(option: DropDownOption) {
 }
 button {
 	display: block;
+	width: 100%;
+	height: 100%;
 }
 .dropdown-menu div {
 	box-shadow: 0 2px 3px 1px var(--shadowcolor);

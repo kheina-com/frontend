@@ -1,38 +1,4 @@
-export type ReportType = "other" | "copyright" | "improper_rating" | "misinformation" | "impersonation" | "harassment" | "violence";
-
-export type HistoryMask = "post" | "message" | "url";
-
-export interface ReportDataHistory {
-	mask?:   HistoryMask[],
-	post:    string | null,
-	message: string | null,
-	url:     string | null,
-	prev?:   ReportDataHistory | null,
-}
-
-export interface ReportData {
-	mask?:   undefined,
-	post:    string | null,
-	message: string,
-	url:     string,
-	prev?:   ReportDataHistory | null,
-}
-
-export interface Report {	
-	report_id:   number,
-	report_type: ReportType,
-	created:     string,
-	reporter:    User | null,
-	assignee:    User | null,
-	data:        ReportData,
-	response:    string | null,
-}
-
-export interface ModQueueEntry {
-	queue_id: number,
-	assignee: User | null,
-	report:   Report,
-}
+import type { HistoryMask, Report, ReportData, ReportDataHistory } from '@/types/report';
 
 function historyMask(r: ReportData | ReportDataHistory, key: HistoryMask): boolean {
 	if (!r?.mask) return true;
@@ -47,9 +13,9 @@ export function reportHistory(report?: Report | null): ReportData[] {
 	let r: ReportData | ReportDataHistory | null | void = cur;
 	while (r) {
 		cur = {
-			post:    historyMask(r, "post") && r.post ? r.post : cur.post,
-			message: historyMask(r, "message") && r.message ? r.message : cur.message,
-			url:     historyMask(r, "url") && r.url ? r.url : cur.url,
+			post:    historyMask(r, "post") ? r.post : cur.post,
+			message: historyMask(r, "message") && r.message !== null ? r.message : cur.message,
+			url:     historyMask(r, "url") && r.url !== null ? r.url : cur.url,
 			prev:    null,
 		};
 		h.push(cur);

@@ -361,8 +361,8 @@ watch(props, () => setTimeout(loadMedia, 0));
 	left: 0;
 }
 .media p {
-	align-self: center;
 	text-align: center;
+	text-shadow: 0 0 1em var(--shadowcolor);
 }
 .th {
 	height: 100%;

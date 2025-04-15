@@ -14,7 +14,6 @@
 		<slot name='default'/>
 	</div>
 </template>
-
 <script setup lang='ts'>
 import { onMounted, ref, watch, type Ref } from 'vue';
 
@@ -58,13 +57,11 @@ function setLoadingClass(value: boolean) {
 
 watch(() => props.isLoading, setLoadingClass);
 </script>
-
 <style scoped>
 span {
 	display: inline-block;
 }
 </style>
-
 <style>
 .loading, .loading * {
 	pointer-events: none;

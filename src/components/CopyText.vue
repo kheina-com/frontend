@@ -8,8 +8,7 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
+<script setup lang='ts'>
 import { computed, ref, type Ref, onMounted } from 'vue';
 
 const main  = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -67,7 +66,6 @@ function copy() {
 	});
 }
 </script>
-
 <style scoped>
 i {
 	font-size: inherit;

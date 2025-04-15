@@ -1,5 +1,10 @@
+import type { UserAuth } from '@/types/auth';
+import type { NotificationEvent } from '@/types/notifications';
+import type { PostLike } from '@/types/post';
+import type { FullUser, FullUserLike, User } from '@/types/user';
 import { defineStore } from 'pinia';
 import { authCookie, deleteCookie, khatch, setCookie } from '@/utilities';
+import { ClearNotifications, PopulateNotificationsDb } from '@/utilities/notifications';
 import { host, environment } from '@/config/constants';
 
 export interface ToastOptions {
@@ -29,7 +34,7 @@ export enum Rating {
 
 interface Globals {
 	init: boolean,
-	auth: any | null,
+	auth: UserAuth | null,
 	user: User | null,
 	theme: string | null,
 	accent: string | null,
@@ -39,11 +44,19 @@ interface Globals {
 	transitions: boolean,
 	tiles: boolean,
 	rating: Rating,
-	notifications: number,
-	postCache: Post | null,
+	postCache: PostLike | null,
 	config: any | null,
 	cookies: boolean,
-};
+}
+
+export interface AuthToken {
+	version: string,
+	algorithm: string,
+	keyId: number,
+	// issued: Date | string,
+	expires: Date | string,
+	token: string,
+}
 
 export const cookieFailedError = 'This setting will work until you close the tab. To persist between sessions, hit the "coolio" button on the cookies popup';
 
@@ -62,7 +75,6 @@ export default defineStore("globals", {
 		transitions: true,
 		tiles: true,
 		rating: "general" as Rating,
-		notifications: 0,
 		postCache: null,
 		config: null,
 		cookies: false,
@@ -88,7 +100,7 @@ export default defineStore("globals", {
 			this.toasts[id] = toast;
 			console.debug("[createToast]", id, toast);
 		},
-		userConfig(config: any) {
+		userConfig(config: any): void {
 			this.config = {
 				...config,
 				blockingBehavior: config.blocking_behavior,
@@ -96,17 +108,18 @@ export default defineStore("globals", {
 			};
 			if (config.wallpaper) {
 				khatch(`${host}/v1/post/${config.wallpaper}`, {
-					errorMessage: 'Failed to Retrieve User Wallpaper!',
-				}).then(r => r.json())
-					.then((r: Post) => {
-						if (!r.media) return;
-						document.documentElement.style.backgroundImage = `url(${r.media.url})`;
-						document.documentElement.style.backgroundAttachment = 'fixed';
-						document.documentElement.style.backgroundPosition = 'top center';
-						document.documentElement.style.backgroundRepeat = 'no-repeat';
-						document.documentElement.style.backgroundSize = 'cover';
-						document.body.style.backgroundImage = 'none';
-					});
+					errorMessage: "Failed to Retrieve User Wallpaper!",
+				}).then(
+					r => r.json()
+				).then((r: PostLike) => {
+					if (!r.media) return;
+					document.documentElement.style.backgroundImage = `url(${r.media.url})`;
+					document.documentElement.style.backgroundAttachment = "fixed";
+					document.documentElement.style.backgroundPosition = "top center";
+					document.documentElement.style.backgroundRepeat = "no-repeat";
+					document.documentElement.style.backgroundSize = "cover";
+					document.body.style.backgroundImage = "none";
+				});
 			}
 			else {
 				document.documentElement.style.backgroundImage = "";
@@ -117,12 +130,12 @@ export default defineStore("globals", {
 				document.body.style.backgroundImage = "";
 			}
 		},
-		cookiesAllowed(cookies: boolean) {
+		cookiesAllowed(cookies: boolean): void {
 			console.debug("cookies:", cookies);
 			this.cookies = cookies;
 			setCookie("cookies", "true", 31536000);
 		},
-		setTheme(theme: string) {
+		setTheme(theme: string): void {
 			setCookie("theme", theme);
 			if (this.theme) {
 				document.documentElement.classList.remove(this.theme);
@@ -137,7 +150,7 @@ export default defineStore("globals", {
 				});
 			}
 		},
-		setAccent(accent: string) {
+		setAccent(accent: string): void {
 			setCookie("accent", accent);
 			if (this.accent) {
 				document.documentElement.classList.remove(this.accent);
@@ -147,119 +160,128 @@ export default defineStore("globals", {
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
-					title: 'Could not set accent cookie',
+					title: "Could not set accent cookie",
 					description: cookieFailedError,
 				});
 			}
 		},
-		maxRating(rating: Rating) {
+		maxRating(rating: Rating): void {
 			this.rating = rating;
 			setCookie("max-rating", rating.toString(), 3155695200);
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
-					title: 'Could not set max rating cookie',
+					title: "Could not set max rating cookie",
 					description: cookieFailedError,
 				});
 			}
 		},
-		setAuth(auth: any) {
+		setAuth(auth: AuthToken | null): void {
 			if (auth && auth.token.length > 10) {
 				if (!this.cookiesAllowed) {
+					ClearNotifications();
 					this.createToast({
-						title: 'Could not complete login',
+						title: "Could not complete login",
 						description: 'Logins require the use of browser cookies. To login, hit the "coolio" button on the cookies popup',
 					});
 				}
 				else {
-					const maxage = Math.round(auth.expires - new Date().valueOf() / 1000);
-					if (environment !== 'local') { // specifically open this cookie to subdomains so that cdn works
+					const maxage = Math.round((new Date(auth.expires).valueOf() - new Date().valueOf()) / 1000);
+					if (environment !== "local") { // specifically open this cookie to subdomains so that cdn works
 						document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
 					}
 					else {
-						setCookie('kh-auth', auth.token, maxage);
+						setCookie("kh-auth", auth.token, maxage);
 					}
 					this.auth = authCookie();
 
+					// this has to be after auth assignment
+					PopulateNotificationsDb().then((unread: number) =>
+						document.dispatchEvent(new CustomEvent<NotificationEvent>("notification", { detail: { unread } }))
+					);
+
 					khatch(`${host}/v1/user/self`, {
-						errorMessage: 'Error Occurred While Fetching Self',
+						errorMessage: "Error Occurred While Fetching Self",
 						errorHandlers: {
 							401: () => {
 								// the auth token is no good, so unset it
-								if (environment !== 'local') { // specifically open this cookie to subdomains so that cdn works
+								if (environment !== "local") { // specifically open this cookie to subdomains so that cdn works
 									document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
 								}
 								else {
-									deleteCookie('kh-auth');
+									deleteCookie("kh-auth");
 								}
 							},
 						},
-					}).then(r => r.json()).then(r => {
+					}).then(
+						r => r.json()
+					).then((r: FullUserLike) => {
 						r.created = new Date(r.created);
-						this.user = r;
+						this.user = r as FullUser;
 					});
 
 					khatch(`${host}/v1/config/user`, {
-						errorMessage: 'Could Not Retrieve User Config!',
+						errorMessage: "Could Not Retrieve User Config!",
 						errorHandlers: {
 							// do nothing, we don't care
 							401: () => { },
 							404: () => { },
 						},
-					}).then(r => r.json()).then(r => this.userConfig);
+					}).then(r => r.json()).then(this.userConfig);
 				}
 			}
 			else {
+				ClearNotifications();
 				this.auth = this.user = null;
 			}
 		},
-		animatedAccents(animatedAccents: boolean) {
+		animatedAccents(animatedAccents: boolean): void {
 			this.animations = animatedAccents;
-			setCookie('animated-accents', animatedAccents);
+			setCookie("animated-accents", animatedAccents);
 			if (animatedAccents) {
-				document.documentElement.classList.add('animated');
+				document.documentElement.classList.add("animated");
 			}
 			else {
-				document.documentElement.classList.remove('animated');
+				document.documentElement.classList.remove("animated");
 			}
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
-					title: 'Could not set animated accents cookie',
+					title: "Could not set animated accents cookie",
 					description: cookieFailedError,
 				});
 			}
 		},
-		cssTransitions(transitions: boolean) {
+		cssTransitions(transitions: boolean): void {
 			this.transitions = transitions;
-			setCookie('css-transitions', transitions, 3155695200);
+			setCookie("css-transitions", transitions, 3155695200);
 			if (transitions) {
-				document.documentElement.classList.add('transitions');
+				document.documentElement.classList.add("transitions");
 			}
 			else {
-				document.documentElement.classList.remove('transitions');
+				document.documentElement.classList.remove("transitions");
 			}
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
-					title: 'Could not set css transitions cookie',
+					title: "Could not set css transitions cookie",
 					description: cookieFailedError,
 				});
 			}
 		},
-		searchResultsTiles(tiles: boolean) {
+		searchResultsTiles(tiles: boolean): void {
 			this.tiles = tiles;
-			setCookie('search-results-tiles', tiles, 3155695200);
+			setCookie("search-results-tiles", tiles, 3155695200);
 			if (tiles) {
-				document.documentElement.classList.add('tiles');
+				document.documentElement.classList.add("tiles");
 			}
 			else {
-				document.documentElement.classList.remove('tiles');
+				document.documentElement.classList.remove("tiles");
 			}
 
 			if (!this.cookies && !this.init) {
 				this.createToast({
-					title: 'Could not set post tiles cookie',
+					title: "Could not set post tiles cookie",
 					description: cookieFailedError,
 				});
 			}

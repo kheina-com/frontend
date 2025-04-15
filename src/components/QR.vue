@@ -1,25 +1,25 @@
 <template>
 	<canvas :id='id' :title='props.content'/>
 </template>
-<script setup lang="ts">
+<script setup lang='ts'>
 import { onMounted, watch } from 'vue';
 import qrcode from 'qrcode-generator';
 
 const props = withDefaults(defineProps<{
 	content?: string,
-	width?:   number,
-	height?:  number,
+	width?:   number | string,
+	height?:  number | string,
 	level?:   "L" | "M" | "Q" | "H",
 }>(), {
-	width:  300,
-	height: 300,
+	width:  "20em",
+	height: "20em",
 	level:  "L",
 });
 
 const mdMaxId = 0xffffffff;
 const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, "0");
 const id      = mdRefId();
-const scale   = 5;
+const scale   = 3;
 
 function drawQR() {
 	if (!props.content) return;
@@ -30,10 +30,25 @@ function drawQR() {
 	const canvas = document.getElementById(id);
 	if (!canvas || !(canvas instanceof HTMLCanvasElement) || !canvas.getContext) return;
 
-	canvas.style.width = props.width.toString() + "px";
-	canvas.style.height = props.height.toString() + "px";
-	canvas.width = props.width * scale;
-	canvas.height = props.height * scale;
+	const width = (() => {
+		if (typeof props.width === "number") return props.width;
+		const parentStyle = getComputedStyle((canvas.parentElement as HTMLElement));
+		if (props.width.endsWith("em")) return parseFloat(props.width) * parseFloat(parentStyle.fontSize);
+		if (props.width.endsWith("%")) return parseFloat(props.width) * parseFloat(parentStyle.width);
+		return parseFloat(props.width);
+	})();
+	const height = (() => {
+		if (typeof props.height === "number") return props.height;
+		const parentStyle = getComputedStyle((canvas.parentElement as HTMLElement));
+		if (props.height.endsWith("em")) return parseFloat(props.height) * parseFloat(parentStyle.fontSize);
+		if (props.height.endsWith("%")) return parseFloat(props.height) * parseFloat(parentStyle.height);
+		return parseFloat(props.height);
+	})();
+
+	canvas.style.width = typeof props.width === "number" ? props.width.toString() + "px" : props.width;
+	canvas.style.height = typeof props.height === "number" ? props.height.toString() + "px" : props.height;
+	canvas.width = width * scale;
+	canvas.height = height * scale;
 
 	const ctx = canvas.getContext("2d");
 	if (!ctx) return;

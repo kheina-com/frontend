@@ -21,9 +21,8 @@
 		<Subtitle class='_ts' static='left'>created <Timestamp :datetime='created'/></Subtitle>
 	</router-link>
 </template>
-
-<script setup lang="ts">
-import { type Report } from '@/utilities/report';
+<script setup lang='ts'>
+import type { Report } from '@/types/report';
 import Markdown from '@/components/Markdown.vue';
 import Profile from '@/components/Profile.vue';
 import Timestamp from '@/components/Timestamp.vue';
@@ -31,7 +30,6 @@ import Subtitle from '@/components/Subtitle.vue';
 
 defineProps<Report>();
 </script>
-
 <style scoped>
 ._header {
 	margin-bottom: var(--margin);

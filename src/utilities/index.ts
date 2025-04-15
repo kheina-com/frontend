@@ -1,3 +1,6 @@
+import type { Emoji } from '@/types/emoji';
+import type { MediaLike } from '@/types/post';
+import type { TagPortable, Tags } from '@/types/tag';
 import { apiErrorDescriptionToast, apiErrorMessageToast, authRegex } from '@/config/constants';
 import store, { type ToastOptions } from '@/globals';
 import { tagGroups } from '@/config/constants';
@@ -31,7 +34,9 @@ export function getCookie(cookieName: string, default_value: any = null, type: s
 		}
 	}
 
-	if (type !== null) return ParserTypeMap[type](value);
+	if (value === "null") return null;
+	if (value === "undefined") return undefined;
+	if (value !== default_value && type !== null) return ParserTypeMap[type](value);
 	return value;
 }
 
@@ -49,6 +54,7 @@ export function setTitle(title: string): void {
 }
 
 import { routerMetaTag } from "@/config/constants";
+import type { UserAuth } from '@/types/auth';
 export function setMeta(content: object): void {
 	const tag = document.createElement("meta");
 
@@ -66,8 +72,8 @@ export function commafy(x: number): string { // from https://stackoverflow.com/a
 	return parts.join(".");
 }
 
-export function getMediaThumbnailUrl(media: Media, resolution: number = 800, extension: string = "webp") {
-	return media.thumbnails.filter(x => x.bounds === resolution && x.type.file_type === extension)[0].url;
+export function getMediaThumbnailUrl(media: MediaLike, resolution: number = 800, extension: "webp" | "jpeg" = "webp") {
+	return media.thumbnails.filter(x => x.type.file_type === extension).sort((a, _) => a.bounds - resolution)[0].url;
 };
 
 export function getEmojiUrl(emoji: Emoji): string {
@@ -83,27 +89,37 @@ export function getBannerUrl(postId: string, handle: string, extension = "webp")
 }
 
 export function round(num: number, precision: number): number {
-	let multiplier = 10 ** precision;
+	const multiplier = 10 ** precision;
 	return Math.round(num * multiplier) / multiplier;
 }
 
 export function tagSplit(tags: string): string[] { return tags.split(/[,\s]/).filter(x => x).map(x => x.trim()); }
 
 export function sortTagGroups(tags: { [k: string]: TagPortable[]; } | Tags): Tags {
-	let sorted: { [k: string]: TagPortable[]; } = {};
+	const sorted: { [k: string]: TagPortable[]; } = {};
 	tagGroups.forEach(i => {
 		if (tags.hasOwnProperty(i)) sorted[i] = (tags as { [k: string]: TagPortable[]; })[i];
 	});
 	return sorted;
 }
 
+/**
+ * 
+ * @param options interface ToastOptions {
+ * 	title?:       string,
+ * 	description?: string,
+ * 	dump?:        any,
+ * 	color?:       string,
+ * 	icon?:        string,
+ * 	time?:        number,
+ * }
+ */
 export function createToast(options: ToastOptions): void {
 	return store().createToast(options);
 }
 
 export function saveToHistory(data: any): void {
 	if (!window.history.state) return;
-
 	history.replaceState(Object.assign(window.history.state, data), "");
 }
 
@@ -118,6 +134,21 @@ interface KhatchOptions {
 	body?: string | any,
 }
 
+/**
+ * 
+ * @param url 
+ * @param options interface KhatchOptions {
+ * 	attempts?:      number,
+ * 	handleError?:   boolean,
+ * 	errorMessage?:  string,
+ * 	errorHandlers?: { [statusCode: number]: { (r: Response): void; }; },
+ * 	method?:        string,
+ * 	credentials?:   "include",
+ * 	headers?:       { [header: string]: string; },
+ * 	body?:          string | any,
+ * }
+ * @returns 
+ */
 export async function khatch(url: string, options: KhatchOptions = {}): Promise<Response> {
 	const attempts = options?.attempts || 3;
 	const handleError = Boolean(options?.handleError || options?.errorMessage || options?.errorHandlers);
@@ -192,6 +223,29 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 				// unreachable?
 				return response;
 			}
+			else if (response.status === 422) {
+				// specifically add a special handler for Unprocessable Content
+				// note, this can still be overridden
+				const r = await response.json();
+				const detail: { loc: string[], msg: string, type: string, }[] | undefined = r?.detail;
+				if (!detail) {
+					createToast({
+						title: errorMessage,
+						description: r?.error ?? apiErrorDescriptionToast,
+						dump: r,
+					});
+					throw "([khatch] handled)";
+				}
+
+				const desc: string[] = [];
+				for (let d of detail) {
+					desc.push(`request ${d.loc.shift()} ${d.msg}: ${d.loc.join(".")}`);
+				}
+				createToast({
+					title: "Request could not be processed",
+					description: desc.join("\n"),
+				});
+			}
 			else if (response.status < 500) {
 				const r = await response.json();
 				createToast({
@@ -214,7 +268,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 				});
 			}
 
-			return new Promise((_, reject) => reject("([khatch] handled)"));
+			throw "([khatch] handled)";
 		}
 		throw error;
 	}
@@ -224,6 +278,59 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 
 	return response;
 }
+
+/**
+ * 
+ * @param str 
+ * @param args 
+ * @returns 
+ */
+export function format(str: string, ...args: any[]) {
+	// store arguments in an array
+	const kwargs: { [k: string]: string; } = {};
+	if (typeof args[args.length - 1] === "object") Object.assign(kwargs, args[args.length - 1]);
+	// use replace to iterate over the string
+	// select the match and check if the related argument is present
+	// if yes, replace the match with the argument
+	return str.replace(/{(.*?)}/g, m => {
+		// check if the argument is present
+		const i = m.substring(1, m.length - 1);
+		const index = parseInt(m[0]);
+		if (!Number.isNaN(index)) {
+			return typeof args[index] === "undefined" ? m[0] : args[index];
+		}
+		return typeof kwargs[i] === "undefined" ? m[0] : kwargs[i];
+	});
+};
+
+export const registerServiceWorker = (script: string): Promise<ServiceWorkerRegistration> => {
+	console.debug("[service worker] file:", script);
+	if ("serviceWorker" in navigator) {
+		return new Promise<ServiceWorkerRegistration>((resolve, reject) => {
+			navigator.serviceWorker.register(script, {
+				scope: "/",
+			}).then(reg => {
+				if (reg.installing) {
+					console.debug("[service worker] installing");
+				} else if (reg.waiting) {
+					console.debug("[service worker] installed");
+				}
+				if (reg.active) {
+					console.debug("[service worker] active");
+				}
+				else {
+					navigator.serviceWorker.ready.then(() =>
+						console.debug("[service worker] active")
+					);
+				}
+				resolve(reg);
+			}).catch(err =>
+				reject(`registration failed: ${err}`)
+			);
+		});
+	}
+	throw "service worker api unavailable in browser";
+};
 
 export function tab(e: KeyboardEvent) {
 	const target = e.target as HTMLInputElement;
@@ -266,10 +373,25 @@ export function tab(e: KeyboardEvent) {
 }
 
 export function abbreviate(value: number): string {
-	if (value >= 1000000000) return `${Math.round(value / 100000000) / 10}B`;
-	if (value >= 1000000) return `${Math.round(value / 100000) / 10}M`;
-	if (value >= 1000) return `${Math.round(value / 100) / 10}K`;
-	return `${value}`;
+	if (value >= 995e7) {
+		return `${Math.round(value / 1e9)}B`;
+	}
+	if (value >= 9995e5) {
+		return `${(value / 1e9).toFixed(1)}B`;
+	}
+	if (value >= 995e4) {
+		return `${Math.round(value / 1e6)}M`;
+	}
+	if (value >= 9995e2) {
+		return `${(value / 1e6).toFixed(1)}M`;
+	}
+	if (value >= 9950) {
+		return `${Math.round(value / 1e3)}K`;
+	}
+	if (value >= 1e3) {
+		return `${(value / 1e3).toFixed(1)}K`;
+	}
+	return value.toString();
 }
 
 export function abbreviateBytes(value: number): string {
@@ -321,8 +443,8 @@ export function int_from_bytes(bytestring: string): number {
 }
 
 const b64repl: { [k: string]: string; } = { "-": "+", "_": "/" };
-export function authCookie(cookie: string | null = null) {
-	const token = cookie ?? getCookie("kh-auth");
+export function authCookie(cookie: string | null = null): UserAuth | null {
+	const token: string = cookie ?? getCookie("kh-auth");
 	if (!token || token.length <= 10) return null;
 
 	const components: string[] = token.replace("-", "+").replace("_", "/").split(".");
@@ -350,8 +472,9 @@ export function authCookie(cookie: string | null = null) {
 		expires: new Date(int_from_bytes(atob(payload[2])) * 1000),
 		userId: int_from_bytes(atob(payload[3])),
 		guid: payload[4].replace(/\+/g, "-").replace(/\//g, "_"),
-		isMod: misc?.scope?.includes("mod"),
-		isAdmin: misc?.scope?.includes("admin"),
+		isMod: Boolean(misc?.scope?.includes("mod")),
+		isAdmin: Boolean(misc?.scope?.includes("admin")),
+		scope: misc?.scope ?? [],
 		...misc,
 	};
 
@@ -506,7 +629,9 @@ export const lazyObserver = new IntersectionObserver(
 			if (entry.isIntersecting) {
 				const target = entry.target as HTMLImageElement;
 				const src = target.dataset.src;
-				if (src && !unloadable.has(src)) { target.src = src; }
+				if (src && !unloadable.has(src)) {
+					target.src = src;
+				}
 				target.dataset.intersected = "";
 				lazyObserver.unobserve(target);
 			}
