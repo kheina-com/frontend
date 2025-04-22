@@ -201,7 +201,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 		}
 	}
 
-	console.debug("[khatch]", attempt, url, response?.status, options, response, error);
+	console.debug("[khatch]", attempt, options.method ?? "GET", url, response?.status, options, response, error);
 
 	if (response?.status === 401) store().setAuth(null);
 
@@ -277,6 +277,8 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 
 			throw "([khatch] handled)";
 		}
+
+		if (response) throw `[khatch] failed. status: ${response.status}, response: ${response.body}`;
 		throw error;
 	}
 

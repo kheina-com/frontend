@@ -264,10 +264,11 @@
 </template>
 <script setup lang='ts'>
 import { ToPost, type MediaLike, type Post, type PostLike, type PostSet } from '@/types/post'
+import type { TagPortable } from '@/types/tag';
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
-import { abbreviateBytes, commafy, createToast, khatch, tagSplit, sortTagGroups } from '@/utilities';
+import { abbreviateBytes, commafy, createToast, khatch, tagSplit, sortTagGroups, uuid4 } from '@/utilities';
 import { host, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
@@ -285,7 +286,6 @@ import PostComponent from '@/components/Post.vue';
 import SetComponent from '@/components/Set.vue';
 import DropDownSelector from '@/components/DropDownSelector.vue';
 import EditBox from '@/components/EditBox.vue';
-import type { TagPortable } from '@/types/tag';
 
 const globals = store();
 const route = useRoute();
@@ -666,6 +666,7 @@ function uploadFile(finish: boolean = false) {
 			return reject(`file mime type unknown: ${file.value.type}`);
 		}
 		xhr.setRequestHeader("authorization", "bearer " + auth);
+		xhr.setRequestHeader("kh-trace", uuid4());
 		xhr.send(formdata);
 	});
 }

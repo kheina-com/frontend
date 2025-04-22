@@ -10,7 +10,7 @@
 import { computed, ref, toRef, type Ref } from 'vue';
 import store from '@/globals';
 import { getCookie, setCookie } from '@/utilities';
-import startNotifications, { bindListener, cookie, logstr } from '@/notifications';
+import startNotifications, { cookie, logstr } from '@/notifications';
 import Button from '@/components/Button.vue';
 
 const loading: Ref<boolean> = ref(false);
@@ -23,19 +23,15 @@ const show = computed(() => user.value && !hide.value && !registered.value);
 if (registered.value) {
 	console.debug(logstr, "attempting bind listener");
 	loading.value = true;
-	bindListener().then(r => {
-		registered.value = r;
-		setCookie(cookie, new Date().valueOf());
-	}).finally(() =>
-		loading.value = false
-	);
+	enableNotifications();
 }
 
-function enableNotifications() {
+function enableNotifications(): Promise<boolean> {
 	loading.value = true;
-	startNotifications().then(() =>
-		setCookie(cookie, new Date().valueOf())
-	).then(() =>
+	return startNotifications().then(() => {
+		registered.value = true;
+		setCookie(cookie, new Date().valueOf());
+	}).then(() =>
 		hide.value = true
 	).finally(() =>
 		loading.value = false

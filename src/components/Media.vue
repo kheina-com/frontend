@@ -85,7 +85,7 @@ interface Image extends HTMLImageElement {
 	load(url: string, callback: { (this: XMLHttpRequest, ev: ProgressEvent): any }): void;
 }
 
-Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, ev: ProgressEvent): any }) {
+Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, ev: ProgressEvent): void }) {
 	// const img = this;
 	const xhr = new XMLHttpRequest();
 	xhr.open("GET", url, true);
