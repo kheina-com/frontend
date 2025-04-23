@@ -12,7 +12,7 @@ from .models import Post, Privacy, UserPortable
 from .post import thumbnail_url
 
 
-class Set(BaseModel) :
+class set(BaseModel) :
 	set_id: str
 	owner: UserPortable
 	count: int
@@ -26,7 +26,7 @@ class Set(BaseModel) :
 
 
 async def setMetaTags(set_id: str) -> str :
-	s: Set
+	s: set
 
 	try :
 		async with request(
@@ -35,12 +35,12 @@ async def setMetaTags(set_id: str) -> str :
 			timeout=ClientTimeout(api_timeout),
 			raise_for_status=True,
 		) as response :
-			s = Set.parse_obj(await response.json())
+			s = set.parse_obj(await response.json())
 
 	except ClientResponseError :
 		return ''
 
-	title: str = 'Set: '
+	title: str = 'set: '
 
 	if s.title :
 		title += escape(demarkdown(s.title))

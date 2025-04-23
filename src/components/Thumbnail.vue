@@ -1,8 +1,7 @@
 <template>
 	<div class='thumbnail loading wave'>
-		<div class='thumbhash loader'></div>
 		<img ref='media' :data-src='src' @load='loaded' @error='onError'>
-		<ul class='flags' v-if='props.media?.flags'>
+		<ul class='flags' v-if='props.media?.flags?.length'>
 			<li class='flag' v-for='flag in props.media.flags'>{{flag}}</li>
 		</ul>
 	</div>
@@ -120,28 +119,38 @@ function onError() {
 function th(value: string | null) {
 	// this.isLoading = !this.thumbhash;
 	if (!value) return;
+	const parent = media.value.parentElement as HTMLDivElement;
 
 	let dataurl: string = "";
 	try {
-		const th = (media.value.parentElement as HTMLDivElement);
+		const th = document.createElement("div");
+		th.classList.add("th");
 		dataurl = thumbHashToDataURL(base64ToBytes(value));
 		th.style.background = "url('" + lightnoise + "') repeat center, url('" + dataurl + "') 0% 0% / cover";
-		th.classList.remove("wave");
+		parent.classList.remove("wave");
 
+		for (let data in parent.dataset) {
+			th.dataset[data] = "";
+		}
+
+		parent.prepend(th);
 		media.value.style.opacity = "0";
-		th.classList.add("th");
 		if (isLoading.value) {
 			media.value.addEventListener("load", () => {
 				if (!media.value) return;
 				isLoading.value = false;
 
 				media.value.style.opacity = "";
-				setTimeout(() => th.style.background = "", 500);
+				setTimeout(() => {
+					th.style.opacity = "0";
+					setTimeout(() => parent.removeChild(th), 500);
+				}, 50);
 			}, { once: true });
 		}
 		else {
 			media.value.style.opacity = "";
-			setTimeout(() => th.style.background = "", 500);
+			th.style.opacity = "0";
+			setTimeout(() => parent.removeChild(th), 500);
 		}
 	}
 	catch (e) {
@@ -175,21 +184,30 @@ watch(toRef(props, "render"), (value: boolean) => {
 	overflow: hidden;
 }
 
-.th img {
+.th {
 	-webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
 	transition: var(--transition) var(--fadetime);
-	position: relative;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	left: 0;
+	top: 0;
 }
 
 img {
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 	/* object-fit: cover; */
 	display: block;
 	max-height: inherit;
 	max-width: inherit;
 	/* width: 100%;
 	height: 100%; */
+	position: relative;
 }
 
 .flags {

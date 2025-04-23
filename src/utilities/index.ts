@@ -124,7 +124,7 @@ export function saveToHistory(data: any): void {
 }
 
 export function uuid4(): string {
-	let uuid = '';
+	let uuid = "";
 	for (let i = 0; i < 4; i++) { uuid += Math.round(Math.random() * 0xffffffff).toString(16).padStart(8, "0"); }
 	return uuid;
 }
