@@ -225,8 +225,8 @@ const height: Ref<number | undefined> = ref();
 const sets: Ref<PostSet[] | null> = ref(null);
 const commentSort: Ref<string> = ref("best");
 const scalar: Ref<boolean | undefined> = ref();
-const media = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
-const scroller = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
+const media = ref<HTMLDivElement | null>(null);
+const scroller = ref<HTMLDivElement | null>(null);
 const tab: Ref<string> = ref("replies");
 
 const tabs: Set<string> = new Set(["info", "replies"]);
@@ -248,11 +248,10 @@ khatch(`${host}/v1/sets/post/${props.postId}`, {
 }).then(r => r.json())
 .then(r => sets.value = r);
 
+onMounted(setLeft);
+onMounted(scrollIntoView);
+
 if (globals.postCache?.post_id === props.postId) {
-	onMounted(() => {
-		setLeft();
-		scrollIntoView();
-	});
 	post.value = globals.postCache;
 
 	post.value.favorites = 0;
@@ -467,7 +466,7 @@ function parents(): PostLike[] {
 
 function scrollIntoView() {
 	if (post.value?.parent) {
-		setTimeout(() => scroller.value.scrollIntoView(), 0);
+		setTimeout(() => scroller.value?.scrollIntoView(), 0);
 	}
 }
 
@@ -482,8 +481,10 @@ function selectTab(event: Event) {
 }
 
 watch(commentSort, fetchComments);
+watch(scroller, scrollIntoView);
 watch(scalar, setLeft);
 watch(width, setLeft);
+watch(media, setLeft);
 </script>
 <style scoped>
 .container {
