@@ -30,8 +30,16 @@ let webp: boolean = true;
 
 const src = computed(() => props.media ? getMediaThumbnailUrl(props.media, props.size) : null);
 
+function onScreen(el: HTMLElement): boolean {
+	const rect = el.getBoundingClientRect();
+	return rect.bottom > 0 && rect.top < window.innerHeight;
+}
+
 onMounted(() => {
-	if (props.render) lazyObserver.observe(media.value);
+	if (props.render) {
+		if (src.value && onScreen(media.value)) media.value.src = src.value;
+		else lazyObserver.observe(media.value);
+	}
 	loadThumbnail();
 });
 
@@ -92,7 +100,7 @@ function loadThumbnail() {
 	}
 
 	// don't bother with the loading animations if the image has already loaded
-	if (media.value.complete) isLoading.value = false;
+	if (media.value.src && media.value.complete) isLoading.value = false;
 	// skip thumbhash if the image has already loaded
 	else th(props.media.thumbhash);
 }
