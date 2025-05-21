@@ -185,7 +185,8 @@
 import * as _ from 'lodash-es';
 import { onMounted, ref, watch, type Ref } from 'vue';
 // import QRCode from 'qrcode';
-import { getCookie, khatch, setCookie, createToast, tagSplit } from '@/utilities';
+import { khatch, createToast, tagSplit } from '@/utilities';
+import { GetConfig, SetConfig } from '@/config/store';
 import { cookieFailedError } from '@/globals';
 import { host } from '@/config/constants';
 import ThemeMenu from '@/components/ThemeMenu.vue';
@@ -216,11 +217,17 @@ interface UserConfig {
 }
 
 const globals = store();
-const maxRating: Ref<Rating> = ref(getCookie("max-rating", "general"));
-const fontFamily: Ref<string> = ref(getCookie("font-family"));
-const blockBehavior: Ref<string> = ref(getCookie("block-behavior"));
-const mediaQuality: Ref<string> = ref(getCookie("media-quality"));
-const animatedEmoji: Ref<boolean> = ref(getCookie("animated-emoji", true, "boolean"));
+const maxRating: Ref<Rating> = ref(Rating.general);
+GetConfig("max-rating", "general").then(config => maxRating.value = config);
+const fontFamily: Ref<string | void> = ref();
+GetConfig("font-family").then(config => fontFamily.value = config);
+const blockBehavior: Ref<"omit" | "hide"> = ref("hide");
+GetConfig("block-behavior").then(config => blockBehavior.value = config);
+const mediaQuality: Ref<"fullsize" | "compressed"> = ref("fullsize");
+GetConfig("media-quality").then(config => mediaQuality.value = config);
+const animatedEmoji: Ref<boolean> = ref(true);
+GetConfig("animated-emoji", true, "boolean").then(config => animatedEmoji.value = config);
+
 const CssTransitions: Ref<boolean> = ref(globals.transitions);
 const isLoading: Ref<boolean> = ref(true);
 const otpLoading: Ref<boolean> = ref(false);
@@ -401,12 +408,13 @@ function removeOtp() {
 	}
 }
 
-watch(maxRating, (value: Rating) => {
-	globals.maxRating(value);
-});
+watch(maxRating, (value: Rating) =>
+	globals.maxRating(value)
+);
 
-watch(fontFamily, (value: string) => {
-	setCookie("font-family", value, 3155695200);
+watch(fontFamily, (value: string | void) => {
+	if (!value) return;
+	SetConfig("font-family", value);
 
 	const fontFamily = document.getElementById("font-family") as HTMLStyleElement;
 	if (value) {
@@ -414,13 +422,6 @@ watch(fontFamily, (value: string) => {
 	}
 	else {
 		fontFamily.innerText = "html * { font-family: Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif; }";
-	}
-
-	if (!globals.cookies) {
-		createToast({
-			title: "Could could not set font family cookie",
-			description: cookieFailedError,
-		});
 	}
 });
 

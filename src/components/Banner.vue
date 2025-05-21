@@ -353,10 +353,7 @@ function updateMessage() {
 		method: "PATCH",
 		handleError: true,
 		body: {
-			config: "banner",
-			value: {
-				banner: toRaw(message.value),
-			},
+			banner: toRaw(message.value),
 		},
 	}).then(response => {
 		if (response.status < 300) {

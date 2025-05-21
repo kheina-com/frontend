@@ -226,7 +226,7 @@ function onLoad() {
 	if (props.bg) {
 		const div = document.createElement("div");
 		// div.style.opacity = 0;
-		for (let data in media.value.dataset) {
+		for (const data in mediaContainer.value.dataset) {
 			div.dataset[data] = "";
 		}
 		div.classList.add("bg");

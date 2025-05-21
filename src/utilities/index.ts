@@ -44,6 +44,20 @@ export function deleteCookie(cookieName: string) {
 	document.cookie = `${cookieName}=null; expires=${new Date(0)}; samesite=lax; path=/; secure`;
 }
 
+export function timed<T>(func: { (...data: any[]): T; }, ...data: any[]): T {
+	const start = new Date().valueOf();
+	const res = func(...data);
+	console.debug("[" + func.name + "] (timed)", (new Date().valueOf() - start) / 1000);
+	return res;
+}
+
+export async function timedAsync<T>(func: { (...data: any[]): Promise<T>; }, ...data: any[]): Promise<T> {
+	const start = new Date().valueOf();
+	const res = await func(...data);
+	console.debug("[" + func.name + "] (timed)", (new Date().valueOf() - start) / 1000);
+	return res;
+}
+
 // 64bit random number generator. I believe it's not truly 64 bit
 // due to floating point bullshit, but it's good enough
 const MaxId: number = Number.MAX_SAFE_INTEGER;
@@ -125,7 +139,7 @@ export function saveToHistory(data: any): void {
 
 export function uuid4(): string {
 	let uuid = "";
-	for (let i = 0; i < 4; i++) { uuid += Math.round(Math.random() * 0xffffffff).toString(16).padStart(8, "0"); }
+	for (let i = 0; i < 4; i++) uuid += Math.round(Math.random() * 0xffffffff).toString(16).padStart(8, "0");
 	return uuid;
 }
 
@@ -134,7 +148,7 @@ interface KhatchOptions {
 	handleError?: boolean,
 	errorMessage?: string,
 	errorHandlers?: { [statusCode: number]: { (r: Response): void; }; },
-	method?: string,
+	method?: "GET" | "PUT" | "POST" | "PATCH" | "DELETE",
 	credentials?: "include",
 	headers?: { [header: string]: string; },
 	body?: string | any,
@@ -149,7 +163,7 @@ interface KhatchOptions {
  * 	handleError?:   boolean,
  * 	errorMessage?:  string,
  * 	errorHandlers?: { [statusCode: number]: { (r: Response): void; }; },
- * 	method?:        string,
+ * 	method?:        "GET" | "PUT" | "POST" | "PATCH" | "DELETE",
  * 	credentials?:   "include",
  * 	headers?:       { [header: string]: string; },
  * 	body?:          string | any,
@@ -209,9 +223,6 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 		if (handleError) {
 			if (error) {
 				console.error(error);
-				if (error.toString() === "TypeError: NetworkError when attempting to fetch resource.") {
-					error = "An unexpected error occurred during an API call. (Are you connected to the internet?)";
-				}
 				createToast({
 					title: errorMessage,
 					description: error.toString(),
@@ -245,7 +256,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 				}
 
 				const desc: string[] = [];
-				for (let d of detail) {
+				for (const d of detail) {
 					desc.push(`request ${d.loc.shift()} ${d.msg}: ${d.loc.join(".")}`);
 				}
 				createToast({
@@ -278,7 +289,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 			throw "([khatch] handled)";
 		}
 
-		if (response) throw `[khatch] failed. status: ${response.status}, response: ${response.body}`;
+		if (response) throw response;  // TODO: do we want to just throw the whole ass response? that way downstream handlers have everything
 		throw error;
 	}
 

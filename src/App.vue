@@ -13,9 +13,9 @@
 <script setup lang='ts'>
 import { onMounted, ref, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { authCookie, getCookie, khatch, isDarkMode } from '@/utilities';
+import { authCookie, khatch, isDarkMode } from '@/utilities';
+import { AnimatedAccents, FontFamily, GetConfig } from '@/config/store';
 import { host, isMobile } from '@/config/constants';
-import { PopulateEmojiDb } from './utilities/emoji';
 // import DeveloperConsole from '@/components/DeveloperConsole.vue';
 import store from '@/globals';
 import Footer from '@/components/Footer.vue';
@@ -36,17 +36,8 @@ import dark256 from '$/favicon/dark/256.png?url';
 
 const globals = store();
 const route = useRoute();
-PopulateEmojiDb();
-
-globals.cookiesAllowed(getCookie("cookies", false, "boolean"));
-globals.setTheme(getCookie("theme", "kheina"));
-globals.setAccent(getCookie("accent", "none"));
-globals.animatedAccents(getCookie("animated-accents", true, "boolean"));
-globals.cssTransitions(getCookie("css-transitions", true, "boolean"));
-globals.searchResultsTiles(getCookie("search-results-tiles", !isMobile, "boolean"));
-globals.maxRating(getCookie("max-rating", "general"));
-
 const auth = authCookie();
+
 if (auth) {
 	globals.setAuth(auth);
 
@@ -62,11 +53,12 @@ if (auth) {
 }
 document.documentElement.classList.add(isMobile ? "mobile" : "desktop");
 
-const fontFamily = document.getElementById("font-family") as HTMLStyleElement;
-const customFont = getCookie("font-family");
-if (customFont) {
-	fontFamily.innerText = `html * { font-family: ${customFont}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`;
-}
+GetConfig(FontFamily).then(config => {
+	if (config) {
+		const fontFamily = document.getElementById(FontFamily) as HTMLStyleElement;
+		fontFamily.innerText = `html * { font-family: ${config}, Bitstream Vera Sans, DejaVu Sans, Arial, Helvetica, sans-serif }`;
+	}
+});
 
 // sadly, these must be strings for vite to catch assets
 const favicons: { [k: number]: string } = { };
@@ -110,10 +102,7 @@ onMounted(() => {
 	onResize();
 	configsLoop();
 
-	(document.getElementById("animated-accents") as HTMLInputElement).checked = globals.animations;
-
-	// NOTE: we use this to change the behavior of certain functions during startup. don't remove it.
-	globals.init = false;
+	(document.getElementById(AnimatedAccents) as HTMLInputElement).checked = globals.animations;
 });
 
 function setAnimated(e: MouseEvent) {
@@ -129,9 +118,9 @@ function onResize() {
 	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
 }
 
-let bannerContent: Ref<string | null> = ref(null);
-let costs:         Ref<number | null> = ref(null);
-let funds:         Ref<number | null> = ref(null);
+const bannerContent: Ref<string | null> = ref(null);
+const costs:         Ref<number | null> = ref(null);
+const funds:         Ref<number | null> = ref(null);
 
 function configsLoop() {
 	khatch(`${host}/v1/configs`, {

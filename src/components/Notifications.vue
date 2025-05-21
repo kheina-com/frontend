@@ -9,28 +9,32 @@
 <script setup lang='ts'>
 import { computed, ref, toRef, type Ref } from 'vue';
 import store from '@/globals';
-import { getCookie, setCookie } from '@/utilities';
-import startNotifications, { cookie, logstr } from '@/notifications';
+import { GetConfig, SetConfig } from '@/config/store';
+import startNotifications, { conf, logstr } from '@/notifications';
 import Button from '@/components/Button.vue';
 
 const loading: Ref<boolean> = ref(false);
-const registered: Ref<boolean> = ref(getCookie(cookie, null, "number") !== null);
+const registered: Ref<boolean> = ref(true);
 const hide: Ref<boolean> = ref(false);
 const user = toRef(store(), "user");
 console.debug(logstr, "user:", user.value, "hide:", hide.value, "registered:", registered.value);
 const show = computed(() => user.value && !hide.value && !registered.value);
 
-if (registered.value) {
-	console.debug(logstr, "attempting bind listener");
-	loading.value = true;
-	enableNotifications();
-}
+GetConfig(conf, null, "number").then(config => {
+	// TODO: check if there is an authcookie before attempting to enable notifs
+	registered.value = config !== null;
+	if (registered.value) {
+		console.debug(logstr, "attempting bind listener");
+		loading.value = true;
+		enableNotifications();
+	}
+});
 
 function enableNotifications(): Promise<boolean> {
 	loading.value = true;
 	return startNotifications().then(() => {
 		registered.value = true;
-		setCookie(cookie, new Date().valueOf());
+		return SetConfig(conf, new Date().valueOf());
 	}).then(() =>
 		hide.value = true
 	).finally(() =>

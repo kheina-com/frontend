@@ -201,26 +201,18 @@
 							>Tiles</CheckBox>
 						</div>
 					</div>
-					<ol class='results'>
-						<p v-if='posts?.length === 0' style='text-align: center'>
-							<Markdown :content='user?.name' inline v-if='user?.name'/>
-							<span v-else>@{{handle}}</span>
-							hasn't made any posts yet.
-						</p>
-						<li v-for='post in posts || 20' v-else-if='tiles'>
-							<PostTile :key='post?.post_id' :postId='post?.post_id' :nested='!isMobile' v-bind='post' link/>
-						</li>
-						<li v-for='post in posts || 3' v-else>
-							<PostComponent :postId='post?.post_id' :nested='!isMobile' v-bind='post' labels/>
-						</li>
-					</ol>
+					<Posts :posts='posts' :tiles='tiles' :nested='!isMobile'>
+						<Markdown :content='user?.name' inline v-if='user?.name'/>
+						<span v-else>@{{handle}}</span>
+						hasn't made any posts yet.
+					</Posts>
 					<ResultsNavigation :navigate='setPage' :activePage='page' :totalPages='posts?.length ? Math.ceil(total_results / count) : 0' v-if='posts'/>
 				</div>
 				<div v-show='tab === "sets"'>
 					<div class='results'>
 						<p v-if='sets === null' style='text-align: center'>loading sets...</p>
 						<p v-else-if='sets.length === 0' style='text-align: center'>
-								<Markdown :content='user?.name' inline v-if='user?.name'/>
+							<Markdown :content='user?.name' inline v-if='user?.name'/>
 							<span v-else>@{{handle}}</span>
 							has no sets.
 						</p>
@@ -308,7 +300,7 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 import UserIcon from '@/components/UserIcon.vue';
 import Markdown from '@/components/Markdown.vue';
 import Timestamp from '@/components/Timestamp.vue';
-import PostComponent from '@/components/Post.vue';
+import Posts from '@/components/Posts.vue';
 import PostTile from '@/components/PostTile.vue';
 import TagComponent from '@/components/Tag.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
@@ -330,7 +322,7 @@ const cropper = ref<typeof Cropper | null>(null) as Ref<typeof Cropper>;
 
 const tiles: Ref<boolean> = ref(globals.tiles);
 const user: Ref<FullUser | null> = ref(null);
-const posts: Ref<any[] | null> = ref(null);
+const posts: Ref<PostLike[] | null> = ref(null);
 const sets: Ref<PostSet[] | null> = ref(null);
 const userTags: Ref<Tag[] | null> = ref(null);
 
@@ -759,13 +751,11 @@ watch(uploadPostId, (value: string | null) => {
 	});
 });
 </script>
-
 <style>
 .user-name h2 .markdown.inline p {
 	white-space: nowrap !important;
 }
 </style>
-
 <style scoped>
 main {
 	background: var(--main);
@@ -866,15 +856,12 @@ main {
 	width: 100%;
 
 	/* parallax */
-	transform: translateZ(-1px);
+	/* transform: translateZ(-1px) scale(2); */
 	position: absolute;
 	top: 0;
 	right: 0;
 	bottom: 0;
 	left: 0;
-	/* TODO: parallax */
-	/* this is only for the parallax scroll effect */
-	/* position: absolute; */
 }
 .banner-link {
 	position: absolute;
@@ -1313,7 +1300,6 @@ html.mobile.winter .active-tab {
 	background-position: center bottom;
 }
 </style>
-
 <style>
 .badges {
 	position: absolute;
@@ -1324,10 +1310,10 @@ html.mobile.winter .active-tab {
 .badges > p, .badges > button, .badges .dropdown button, .badges .dropdown {
 	margin: 0.5em 0 0 0.5em;
 }
-.badges p, .badges button, .badges .dropdown button {
+.badges p, .badges button {
 	padding: 0.25em 0.5em;
 	background: var(--bg2color);
-	/* border-radius: var(--border-radius); */
+	border-radius: var(--border-radius);
 }
 .badges p, .badges p span, .badges button, .badges .dropdown button {
 	display: flex;
@@ -1354,7 +1340,12 @@ html.mobile.winter .active-tab {
 .badges p button:hover {
 	color: var(--error);
 }
-.badges .dropdown-menu button, .badges .dropdown button p, .badges .dropdown-menu button p, .badges .dropdown button {
+.badges .dropdown-menu button, .badges .dropdown-menu button p {
+	background: var(--bg1color);
+	margin: 0;
+
+}
+.badges .dropdown button p, .badges .dropdown button {
 	margin: 0;
 }
 .badges .dropdown button p, .badges p button {

@@ -121,9 +121,6 @@ const routes: RouteRecordRaw[] = [
 		component: Post,
 		meta: {
 			title: "Loading...",
-			metaTags: {
-				viewport: undefined,
-			},
 		},
 	},
 	{

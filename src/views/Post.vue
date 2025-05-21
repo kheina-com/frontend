@@ -91,7 +91,7 @@
 	<div class='content' v-else>
 		<div class='scroller' ref='scroller'/>
 		<div class='media-container' v-if='post?.media'>
-			<Media :mime='post.media.type.mime_type' :src='mediaUrl' v-model:width='width' v-model:height='height' bg/>
+			<Media :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' bg/>
 			<SetControls :set='set' v-for='set in sets'/>
 		</div>
 		<div v-else='sets?.length'>
@@ -227,20 +227,12 @@ const commentSort: Ref<string> = ref("best");
 const scalar: Ref<boolean | undefined> = ref();
 const media = ref<HTMLDivElement | null>(null);
 const scroller = ref<HTMLDivElement | null>(null);
-const tab: Ref<string> = ref("replies");
-
+const tab: Ref<string> = ref("info");
 const tabs: Set<string> = new Set(["info", "replies"]);
+
 let tabElement: HTMLElement | null = null;
-if (isMobile) {
-	if (route.query?.tab && tabs.has(route.query.tab.toString())) {
-		tab.value = route.query.tab.toString();
-	}
-	else {
-		router.replace(route.path + "?tab=" + tab.value);
-	}
-}
-else if (route.query?.tab) {
-	router.replace(route.path);
+if (isMobile && route.query?.tab && tabs.has(route.query.tab.toString())) {
+	tab.value = route.query.tab.toString();
 }
 
 khatch(`${host}/v1/sets/post/${props.postId}`, {
@@ -451,23 +443,23 @@ function setLeft() {
 	}
 }
 
+let _parents: PostLike[] | null = null;
 function parents(): PostLike[] {
 	if (!post.value) return [];
-	const posts: PostLike[] = [];
+	if (_parents) return _parents;
+	_parents = [];
 	let p: PostLike = post.value;
 
 	while (p.parent) {
-		posts.unshift(p.parent);
+		_parents.unshift(p.parent);
 		p = p.parent;
 	}
 
-	return posts;
+	return _parents;
 }
 
 function scrollIntoView() {
-	if (post.value?.parent) {
-		setTimeout(() => scroller.value?.scrollIntoView(), 0);
-	}
+	setTimeout(() => scroller.value?.scrollIntoView(), 0);
 }
 
 function selectTab(event: Event) {
@@ -477,7 +469,7 @@ function selectTab(event: Event) {
 	tabElement = (event.target as HTMLDivElement);
 	((tabElement as HTMLElement).lastChild as HTMLDivElement).style.borderBottomWidth = "5px";
 
-	router.push(route.path + `?tab=${tab.value}`);
+	router.replace(route.path + `?tab=${tab.value}`);
 }
 
 watch(commentSort, fetchComments);
@@ -510,6 +502,9 @@ main {
 	position: absolute;
 	pointer-events: none;
 	top: calc(-2.5rem - var(--margin));
+}
+.mobile .scroller {
+	top: calc(-4rem - var(--margin));
 }
 .media-container {
 	grid-area: media;

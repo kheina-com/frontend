@@ -34,8 +34,8 @@ case "dev":
 	break;
 
 default:
-	apiHost = "http://localhost:8000";
-	cdn = "http://localhost:9000/kheina-content";
+	apiHost = `http://${window.location.hostname}:8000`;
+	cdn = `http://${window.location.hostname}:9000/kheina-content`;
 	break;
 }
 export const host = apiHost;

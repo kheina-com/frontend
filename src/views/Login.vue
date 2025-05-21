@@ -34,8 +34,9 @@
 import { ref, type Ref } from 'vue';
 import store, { type AuthToken } from '@/globals';
 import { useRoute, useRouter } from 'vue-router';
-import { createToast, getCookie, khatch, setCookie } from '@/utilities';
-import startNotifications, { cookie } from '@/notifications';
+import { createToast, khatch } from '@/utilities';
+import { GetConfig, SetConfig } from '@/config/store';
+import startNotifications, { conf } from '@/notifications';
 import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -52,6 +53,7 @@ interface LoginResponse {
 const globals = store();
 const router  = useRouter();
 const route   = useRoute();
+const logstr  = "[Login]";
 
 const email:       Ref<string | null> = ref(null);
 const password:    Ref<string | null> = ref(null);
@@ -98,20 +100,22 @@ function sendLogin() {
 	.then((r: LoginResponse) => {
 		if (r.token.token.length <= 10) throw "invalid token returned";
 		globals.setAuth(r.token);
-	}).then(() => {
-		if (getCookie(cookie, null, "number") !== null) {
-			startNotifications().then(() =>
-				setCookie(cookie, new Date().valueOf())
+	}).then(() =>
+		GetConfig(conf, null, "number")
+	).then(config => {
+		if (config !== null) {
+			return startNotifications().then(() =>
+				SetConfig(conf, new Date().valueOf())
 			);
 		}
 	}).then(() => {
 		if (window.PublicKeyCredential) return window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
 	}).then((available: boolean | undefined) =>
-		console.debug("[Login] platform auth availability:", available)
+		console.debug(logstr, "platform auth availability:", available)
 	).then(() =>
 		router.push(route.query?.path ? route.query.path.toString() : "/")
 	).catch(err =>
-		console.error("[Login] failed to complete login:", err)
+		console.error(logstr, "failed to complete login:", err)
 	).finally(() =>
 		isLoading.value = false
 	);

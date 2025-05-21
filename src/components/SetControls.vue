@@ -37,6 +37,7 @@ function reverse(l: any[]): any[] {
 }
 
 // setTitle should be called in the id parameter, as it is async and uses the returned id to set the title later
+// ex: <a :id='setTitle(set.last)'>...</a>
 function setTitle(post: PostLike | null | undefined): string {
 	if (!post) return "";
 	const refid = RefId().toString(16);
@@ -51,15 +52,16 @@ function setTitle(post: PostLike | null | undefined): string {
 </script>
 <style scoped>
 .set-controls {
-	margin: var(--margin) var(--margin) 0	;
+	margin: var(--margin) var(--margin) 0;
 	display: flex;
 	justify-content: space-between;
 }
 .mobile .set-controls {
-	margin: 0 var(--margin) var(--margin);
+	margin: var(--margin) var(--margin) 0;
 }
 .set-controls:first-child {
 	margin-top: 0;
+	margin-bottom: var(--margin);
 }
 .set-controls p {
 	display: flex;

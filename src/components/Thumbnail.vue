@@ -2,7 +2,7 @@
 	<div class='thumbnail loading wave'>
 		<img ref='media' :data-src='src' @load='loaded' @error='onError'>
 		<ul class='flags' v-if='props.media?.flags?.length'>
-			<li class='flag' v-for='flag in props.media.flags'>{{flag}}</li>
+			<li class='flag' v-for='flag in props.media.flags'>{{ flag }}</li>
 		</ul>
 	</div>
 </template>
@@ -90,8 +90,11 @@ function loadThumbnail() {
 		media.value.style.height = height;
 		// console.debug("[Thumbnail] (taller) width:", width, "height:", height);
 	}
-	// console.debug("[Thumbnail] css:", media.value.style.cssText)
-	th(props.media.thumbhash);
+
+	// don't bother with the loading animations if the image has already loaded
+	if (media.value.complete) isLoading.value = false;
+	// skip thumbhash if the image has already loaded
+	else th(props.media.thumbhash);
 }
 
 function loaded(event: Event) {
@@ -129,7 +132,7 @@ function th(value: string | null) {
 		th.style.background = "url('" + lightnoise + "') repeat center, url('" + dataurl + "') 0% 0% / cover";
 		parent.classList.remove("wave");
 
-		for (let data in parent.dataset) {
+		for (const data in parent.dataset) {
 			th.dataset[data] = "";
 		}
 
@@ -141,10 +144,7 @@ function th(value: string | null) {
 				isLoading.value = false;
 
 				media.value.style.opacity = "";
-				setTimeout(() => {
-					th.style.opacity = "0";
-					setTimeout(() => parent.removeChild(th), 500);
-				}, 50);
+				setTimeout(() => parent.removeChild(th), 500);
 			}, { once: true });
 		}
 		else {
@@ -197,10 +197,10 @@ watch(toRef(props, "render"), (value: boolean) => {
 }
 
 img {
-	-webkit-transition: var(--transition) var(--fadetime);
+	/* -webkit-transition: var(--transition) var(--fadetime);
 	-moz-transition: var(--transition) var(--fadetime);
 	-o-transition: var(--transition) var(--fadetime);
-	transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime); */
 	/* object-fit: cover; */
 	display: block;
 	max-height: inherit;
@@ -208,6 +208,14 @@ img {
 	/* width: 100%;
 	height: 100%; */
 	position: relative;
+	background: var(--bg2color);
+}
+/* only use transition if we're using thumbhash */
+.th + img {
+	-webkit-transition: var(--transition) var(--fadetime);
+	-moz-transition: var(--transition) var(--fadetime);
+	-o-transition: var(--transition) var(--fadetime);
+	transition: var(--transition) var(--fadetime);
 }
 
 .flags {

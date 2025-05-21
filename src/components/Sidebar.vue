@@ -10,7 +10,7 @@
 				<h4>Rating</h4>
 				<Loading :class='post?.rating' :isLoading='!post?.rating'>
 					<router-link :to='`/q/${post?.rating}`'>
-						<span>{{post?.rating || 'rating'}}</span>
+						<span>{{ post?.rating || 'rating' }}</span>
 					</router-link>
 				</Loading>
 			</li>
@@ -22,13 +22,26 @@
 		</ol>
 		<h3 style='padding-top: 2em'>Info</h3>
 		<div class='post-data' v-if='post'>
-			<p>post id: <CopyText :content='post.post_id ?? (post as any).postId' inline/></p>
-			<div v-if='post.media'>
-				<p>size: {{`${post.media.size.width}x${post.media.size.height}px`}} ({{abbreviateBytes(post.media.length)}})</p>
-				<p>file type: {{post.media ? post.media.type.file_type : 'none'}}</p>
+			<div>
+				<p>post id:</p>
+				<CopyText :content='post.post_id' inline/>
 			</div>
-			<p>description: {{post.description ? `${post.description.length} chars` : 'none'}}</p>
-			<p v-show='post.locked'>status: locked</p>
+			<div v-if='post.media'>
+				<p>size:</p>
+				<p>{{ `W${post.media.size.width}px H${post.media.size.height}px` }} ({{ abbreviateBytes(post.media.length) }})</p>
+			</div>
+			<div v-if='post.media'>
+				<p>file type:</p>
+				<p>{{ post.media ? post.media.type.file_type : 'none' }}</p>
+			</div>
+			<div>
+				<p>description:</p>
+				<p>{{ post.description ? `${post.description.length} chars` : 'none' }}</p>
+			</div>
+			<div v-show='post.locked'>
+				<p>status:</p>
+				<p>locked</p>
+			</div>
 		</div>
 		<div class='buttons'>
 			<a v-if='post?.media' class='interactable' :href='post.media.url' :download='post.media.filename' target='_blank'>download</a>
@@ -46,13 +59,13 @@
 </template>
 <script setup lang='ts'>
 import store from '@/globals';
+import type { PostLike } from '@/types/post';
 import { abbreviateBytes, sortTagGroups } from '@/utilities';
 import { isMobile, tagGroups } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import TagGroup from '@/components/TagGroup.vue';
 import CopyText from '@/components/CopyText.vue';
 import { toRef, type Ref } from 'vue';
-import type { PostLike } from '@/types/post';
 
 const props = defineProps<{
 	post?:   PostLike,
@@ -127,5 +140,10 @@ html.e621 .mature a::after {
 
 .post-data {
 	margin: 0 1em 0 var(--margin);
+}
+.post-data div {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 }
 </style>

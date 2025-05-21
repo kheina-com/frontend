@@ -179,7 +179,7 @@ onMounted(() => {
 		const e = document.createElement("div");
 		e.className = "dot";
 		// e.style.border = `${orbsize}px solid var(--interact)`;
-		for (let data in ellipse.value.dataset) {
+		for (const data in ellipse.value.dataset) {
 			e.dataset[data] = "";
 		}
 		ellipse.value.appendChild(e);

@@ -208,6 +208,7 @@ watch(toRef(props, "rating"), (value: "general" | "mature" | "explicit") =>
 	position: absolute;
 	width: 100%;
 	height: 100%;
+	z-index: 1;
 }
 .post.no-buttons {
 	padding: var(--margin);

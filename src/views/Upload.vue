@@ -362,7 +362,7 @@ khatch(`${host}/v1/tags/frequently_used`, {
 }).then(r => r.json())
 .then((r: { [k: string]: string[] }) => {
 	tagSuggestions.value = { };
-	for (let [group, tags] of Object.entries(r)) {
+	for (const [group, tags] of Object.entries(r)) {
 		if (Object.values(tags).length !== 0) {
 			tagSuggestions.value[group] = tags;
 		}

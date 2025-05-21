@@ -1,14 +1,17 @@
+import type { RouteLocationNormalizedGeneric, RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 import { createApp } from 'vue';
 import Router from '@/router';
 import App from '@/App.vue';
-import { routerMetaTag } from '@/config/constants';
-import { setMeta, getCookie } from '@/utilities';
+import { isMobile, routerMetaTag } from '@/config/constants';
+import { getCookie, setMeta } from '@/utilities';
 import { loadLangFile, vTranslate } from '@/localization';
 import { createPinia } from 'pinia';
+import store from '@/globals';
+import { GetConfigs, Cookies, Theme, Accent, AnimatedAccents, CssTransitions, Tiles, MaxRating } from '@/config/store';
 
 loadLangFile(getCookie("locale", Intl.DateTimeFormat().resolvedOptions().locale.toLowerCase()));
 
-Router.afterEach((to, from) => {
+Router.afterEach((to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedLoadedGeneric) => {
 	// we let views handle self-updates
 	if (from.name && from.path === to.path) return;
 
@@ -23,7 +26,7 @@ Router.afterEach((to, from) => {
 				content: "#1E1F25",
 			},
 			viewport: {
-				content: "width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0",
+				content: "width=device-width, initial-scale=0.5, maximum-scale=0.5",
 			},
 		},
 	};
@@ -52,9 +55,36 @@ Router.afterEach((to, from) => {
 		.forEach(([name, tag]) => setMeta(Object.assign({ name }, tag)));
 });
 
-createApp(App)
-	.use(Router)
-	.use(createPinia())
-	.directive("translate", vTranslate)
-	// .use(vClickOutside)
-	.mount("body");
+const app = createApp(
+	App
+).use(
+	Router
+).use(
+	createPinia()
+).directive(
+	"translate",
+	vTranslate,
+);
+
+(async () => {
+	// presetup - configs need to be loaded BEFORE app is mounted so things don't "snap" in
+	const globals = store();
+	const configs = await GetConfigs({
+		[Cookies]: false,
+		[Theme]: "kheina",
+		[Accent]: "none",
+		[AnimatedAccents]: true,
+		[CssTransitions]: true,
+		[Tiles]: !isMobile,
+		[MaxRating]: "general",
+	});
+	globals.cookiesAllowed(configs[Cookies]);
+	globals.setTheme(configs[Theme]);
+	globals.setAccent(configs[Accent]);
+	globals.animatedAccents(configs[AnimatedAccents]);
+	globals.cssTransitions(configs[CssTransitions]);
+	globals.searchResultsTiles(configs[Tiles]);
+	globals.maxRating(configs[MaxRating]);
+})().then(() =>
+	app.mount("body")
+);

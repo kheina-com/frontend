@@ -10,6 +10,7 @@ import notify from '$/sounds/notify.ogg';
 export default function start(): Promise<void> {
 	let reg: ServiceWorkerRegistration | null = null;
 	const trace = uuid4();
+	const registerUrl = `${host}/v1/notifications/register`;
 	return registerServiceWorker(sw).then((r: ServiceWorkerRegistration) =>
 		reg = r
 	).then(() => {
@@ -19,7 +20,7 @@ export default function start(): Promise<void> {
 		if (!sub) return;
 		return sub.unsubscribe();
 	}).then(() =>
-		khatch(`${host}/v1/notifications/register`, { trace })
+		khatch(registerUrl, { trace }),
 	).then((r: Response) =>
 		r.json()
 	).then((r: { application_server_key: string; }) => {
@@ -28,18 +29,20 @@ export default function start(): Promise<void> {
 			userVisibleOnly: true,
 			applicationServerKey: r.application_server_key,
 		});
-	}).then((sub: PushSubscription) => khatch(`${host}/v1/notifications/register`, {
-		method: "PUT",
-		body: sub,
-		trace,
-	})).then(
+	}).then((sub: PushSubscription) =>
+		khatch(registerUrl, {
+			method: "PUT",
+			body: sub,
+			trace,
+		}),
+	).then(
 		_listen,
 	).catch(
 		_error,
 	);
 }
 
-export const cookie = "notifications";
+export const conf = "notifications";
 export const logstr = "[notifications]";
 
 const _listen = () => {
@@ -50,9 +53,11 @@ const _listen = () => {
 };
 
 const _error = (err: any) => {
-	console.error(logstr, "failed to subscribe to push manager", err);
+	if (err?.status) return;
+	const e = "failed to subscribe to push manager";
+	console.error(logstr, e, err);
 	createToast({
-		title: "failed to subscribe to push manager",
+		title: e,
 		description: err?.toString(),
 	});
 	throw err;
@@ -67,9 +72,9 @@ export const bindListener = () => {
 			if (sub) _listen();
 			else throw "";
 		}).then(
-			() => r(true)
+			() => r(true),
 		).catch(
-			() => r(false)
+			() => r(false),
 		)
 	);
 };

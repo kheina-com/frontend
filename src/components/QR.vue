@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
 const mdMaxId = 0xffffffff;
 const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, "0");
 const id      = mdRefId();
-const scale   = 3;
+const scale   = 2;
 
 function drawQR() {
 	if (!props.content) return;

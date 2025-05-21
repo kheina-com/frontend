@@ -4,6 +4,7 @@ import type { PostLike } from '@/types/post';
 import type { FullUser, FullUserLike, User } from '@/types/user';
 import { defineStore } from 'pinia';
 import { authCookie, deleteCookie, khatch, setCookie } from '@/utilities';
+import { AnimatedAccents, SetConfig } from '@/config/store';
 import { ClearNotifications, PopulateNotificationsDb } from '@/utilities/notifications';
 import { host, environment } from '@/config/constants';
 
@@ -33,7 +34,6 @@ export enum Rating {
 }
 
 interface Globals {
-	init: boolean,
 	auth: UserAuth | null,
 	user: User | null,
 	theme: string | null,
@@ -64,7 +64,6 @@ export const cookieFailedError = 'This setting will work until you close the tab
 let toastCounter = 0;
 export default defineStore("globals", {
 	state: (): Globals => ({
-		init: true,
 		auth: null,
 		user: null,
 		theme: null,
@@ -133,17 +132,17 @@ export default defineStore("globals", {
 		cookiesAllowed(cookies: boolean): void {
 			console.debug("cookies:", cookies);
 			this.cookies = cookies;
-			setCookie("cookies", "true", 31536000);
+			SetConfig("cookies", cookies);
 		},
 		setTheme(theme: string): void {
-			setCookie("theme", theme);
+			SetConfig("theme", theme);
 			if (this.theme) {
 				document.documentElement.classList.remove(this.theme);
 			}
 			document.documentElement.classList.add(theme);
 			this.theme = theme;
 
-			if (!this.cookies && !this.init) {
+			if (!this.cookies) {
 				this.createToast({
 					title: "Could not set theme cookie",
 					description: cookieFailedError,
@@ -151,14 +150,14 @@ export default defineStore("globals", {
 			}
 		},
 		setAccent(accent: string): void {
-			setCookie("accent", accent);
+			SetConfig("accent", accent);
 			if (this.accent) {
 				document.documentElement.classList.remove(this.accent);
 			}
 			document.documentElement.classList.add(accent);
 			this.accent = accent;
 
-			if (!this.cookies && !this.init) {
+			if (!this.cookies) {
 				this.createToast({
 					title: "Could not set accent cookie",
 					description: cookieFailedError,
@@ -167,14 +166,7 @@ export default defineStore("globals", {
 		},
 		maxRating(rating: Rating): void {
 			this.rating = rating;
-			setCookie("max-rating", rating.toString(), 3155695200);
-
-			if (!this.cookies && !this.init) {
-				this.createToast({
-					title: "Could not set max rating cookie",
-					description: cookieFailedError,
-				});
-			}
+			SetConfig("max-rating", rating.toString());
 		},
 		setAuth(auth: AuthToken | null): void {
 			if (auth && auth.token.length > 10) {
@@ -237,53 +229,32 @@ export default defineStore("globals", {
 		},
 		animatedAccents(animatedAccents: boolean): void {
 			this.animations = animatedAccents;
-			setCookie("animated-accents", animatedAccents);
+			SetConfig(AnimatedAccents, animatedAccents);
 			if (animatedAccents) {
 				document.documentElement.classList.add("animated");
 			}
 			else {
 				document.documentElement.classList.remove("animated");
 			}
-
-			if (!this.cookies && !this.init) {
-				this.createToast({
-					title: "Could not set animated accents cookie",
-					description: cookieFailedError,
-				});
-			}
 		},
 		cssTransitions(transitions: boolean): void {
 			this.transitions = transitions;
-			setCookie("css-transitions", transitions, 3155695200);
+			SetConfig("css-transitions", transitions);
 			if (transitions) {
 				document.documentElement.classList.add("transitions");
 			}
 			else {
 				document.documentElement.classList.remove("transitions");
 			}
-
-			if (!this.cookies && !this.init) {
-				this.createToast({
-					title: "Could not set css transitions cookie",
-					description: cookieFailedError,
-				});
-			}
 		},
 		searchResultsTiles(tiles: boolean): void {
 			this.tiles = tiles;
-			setCookie("search-results-tiles", tiles, 3155695200);
+			SetConfig("search-results-tiles", tiles);
 			if (tiles) {
 				document.documentElement.classList.add("tiles");
 			}
 			else {
 				document.documentElement.classList.remove("tiles");
-			}
-
-			if (!this.cookies && !this.init) {
-				this.createToast({
-					title: "Could not set post tiles cookie",
-					description: cookieFailedError,
-				});
 			}
 		},
 	},
