@@ -19,7 +19,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import { ref, type Ref, onMounted, watch } from 'vue';
+import { ref, type Ref, onMounted, watch, toRef } from 'vue';
 
 const label = ref<HTMLLabelElement | null>(null) as Ref<HTMLLabelElement>;
 const props = defineProps({
@@ -43,29 +43,26 @@ const props = defineProps({
 	},
 });
 
-const emits = defineEmits(['update:checked']);
+const updateChecked = "update:checked";
+const emits = defineEmits([updateChecked]);
 
-emits('update:checked', props.checked);
+emits(updateChecked, props.checked);
 onMounted(() => {
-	if (props.checked)
-	{ label.value.classList.add('checked'); }
-	else
-	{ label.value.classList.remove('checked'); }
-	if (props.border)
-	{ label.value.classList.add('border'); }
-	if (props.nested)
-	{ label.value.classList.add('nested'); }
+	if (props.checked) label.value.classList.add("checked");
+	else label.value.classList.remove("checked");
+
+	if (props.border) label.value.classList.add("border");
+
+	if (props.nested) label.value.classList.add("nested");
 });
 
 function emit(event: Event) {
-	emits('update:checked', (event.target as HTMLInputElement).checked);
+	emits(updateChecked, (event.target as HTMLInputElement).checked);
 }
 
-watch(() => props.checked, (value: boolean) => {
-	if (value)
-	{ label.value.classList.add('checked'); }
-	else
-	{ label.value.classList.remove('checked'); }
+watch(toRef(props, "checked"), (checked: boolean) => {
+	if (checked) label.value.classList.add("checked");
+	else label.value.classList.remove("checked");
 })
 </script>
 <style scoped>

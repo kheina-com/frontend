@@ -228,7 +228,7 @@
 </template>
 <script setup lang='ts'>
 import type { NotificationEvent } from '@/types/notifications';
-import { computed, ref, type Ref, watch, toRaw } from 'vue';
+import { computed, ref, type Ref, watch, toRaw, toRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { deleteCookie, khatch } from '@/utilities';
 import { host, environment, isMobile } from '@/config/constants';
@@ -371,8 +371,8 @@ function removeMessage() {
 	updateMessage();
 }
 
-watch(() => route.path, setQuery);
-watch(() => globals.user, setUser);
+watch(toRef(route, "path"), setQuery);
+watch(toRef(globals, "user"), setUser);
 watch(lang, loadLangFile);
 watch(props, () => {
 	message.value = props.message;

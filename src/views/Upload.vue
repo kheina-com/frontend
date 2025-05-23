@@ -23,7 +23,7 @@
 						<span>Reply To</span>
 						<input class='interactable text' v-model='update.parent'>
 						<div v-if='validParent'>
-							<PostComponent :postId='parentPost.post_id' v-bind='parentPost' style='margin-top: var(--margin)' nested hideButtons/>
+							<PostComponent :postId='parentPost?.post_id' v-bind='parentPost' style='margin-top: var(--margin)' nested hideButtons/>
 						</div>
 						<div v-else-if='update.parent' style='margin-top: var(--margin)'>
 							invalid post id
@@ -31,10 +31,10 @@
 					</div>
 				</div> -->
 				<div class='field'>
-					<div>
+					<div id='media-field'>
 						<span>File</span>
 						<FileField v-model:file='file' :showSlot='uploadDone && !file' v-model:width='width' v-model:height='height'>
-							<Media :key='postId' :mime='mime' :src='mediaUrl' :link='false' v-model:width='width' v-model:height='height'/>
+							<Media :key='postId' :media='media' :link='false' v-model:width='width' v-model:height='height' :controls='false'/>
 						</FileField>
 						<div class='field flex' v-if='file'>
 							<div>
@@ -53,6 +53,10 @@
 								>Resize For Web</CheckBox>
 								<Button @click='() => uploadFile(true)' green><i class='material-icons'>upload</i><span>Upload</span></Button>
 							</div>
+						</div>
+						<div v-if='file?.type?.includes("video") && element'>
+							<span>Thumbnail</span>
+							<Slider v-model:value='(update.thumbnail as number)' :min='0' :max='(element as HTMLVideoElement).duration' :step='0.01' @change='v => (element as HTMLVideoElement).currentTime = v' hideValue/>
 						</div>
 					</div>
 				</div>
@@ -213,7 +217,7 @@
 					<li v-if='update?.userIcon'>Make this post your current icon</li>
 				</ul>
 			</div>
-			<div class='field' v-if='update.flags?.auction'>
+			<div class='field' v-if='update?.auction'>
 				<p class='underline'>Auction Info</p>
 				<div class='multi-field'>
 					<div>
@@ -242,7 +246,7 @@
 				</div>
 				<b style='text-align: center; display: block'>Note: fuzz.ly will not charge your clients for you. You must invoice your clients yourself or use a third party payment processor.</b>
 			</div>
-			<div class='field popup-info' v-if='update.flags?.emoji'>
+			<div class='field popup-info' v-if='update?.emoji'>
 				<div>
 					<span>Emoji Name</span>
 					<div>
@@ -265,7 +269,7 @@
 <script setup lang='ts'>
 import { ToPost, type MediaLike, type Post, type PostLike, type PostSet } from '@/types/post'
 import type { TagPortable } from '@/types/tag';
-import { computed, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { abbreviateBytes, commafy, createToast, khatch, tagSplit, sortTagGroups, uuid4 } from '@/utilities';
@@ -286,6 +290,7 @@ import PostComponent from '@/components/Post.vue';
 import SetComponent from '@/components/Set.vue';
 import DropDownSelector from '@/components/DropDownSelector.vue';
 import EditBox from '@/components/EditBox.vue';
+import Slider from '@/components/Slider.vue';
 
 const globals = store();
 const route = useRoute();
@@ -302,11 +307,11 @@ const savedTags: Ref<Set<string>> = ref(new Set());
 const activeTags: Ref<Set<string>> = ref(new Set());
 const tagSuggestions: Ref<{ [k: string]: string[] } | null> = ref(null);
 const showSuggestions: Ref<boolean> = ref(true);
-const showUpload: Ref<boolean> = ref(false);
 const showResize: Ref<boolean> = ref(false);
 const resized: Ref<{ height: number, width: number, scale: number } | null> = ref(null);
 const isUploading: Ref<boolean> = ref(false);
 const saving: Ref<boolean> = ref(false);
+const element: Ref<HTMLImageElement | HTMLVideoElement | undefined> = ref();
 
 const uploadLoaded: Ref<number> = ref(0);
 let uploadTotal: number = 0;  // only loaded needs to be a ref since they're updated together
@@ -316,8 +321,23 @@ const mime: Ref<string | undefined> = ref();
 const file: Ref<File | undefined> = ref();
 const width: Ref<number> = ref(0);
 const height: Ref<number> = ref(0);
-const update: Ref<any> = ref({ });
-const mediaUrl: Ref<string | undefined> = ref();
+const update: {
+	title?:       string | null,
+	description?: string | null,
+	thumbnail?:   number | null,  // video only, should correspond with timestamp
+	webResize?:   string | null,
+	reply_to?:    string | null,
+	privacy?:     "public" | "unlisted" | "private" | "draft" | "unpublished",
+	rating?:      "general" | "mature" | "explicit",
+	parent?:      string,
+
+	// flags
+	auction?:    boolean,
+	emoji?:      boolean,
+	userIcon?:   boolean,
+	emoji_name?: string,
+} = reactive({ });
+const media: Ref<MediaLike | undefined> = ref();
 
 let filename: string | null = null;
 
@@ -329,7 +349,7 @@ const privacy: Ref<string | null> = ref(null);
 const rating: Ref<"general" | "mature" | "explicit"> = ref("explicit");
 const parent: Ref<string | null> = ref(null);
 
-// drafts
+// draftsvoid
 const drafts: Ref<PostLike[] | null> = ref(null);
 const showDrafts: Ref<boolean> = ref(false);
 
@@ -343,8 +363,8 @@ const creatingSet: Ref<boolean> = ref(false);
 const removingSet: Ref<boolean> = ref(false);
 
 // parent post
-const parentPost:  Ref<PostLike | null>    = ref(null);
-const validParent: Ref<boolean | null> = ref(null);
+const parentPost:  Ref<PostLike | null> = ref(null);
+const validParent: Ref<boolean | null>  = ref(null);
 
 // active tag tracking
 let tagTrackerTimeout: number | null = null;
@@ -386,7 +406,7 @@ onUnmounted(() =>
 );
 
 const emojiPlaceholder = computed(() => ":" +
-	(update.value.title || title.value || postId.value)
+	(update.title || title.value || postId.value || "")
 		.toLowerCase()
 		.split(/\s+/)
 		.filter((x: string) => x)
@@ -480,7 +500,7 @@ function removeSet(value: string) {
 	);
 }
 
-function fetchParent(parentId: string) {
+function fetchParent(parentId: string | null | undefined) {
 	if (parentId && parentId.length === 8) {
 		validParent.value = true;
 		if (globals.postCache?.post_id === parentId) {
@@ -490,7 +510,7 @@ function fetchParent(parentId: string) {
 			khatch(`${host}/v1/post/${parentId}`, {
 				errorMessage: "Unable To Retrieve Post Data!",
 			}).then(r => r.json())
-			.then(r => parentPost.value = r);
+			.then((r: PostLike) => parentPost.value = r);
 		}
 	}
 	else {
@@ -500,10 +520,10 @@ function fetchParent(parentId: string) {
 }
 
 function calcResize() {
-	if (!update.value.webResize) resized.value = null;
+	if (!update.webResize) return resized.value = null;
 
 	if (width.value > height.value) {
-		const size = Math.min(parseInt(update.value.webResize), width.value);
+		const size = Math.min(parseInt(update.webResize), width.value);
 		resized.value = {
 			width: size,
 			height: Math.round((height.value / width.value) * size),
@@ -511,7 +531,7 @@ function calcResize() {
 		};
 	}
 	else {
-		const size = Math.min(parseInt(update.value.webResize), height.value);
+		const size = Math.min(parseInt(update.webResize), height.value);
 		resized.value = {
 			height: size,
 			width: Math.round((width.value / height.value) * size),
@@ -564,7 +584,7 @@ function markDraft() {
 			privacy:    "draft",
 		},
 	})).then(() => {
-		privacy.value = update.value.privacy = "draft";
+		privacy.value = update.privacy = "draft";
 		createToast({
 			icon: "done",
 			title: "Saved as Draft!",
@@ -605,10 +625,14 @@ function uploadFile(finish: boolean = false) {
 		const formdata = new FormData();
 		formdata.append("post_id", postId.value);
 
-		if (update.value.webResize) {
-			let webResize: number | string = update.value.webResize;
-			if (typeof webResize === "string") webResize = parseInt(update.value.webResize.trim());
+		if (file.value.type.includes("image") && update.webResize) {
+			let webResize: number | string = update.webResize;
+			if (typeof webResize === "string") webResize = parseInt(update.webResize.trim());
 			formdata.append("web_resize", webResize.toString());
+		}
+
+		if (file.value.type.includes("video") && update.thumbnail) {
+			formdata.append("thumbnail", update.thumbnail.toString());
 		}
 
 		formdata.append("file", file.value);
@@ -646,7 +670,7 @@ function uploadFile(finish: boolean = false) {
 			if (xhr.status >= 400) return reject(errorHandler(event));
 
 			const response: MediaLike = JSON.parse(xhr.responseText);
-			mediaUrl.value = response.url;
+			media.value = response;
 			mime.value = response.type.mime_type;
 
 			file.value = undefined;
@@ -679,30 +703,30 @@ function saveData() {
 		let successes         = 0;
 		let publish           = false;
 
-		if (title.value !== update.value.title) {
+		if (update.title && title.value !== update.title) {
 			field_mask.push("title");
-			title.value = update.value.title = update.value.title.trim();
+			title.value = update.title = update.title.trim();
 		}
 
-		if (description.value !== update.value.description) {
+		if (update.description && description.value !== update.description) {
 			field_mask.push("description");
-			description.value = update.value.description;
+			description.value = update.description;
 		}
 
-		if (rating.value !== update.value.rating) {
+		if (update.rating && rating.value !== update.rating) {
 			field_mask.push("rating");
-			rating.value = update.value.rating;
+			rating.value = update.rating;
 		}
 
-		if (parent.value !== update.value.reply_to) {
+		if (update.reply_to && parent.value !== update.reply_to) {
 			field_mask.push("reply_to");
-			parent.value = update.value.reply_to;
+			parent.value = update.reply_to;
 		}
 
-		if (privacy.value !== update.value.privacy) {
-			publish = !PublishedPrivacies.has(privacy.value) && PublishedPrivacies.has(update.value.privacy);
+		if (update.privacy && privacy.value !== update.privacy) {
+			publish = !PublishedPrivacies.has(privacy.value) && PublishedPrivacies.has(update.privacy);
 			field_mask.push("privacy");
-			privacy.value = update.value.privacy;
+			privacy.value = update.privacy;
 		}
 
 		const aTags = new Set(activeTags.value);
@@ -804,14 +828,14 @@ function postWatcher(value?: string) {
 
 	postId.value = value;
 	const unset = () => {
-		sets.value = null;
-		uploadDone.value = false;
-		filename = null;
-		file.value = undefined;
-		mediaUrl.value = undefined;
-		isUploading.value = false;
+		sets.value         = null;
+		uploadDone.value   = false;
+		filename           = null;
+		file.value         = undefined;
+		media.value        = undefined;
+		isUploading.value  = false;
 		uploadLoaded.value = 0;
-		uploadTotal = 0;
+		uploadTotal        = 0;
 	};
 
 	const setPostFields = (r: PostLike) => {
@@ -819,22 +843,22 @@ function postWatcher(value?: string) {
 		postId.value = r.post_id;
 		unset();
 
-		description.value = update.value.description = r.description;
-		title.value       = update.value.title       = r.title;
-		privacy.value     = update.value.privacy     = r.privacy;
-		rating.value      = update.value.rating      = r.rating;
-		parent.value      = update.value.reply_to    = r.parent?.post_id ?? null;
+		description.value = update.description = r.description;
+		title.value       = update.title       = r.title;
+		privacy.value     = update.privacy     = r.privacy;
+		rating.value      = update.rating      = r.rating;
+		parent.value      = update.reply_to    = r.parent?.post_id ?? null;
 		parentPost.value  = r.parent ?? null;
 
-		if (route.query?.title)       update.value.title       = route.query.title.toString();
-		if (route.query?.description) update.value.description = route.query.description.toString();
-		if (route.query?.reply_to)    update.value.reply_to    = route.query.reply_to.toString();
+		if (route.query?.title)       update.title       = route.query.title.toString();
+		if (route.query?.description) update.description = route.query.description.toString();
+		if (route.query?.reply_to)    update.reply_to    = route.query.reply_to.toString();
 
 		if (r.media) {
 			uploadDone.value = true;
 			filename         = r.media.filename;
 			mime.value       = r.media.type.mime_type;
-			mediaUrl.value   = r.media.url;
+			media.value      = r.media;
 			width.value      = r.media.size.width;
 			height.value     = r.media.size.height;
 		}
@@ -913,11 +937,12 @@ function colorizeTags(tags: Set<string> | null = null) {
 // 	},
 // },
 
-watch(() => route.query?.post?.toString(), postWatcher);
-watch(() => update.value?.webResize, calcResize);
-watch(() => update.value.reply_to, fetchParent);
+watch(toRef(route, "query"), q => postWatcher(q?.post?.toString()));
+watch(toRef(update, "webResize"), calcResize);
+watch(toRef(update, "reply_to"), fetchParent);
 watch(width, calcResize);
 watch(height, calcResize);
+watch(file, () => setTimeout(() => element.value = document.getElementById("media-field")?.querySelector("img,video") ?? undefined, 0));
 </script>
 <style scoped>
 main {

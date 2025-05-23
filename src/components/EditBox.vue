@@ -9,10 +9,10 @@
 <script setup lang='ts'>
 import { ref, watch, type Ref } from 'vue';
 const props = defineProps<{
-	value: string,
+	value?: string | null,
 }>();
 const editing: Ref<boolean> = ref(false);
-const value:   Ref<string>  = ref(props.value);
+const value:   Ref<string>  = ref(props.value ?? "");
 const emits = defineEmits([
 	"update:value",
 ]);
@@ -22,7 +22,7 @@ function edit() {
 	emits("update:value", value.value);
 	editing.value = false;
 }
-watch(props, p => value.value = p.value);
+watch(props, p => value.value = p.value ?? value.value);
 </script>
 <style scoped>
 ._editbox {

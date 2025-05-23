@@ -34,7 +34,7 @@ import { LookupEmoji } from '@/utilities/emoji';
 
 const mdTextArea = ref<HTMLTextAreaElement | null>(null) as Ref<HTMLTextAreaElement>;
 const props = withDefaults(defineProps<{
-	value:         string | null,
+	value?:        string | null,
 	height?:       string,
 	resize?:       string,
 	initRendered?: boolean,

@@ -26,7 +26,7 @@
 	</main>
 </template>
 <script setup lang='ts'>
-import { ref, watch, type Ref } from 'vue';
+import { ref, toRef, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { khatch, saveToHistory } from '@/utilities';
@@ -90,7 +90,7 @@ function setPage(p: number) {
 	router.push(pageLink(page.value));
 }
 
-watch(() => route.query, fetchPosts);
+watch(toRef(route, "query"), fetchPosts);
 watch(tiles, globals.searchResultsTiles);
 </script>
 <style scoped>

@@ -2,7 +2,7 @@
 	<img ref='media' :data-src='src' @load='loaded' @error='onError'>
 </template>
 <script setup lang='ts'>
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue';
 import { getIconUrl, lazyObserver } from '@/utilities';
 import defaultUserIcon from '$/default-icon.png?url';
 
@@ -31,10 +31,10 @@ function loaded(_: Event) {
 function onError() {
 	if (props.handle) emits("update:isLoading", false);
 }
-watch(() => props.handle, (value?: string) => {
+watch(toRef(props, "handle"), (value?: string) => {
 	if (value) lazyObserver.observe(media.value);
 });
-watch(() => props.post, (value?: string | null) => {
+watch(toRef(props, "post"), (value?: string | null) => {
 	if (value) lazyObserver.observe(media.value);
 });
 </script>

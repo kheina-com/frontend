@@ -3,7 +3,7 @@
 	<div ref='markdown' class='markdown block' v-html='rendered' v-else></div>
 </template>
 <script setup lang='ts'> 
-import { onMounted, ref, watch, type Ref } from 'vue';
+import { onMounted, ref, toRef, watch, type Ref } from 'vue';
 import { lazyConfig } from '@/utilities';
 import { mdEscape, mdExtensions, mdRenderer, mdTokenizer } from '@/utilities/markdown';
 import { marked, type RendererObject, type TokenizerObject } from 'marked';
@@ -128,7 +128,7 @@ function render() {
 	) : null;
 }
 
-watch(() => props.content, render);
+watch(toRef(props, "content"), render);
 </script>
 <style>
 .markdown .profile-user-icon {
@@ -185,7 +185,7 @@ a.external-link::after {
 .markdown img.emoji, .markdown.inline .gigamoji img {
 	max-width: 1.2em;
 	max-height: 1.2em;
-	position: relative;
+	/* position: relative; */
 	margin-top: -0.2em;
 	vertical-align: middle;
 	/* transform: translateY(calc(50% - 0.6em)) */

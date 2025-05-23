@@ -40,8 +40,9 @@ main {
 	background: var(--bg2color);
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
-	padding: 1em;
+	padding: 1em var(--margin) 1em 1em;
 	margin-bottom: var(--margin);
+	justify-content: space-between;
 }
 .emoji img {
 	margin-right: var(--margin);

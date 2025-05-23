@@ -177,7 +177,7 @@ export async function khatch(url: string, options: KhatchOptions = {}): Promise<
 	const errorHandlers = options?.errorHandlers || {};
 	options.headers = options?.headers || {};
 
-	if (url.match(authRegex)) {
+	if (url.match(authRegex) || new URL(url).hostname === window.location.hostname) {
 		options.credentials = "include";
 		const auth = store().auth?.token;
 		if (auth) options.headers.authorization = "bearer " + auth;

@@ -28,42 +28,41 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import { computed, onMounted, onUnmounted, ref, toRaw, toRef, watch, type Ref } from 'vue';
-import { base64ToBytes, createToast } from '@/utilities';
+import { computed, onMounted, onUnmounted, ref, toRef, watch, type Ref } from 'vue';
+import { base64ToBytes, createToast, getMediaThumbnailUrl } from '@/utilities';
 import { cdnRegex } from '@/config/constants';
 import store from '@/globals';
 import Loading from '@/components/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import { thumbHashToDataURL } from 'thumbhash';
 import lightnoise from '$/lightnoise.png?url';
+import type { MediaLike } from '@/types/post';
 
 const globals = store();
 const props = withDefaults(defineProps<{
-	mime?:        string | null,
+	media?:       MediaLike,
+	mime?:        string,
 	src?:         string,
 	alt?:         string,
 	controls?:    boolean,
-	style?:       string | null,
 	width?:       number,
 	height?:      number,
 	bg?:          boolean,
-	thumbhash?:   string | null,
 	scaleHeight?: boolean,
-	blob?:        string,
 	autoplay?:    boolean,
 }>(), {
-	mime: null,
-	src: "",
 	controls: true,
-	style: null,
 	width: 0,
 	height: 0,
 	bg: false,
-	thumbhash: null,
 	autoplay: false,
 });
 
-const isLoading: Ref<boolean> = ref(!props.thumbhash);
+const logstr = "[Media]";
+const render = "render";
+const src = computed(() => props.src ?? props.media?.url);
+const mimeType = computed(() => props.mime ?? props.media?.type.mime_type);
+const isLoading: Ref<boolean> = ref(!mimeType.value);
 const isError: Ref<boolean> = ref(false);
 const media = ref<HTMLImageElement | HTMLVideoElement | null>(null) as Ref<HTMLImageElement | HTMLVideoElement>;
 const mediaContainer = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -75,10 +74,11 @@ const scalar: Ref<boolean> = toRef(props, "scaleHeight");
 let total: number = 0; // don't bother with this one since it's mostly loaded that will be updating
 let blobUrl: string | null = null;
 let unmounted: boolean = false;
-const revoke = (src: string) => {
-	if (!unmounted) return;
-	URL.revokeObjectURL(src);
-	console.debug("[Media] revoked", src);
+const revoke = () => {
+	if (!unmounted || !blobUrl) return;
+	URL.revokeObjectURL(blobUrl);
+	console.debug(logstr, "blob revoked", blobUrl);
+	blobUrl = null;
 };
 
 interface Image extends HTMLImageElement {
@@ -92,7 +92,7 @@ Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, 
 
 	if (url.startsWith("blob:")) {
 		this.src = url;
-		return this.addEventListener("load", () => this.dispatchEvent(new Event("render")));
+		return this.addEventListener("load", () => this.dispatchEvent(new Event(render)));
 	}
 
 	if (url.match(cdnRegex)) {
@@ -109,17 +109,15 @@ Image.prototype.load = function(url: string, callback: { (this: XMLHttpRequest, 
 		const blob = new Blob([xhr.response], { type: xhr.getResponseHeader("content-type") ?? undefined });
 		// console.log(blob)
 		this.src = blobUrl = window.URL.createObjectURL(blob);
-		console.debug("[Media] blob created", url, "->", this.src);
-		emits("update:blob", this.src);
+		console.debug(logstr, "blob created", url, "->", this.src);
 
 		// TODO: in the future, the browser should just cache the image locally and be able to load it directly from img.src
 		// this.src = url;
 		const ms = blob.size / 60000;
-		console.debug("[Media] render time:", ms / 1000);
+		console.debug(logstr, "render time:", ms / 1000);
 		this.onload = () => {
-			revoke(this.src);
 			// wait for the image to fully render (based on image size) before fading in
-			setTimeout(() => this.dispatchEvent(new Event("render")), ms);
+			setTimeout(() => this.dispatchEvent(new Event(render)), ms);
 		};
 	};
 	xhr.onprogress = callback;
@@ -133,7 +131,7 @@ const allowScalar = () => {
 };
 
 onMounted(() => {
-	th(props.thumbhash);
+	th(props.media?.thumbhash);
 
 	allowScalar();
 	window.addEventListener("resize", allowScalar);
@@ -145,31 +143,27 @@ onUnmounted(() => {
 	window.removeEventListener("scroll", onScroll);
 	window.removeEventListener("resize", onScroll);
 	window.removeEventListener("resize", allowScalar);
+	revoke();
 	unmounted = true;
-	if (blobUrl) revoke(blobUrl);
 });
 
-const isImage = computed(() => props.mime && props.mime.startsWith("image"));
-const isVideo = computed(() => props.mime && props.mime.startsWith("video"));
-const parentStyle = computed(() => props.width ? `aspect-ratio: ${props.width}/${props.height}; max-width: ${props.width}px` : null);
-const linkStyle = computed(() => {
-	if (props.width) return `width: ${props.width}px;`;
-	// else if (isError.value) return "background: var(--error); display: flex; justify-content: center; border-radius: var(--border-radius); " + `width: ${props.width || "30vw"}px; height: ${props.height || "30vh"};`;
-	return props.style;
-});
+const isImage = computed(() => mimeType.value && mimeType.value.startsWith("image"));
+const isVideo = computed(() => mimeType.value && mimeType.value.startsWith("video"));
+const parentStyle = computed(() => `aspect-ratio: ${props.width}/${props.height}; max-width: ${props.width}px`);
+const linkStyle = computed(() => `width: ${props.width}px`);
 
 const emits = defineEmits([
 	"update:width",
 	"update:height",
 	"update:scaleHeight",
-	"update:blob",
 ]);
 
 function loadMedia() {
-	if (props.src === media.value?.src) return;
+	if (!src.value || src.value === media.value?.src) return;
+	revoke();
 	isError.value = false;
-	isLoading.value = !props.thumbhash;
-	media.value.addEventListener("render", onLoad, { once: true });
+	isLoading.value = !mimeType.value;
+	media.value.addEventListener(render, onLoad, { once: true });
 
 	if (isImage.value) {
 		const m = media.value as Image;
@@ -180,7 +174,7 @@ function loadMedia() {
 			loader.value.style.opacity = "1";
 		}, 1000);
 
-		m.load(props.src, e => {
+		m.load(src.value, e => {
 			loaded.value = e.loaded;
 			total = e.total;
 		});
@@ -189,13 +183,14 @@ function loadMedia() {
 			if (m.naturalWidth) emits("update:width", m.naturalWidth);
 			if (m.naturalHeight) emits("update:height", m.naturalHeight);
 		});
-		m.addEventListener("render", () => {
+		m.addEventListener(render, () => {
 			window.removeEventListener("scroll", onScroll);
 			window.removeEventListener("resize", onScroll);
 		});
 	}
 	else if (isVideo.value) {
 		const m = media.value as HTMLVideoElement;
+		if (props.media) m.poster = getMediaThumbnailUrl(props.media);
 		const show = setTimeout(() => {
 			window.addEventListener("scroll", onScroll);
 			window.addEventListener("resize", onScroll);
@@ -206,12 +201,12 @@ function loadMedia() {
 			clearTimeout(show);
 			if (m.videoWidth) emits("update:width", m.videoWidth);
 			if (m.videoHeight) emits("update:height", m.videoHeight);
-			m.dispatchEvent(new Event("render"));
+			m.dispatchEvent(new Event(render));
 		});
-		m.src = props.src;
+		m.src = src.value;
 	}
 	else {
-		media.value.src = props.src;
+		media.value.src = src.value;
 		// error ?
 	}
 }
@@ -237,7 +232,7 @@ function onLoad() {
 }
 
 function onError() {
-	if (!props.mime || !props.src) return;
+	if (!props.media || !props.src) return;
 	if (loader.value) loader.value.style.display = "none";
 
 	isLoading.value = false;
@@ -251,7 +246,7 @@ function onError() {
 	});
 }
 
-function th(value: string | null) {
+function th(value: string | void) {
 	// console.log('thumbhash:', value);
 	if (!value) return;
 
@@ -264,7 +259,7 @@ function th(value: string | null) {
 		// this.isLoading = false;
 	}
 	catch (e) {
-		console.error("thumbhash:", value, "dataurl:", dataurl, "error:", e);
+		console.error(logstr, "thumbhash:", value, "dataurl:", dataurl, "error:", e);
 	}
 }
 
@@ -305,17 +300,17 @@ function onScroll() {
 watch(scalar, (value: boolean) => {
 	if (!mediaContainer.value || !mediaContainer.value.parentElement) return;
 	const mcp = mediaContainer.value.parentElement as HTMLDivElement;
-	if (value) {
-		mcp.classList.add("scale-height");
-	}
-	else {
-		mcp.classList.remove("scale-height");
-	}
+
+	if (value) mcp.classList.add("scale-height");
+	else mcp.classList.remove("scale-height");
 });
-watch(() => props.thumbhash, th);
+
+// this may want to be removed entirely, as this causes the post response to re-render the thumbhash.
+// watch(toRef(props, "media"), v => th(v?.thumbhash));
+
 // timeout required or else the media may be loaded into the wrong media type
-// ie img -> <video> or video -> <img>
-watch(props, () => setTimeout(loadMedia, 0));
+// ie img -> <video> or video -> <img>props.media?.type.mime_type
+watch(src, () => setTimeout(loadMedia, 0));
 </script>
 <style scoped>
 ._media {

@@ -20,7 +20,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import { onMounted, ref, watch, type Ref } from 'vue';
+import { onMounted, ref, toRef, watch, type Ref } from 'vue';
 
 interface Datum {
 	content?: string,
@@ -47,7 +47,7 @@ function emitValue(value: string) {
 
 onMounted(() => props.disabled ? radio.value.classList.remove("enabled") : radio.value.classList.add("enabled"));
 
-watch(() => props.disabled, (value: boolean) => value ? radio.value.classList.remove("enabled") : radio.value.classList.add("enabled"));
+watch(toRef(props, "disabled"), (value: boolean) => value ? radio.value.classList.remove("enabled") : radio.value.classList.add("enabled"));
 </script>
 <style scoped>
 input {

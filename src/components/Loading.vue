@@ -15,7 +15,7 @@
 	</div>
 </template>
 <script setup lang='ts'>
-import { onMounted, ref, watch, type Ref } from 'vue';
+import { onMounted, ref, toRef, watch, type Ref } from 'vue';
 
 const props = withDefaults(defineProps<{
 	isLoading?: boolean,
@@ -32,30 +32,11 @@ const content = ref<HTMLDivElement | HTMLSpanElement | null>(null) as Ref<HTMLDi
 onMounted(() => setLoadingClass(props.isLoading));
 
 function setLoadingClass(value: boolean) {
-	switch (props.type) {
-	case "block":
-		if (value)
-		{ content.value.classList.add("loading", "block"); }
-		else
-		{ content.value.classList.remove("loading", "block"); }
-		break;
-	case "stripes":
-		if (value)
-		{ content.value.classList.add("loading", "stripes"); }
-		else
-		{ content.value.classList.remove("loading", "stripes"); }
-		break;
-	case "wave":
-	default:
-		if (value)
-		{ content.value.classList.add("loading", "wave"); }
-		else
-		{ content.value.classList.remove("loading", "wave"); }
-		break;
-	}
+	if (value) content.value.classList.add("loading", props.type);
+	else content.value.classList.remove("loading", props.type);
 }
 
-watch(() => props.isLoading, setLoadingClass);
+watch(toRef(props, "isLoading"), setLoadingClass);
 </script>
 <style scoped>
 span {

@@ -41,7 +41,7 @@
 	</main>
 </template>
 <script setup lang='ts'>
-import { computed, ref, watch, type Ref } from 'vue';
+import { computed, ref, toRef, watch, type Ref } from 'vue';
 import { khatch, saveToHistory, tagSplit } from '@/utilities';
 import { useRoute, useRouter } from 'vue-router';
 import store, { Rating } from '@/globals';
@@ -160,7 +160,7 @@ function setPage(p: number) {
 // 	hash => history.replaceState(window.history.state, "", this.$route.path.replace("#", "")),
 // );
 
-watch(() => route.query, fetchPosts);
+watch(toRef(route, "query"), fetchPosts);
 watch(tiles, globals.searchResultsTiles);
 watch(sort, (_: string | undefined): void => {
 	if (!routes.has(route.name?.toString())) return;

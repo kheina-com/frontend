@@ -286,7 +286,7 @@
 import type { PostLike, PostSet } from '@/types/post';
 import type { Tag } from '@/types/tag';
 import type { Badge, FullUser, User } from '@/types/user';
-import { computed, onMounted, onUnmounted, ref, toRaw, watch, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, toRaw, toRef, watch, type Ref } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
@@ -737,7 +737,7 @@ function setPage(p: number) {
 	router.push(pageLink(page.value));
 }
 
-watch(() => route.query, fetchData);
+watch(toRef(route, "query"), fetchData);
 watch(tiles, globals.searchResultsTiles);
 watch(uploadPostId, (value: string | null) => {
 	if (!value) return;

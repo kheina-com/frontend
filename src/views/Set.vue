@@ -104,7 +104,7 @@
 </template>
 <script setup lang='ts'>
 import type { PostSet } from '@/types/post';
-import { computed, ref, watch, type Ref } from 'vue';
+import { computed, ref, toRef, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
 import { khatch, saveToHistory, setTitle, createToast } from '@/utilities';
@@ -317,10 +317,9 @@ function setPage(p: number) {
 }
 
 watch(tiles, globals.searchResultsTiles);
-watch(() => route.query, fetchPosts);
+watch(toRef(route, "query"), fetchPosts);
 watch(sort, () => {
-	if (route.name !== "set")
-	{ return; }
+	if (route.name !== "set") return;
 	router.push(pageLink(page.value));
 });
 </script>

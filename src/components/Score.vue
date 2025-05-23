@@ -7,7 +7,7 @@
 </template>
 <script setup lang='ts'>
 import type { Score } from '@/types/post';
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue';
 import { abbreviate, khatch } from '@/utilities';
 import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
@@ -70,7 +70,7 @@ function vote(vote: number) {
 	});
 }
 
-watch(() => props.score, (value?: Score | null) => {
+watch(toRef(props, "score"), (value?: Score | null) => {
 	if (!value) {
 		score.value.classList.add('disabled');
 	}

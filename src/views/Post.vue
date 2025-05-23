@@ -12,7 +12,7 @@
 		<Sidebar :post='post' v-model:scalar='scalar' class='sidebar'/>
 		<div class='content'>
 			<div ref='media' class='media-container' v-if='post?.media'>
-				<Media class='media' :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
+				<Media class='media' :media='post.media' v-model:width='width' v-model:height='height' v-model:scaleHeight='scalar' bg/>
 				<SetControls :set='set' v-for='set in sets'/>
 			</div>
 			<div v-else='sets?.length'>
@@ -91,7 +91,7 @@
 	<div class='content' v-else>
 		<div class='scroller' ref='scroller'/>
 		<div class='media-container' v-if='post?.media'>
-			<Media :mime='post.media.type.mime_type' :src='mediaUrl' :thumbhash='post.media?.thumbhash' v-model:width='width' v-model:height='height' bg/>
+			<Media :media='post.media' v-model:width='width' v-model:height='height' bg/>
 			<SetControls :set='set' v-for='set in sets'/>
 		</div>
 		<div v-else='sets?.length'>

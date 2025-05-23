@@ -18,12 +18,15 @@ import type { Notification } from '@/types/notifications';
 import Title from '@/components/Title.vue';
 import ThemeMenu from '@/components/ThemeMenu.vue';
 import NComponent from '@/components/Notification.vue';
-import { onMounted, onUnmounted, ref, type Ref } from 'vue';
-import { ClearUnreads, GetNotifications } from '@/utilities/notifications';
+import { onMounted, onUnmounted, ref, toRaw, type Ref } from 'vue';
+import { ClearUnreads, GetNotifications, PopulateNotificationsDb } from '@/utilities/notifications';
 
 const notifications: Ref<Notification[] | void> = ref();
 const loadNotifications = () => GetNotifications().then((n: Notification[]) => notifications.value = n);
-loadNotifications();
+loadNotifications().then(() => {
+	console.log("notifications.value:", toRaw(notifications.value));
+	if (!notifications.value) PopulateNotificationsDb();
+});
 document.addEventListener("notification", loadNotifications);
 
 onMounted(ClearUnreads);
