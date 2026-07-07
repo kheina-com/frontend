@@ -1,13 +1,13 @@
 export default {
-	/// the str for translation strings is below:
+	/// the format for translation strings is below:
 	/// translation_key: {
-	/// 	str: string,
+	/// 	str: "string",
 	/// 	arg: {
 	/// 		key: "value",
 	/// 	},
 	/// }
 	///
-	/// args are not present for all translation strings, however, for those that are they are used like below:
+	/// args are not present for all translation strings. however, for those that use args, they may be used like so:
 	/// ex: "accept_mature": {
 	/// 	str: "this post contains <b>{rating}</b> content, click here to show it anyway.",
 	/// 	rating: {
@@ -92,5 +92,17 @@ export default {
 	},
 	followed_by: {
 		str: "followed by",
+	},
+	members_lower: {
+		str: "members: {count}",
+	},
+	members_upper: {
+		str: "Members: {count}",
+	},
+	no_chats: {
+		str: "You have no chats yet!",
+	},
+	loading: {
+		str: "Loading...",
 	},
 };

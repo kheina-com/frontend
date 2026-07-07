@@ -49,8 +49,7 @@
 <script setup lang='ts'>
 import { onMounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import store from '@/globals';
-import { khatch, sha1 } from '@/utilities';
+import { buf2hex, khatch, sha1, Utf8Encode } from '@/utilities';
 import { host } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Title from '@/components/Title.vue';
@@ -58,7 +57,6 @@ import ThemeMenu from '@/components/ThemeMenu.vue';
 
 const route = useRoute();
 const router = useRouter();
-const globals = store();
 const name = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
 const handle = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
 const password = ref<HTMLInputElement | null>(null) as Ref<HTMLInputElement>;
@@ -153,7 +151,7 @@ function checkPasswordRepeat() {
 }
 
 function hasPasswordBeenPwned(password: string) {
-	const hash = sha1(password);
+	const hash = buf2hex(sha1(Utf8Encode(password)));
 
 	fetch("https://api.pwnedpasswords.com/range/".concat(hash.substring(0, 5)))
 	.then(r => r.text())

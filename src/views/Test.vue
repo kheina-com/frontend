@@ -91,23 +91,17 @@
 			<input type='range' min='0' max='10' step='0.001' v-model='speed'>
 			<span>{{ speed }}</span>
 		</div>
-		<div class='translator'>
-			<p v-translate:accept_mature.html='{ rating: "mature" }'>this post is <b>{{ "gay" }}</b>, click to show.</p>
-			<p v-translate:view_source></p>
-			<p v-translate='"support_project"'></p>
-			<p v-translate='"cum"'></p>
-		</div>
 		<div class='color-text' v-show='colors.length'>
 			<div v-for='color in colors' :style='"color: " + color'>
 				<p>{{ color }} text</p>
 				<p style='font-weight: bold'>bold text</p>
-				<p v-for='i in [0, 1, 2]' :style='`background: var(--bg${i}color)`'>bg<code>{{ i }}</code> contrast: {{ contrastWithBg(color, i).toFixed(2) }}</p>
+				<p v-for='i in [0, 1, 2, 3]' :style='`background: var(--bg${i}color)`'>bg<code>{{ i }}</code> contrast: {{ contrastWithBg(color, i).toFixed(2) }}</p>
 			</div>
 		</div>
 		<div class='color-comparer' v-show='colors.length'>
 			<div v-for='i in colors.length' :style='"background: " + colors[i - 1]'>
-				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor('#fff')).toFixed(2) }}</p>
-				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor('#000')).toFixed(2) }}</p>
+				<p style='color: white'>white text: {{ contrast(textToColor(colors[i - 1]), textToColor("#fff")).toFixed(2) }}</p>
+				<p style='color: black'>black text: {{ contrast(textToColor(colors[i - 1]), textToColor("#000")).toFixed(2) }}</p>
 				<input placeholder='color' class='interactable' v-model='colors[i - 1]' />
 				<Button @click='colors.splice(i - 1, 1);'><i class='material-icons-outline'>delete</i><span>Remove</span></Button>
 			</div>

@@ -61,7 +61,7 @@ class EmojiDB extends DB {
 			};
 		});
 
-		const newest = new Date();
+		let newest = new Date(0);
 		let count = 0;
 
 		khatch(`${host}/v1/emojis/${latest.toISOString()}`, {
@@ -73,8 +73,9 @@ class EmojiDB extends DB {
 			const store = transaction.objectStore(emojiDbStore);
 
 			for (const e of emojis) {
-				await addEmoji(e, store)
-					.then(() => count++);
+				const ne: Emoji = await addEmoji(e, store);
+				count++;
+				newest = new Date(Math.max(newest.valueOf(), ne.updated.valueOf()));
 			}
 
 			if (count) transaction.commit();

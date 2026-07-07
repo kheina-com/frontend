@@ -89,6 +89,7 @@ const listener = async (e: MessageEvent<Message>) => {
 	e.stopImmediatePropagation();  // just in case multiple listeners were added
 	if (e?.data?.primary) new Audio(notify).play();
 
+	e.data.payload.created = new Date(e.data.payload.created);
 	switch (e?.data?.payload?.type) {
 	case "interact":
 		console.debug(nLogStr, `interact ${e.data.payload.event}:`, e.data.payload.post);
@@ -102,11 +103,14 @@ const listener = async (e: MessageEvent<Message>) => {
 		console.debug(nLogStr, `user ${e.data.payload.event}:`, e.data.payload.user);
 		break;
 
+	case "chat":
+		console.debug(nLogStr, `chat ${e.data.payload.event}:`, e.data.payload.message);
+		break;
+
 	default:
 		console.warn(nLogStr, "unknown message type:", e?.data?.payload ?? e);
 		return;
 	}
 
-	e.data.payload.created = new Date(e.data.payload.created);
 	await AddNotification(e.data.payload);
 };

@@ -124,7 +124,7 @@ const userLinks: { [k: string]: [string | { (m: string): string }, string | null
 // @ts-format-ignore-endregion
 
 const mdMaxId = 0xffffffff;
-const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, "0");
+export const MdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, "0");
 
 const mdRequestCache: { [url: string]: any; } = {};
 
@@ -169,7 +169,7 @@ export function mdEscape(md: string): string {
 
 // return a rendered html img element as a string containing the formatted emoji
 export const emoji = (emoji: string): string => {
-	const id = mdRefId();
+	const id = MdRefId();
 
 	GetEmoji(emoji).then(r => {
 		const element = document.getElementById(id) as HTMLImageElement;
@@ -232,7 +232,7 @@ export function demarkdown(string: string): Promise<string> {
 		let emojis = 0;
 		let str = string.replaceAll(mdRules.emoji.standalone, m => {
 			emojis++;
-			const id = "<" + mdRefId() + ">";
+			const id = "<" + MdRefId() + ">";
 
 			GetEmoji(m.slice(1, -1))
 				.then(r => str = str.replace(id, r.alt ?? "❌"))
@@ -270,7 +270,7 @@ export const mdRenderer = {
 	html: htmlEscape,
 	text: (src: string) => src.replaceAll(/\t/g, "&nbsp&nbsp&nbsp&nbsp"),
 	link(href: string, title: string, text: string) {
-		const id = mdRefId();
+		const id = MdRefId();
 
 		if (href.match(url)) {
 			setTimeout(() => {
@@ -345,6 +345,11 @@ const mdRules = {
 		start: /(^|\s+)\%\w+/,
 		rule: /^\%(\w+)\s+(.+?)\s+\%/,
 	},
+	flex: {
+		start: /(?:^|\n)>{3,}/,
+		rule: /^>{3,5}((?:[ \t]*?\d+(?:\.\d+)?(?:px|em|%)?){0,3})[ \t]*?\n(([\s\S]*?)\n<{3,5}(?:[ \t]*?\d+(?:\.\d+)?(?:px|em|%)?){0,3}[ \t]*?)(?:$|\n)/,
+		col: /([\s\S]*?)\n(?:<|=){3,5}((?:[ \t]*?\d+(?:\.\d+)?(?:px|em|%)?){0,3})[ \t]*?(?:$|\n)/,
+	},
 };
 
 
@@ -402,6 +407,17 @@ interface AlignmentToken extends Tokens.Generic {
 	text: string,
 }
 
+interface FlexCol {
+	tokens: Tokens.Generic[],
+	flex?: string,
+}
+
+interface FlexToken extends Tokens.Generic {
+	type: "flex",
+	raw: string,
+	cols: FlexCol[],
+	flex?: string,
+}
 
 export const mdExtensions: TokenizerAndRendererExtension[] = [
 	{
@@ -437,7 +453,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			}
 		},
 		renderer(token: Tokens.Generic) {
-			const id = mdRefId();
+			const id = MdRefId();
 
 			if (token.raw[0] === "@") {
 				mdMakeRequest(`${host}/v1/user/${token.username}`, true).then(r => {
@@ -551,7 +567,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			};
 		},
 		renderer(token: Tokens.Generic) {
-			const id = mdRefId();
+			const id = MdRefId();
 
 			token.req.then((r: PostLike) => {
 				const element = document.getElementById(id);
@@ -601,7 +617,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 			};
 		},
 		renderer(token: Tokens.Generic) {
-			const id = mdRefId();
+			const id = MdRefId();
 
 			setTimeout(() => {
 				const element = document.getElementById(id);
@@ -704,7 +720,7 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		start: (src: string): number | void => mdRules.alignment.start.exec(src)?.index,
 		tokenizer(src: string): AlignmentToken | undefined {
 			const match = mdRules.alignment.rule.exec(src);
-			if (!match) return;
+			if (!match || !match[0].match(/\s/g)) return;
 
 			let text = match[2].trim();
 			const align = match[1] === ">" ? (
@@ -738,6 +754,46 @@ export const mdExtensions: TokenizerAndRendererExtension[] = [
 		renderer(token_: Tokens.Generic): string {
 			const token = token_ as AlignmentToken;
 			return `<div class="alignment ${token.align}">` + this.parser.parse(token.tokens) + "</div>";
+		},
+	},
+	{
+		name: "flex",
+		level: "block",
+		start: (src: string): number | void => mdRules.flex.start.exec(src)?.index,
+		tokenizer(src: string): FlexToken | undefined {
+			const match = mdRules.flex.rule.exec(src);
+			if (!match) return;
+			let rem = match[2];
+			const token: FlexToken = {
+				type: "flex",
+				raw: match[0],
+				text: match[3],
+				cols: [],
+				flex: match[1] ? match[1].trim() : undefined,
+			};
+			while (rem) {
+				const m = mdRules.flex.col.exec(rem);
+				if (!m) break;
+				const col: FlexCol = {
+					tokens: [],
+					flex: m[2] ? m[2].trim() : undefined,
+				};
+				token.cols.push(col);
+				this.lexer.blockTokens(m[1], col.tokens);
+				console.log("m:", m, "col:", col);
+				rem = rem.substring(m[0].length);
+			}
+			console.log("token:", token);
+			return token;
+		},
+		renderer(t: Tokens.Generic): string {
+			const token = t as FlexToken;
+			let r = `<div class="flex">`;
+			for (const col of token.cols) {
+				const f = col.flex ?? token.flex;
+				r += (f ? `<div style="flex: ${f}">` : `<div>`) + this.parser.parse(col.tokens) + "</div>";
+			}
+			return r + "</div>";
 		},
 	},
 ];

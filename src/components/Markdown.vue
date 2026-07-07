@@ -166,7 +166,7 @@ a.external-link::after {
 .markdown h1, .markdown h2 {
 	border-bottom: var(--border-size) solid var(--blockquote);
 	padding: 0 5px 4px;
-	margin: var(--margin) -5px 20px;
+	margin: var(--margin) -5px 15px;
 	width: 100%;
 }
 .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
@@ -181,14 +181,18 @@ a.external-link::after {
 .markdown img {
 	max-width: 100%;
 	max-height: 100%;
+	border: solid var(--border-size) var(--bordercolor);
+	border-radius: var(--border-radius);
 }
 .markdown img.emoji, .markdown.inline .gigamoji img {
 	max-width: 1.2em;
 	max-height: 1.2em;
 	/* position: relative; */
-	margin-top: -0.2em;
+	margin-top: -0.22em;
 	vertical-align: middle;
 	/* transform: translateY(calc(50% - 0.6em)) */
+	border: none;
+	border-radius: none;
 }
 .markdown .handle {
 	white-space: nowrap;
@@ -205,6 +209,7 @@ a.external-link::after {
 .markdown .gigamoji img {
 	max-width: 5em;
 	max-height: 5em;
+	margin: 0;
 }
 .markdown hr {
 	height: 0;
@@ -249,8 +254,34 @@ a.external-link::after {
 .markdown p {
 	white-space: pre-wrap;
 	word-wrap: break-word;
+	&:first-child {
+		margin-top: 0;
+	}
+	&:last-child {
+		margin-bottom: 0;
+	}
 }
 
+.markdown .flex {
+	display: flex;
+	justify-content: space-between;
+	align-content: space-between;
+	align-items: start;
+	margin: 15px 0;
+	width:100%;
+
+	& table {
+		width: 100%;
+	}
+	& > * {
+		flex-grow: 1;
+		flex-shrink: 1;
+		margin: 0 var(--margin) 0 0;
+	}
+	& > :last-child {
+		margin-right: 0;
+	}
+}
 .markdown table {
 	border: var(--border-size) solid var(--bordercolor);
 	border-radius: var(--border-radius);
@@ -258,9 +289,14 @@ a.external-link::after {
 	background: var(--bg2color);
 	word-break: break-word;
 }
+.markdown thead:not(:has(th:not(:empty))) {
+	display: none;
+}
 .markdown table th, .markdown table td {
-	border-right: var(--border-size) solid var(--blockquote);
+	padding: 0.5em;
 	border-spacing: 0px;
+	font-weight: normal;
+	border-right: var(--border-size) solid var(--blockquote);
 	border-bottom: var(--border-size) solid var(--blockquote);
 }
 .markdown table tbody > :last-child td {
@@ -268,9 +304,6 @@ a.external-link::after {
 }
 .markdown table tr > :last-child, .markdown table tr > :last-child {
 	border-right: none;
-}
-.markdown table td, .markdown table th {
-	padding: 0.5em;
 }
 .markdown table code {
 	background: var(--bg1color);

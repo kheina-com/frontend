@@ -9,7 +9,7 @@ import { createPinia } from 'pinia';
 import store from '@/globals';
 import { GetConfigs, Cookies, Theme, Accent, AnimatedAccents, CssTransitions, Tiles, MaxRating } from '@/config/store';
 
-loadLangFile(getCookie("locale", Intl.DateTimeFormat().resolvedOptions().locale.toLowerCase()));
+const lang = loadLangFile(getCookie("locale", Intl.DateTimeFormat().resolvedOptions().locale.toLowerCase().substring(0, 2)));
 
 Router.afterEach((to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedLoadedGeneric) => {
 	// we let views handle self-updates
@@ -85,6 +85,8 @@ const app = createApp(
 	globals.cssTransitions(configs[CssTransitions]);
 	globals.searchResultsTiles(configs[Tiles]);
 	globals.maxRating(configs[MaxRating]);
+
+	await lang;
 })().then(() =>
 	app.mount("body")
 );

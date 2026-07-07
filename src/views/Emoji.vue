@@ -32,14 +32,10 @@ const emoji: Ref<Emoji[] | void> = ref();
 
 GetAll().then((e: Emoji[]) => emoji.value = e);
 
-let timeout: number | null = null;
+let timeout: number | undefined;
 watch(search, (value: string | void) => {
-	if (timeout) {
-		clearTimeout(timeout);
-		timeout = null;
-	}
-
-	if (value) timeout = setTimeout(() => LookupEmoji(value).then((e: Emoji[]) => emoji.value = e), 200);
+	clearTimeout(timeout);
+	if (value) timeout = setTimeout(() => LookupEmoji(value).then((e: Emoji[]) => emoji.value = e), 250);
 	else GetAll().then((e: Emoji[]) => emoji.value = e);
 });
 </script>

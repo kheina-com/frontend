@@ -70,7 +70,14 @@ export async function AddNotification(notification: Notification) {
 			set();
 		};
 	});
-	document.dispatchEvent(new CustomEvent<NotificationEvent>("notification", { detail: { unread: unreads.unread } }));
+	document.dispatchEvent(new CustomEvent<NotificationEvent>("notification",
+		{
+			detail: {
+				notification,
+				unread: unreads.unread,
+			},
+		},
+	));
 }
 
 function addNotification(notification: Notification, store: IDBObjectStore): Promise<void> {
@@ -120,13 +127,12 @@ function startupDb(): Promise<IDBDatabase> {
 	});
 }
 
-export async function PopulateNotificationsDb(): Promise<number> {
+export function PopulateNotificationsDb(): Promise<number> {
 	const userId: number | void = globals().auth?.userId;
 	if (!userId) throw "user not signed in or auth data unavailable";
 
-	const refId = await lock.Acquire();
-	return new Promise<number>(async resolve => {
-		startupDb().then(async () => {
+	return lock.Exec(() => new Promise<number>(resolve => {
+		startupDb().then(() => {
 			let count = 0;
 			let unread = 0;
 
@@ -163,7 +169,7 @@ export async function PopulateNotificationsDb(): Promise<number> {
 
 			console.debug(logstr, "successfully connected to db");
 		});
-	}).finally(() => lock.Release(refId));
+	}));
 }
 
 export function GetNotifications(): Promise<Notification[]> {

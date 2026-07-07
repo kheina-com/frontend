@@ -83,10 +83,10 @@ function toggleDropdown(state: boolean | null = null) {
 	}
 	else {
 		window.removeEventListener("click", closeDropdown);
+		dropdownMenu.value.style.display = "none";
 		dropdownMenu.value.style.top     = "";
 		dropdownMenu.value.style.bottom  = "";
 		dropdownMenu.value.style.right   = "";
-		dropdownMenu.value.style.display = "none";
 	}
 }
 

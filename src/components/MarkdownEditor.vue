@@ -1,6 +1,9 @@
 <template>
 	<div @keydown.esc='clearEmojis'>
 		<router-link v-show='!hideGuide' class='guide' to='/md'>markdown guide</router-link>
+		<ol v-if='emojis === null' class='emojis markdown'>
+			<Loading type='block'><div class='loading'/></Loading>
+		</ol>
 		<ol v-if='emojis' class='emojis markdown'>
 			<li v-for='(e, i) in emojis' :id='`${refId}-${i}`' :class='i === selectedEmoji ? "selected" : ""' @mouseover='selectedEmoji = i'><button @click='() => emojiReplace(e)'><img class='emoji' :title='e.emoji' :alt='e.alt ?? e.emoji' :src='getEmojiUrl(e)'>{{ e.emoji }}</button></li>
 		</ol>
@@ -13,6 +16,7 @@
 			v-show='!preview'
 			v-model='content'
 			spellcheck='true'
+			:placeholder='placeholder'
 			@input='emit'
 			@keydown.tab.prevent='onTab'
 			@keydown.enter='onEnter'
@@ -31,6 +35,7 @@ import { getEmojiUrl, RefId, tab } from '@/utilities';
 import { onMounted, ref, toRef, watch, type Ref } from 'vue';
 import Markdown from '@/components/Markdown.vue';
 import { LookupEmoji } from '@/utilities/emoji';
+import Loading from './Loading.vue';
 
 const mdTextArea = ref<HTMLTextAreaElement | null>(null) as Ref<HTMLTextAreaElement>;
 const props = withDefaults(defineProps<{
@@ -40,6 +45,8 @@ const props = withDefaults(defineProps<{
 	initRendered?: boolean,
 	hideGuide?:    boolean,
 	hidePreview?:  boolean,
+	placeholder?:  string,
+	onEnter?:      { (e: KeyboardEvent): void }
 }>(), {
 	height:       "5rem",
 	resize:       "both",
@@ -50,7 +57,7 @@ const props = withDefaults(defineProps<{
 const emits = defineEmits(["update:value"]);
 const content = toRef(props, "value");
 const preview: Ref<boolean> = ref(props.initRendered);
-const emojis: Ref<Emoji[] | null> = ref(null);
+const emojis: Ref<Emoji[] | undefined | null> = ref();
 const selectedEmoji: Ref<number | null> = ref(null);
 const refId = RefId();
 
@@ -60,7 +67,7 @@ onMounted(() => {
 });
 
 function clearEmojis() {
-	emojis.value = null;
+	emojis.value = undefined;
 	selectedEmoji.value = null;
 }
 
@@ -108,14 +115,17 @@ function emojiReplace(e: Emoji) {
 	clearEmojis();
 }
 
+let emojiTimeout: number | undefined;
 async function input(e: Event) {
 	const m = partialEmoji(e.target as HTMLTextAreaElement);
 	if (!m) return clearEmojis();
 
-	LookupEmoji(m.match).then(em => {
+	emojis.value = null;
+	clearTimeout(emojiTimeout);
+	emojiTimeout = setTimeout(() => LookupEmoji(m.match).then(em => {
 		emojis.value = em;
 		if (em) selectedEmoji.value = 0;
-	});
+	}), 250);
 }
 
 function emit(e: Event): void {
@@ -124,7 +134,13 @@ function emit(e: Event): void {
 }
 
 function onEnter(e: KeyboardEvent) {
-	if (!emojis.value || selectedEmoji.value === null || selectedEmoji.value >= emojis.value.length) return;
+	if (!emojis.value || selectedEmoji.value === null || selectedEmoji.value >= emojis.value.length) {
+		if (props.onEnter) {
+			e.preventDefault();
+			props.onEnter(e);
+		}
+		return;
+	}
 	e.preventDefault();
 	emojiReplace(emojis.value[selectedEmoji.value]);
 }
@@ -230,7 +246,7 @@ textarea {
 	padding: 0.5em;
 	height: 100%;
 }
-div:has(button) > textarea.interactable.text {
+div:has(.visibility) > textarea.interactable.text {
 	padding: 0.5em 2em 0.5em 0.5em;
 }
 button.visibility {
@@ -275,8 +291,14 @@ button i {
 	max-height: 11em;
 	overflow: scroll;
 }
-.emojis li {
+.emojis li button {
+	width: 100%;
+	text-align: left;
 	padding: 0.25em 0.5em;
+}
+.emojis .loading {
+	height: 5em;
+	width: 10em;
 }
 .emojis .selected {
 	background: var(--bg1color);

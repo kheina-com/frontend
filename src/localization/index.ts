@@ -1,9 +1,9 @@
 import { format } from '@/utilities';
 import languages from '@/localization/languages';
-import type { Directive } from 'vue';
+import type { Component, Directive } from 'vue';
 import * as _ from 'lodash-es';
 
-let loaded: null | {
+let loaded: {
 	code: any | string,
 	[k: string]: {
 		str: any | string,
@@ -11,13 +11,13 @@ let loaded: null | {
 			[k: string]: string,
 		},
 	},
-} = null;
+};
 
 const logstr = "[localization]";
 const localeKeyTag = "data-locale-key";
 const localeArgsTag = "data-locale-args";
 const localeModsTag = "data-locale-mods";
-export const defaultLangFile = "en-us";
+export const defaultLangFile = "en";
 
 export async function loadLangFile(lang: string) {
 	if (!languages.hasOwnProperty(lang)) {
@@ -53,11 +53,11 @@ export async function loadLangFile(lang: string) {
 export default function translate(key: string, kwargs: { [k: string]: string; } = {}): string {
 	if (!loaded) {
 		console.warn(logstr, "failed for", key, "locale has not been loaded yet");
-		return key;
+		return "";
 	}
 	if (!loaded.hasOwnProperty(key)) {
 		console.warn(logstr, loaded.code, "translation does not exist for:", key);
-		return key;
+		return "";
 	}
 	const fmt = loaded[key];
 	const args: { [k: string]: string; } = {};
@@ -127,7 +127,7 @@ interface Binding {
 	/**
 	 * The instance of the component where the directive is used.
 	 */
-	instance?: any,  // TODO: idk the type on this
+	instance?: Component | null,
 
 	/**
 	 * the directive definition object.

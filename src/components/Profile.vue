@@ -116,6 +116,9 @@ function navigateToUser() {
 a.profile:hover {
 	background: var(--bg1color);
 }
+a.nested.profile:hover {
+	background: var(--bg2color);
+}
 .profile .inner {
 	display: flex;
 	align-items: center;

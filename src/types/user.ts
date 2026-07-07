@@ -3,8 +3,9 @@ export interface User {
 	handle: string,
 	privacy: "public" | "private",
 	icon: string | null,
-	verified: string,
+	verified: string | null,
 	following: boolean,
+	self: boolean,
 }
 
 export interface Badge {

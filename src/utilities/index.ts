@@ -1,7 +1,7 @@
 import type { Emoji } from '@/types/emoji';
 import type { MediaLike } from '@/types/post';
 import type { TagPortable, Tags } from '@/types/tag';
-import { apiErrorDescriptionToast, apiErrorMessageToast, authRegex } from '@/config/constants';
+import { apiErrorDescriptionToast, apiErrorMessageToast, authRegex, host } from '@/config/constants';
 import store, { type ToastOptions } from '@/globals';
 import { tagGroups } from '@/config/constants';
 import { useRoute, useRouter } from 'vue-router';
@@ -10,7 +10,7 @@ export default null;
 
 import { cdnHost, environment } from '@/config/constants';
 export function setCookie(name: string, value: any, maxage = 86400, samesite = "strict", path = "/") {
-	if (store().cookies) document.cookie = `${name}=${escape(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== "local" ? "secure" : ""}`;
+	if (store().cookies) document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxage}; samesite=${samesite}; path=${path}; ${environment !== "local" ? "secure" : ""}`;
 };
 
 const ParserTypeMap: { [k: string]: { (value: any): any; }; } = {
@@ -20,15 +20,11 @@ const ParserTypeMap: { [k: string]: { (value: any): any; }; } = {
 
 export function getCookie(cookieName: string, default_value: any = null, type: string | null = null) {
 	const name = cookieName + "=";
-	let ca = document.cookie.split(";");
+	const ca = document.cookie.split(";");
 	let value: any = default_value;
 	for (let i = 0; i < ca.length; i++) {
-		let c = ca[i];
-		while (c.charAt(0) == " ") {
-			c = c.substring(1);
-		}
-
-		if (c.indexOf(name) == 0) {
+		const c = ca[i].trimStart();
+		if (c.startsWith(name)) {
 			value = decodeURIComponent(c.substring(name.length, c.length));
 			break;
 		}
@@ -141,6 +137,24 @@ export function uuid4(): string {
 	let uuid = "";
 	for (let i = 0; i < 4; i++) uuid += Math.round(Math.random() * 0xffffffff).toString(16).padStart(8, "0");
 	return uuid;
+}
+
+export function ToUuid(str: string): string {
+	const m = str.match(/([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12})/);
+	if (!m) return str;
+	return m.slice(1).join("-");
+}
+
+export function FeatureEnabled(feature: string): Promise<boolean> {
+	return new Promise<boolean>((res, rej) => {
+		khatch(
+			`${host}/v1/feature_toggle/${feature}`
+		).then(r =>
+			r.json()
+		).then(r =>
+			res(r.status)
+		).catch(rej);
+	});
 }
 
 interface KhatchOptions {
@@ -315,11 +329,11 @@ export function format(str: string, ...args: any[]) {
 	return str.replace(/{(.*?)}/g, m => {
 		// check if the argument is present
 		const i = m.substring(1, m.length - 1);
-		const index = parseInt(m[0]);
+		const index = parseInt(i);
 		if (!Number.isNaN(index)) {
-			return typeof args[index] === "undefined" ? m[0] : args[index];
+			return args[index] ?? m;
 		}
-		return typeof kwargs[i] === "undefined" ? m[0] : kwargs[i];
+		return kwargs[i] ?? m;
 	});
 };
 
@@ -415,9 +429,8 @@ export function abbreviate(value: number): string {
 }
 
 export function abbreviateBytes(value: number): string {
-	// const e3 = Math.log(value) * Math.LOG10E / 3 | 0;
-
 	// more concise but slower (I think)
+	// const e3 = Math.log(value) * Math.LOG10E / 3 | 0;
 	// const abr = ["B", "KB", "MB", "GB", "TB"];
 	// if (value >= 9995 * 10 ** (e3 * 3 - 1)) {
 	// 	return `${Math.round(value / (10 ** ((e3 + 1) * 3)))}${abr[e3 + 1]}`;
@@ -433,32 +446,40 @@ export function abbreviateBytes(value: number): string {
 	case 2:
 		return `${value}B`;
 	case 3:
-		if (value < 9950) return `${(value / 1e3).toFixed(1)}KB`;
-		return `${Math.round(value / 1e3)}KB`; // necessary to avoid double check
+		if (value < 9950) return `${(value / 1e3).toFixed(1)}KiB`;
+		return `${Math.round(value / 1e3)}KiB`; // necessary to avoid double check
 	case 5:
-		if (value >= 9995e2) return `${(value / 1e6).toFixed(1)}MB`;
+		if (value >= 9995e2) return `${(value / 1e6).toFixed(1)}MiB`;
 	case 4:
-		return `${Math.round(value / 1e3)}KB`;
+		return `${Math.round(value / 1e3)}KiB`;
 	case 6:
-		if (value < 995e4) return `${(value / 1e6).toFixed(1)}MB`;
-		return `${Math.round(value / 1e6)}MB`; // necessary to avoid double check
+		if (value < 995e4) return `${(value / 1e6).toFixed(1)}MiB`;
+		return `${Math.round(value / 1e6)}MiB`; // necessary to avoid double check
 	case 8:
-		if (value >= 9995e5) return `${(value / 1e9).toFixed(1)}GB`;
+		if (value >= 9995e5) return `${(value / 1e9).toFixed(1)}GiB`;
 	case 7:
-		return `${Math.round(value / 1e6)}MB`;
+		return `${Math.round(value / 1e6)}MiB`;
 	case 9:
-		if (value < 995e7) return `${(value / 1e9).toFixed(1)}GB`;
-	default:
-		return `${Math.round(value / 1e9)}GB`;
+		if (value < 995e7) return `${(value / 1e9).toFixed(1)}GiB`;
+		return `${Math.round(value / 1e9)}GiB`; // necessary to avoid double check
+	case 11:
+		if (value >= 9995e8) return `${(value / 1e12).toFixed(1)}TiB`;
+	case 10:
+		return `${Math.round(value / 1e9)}GiB`;
+	case 12:
+		if (value < 995e10) return `${(value / 1e12).toFixed(1)}TiB`;
+	case 13:
+		return `${Math.round(value / 1e12)}TiB`;
 	}
+	return "out of range";
 }
 
 export function int_from_bytes(bytestring: string): number {
 	let i = 0;
 	let r = 0;
-	bytestring.split("").reverse().map(x => x.charCodeAt(0)).forEach(x => {
-		r += x * 2 ** (i++ * 8);
-	});
+	bytestring.split("").reverse().map(x => x.charCodeAt(0)).forEach(x =>
+		r += x * 2 ** (i++ * 8)
+	);
 	return r;
 }
 
@@ -467,7 +488,7 @@ export function authCookie(cookie: string | null = null): UserAuth | null {
 	const token: string = cookie ?? getCookie("kh-auth");
 	if (!token || token.length <= 10) return null;
 
-	const components: string[] = token.replace("-", "+").replace("_", "/").split(".");
+	const components: string[] = token.replace(/[-_]/g, m => b64repl[m[0]]).split(".");
 	if (components.length !== 3) return null;
 
 	const tokenVersion = atob(components[0]);
@@ -482,9 +503,7 @@ export function authCookie(cookie: string | null = null): UserAuth | null {
 		misc = JSON.parse(miscPayload[0]);
 	}
 
-	const a = {};
-
-	const auth = {
+	return {
 		token,
 		version: tokenVersion,
 		algorithm: payload[0],
@@ -497,8 +516,6 @@ export function authCookie(cookie: string | null = null): UserAuth | null {
 		scope: misc?.scope ?? [],
 		...misc,
 	};
-
-	return auth;
 }
 
 export function isDarkMode() {
@@ -514,44 +531,38 @@ export function base64ToBytes(base64: string): Uint8Array {
 	return bytes;
 }
 
-export function sha1(msg: string) { // http://www.webtoolkit.info
-	function rotate_left(n: number, s: number) {
-		let t4 = (n << s) | (n >>> (32 - s));
-		return t4;
-	};
-	function cvt_hex(val: number) {
-		let str = '';
-		let i;
-		let v;
-		for (i = 7; i >= 0; i--) {
-			v = (val >>> (i * 4)) & 0x0f;
-			str += v.toString(16);
+export function Utf8Encode(string: string): Uint8Array {
+	string = string.replace(/\r\n/g, "\n");
+	const utftext: number[] = [];
+	for (let n = 0; n < string.length; n++) {
+		let c = string.charCodeAt(n);
+		if (c < 128) {
+			utftext.push(c);
 		}
-		return str;
-	};
-	function Utf8Encode(string: string) {
-		string = string.replace(/\r\n/g, "\n");
-		let utftext = '';
-		for (let n = 0; n < string.length; n++) {
-			let c = string.charCodeAt(n);
-			if (c < 128) {
-				utftext += String.fromCharCode(c);
-			}
-			else if ((c > 127) && (c < 2048)) {
-				utftext += String.fromCharCode((c >> 6) | 192);
-				utftext += String.fromCharCode((c & 63) | 128);
-			}
-			else {
-				utftext += String.fromCharCode((c >> 12) | 224);
-				utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-				utftext += String.fromCharCode((c & 63) | 128);
-			}
+		else if (c > 127 && c < 2048) {
+			utftext.push((c >> 6) | 192);
+			utftext.push((c & 63) | 128);
 		}
-		return utftext;
+		else {
+			utftext.push((c >> 12) | 224);
+			utftext.push(((c >> 6) & 63) | 128);
+			utftext.push((c & 63) | 128);
+		}
+	}
+	return Uint8Array.from(utftext);
+};
+
+/**
+ * 
+ * @param msg value to hash
+ * @returns hex-encoded sha1 hash of message
+ */
+export function sha1(msg: Uint8Array): ArrayBuffer { // https://www.webtoolkit.info/javascript_sha1.html
+	function rotate_left(n: number, s: number): number {
+		return (n << s) | (n >>> (32 - s));
 	};
-	let blockstart;
-	let i, j;
-	let W = new Array(80);
+	let blockstart: number, i: number;
+	const W = new Array(80);
 	let H0 = 0x67452301;
 	let H1 = 0xEFCDAB89;
 	let H2 = 0x98BADCFE;
@@ -559,26 +570,21 @@ export function sha1(msg: string) { // http://www.webtoolkit.info
 	let H4 = 0xC3D2E1F0;
 	let A, B, C, D, E;
 	let temp;
-	msg = Utf8Encode(msg);
-	let msg_len = msg.length;
-	let word_array = new Array();
-	for (i = 0; i < msg_len - 3; i += 4) {
-		j = msg.charCodeAt(i) << 24 | msg.charCodeAt(i + 1) << 16 |
-			msg.charCodeAt(i + 2) << 8 | msg.charCodeAt(i + 3);
-		word_array.push(j);
-	}
+	const msg_len = msg.length;
+	const word_array: number[] = new Array();
+	for (i = 0; i < msg_len - 3; i += 4) word_array.push(msg[i] << 24 | msg[i + 1] << 16 | msg[i + 2] << 8 | msg[i + 3]);
 	switch (msg_len % 4) {
 	case 0:
 		i = 0x080000000;
 		break;
 	case 1:
-		i = msg.charCodeAt(msg_len - 1) << 24 | 0x0800000;
+		i = msg[msg_len - 1] << 24 | 0x0800000;
 		break;
 	case 2:
-		i = msg.charCodeAt(msg_len - 2) << 24 | msg.charCodeAt(msg_len - 1) << 16 | 0x08000;
+		i = msg[msg_len - 2] << 24 | msg[msg_len - 1] << 16 | 0x08000;
 		break;
 	case 3:
-		i = msg.charCodeAt(msg_len - 3) << 24 | msg.charCodeAt(msg_len - 2) << 16 | msg.charCodeAt(msg_len - 1) << 8 | 0x80;
+		i = msg[msg_len - 3] << 24 | msg[msg_len - 2] << 16 | msg[msg_len - 1] << 8 | 0x80;
 		break;
 	}
 	word_array.push(i);
@@ -631,8 +637,67 @@ export function sha1(msg: string) { // http://www.webtoolkit.info
 		H3 = (H3 + D) & 0x0ffffffff;
 		H4 = (H4 + E) & 0x0ffffffff;
 	}
-	temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
-	return temp.toUpperCase();
+	const uint8array = new Uint8Array(20);
+	for (i = 3; i >= 0; i--) {
+		uint8array[i] = H0 & 0xff;
+		uint8array[4 + i] = H1 & 0xff;
+		uint8array[8 + i] = H2 & 0xff;
+		uint8array[12 + i] = H3 & 0xff;
+		uint8array[16 + i] = H4 & 0xff;
+		H0 >>>= 8;
+		H1 >>>= 8;
+		H2 >>>= 8;
+		H3 >>>= 8;
+		H4 >>>= 8;
+	}
+	// return cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
+	return uint8array.buffer;
+}
+
+export function buf2b64(arrayBuffer: ArrayBuffer): string {
+	// https://gist.github.com/jonleighton/958841
+	// https://github.com/9001/copyparty/blob/dbd8f837e8c84bd39ae6cd4e2548bf4eda322d22/copyparty/web/up2k.js#L2020
+	let base64 = "",
+		cset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_",
+		src = new Uint8Array(arrayBuffer),
+		nbytes = src.byteLength,
+		byteRem = nbytes % 3,
+		mainLen = nbytes - byteRem,
+		i, a, b, c, d, chunk;
+
+	for (i = 0; i < mainLen; i = i + 3) {
+		chunk = (src[i] << 16) | (src[i + 1] << 8) | src[i + 2];
+		// create 8*3=24bit segment then split into 6bit segments
+		a = (chunk & 16515072) >> 18; // (2^6 - 1) << 18
+		b = (chunk & 258048) >> 12; // (2^6 - 1) << 12
+		c = (chunk & 4032) >> 6; // (2^6 - 1) << 6
+		d = chunk & 63; // 2^6 - 1
+
+		// Convert the raw binary segments to the appropriate ASCII encoding
+		base64 += cset[a] + cset[b] + cset[c] + cset[d];
+	}
+
+	if (byteRem == 1) {
+		chunk = src[mainLen];
+		a = (chunk & 252) >> 2; // (2^6 - 1) << 2
+		b = (chunk & 3) << 4; // 2^2 - 1  (zero 4 LSB)
+		base64 += cset[a] + cset[b];//+ '==';
+	}
+	else if (byteRem == 2) {
+		chunk = (src[mainLen] << 8) | src[mainLen + 1];
+		a = (chunk & 64512) >> 10; // (2^6 - 1) << 10
+		b = (chunk & 1008) >> 4; // (2^6 - 1) << 4
+		c = (chunk & 15) << 2; // 2^4 - 1  (zero 2 LSB)
+		base64 += cset[a] + cset[b] + cset[c];//+ '=';
+	}
+
+	return base64;
+}
+
+export function buf2hex(arrayBuffer: ArrayBuffer): string {
+	let hex = "";
+	(new Uint8Array(arrayBuffer)).forEach(i => hex += i.toString(16).padStart(2, "0"));
+	return hex;
 }
 
 export const lazyConfig = {

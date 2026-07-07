@@ -1,5 +1,5 @@
 <template>
-	<footer class='footer'>
+	<footer id='footer'>
 		<ProgressBar :fill='funding' :target='target' fillColor='var(--funding)' link='https://www.patreon.com/kheina' newTab><span v-translate:funding>funding</span></ProgressBar>
 		<ThemeButton/>
 		<div class='anchor'>
@@ -45,21 +45,20 @@ watch(props, () => {
 	target.value = `$${(props.funds / 100).toFixed(2)} / $${(props.costs / 100).toFixed(2)}`;
 });
 </script>
-
 <style scoped>
-.footer {
+#footer {
 	min-height: 1.5em;
-	margin: 0.25rem 0 0;
+	margin: 0;
 	font-size: 0.9rem;
 	white-space: nowrap;
-	padding: 0 var(--margin) var(--margin);
+	padding: 0.25rem var(--margin) var(--margin);
 	text-align: center;
 }
-.footer p {
+#footer p {
 	text-align: center;
 	position: relative;
 }
-.footer .anchor {
+#footer .anchor {
 	left: 50%;
 	left: calc(50% - var(--border-size));
 	position: relative;
@@ -67,15 +66,15 @@ watch(props, () => {
 	width: var(--border-size);
 	background: var(--textcolor);
 }
-.footer .anchor img {
+#footer .anchor img {
 	height: 1em;
 	margin-bottom: -0.2em;
 }
-.footer .anchor .left {
+#footer .anchor .left {
 	position: absolute;
 	right: 0.5rem;
 }
-.footer .anchor .right {
+#footer .anchor .right {
 	position: absolute;
 	left: 0.5rem;
 }

@@ -328,6 +328,15 @@ const routes: RouteRecordRaw[] = [
 		},
 	},
 	{
+		path: "/c",
+		name: "chats",
+		component: () => import("./views/Chats.vue"),
+		meta: {
+			applyOffset: false,
+			title: "Chats | fuzz.ly",
+		},
+	},
+	{
 		path: "/test",
 		name: "test",
 		component: () => import("./views/Test.vue"),

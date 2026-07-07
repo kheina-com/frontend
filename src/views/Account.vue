@@ -83,7 +83,7 @@
 					</div>
 					<div class='qr-code' v-show='addOtpStage == 2'>
 						<QR :content='qrContent'/>
-						<p>Scan this QR code with your authenticor of choice and enter the code below</p>
+						<p>Scan this QR code with your authenticator of choice and enter the code below</p>
 						<div class='login final-field'>
 							<div>
 								<input type='text' id='otp' name='otp' v-model='otp' autocomplete='off' class='interactable' @keydown.enter='addOtp'>

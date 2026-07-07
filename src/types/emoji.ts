@@ -16,5 +16,4 @@ export interface Emoji {
 	filename: string,
 	url: string,
 	updated: Date,
-	_prepared: Fuzzysort.Prepared,
 }

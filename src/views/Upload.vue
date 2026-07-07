@@ -36,27 +36,47 @@
 						<FileField v-model:file='file' :showSlot='uploadDone && !file' v-model:width='width' v-model:height='height'>
 							<Media :key='postId' :media='media' :link='false' v-model:width='width' v-model:height='height' :controls='false'/>
 						</FileField>
-						<div class='field flex' v-if='file'>
-							<div>
-								width: {{width ? commafy(width) : '...'}}px height: {{height ? commafy(height) : '...'}}px
-								<br>
-								size: {{abbreviateBytes(file.size)}}
+						<div class='field' v-if='file'>
+							<div class='flex'>
+								<div>
+									width: {{ width ? commafy(width) : '...' }}px height: {{ height ? commafy(height) : '...' }}px
+									<br>
+									size: {{ abbreviateBytes(file.size) }}
+								</div>
+								<div class='actions'>
+									<CheckBox
+										class='checkbox'
+										id='resize-for-web'
+										name='resize-for-web'
+										v-model:checked='showResize'
+										@click='update.webResize = "1500"'
+										v-show='file.type?.includes("image")'
+									>Resize For Web</CheckBox>
+									<Button @click='() => uploader === "v1" ? uploadFile(true) : uploadFileV2(true)' green><i class='material-icons'>upload</i><span>Upload</span></Button>
+								</div>
 							</div>
-							<div class='actions'>
-								<CheckBox
-									class='checkbox'
-									id='resize-for-web'
-									name='resize-for-web'
-									v-model:checked='showResize'
-									@click='update.webResize = "1500"'
-									v-show='file.type?.includes("image")'
-								>Resize For Web</CheckBox>
-								<Button @click='() => uploadFile(true)' green><i class='material-icons'>upload</i><span>Upload</span></Button>
+							<div class='field popup-info'>
+								<div>
+									<span>Uploader</span>
+									<RadioButtons
+										class='radio-buttons'
+										name='uploader'
+										v-model:value='uploader'
+										:data='[
+											{ value: "v1" },
+											{ value: "v2" },
+										]'
+									/>
+								</div>
+								<div class='selection-info'>
+									<p v-if='uploader === "v1"'>Slower uploads, but may be faster on older systems.</p>
+									<p v-else-if='uploader === "v2"'>Faster upload speeds, but takes more CPU to prepare.</p>
+								</div>
 							</div>
 						</div>
 						<div v-if='file?.type?.includes("video") && element'>
 							<span>Thumbnail</span>
-							<Slider v-model:value='(update.thumbnail as number)' :min='0' :max='(element as HTMLVideoElement).duration' :step='0.01' @change='v => (element as HTMLVideoElement).currentTime = v' hideValue/>
+							<Slider v-model:value='(update.thumbnail as number)' :min='0' :max='(element as HTMLVideoElement).duration' :step='0.001' @change='v => (element as HTMLVideoElement).currentTime = v' hideValue/>
 						</div>
 					</div>
 				</div>
@@ -68,9 +88,9 @@
 					<div>
 						<span>Resized Dimensions</span>
 						<div v-if='resized'>
-							width: {{resized ? commafy(resized?.width) : '...'}}px height: {{resized ? commafy(resized?.height) : '...'}}px
+							width: {{ resized ? commafy(resized?.width) : '...' }}px height: {{ resized ? commafy(resized?.height) : '...' }}px
 							<br>
-							size: {{resized.scale.toFixed(2)}}%
+							size: {{ resized.scale.toFixed(2) }}%
 						</div>
 					</div>
 				</div>
@@ -102,14 +122,14 @@
 				<span>Tags</span>
 				<div ref='tagDiv' class='tag-field interactable text' contenteditable='true' @input='tagTracker'></div>
 				<div class='frequently-used' v-if='tagSuggestions'>
-					<span style='margin-top: var(--margin)'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{showSuggestions ? 'expand_less' : 'expand_more'}}</i></button></span>
+					<span style='margin-top: var(--margin)'><button @click='showSuggestions = !showSuggestions'>Frequently Used Tags <i class='material-icons'>{{ showSuggestions ? 'expand_less' : 'expand_more' }}</i></button></span>
 					<div class='frequently-used-border'/>
 					<div v-show='showSuggestions'>
 						<ol :class='group' v-for='(tags, group) in sortTagGroups(tagSuggestions)'>
 							<p class='group-title'>{{group}}</p>
 							<li v-for='tag in tags'>
 								<button class='interactable' @click='addTag(tag)' :id='tag.tag'>
-									{{tag.tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ')}}
+									{{ tag.tag.replace(new RegExp(`_\\(${group}\\)$`), '').replace(/_/g, ' ') }}
 								</button>
 							</li>
 						</ol>
@@ -272,7 +292,8 @@ import type { TagPortable } from '@/types/tag';
 import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import store from '@/globals';
-import { abbreviateBytes, commafy, createToast, khatch, tagSplit, sortTagGroups, uuid4 } from '@/utilities';
+import { abbreviateBytes, commafy, createToast, khatch, tagSplit, sortTagGroups, sha1, buf2b64, uuid4 } from '@/utilities';
+import { Lock } from '@/utilities/async';
 import { host, isMobile } from '@/config/constants';
 import Loading from '@/components/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
@@ -291,6 +312,7 @@ import SetComponent from '@/components/Set.vue';
 import DropDownSelector from '@/components/DropDownSelector.vue';
 import EditBox from '@/components/EditBox.vue';
 import Slider from '@/components/Slider.vue';
+import type { Error } from '@/types/error';
 
 const globals = store();
 const route = useRoute();
@@ -298,6 +320,8 @@ const router = useRouter();
 const PublishedPrivacies: Set<string | null> = new Set(["public", "unlisted", "private"]);
 const path = "/create";
 const windowHost = window.location.host;
+
+const uploader: Ref<"v1" | "v2"> = ref("v2");
 
 const tagDiv = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
 const draftsPanel = ref<HTMLDivElement | null>(null) as Ref<HTMLDivElement>;
@@ -324,7 +348,7 @@ const height: Ref<number> = ref(0);
 const update: {
 	title?:       string | null,
 	description?: string | null,
-	thumbnail?:   number | null,  // video only, should correspond with timestamp
+	thumbnail?:   number,  // video only, should correspond with timestamp
 	webResize?:   string | null,
 	reply_to?:    string | null,
 	privacy?:     "public" | "unlisted" | "private" | "draft" | "unpublished",
@@ -372,6 +396,12 @@ let tagTrackerTimeout: number | null = null;
 interface RouterEvent {
 	query: {
 		post?: string,
+	},
+}
+
+interface UploadStatus {
+	chunks: {
+		[k: string]: "good" | "bad" | null,
 	},
 }
 
@@ -695,6 +725,202 @@ function uploadFile(finish: boolean = false) {
 	});
 }
 
+function uploadFileV2(finish: boolean = false) {
+	saving.value = true;
+	// for hashing
+	let hashfunc: (x: Uint8Array<ArrayBuffer>) => Promise<ArrayBuffer>;
+	let hashtype: "SHA256" | "SHA1";
+
+	// @ts-ignore
+	const cf = crypto?.subtle || crypto?.webkitSubtle;
+	cf.digest("SHA-256", new Uint8Array(1)).then(
+		() => { hashtype = "SHA256"; hashfunc = (x: Uint8Array<ArrayBuffer>) => cf.digest("SHA-256", x) },
+		() => { hashtype = "SHA1"; hashfunc = (x: Uint8Array<ArrayBuffer>) => new Promise(r => r(sha1(x))) },
+	);
+
+	const get_chunksize = (filesize: number): number => {
+		return filesize / Math.max(Math.pow(filesize, 0.25), 63);
+	}
+
+	return new Promise<void>(async (resolve, reject) => {
+		if (isUploading.value) return reject("currently uploading");
+		if (!postId.value) return reject("postId has no value");
+		if (!file.value) return resolve(); // we don't want to stop it from progressing with no file, just finish immediately
+
+		uploadTotal = file.value.size;
+		isUploading.value = true;
+
+		const chunksize = get_chunksize(file.value.size);
+		console.debug("hashing", Math.ceil(file.value.size / chunksize), "chunks of size", abbreviateBytes(chunksize));
+		const chunks: { [k: string]: Uint8Array<ArrayBuffer> } = { };
+		const buf = await new Promise<Uint8Array<ArrayBuffer>>((res, rej) => {
+			if (!file.value) return;
+			const r = new FileReader();
+			r.onerror = e => { rej(e); reject(e) };
+			r.onload = async (e: ProgressEvent<FileReader>) => {
+				if (!e.target?.result) return reject("failed to read file data");
+				return res(new Uint8Array(e.target.result as ArrayBuffer));
+			};
+			r.readAsArrayBuffer(file.value);
+		});
+
+		for (let i = 0; i <= buf.length; i += chunksize) {
+			const chunk = buf.subarray(i, i+chunksize);
+			const cksum = await hashfunc(chunk);
+			const req = new Uint8Array(12 + cksum.byteLength + chunk.byteLength);
+			req.set(new Uint8Array([102, 122, 108, 121, 117, 112, 118, 50]), 0); // set the proto signature: 'fzlyupv2'
+			req.set(Uint8Array.of(
+				(chunk.byteLength & 0xff000000) >> 24,
+				(chunk.byteLength & 0x00ff0000) >> 16,
+				(chunk.byteLength & 0x0000ff00) >> 8,
+				(chunk.byteLength & 0x000000ff) >> 0,
+			), 8); // set the chunk len
+			req.set(new Uint8Array(cksum), 12); // set the chunk checksum
+			req.set(chunk, 12 + cksum.byteLength); // set the chunk itself
+			chunks[buf2b64(cksum)] = req;
+		}
+		const hash = buf2b64(await hashfunc(buf));
+		const handshake: {
+			filename:    string,
+			post_id:     string,
+			web_resize?: number,
+			thumbnail?:  number,  // must be populated for video
+
+			algorithm: "SHA256" | "SHA1",
+			length:    number,
+			hash:      string,
+			chunksize: number,
+			chunks:    string[],
+		} = {
+			filename: file.value.name,
+			post_id:  postId.value,
+			algorithm: hashtype,
+			length: file.value.size,
+			chunksize,
+			hash,
+			chunks: Object.keys(chunks),
+		}
+
+		let url: string = `${host}/v2/post/`;
+		if (file.value.type.includes("image")) {
+			url += "image";
+			if (update.webResize) {
+				let webResize: number | string = update.webResize;
+				if (typeof webResize === "string") webResize = parseInt(update.webResize.trim());
+				handshake.web_resize = webResize;
+			}
+		}
+		else if (file.value.type.includes("video")) {
+			url += "video";
+			handshake.thumbnail = parseFloat(update.thumbnail?.toString() ?? "0");
+		}
+		else {
+			return reject("file mime type unknown: " + file.value.type);
+		}
+
+		const auth = globals.auth ? globals.auth.token : "";
+		// ! is used here as a separator as it is not one of the rfc-2616§2.2-defined
+		// http separator characters disallowed by the websocket spec in rfc-6455§4.1
+		// rfc-2616: https://datatracker.ietf.org/doc/html/rfc2616#section-2.2
+		// rfc-6455: https://datatracker.ietf.org/doc/html/rfc6455#section-4.1
+		const ws = new WebSocket(url, ["fuzzly-uploader-v2", "bearer!" + auth]);
+		ws.binaryType = "blob";
+
+		const complete = () => {
+			showResize.value = false;
+			uploadDone.value = true;
+			isUploading.value = false;
+			uploadLoaded.value = 0;
+			uploadTotal = 0;
+			ws.close();
+
+			if (finish) saving.value = false;
+		};
+
+		let err: boolean = false;
+		const errorHandler = (e: object) => {
+			err = true;
+			createToast({
+				title: "Something broke during upload",
+				description: "If you submit a bug report, please include the data below.",
+				dump: e,
+			});
+			console.error("error:", e);
+			complete();
+			reject(e);
+		};
+
+		let inFlight = 1;
+		const lock = new Lock();
+		const rem = new Set(handshake.chunks);
+		const queue = Array.from(handshake.chunks);
+		const parallelism = 5; // idk
+		ws.onerror = errorHandler;
+		ws.onmessage = async (e: MessageEvent<string>) => {
+			if (err) return;
+			lock.Exec(() => inFlight--);
+			const r: MediaLike | UploadStatus | Error = JSON.parse(e.data);
+			// console.debug("ws.onmessage:", r);
+
+			if ((r as MediaLike)?.filename) {
+				const response = r as MediaLike;
+				media.value = response;
+				mime.value = response.type.mime_type;
+
+				file.value = undefined;
+				return resolve(complete());
+			}
+
+			if ((r as Error)?.error) {
+				const response = r as Error;
+				return errorHandler(response);
+			}
+
+			const response = r as UploadStatus;
+			lock.Exec(() => {
+				let donebytes = 0;
+				for (const [cksum, v] of Object.entries(response.chunks)) {
+					switch (v) {
+					case "good":
+						if (rem.delete(cksum)) {
+							const i = queue.indexOf(cksum);
+							if (i >= 0) queue.splice(i, 1);
+						}
+						donebytes += chunks[cksum].length;
+						continue;
+					case "bad":
+						if (rem.has(cksum)) continue;
+						console.debug("re-adding bad chunk to queue:", cksum);
+						rem.add(cksum);
+						queue.push(cksum);
+						continue;
+					default:
+						if (inFlight) continue;
+						rem.add(cksum);
+						queue.push(cksum);
+					}
+				}
+				uploadLoaded.value = Math.max(uploadLoaded.value, donebytes);
+
+				while (inFlight < parallelism) {
+					const cksum = queue.shift();
+					if (!cksum) break;
+					rem.delete(cksum);
+					if (response.chunks[cksum] === "good") continue;
+					// console.debug("sending chunk:", cksum)
+					ws.send(chunks[cksum]);
+					inFlight++;
+				}
+			});
+		};
+
+		ws.onopen = () => {
+			console.debug("ws.onopen:", handshake);
+			ws.send(JSON.stringify(handshake));
+		};
+	});
+}
+
 function saveData() {
 	return new Promise<void>((resolve, reject) => {
 		const field_mask: string[] = [];
@@ -864,7 +1090,7 @@ function postWatcher(value?: string) {
 		}
 
 		if (r.tags) {
-			savedTags.value = new Set(Object.values(r.tags).flat().map(x => x.tag)) as Set<string>;
+			savedTags.value = new Set(Object.values(r.tags).flat().filter(x => x).map(x => x.tag)) as Set<string>;
 			colorizeTags(savedTags.value);
 			tagDiv.value.innerText = Array.from(savedTags.value).join(" ");
 		}

@@ -4,6 +4,7 @@
 <script setup lang='ts'>
 import { onMounted, watch } from 'vue';
 import qrcode from 'qrcode-generator';
+import { MdRefId } from '@/utilities/markdown';
 
 const props = withDefaults(defineProps<{
 	content?: string,
@@ -16,10 +17,8 @@ const props = withDefaults(defineProps<{
 	level:  "L",
 });
 
-const mdMaxId = 0xffffffff;
-const mdRefId = () => Math.round(Math.random() * mdMaxId).toString(16).padStart(8, "0");
-const id      = mdRefId();
-const scale   = 2;
+const id    = MdRefId();
+const scale = 2;
 
 function drawQR() {
 	if (!props.content) return;

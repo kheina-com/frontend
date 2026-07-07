@@ -22,9 +22,8 @@ export abstract class DB {
 		);
 	}
 
-	async startup(): Promise<IDBDatabase> {
-		const refId = await this.lock.Acquire();
-		return new Promise<IDBDatabase>(async (res, rej) => {
+	startup(): Promise<IDBDatabase> {
+		return this.lock.Exec(() => new Promise<IDBDatabase>(async (res, rej) => {
 			const self = this;
 			const DBOpenRequest = indexedDB.open(this.name, this.version);
 			DBOpenRequest.onupgradeneeded = async function (this: IDBOpenDBRequest, ev: IDBVersionChangeEvent) {
@@ -42,9 +41,7 @@ export abstract class DB {
 				rej();
 			};
 			console.debug("[" + this.name + "] opening database:", DBOpenRequest);
-		}).finally(() =>
-			this.lock.Release(refId)
-		);
+		}));
 	}
 
 	async transaction(mode: IDBTransactionMode, stores: string[]): Promise<IDBTransaction> {

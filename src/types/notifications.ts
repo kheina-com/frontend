@@ -1,4 +1,4 @@
-export type Notification = InteractNotification | PostNotification | UserNotification;
+export type Notification = InteractNotification | PostNotification | UserNotification | ChatNotification;
 
 export interface InteractNotification {
 	type:    "interact",
@@ -25,6 +25,21 @@ export interface UserNotification {
 	user:    import("./user").User,
 }
 
+export interface ChatNotification {
+	type:    "chat",
+	event:   "new" | "mention" | "new_chat",
+	id:      string,
+	created: Date,
+	message: {
+		message_id: string,
+		user:       import("./user").User,
+		created:    Date,
+		content:    string,
+		chat_id:    number,
+	},
+}
+
 export interface NotificationEvent {
-	unread: number,
+	notification?: Notification,
+	unread:        number,
 }

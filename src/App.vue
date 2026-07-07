@@ -118,6 +118,17 @@ function onResize() {
 	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
 }
 
+// #content { position: relative; }
+// function onResize() {
+// 	const offset = Math.max(((window.innerHeight - (content as HTMLDivElement).clientHeight) / 2) - (banner as HTMLDivElement).clientHeight, 25);
+// 	if ((route.meta.applyOffset ?? true) && offset) {
+// 		(content as HTMLDivElement).style.top = offset.toString() + "px";
+// 	} else {
+// 		(content as HTMLDivElement).style.top = "";
+// 	}
+// 	document.dispatchEvent(new CustomEvent<ResizeDetails>("resize", { detail: { offset } }));
+// }
+
 const bannerContent: Ref<string | null> = ref(null);
 const costs:         Ref<number | null> = ref(null);
 const funds:         Ref<number | null> = ref(null);
@@ -134,7 +145,6 @@ function configsLoop() {
 		costs.value = null;
 		funds.value = null;
 	});
-	// setTimeout(configsLoop, 300e3);  // 5 minutes
 }
 
 function ResizeSensor(element: HTMLElement, callback: Function) {
@@ -256,7 +266,14 @@ html, html * {
 	scrollbar-width: thin;
 }
 
+ol, ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
 a, input, label, textarea {
+	outline: none;
 	cursor: pointer;
 	pointer-events: all;
 	text-decoration: none;
@@ -361,11 +378,11 @@ form, p
 html {
 	--transition: none;
 	--fadetime: 0.15s;
-	--interact: #F29B17;
+	--interact: #f29b17;
 	--bg0color: #000000;
 	--bg1color: #1e1f25;
 	--bg2color: #151416;
-	--bg3color: #1B1B20;
+	--bg3color: #1b1b20;
 	--blockquote: var(--bordercolor);
 	--textcolor: #DDD;
 	--bordercolor: #2D333A;
@@ -406,7 +423,7 @@ html {
 	--notification-bg: var(--red);
 
 	--margin: 25px;
-	--half-margin: calc(var(--margin) / 2);
+	--half-margin: calc(var(--margin) * 0.5);
 	--neg-margin: calc(var(--margin) * -1);
 	--neg-half-margin: calc(var(--margin) * -0.5);
 }
@@ -416,6 +433,7 @@ html.mobile {
 }
 
 html.kheina, html.gay {
+	--bg3color: #1B1B20;
 	--stripe-color: #222430;
 	--main: #25262ecc;
 }

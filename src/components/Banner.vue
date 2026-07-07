@@ -16,9 +16,9 @@
 		<div class='nav'>
 			<div class='bg'/>
 			<div class='profile' v-if='globals.auth'>
-				<DropDown class='translate-button icon' :options='Object.entries(languages).map(([k, v]): DropDownOption => {
-					return { html: v, value: k };
-				})'>
+				<DropDown class='translate-button icon' :options='Object.entries(languages).map(([k, v]): DropDownOption => (
+					{ html: v, value: k }
+				))'>
 					<i class='material-icons center'>translate</i>
 				</DropDown>
 				<div class='icon' id='user-verification' v-show='false'></div>
@@ -29,9 +29,9 @@
 				</Loading>
 			</div>
 			<div class='profile' v-else>
-				<DropDown class='translate-button icon' :options='Object.entries(languages).map(([k, v]) => {
-					return { html: v, value: k };
-				})'>
+				<DropDown class='translate-button icon' :options='Object.entries(languages).map(([k, v]) => (
+					{ html: v, value: k }
+				))'>
 					<i class='material-icons center'>translate</i>
 				</DropDown>
 				<router-link :to='loginPath' class='interactable login'>Login</router-link>
@@ -112,11 +112,16 @@
 							</li>
 						</ol>
 					</li>
-					<li>
+					<li v-show='chatEnabled'>
 						<span @click='closeMenu'>
-							<router-link to='/search'><i class='material-icons-round'>search</i>Image Search</router-link>
+							<router-link to='/c'><i class='material-icons-round'>forum</i>Chat</router-link>
 						</span>
 					</li>
+					<!-- <li>
+						<span @click='closeMenu'>
+							<router-link to='/search'><i class='material-icons-round'>image_search</i>Image Search</router-link>
+						</span>
+					</li> -->
 					<li>
 						<span @click='closeMenu'>
 							<router-link to='/tags'><i class='material-icons-round'>tag</i>Tags</router-link>
@@ -230,7 +235,7 @@
 import type { NotificationEvent } from '@/types/notifications';
 import { computed, ref, type Ref, watch, toRaw, toRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { deleteCookie, khatch } from '@/utilities';
+import { deleteCookie, FeatureEnabled, khatch } from '@/utilities';
 import { host, environment, isMobile } from '@/config/constants';
 import { defaultLangFile, loadLangFile } from '@/localization';
 import languages from '@/localization/languages';
@@ -265,6 +270,9 @@ const searchValue:   Ref<string | null> = ref(null);
 const notifications: Ref<number>        = ref(0);
 const lang:          Ref<string>        = ref(defaultLangFile);
 
+const chatEnabled: Ref<boolean> = ref(true);
+FeatureEnabled("chat").then(c => chatEnabled.value = c);
+
 document.addEventListener("notification", (e: Event) => {
 	const event = e as CustomEvent<NotificationEvent>;
 	notifications.value = event.detail.unread;
@@ -284,8 +292,8 @@ function setQuery() {
 function setUser(user: any) {
 	// console.log("user:", user);
 	switch (user?.verified) {
-		case "admin":
-			return;
+	case "admin":
+		return;
 	}
 	// <i class="kheina-icons" title="You are an admin" v-if="globals.auth?.isAdmin">sword</i>
 	// <i class="material-icons" title="You are a moderator" v-else-if="globals.auth?.isMod">verified_user</i>

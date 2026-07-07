@@ -176,51 +176,49 @@ export default defineStore("globals", {
 						title: "Could not complete login",
 						description: 'Logins require the use of browser cookies. To login, hit the "coolio" button on the cookies popup',
 					});
+					return;
 				}
-				else {
-					const maxage = Math.round((new Date(auth.expires).valueOf() - new Date().valueOf()) / 1000);
-					if (environment !== "local") { // specifically open this cookie to subdomains so that cdn works
-						document.cookie = `kh-auth=${auth.token}; max-age=${maxage}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
-					}
-					else {
-						setCookie("kh-auth", auth.token, maxage);
-					}
-					this.auth = authCookie();
-
-					// this has to be after auth assignment
-					PopulateNotificationsDb().then((unread: number) =>
-						document.dispatchEvent(new CustomEvent<NotificationEvent>("notification", { detail: { unread } }))
-					);
-
-					khatch(`${host}/v1/user/self`, {
-						errorMessage: "Error Occurred While Fetching Self",
-						errorHandlers: {
-							401: () => {
-								// the auth token is no good, so unset it
-								if (environment !== "local") { // specifically open this cookie to subdomains so that cdn works
-									document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
-								}
-								else {
-									deleteCookie("kh-auth");
-								}
-							},
-						},
-					}).then(
-						r => r.json()
-					).then((r: FullUserLike) => {
-						r.created = new Date(r.created);
-						this.user = r as FullUser;
-					});
-
-					khatch(`${host}/v1/config/user`, {
-						errorMessage: "Could Not Retrieve User Config!",
-						errorHandlers: {
-							// do nothing, we don't care
-							401: () => { },
-							404: () => { },
-						},
-					}).then(r => r.json()).then(this.userConfig);
+				const expires = new Date(auth.expires);
+				console.debug(`auth.expires: ${auth.expires}, expires: ${expires}, expires.toUTCString(): ${expires.toUTCString()}`);
+				if (environment !== "local") { // specifically open this cookie to subdomains so that cdn works
+					document.cookie = `kh-auth=${auth.token}; expires=${expires.toUTCString()}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
+				} else {
+					document.cookie = `kh-auth=${auth.token}; expires=${expires.toUTCString()}; samesite=lax; path=/;`;
 				}
+				this.auth = authCookie();
+
+				// this has to be after auth assignment
+				PopulateNotificationsDb().then((unread: number) =>
+					document.dispatchEvent(new CustomEvent<NotificationEvent>("notification", { detail: { unread } }))
+				);
+
+				khatch(`${host}/v1/user/self`, {
+					errorMessage: "Error Occurred While Fetching Self",
+					errorHandlers: {
+						401: () => {
+							// the auth token is no good, so unset it
+							if (environment !== "local") { // specifically open this cookie to subdomains so that cdn works
+								document.cookie = `kh-auth=null; expires=${new Date(0)}; samesite=lax; domain=.fuzz.ly; path=/; secure`;
+							}
+							else {
+								deleteCookie("kh-auth");
+							}
+						},
+					},
+				}).then(
+					r => r.json()
+				).then((r: FullUserLike) => {
+					r.created = new Date(r.created);
+					this.user = r as FullUser;
+				});
+
+				khatch(`${host}/v1/config/user`, {
+					errorMessage: "Could Not Retrieve User Config!",
+					errorHandlers: {
+						// do nothing, we don't care
+						404: () => { },
+					},
+				}).then(r => r.json()).then(this.userConfig);
 			}
 			else {
 				ClearNotifications();

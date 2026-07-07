@@ -145,5 +145,6 @@ html.e621 .mature a::after {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+	align-items: flex-end;
 }
 </style>

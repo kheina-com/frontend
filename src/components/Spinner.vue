@@ -35,6 +35,7 @@ watch(props, (props: Props) => {
 		spinner.value.style.strokeDasharray = "";
 		spinner.value.style.transition = "";
 	}
+	if (props.loaded < 0) return;
 	const percent = props.loaded / props.total * 100;
 
 	(loader.value.firstElementChild as HTMLParagraphElement).innerText = percent >= 99.95 ? "100%" : percent.toFixed(1) + "%";
