@@ -158,11 +158,12 @@ const editable = computed(() => (globals.user && setData.value?.owner?.handle ==
 const setDescription = computed(() => {
 	if (!setData.value?.description) return null;
 
-	const newline = setData.value.description.indexOf("\n", setData.value.description.indexOf("\n") + 1);
-	if (newline >= 0) {
-		showMore.value = true;
-		return setData.value.description.substring(0, newline);
-	}
+	// TODO: add a way to toggle showMore
+	// const newline = setData.value.description.indexOf("\n", setData.value.description.indexOf("\n") + 1);
+	// if (newline >= 0) {
+	// 	showMore.value = true;
+	// 	return setData.value.description.substring(0, newline);
+	// }
 
 	return setData.value.description;
 });
@@ -266,6 +267,7 @@ function updateSet() {
 					privacy:   r.privacy,
 					verified:  r.verified,
 					following: r.following,
+					self:      false,
 				};
 			});
 		}
